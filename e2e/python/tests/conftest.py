@@ -2,84 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
-import json
 from collections.abc import AsyncGenerator
-from typing import Any
 
 import pytest
 from aiohttp import web
 
-
-class MockServerInfo:
-    """Holds the URL of a running mock aiohttp server."""
-
-    def __init__(self, url: str) -> None:
-        self.url = url
-
-
-# ---------------------------------------------------------------------------
-# Route config dataclasses
-# ---------------------------------------------------------------------------
-
-
-class MockRoute:
-    """Configuration for a single mock HTTP route."""
-
-    def __init__(
-        self,
-        path: str,
-        method: str,
-        status: int,
-        body: Any = None,
-        stream_chunks: list[Any] | None = None,
-    ) -> None:
-        self.path = path
-        self.method = method.upper()
-        self.status = status
-        self.body = body or {}
-        self.stream_chunks = stream_chunks or []
-
-
-# ---------------------------------------------------------------------------
-# aiohttp request handlers
-# ---------------------------------------------------------------------------
-
-
-def _make_handler(route: MockRoute):  # noqa: ANN202
-    async def handler(request: web.Request) -> web.Response:
-        if route.stream_chunks:
-            # SSE streaming response
-            response = web.StreamResponse(
-                status=route.status,
-                headers={
-                    "Content-Type": "text/event-stream",
-                    "Cache-Control": "no-cache",
-                },
-            )
-            await response.prepare(request)
-            for chunk in route.stream_chunks:
-                data = json.dumps(chunk) if not isinstance(chunk, str) else chunk
-                await response.write(f"data: {data}\n\n".encode())
-            await response.write(b"data: [DONE]\n\n")
-            return response
-        else:
-            # If the body is already a JSON string, serve it directly to
-            # avoid double-encoding.  Dicts and other values are serialised
-            # with json.dumps as usual.
-            body = route.body if isinstance(route.body, str) else json.dumps(route.body)
-            return web.Response(
-                status=route.status,
-                content_type="application/json",
-                body=body,
-            )
-
-    return handler
-
-
-# ---------------------------------------------------------------------------
-# pytest fixture
-# ---------------------------------------------------------------------------
+from .mock_server import MockRoute, MockServerInfo, make_handler
 
 
 @pytest.fixture
@@ -96,14 +24,13 @@ async def mock_server(request: pytest.FixtureRequest) -> AsyncGenerator[MockServ
         method_lower = route.method.lower()
         router_method = getattr(app.router, f"add_{method_lower}", None)
         if router_method is not None:
-            router_method(route.path, _make_handler(route))
+            router_method(route.path, make_handler(route))
 
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "127.0.0.1", 0)
     await site.start()
 
-    # Retrieve the dynamically assigned port.
     port = site._server.sockets[0].getsockname()[1]  # type: ignore[union-attr]
     url = f"http://127.0.0.1:{port}"
 

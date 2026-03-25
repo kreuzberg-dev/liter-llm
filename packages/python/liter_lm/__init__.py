@@ -36,7 +36,6 @@ from liter_lm._internal_bindings import (
     Usage,
     # Version
     __version__,
-    _FinishReason,
 )
 
 # Request parameter TypedDicts are pure-Python constructs defined in _types.py.
@@ -120,6 +119,5 @@ __all__ = [
     "ToolParam",
     # Response types
     "Usage",
-    "_FinishReason",
     "__version__",
 ]

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import MockRoute, MockServerInfo
+from .mock_server import MockRoute, MockServerInfo
 from liter_lm import (  # noqa: E402
     LlmClient,
     AuthenticationError,
@@ -57,8 +57,8 @@ async def test_embed_error_401(mock_server: MockServerInfo) -> None:
     import json
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}")
-    response = await client.embed(**request)
-
+    with pytest.raises(AuthenticationError):
+        await client.embed(**request)
 
 
 @pytest.mark.asyncio

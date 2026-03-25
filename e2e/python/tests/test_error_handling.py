@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import MockRoute, MockServerInfo
+from .mock_server import MockRoute, MockServerInfo
 from liter_lm import (  # noqa: E402
     LlmClient,
     AuthenticationError,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import MockRoute, MockServerInfo
+from .mock_server import MockRoute, MockServerInfo
 from liter_lm import (  # noqa: E402
     LlmClient,
     AuthenticationError,
@@ -36,4 +36,5 @@ async def test_empty_model_list(mock_server: MockServerInfo) -> None:
 async def test_list_models_error_401(mock_server: MockServerInfo) -> None:
     """401 Unauthorized error on list models request when API key is invalid"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    response = await client.list_models()
+    with pytest.raises(AuthenticationError):
+        await client.list_models()

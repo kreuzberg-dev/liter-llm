@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import MockRoute, MockServerInfo
+from .mock_server import MockRoute, MockServerInfo
 from liter_lm import (  # noqa: E402
     LlmClient,
     AuthenticationError,
@@ -37,7 +37,7 @@ async def test_basic_stream(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
     chunks = []
-    async for chunk in client.chat_stream(**request):
+    async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
     assert len(chunks) >= 3, f"Expected at least 3 chunk(s), got {len(chunks)}"
     content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
@@ -54,9 +54,9 @@ async def test_empty_stream(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Say nothing\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
     chunks = []
-    async for chunk in client.chat_stream(**request):
+    async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
-    assert len(chunks) >= 1, f"Expected at least 1 chunk(s), got {len(chunks)}"
+    assert len(chunks) == 0, f"Expected 0 chunks for empty stream, got {len(chunks)}"
 
 
 @pytest.mark.asyncio
@@ -78,7 +78,7 @@ async def test_stream_done_signal(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Say done\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
     chunks = []
-    async for chunk in client.chat_stream(**request):
+    async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
     assert len(chunks) >= 1, f"Expected at least 1 chunk(s), got {len(chunks)}"
     content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
@@ -94,10 +94,9 @@ async def test_stream_error_401(mock_server: MockServerInfo) -> None:
     import json
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
-    chunks = []
-    async for chunk in client.chat_stream(**request):
-        chunks.append(chunk)
-    assert len(chunks) >= 1, f"Expected at least 1 chunk(s), got {len(chunks)}"
+    with pytest.raises(AuthenticationError):
+        async for _ in await client.chat_stream(**request):
+            pass
 
 
 @pytest.mark.asyncio
@@ -120,7 +119,7 @@ async def test_stream_with_tool_calls(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"What is the weather in NYC?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true,\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and state, e.g. New York, NY\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
     chunks = []
-    async for chunk in client.chat_stream(**request):
+    async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
     assert len(chunks) >= 1, f"Expected at least 1 chunk(s), got {len(chunks)}"
 
@@ -145,7 +144,7 @@ async def test_stream_with_usage(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Say hi\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true,\"stream_options\":{\"include_usage\":true}}")
     chunks = []
-    async for chunk in client.chat_stream(**request):
+    async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
     assert len(chunks) >= 2, f"Expected at least 2 chunk(s), got {len(chunks)}"
     content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
