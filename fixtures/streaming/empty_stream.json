@@ -1,0 +1,28 @@
+{
+	"id": "empty_stream",
+	"category": "streaming",
+	"description": "Streaming chat completion that produces no content chunks before the DONE signal",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Say nothing"
+				}
+			],
+			"stream": true
+		},
+		"mock_response": {
+			"status": 200,
+			"stream_chunks": []
+		}
+	},
+	"assertions": {
+		"stream_chunk_count_min": 0,
+		"stream_final_content": ""
+	},
+	"tags": ["streaming", "edge-case"],
+	"skip": {}
+}

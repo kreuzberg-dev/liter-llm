@@ -1,0 +1,33 @@
+{
+	"id": "forbidden_403",
+	"category": "error-handling",
+	"description": "403 Forbidden error when the API key does not have access to the requested resource",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 403,
+			"body": {
+				"error": {
+					"message": "Access denied",
+					"type": "access_denied"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "Forbidden",
+		"error_status_code": 403
+	},
+	"tags": ["error-handling"],
+	"skip": {}
+}

@@ -1,0 +1,33 @@
+{
+	"id": "gateway_timeout_504",
+	"category": "error-handling",
+	"description": "504 Gateway Timeout error when the upstream service times out",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 504,
+			"body": {
+				"error": {
+					"message": "Gateway timeout",
+					"type": "server_error"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "ServerError",
+		"error_status_code": 504
+	},
+	"tags": ["error-handling"],
+	"skip": {}
+}

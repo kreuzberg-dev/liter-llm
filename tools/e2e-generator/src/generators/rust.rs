@@ -349,6 +349,19 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
     )
     .unwrap();
     writeln!(out).unwrap();
+
+    // Stream initiation errors (non-2xx status with a body, no stream_chunks) are
+    // returned as Err from chat_stream itself rather than from the stream items.
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    if is_error {
+        writeln!(out, "    let result = client.chat_stream(req).await;").unwrap();
+        writeln!(out, "    assert!(result.is_err(), \"Expected error but got Ok\");").unwrap();
+        // BoxStream does not implement Debug so we cannot use unwrap_err(); extract
+        // the error via result.err().unwrap() which only requires E: Debug.
+        emit_stream_error_assertions(out, fixture);
+        return;
+    }
+
     writeln!(
         out,
         "    let stream = client.chat_stream(req).await.expect(\"chat_stream call failed\");"
@@ -471,6 +484,16 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
     )
     .unwrap();
     writeln!(out).unwrap();
+
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
+    if is_error {
+        writeln!(out, "    let result = client.embed(req).await;").unwrap();
+        writeln!(out, "    assert!(result.is_err(), \"Expected error but got Ok\");").unwrap();
+        emit_error_assertions(out, fixture);
+        return;
+    }
+
     writeln!(
         out,
         "    let response = client.embed(req).await.expect(\"embed call failed\");"
@@ -516,6 +539,15 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
+    if is_error {
+        writeln!(out, "    let result = client.list_models().await;").unwrap();
+        writeln!(out, "    assert!(result.is_err(), \"Expected error but got Ok\");").unwrap();
+        emit_error_assertions(out, fixture);
+        return;
+    }
+
     writeln!(
         out,
         "    let response = client.list_models().await.expect(\"list_models call failed\");"
@@ -675,6 +707,46 @@ fn emit_error_assertions(out: &mut String, fixture: &Fixture) {
         )
         .unwrap(),
         _ => writeln!(out, "    let _ = result.unwrap_err();").unwrap(),
+    }
+}
+
+/// Like `emit_error_assertions` but uses `result.err().unwrap()` instead of
+/// `result.unwrap_err()` because `BoxStream` does not implement `Debug`, so
+/// `Result<BoxStream, E>::unwrap_err()` fails to compile.
+fn emit_stream_error_assertions(out: &mut String, fixture: &Fixture) {
+    let status = fixture.api.mock_response.status;
+    match status {
+        401 => writeln!(
+            out,
+            "    assert!(matches!(result.err().unwrap(), liter_lm::LiterLmError::Authentication {{ .. }}), \"Expected Authentication error\");"
+        )
+        .unwrap(),
+        429 => writeln!(
+            out,
+            "    assert!(matches!(result.err().unwrap(), liter_lm::LiterLmError::RateLimited {{ .. }}), \"Expected RateLimited error\");"
+        )
+        .unwrap(),
+        400 => writeln!(
+            out,
+            "    assert!(matches!(result.err().unwrap(), liter_lm::LiterLmError::BadRequest {{ .. }} | liter_lm::LiterLmError::ContextWindowExceeded {{ .. }} | liter_lm::LiterLmError::ContentPolicy {{ .. }}), \"Expected 400-class error\");"
+        )
+        .unwrap(),
+        404 => writeln!(
+            out,
+            "    assert!(matches!(result.err().unwrap(), liter_lm::LiterLmError::NotFound {{ .. }}), \"Expected NotFound error\");"
+        )
+        .unwrap(),
+        500 => writeln!(
+            out,
+            "    assert!(matches!(result.err().unwrap(), liter_lm::LiterLmError::ServerError {{ .. }}), \"Expected ServerError error\");"
+        )
+        .unwrap(),
+        502 | 503 => writeln!(
+            out,
+            "    assert!(matches!(result.err().unwrap(), liter_lm::LiterLmError::ServiceUnavailable {{ .. }}), \"Expected ServiceUnavailable error\");"
+        )
+        .unwrap(),
+        _ => writeln!(out, "    let _ = result.err().unwrap();").unwrap(),
     }
 }
 

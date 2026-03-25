@@ -1,0 +1,23 @@
+{
+	"id": "empty_model_list",
+	"category": "list-models",
+	"description": "List models response returns an empty data array when no models are available",
+	"api": {
+		"method": "list_models",
+		"request": {},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"data": []
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"models_count_min": 0,
+		"models_count_exact": 0
+	},
+	"tags": ["list-models"],
+	"skip": {}
+}

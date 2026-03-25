@@ -1,0 +1,43 @@
+{
+	"id": "batch_embed",
+	"category": "embed",
+	"description": "Embedding request with multiple input strings returns one embedding object per input",
+	"api": {
+		"method": "embed",
+		"request": {
+			"model": "text-embedding-3-small",
+			"input": ["Hello", "World"]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"model": "text-embedding-3-small",
+				"data": [
+					{
+						"object": "embedding",
+						"index": 0,
+						"embedding": [0.1, 0.2, 0.3, 0.4, 0.5]
+					},
+					{
+						"object": "embedding",
+						"index": 1,
+						"embedding": [0.5, 0.4, 0.3, 0.2, 0.1]
+					}
+				],
+				"usage": {
+					"prompt_tokens": 2,
+					"completion_tokens": 0,
+					"total_tokens": 2
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"embedding_count": 2,
+		"embedding_dimensions": 5
+	},
+	"tags": ["embed"],
+	"skip": {}
+}

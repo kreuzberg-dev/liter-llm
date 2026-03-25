@@ -1,0 +1,102 @@
+{
+	"id": "tool_choice_specific",
+	"category": "chat",
+	"description": "Chat request with tool_choice specifying a particular function to call",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "What is the weather in Paris?"
+				}
+			],
+			"tools": [
+				{
+					"type": "function",
+					"function": {
+						"name": "get_weather",
+						"description": "Get the current weather for a given location",
+						"parameters": {
+							"type": "object",
+							"properties": {
+								"location": {
+									"type": "string",
+									"description": "The city name"
+								}
+							},
+							"required": ["location"]
+						}
+					}
+				},
+				{
+					"type": "function",
+					"function": {
+						"name": "search_web",
+						"description": "Search the web for information",
+						"parameters": {
+							"type": "object",
+							"properties": {
+								"query": {
+									"type": "string",
+									"description": "The search query"
+								}
+							},
+							"required": ["query"]
+						}
+					}
+				}
+			],
+			"tool_choice": {
+				"type": "function",
+				"function": {
+					"name": "get_weather"
+				}
+			}
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-specific001",
+				"object": "chat.completion",
+				"created": 1711000050,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": null,
+							"tool_calls": [
+								{
+									"id": "call_spec001",
+									"type": "function",
+									"function": {
+										"name": "get_weather",
+										"arguments": "{\"location\": \"Paris\"}"
+									}
+								}
+							]
+						},
+						"finish_reason": "tool_calls"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 75,
+					"completion_tokens": 12,
+					"total_tokens": 87
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_has_tool_calls": true,
+		"first_tool_call_function_name": "get_weather",
+		"first_choice_finish_reason": "tool_calls"
+	},
+	"tags": ["chat", "tool-calling"],
+	"skip": {}
+}

@@ -1,0 +1,33 @@
+{
+	"id": "content_policy_violation",
+	"category": "error-handling",
+	"description": "400 error when a request is rejected due to content policy",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Generate harmful content"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 400,
+			"body": {
+				"error": {
+					"message": "Your request was rejected as a result of our content_policy",
+					"type": "invalid_request_error"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "ContentPolicy",
+		"error_status_code": 400
+	},
+	"tags": ["error-handling"],
+	"skip": {}
+}

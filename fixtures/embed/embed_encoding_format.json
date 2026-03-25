@@ -1,0 +1,39 @@
+{
+	"id": "embed_encoding_format",
+	"category": "embed",
+	"description": "Embedding request with explicit encoding_format of float returns float array embeddings",
+	"api": {
+		"method": "embed",
+		"request": {
+			"model": "text-embedding-3-small",
+			"input": "Test input",
+			"encoding_format": "float"
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"model": "text-embedding-3-small",
+				"data": [
+					{
+						"object": "embedding",
+						"index": 0,
+						"embedding": [0.123, 0.456, 0.789, 0.012, 0.345]
+					}
+				],
+				"usage": {
+					"prompt_tokens": 2,
+					"completion_tokens": 0,
+					"total_tokens": 2
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"embedding_count": 1,
+		"embedding_dimensions": 5
+	},
+	"tags": ["embed"],
+	"skip": {}
+}

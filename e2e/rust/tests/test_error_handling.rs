@@ -39,6 +39,211 @@ async fn auth_401() {
     server.shutdown();
 }
 
+/// 400 Bad Request error when a parameter value is invalid
+#[tokio::test]
+async fn bad_request_400() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 400,
+            body: r#"{"error":{"message":"Invalid parameter: temperature must be between 0 and 2","type":"invalid_request_error"}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","temperature":5.0}"#)
+            .unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(
+            result.unwrap_err(),
+            liter_lm::LiterLmError::BadRequest { .. }
+                | liter_lm::LiterLmError::ContextWindowExceeded { .. }
+                | liter_lm::LiterLmError::ContentPolicy { .. }
+        ),
+        "Expected 400-class error"
+    );
+
+    server.shutdown();
+}
+
+/// 400 error when a request is rejected due to content policy
+#[tokio::test]
+async fn content_policy_violation() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 400,
+            body: r#"{"error":{"message":"Your request was rejected as a result of our content_policy","type":"invalid_request_error"}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Generate harmful content","role":"user"}],"model":"gpt-4"}"#)
+            .unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(
+            result.unwrap_err(),
+            liter_lm::LiterLmError::BadRequest { .. }
+                | liter_lm::LiterLmError::ContextWindowExceeded { .. }
+                | liter_lm::LiterLmError::ContentPolicy { .. }
+        ),
+        "Expected 400-class error"
+    );
+
+    server.shutdown();
+}
+
+/// 400 error when the prompt exceeds the model's maximum context length
+#[tokio::test]
+async fn context_window_exceeded() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 400,
+            body: r#"{"error":{"code":"context_length_exceeded","message":"This model's maximum context length is 8192 tokens","type":"invalid_request_error"}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"messages":[{"content":"Very long prompt that exceeds the context window...","role":"user"}],"model":"gpt-4"}"#).unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(
+            result.unwrap_err(),
+            liter_lm::LiterLmError::BadRequest { .. }
+                | liter_lm::LiterLmError::ContextWindowExceeded { .. }
+                | liter_lm::LiterLmError::ContentPolicy { .. }
+        ),
+        "Expected 400-class error"
+    );
+
+    server.shutdown();
+}
+
+/// 403 Forbidden error when the API key does not have access to the requested resource
+#[tokio::test]
+async fn forbidden_403() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 403,
+        body: r#"{"error":{"message":"Access denied","type":"access_denied"}}"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}"#).unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    let _ = result.unwrap_err();
+
+    server.shutdown();
+}
+
+/// 504 Gateway Timeout error when the upstream service times out
+#[tokio::test]
+async fn gateway_timeout_504() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 504,
+        body: r#"{"error":{"message":"Gateway timeout","type":"server_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}"#).unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    let _ = result.unwrap_err();
+
+    server.shutdown();
+}
+
+/// 404 Not Found error when requesting a model that does not exist
+#[tokio::test]
+async fn not_found_404() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 404,
+        body: r#"{"error":{"message":"Model not found","type":"not_found_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-99"}"#).unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(result.unwrap_err(), liter_lm::LiterLmError::NotFound { .. }),
+        "Expected NotFound error"
+    );
+
+    server.shutdown();
+}
+
 /// 429 Too Many Requests error when the rate limit is exceeded
 #[tokio::test]
 async fn rate_limit_429() {
@@ -100,6 +305,38 @@ async fn server_error_500() {
     assert!(
         matches!(result.unwrap_err(), liter_lm::LiterLmError::ServerError { .. }),
         "Expected ServerError error"
+    );
+
+    server.shutdown();
+}
+
+/// 502 Bad Gateway error when the upstream service is unavailable
+#[tokio::test]
+async fn service_unavailable_502() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 502,
+        body: r#"{"error":{"message":"Bad gateway","type":"server_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}"#).unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(result.unwrap_err(), liter_lm::LiterLmError::ServiceUnavailable { .. }),
+        "Expected ServiceUnavailable error"
     );
 
     server.shutdown();

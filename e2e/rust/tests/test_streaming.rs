@@ -60,6 +60,42 @@ async fn basic_stream() {
     server.shutdown();
 }
 
+/// Streaming chat completion that produces no content chunks before the DONE signal
+#[tokio::test]
+async fn empty_stream() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: r#"null"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Say nothing","role":"user"}],"model":"gpt-4","stream":true}"#)
+            .unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 0,
+        "Expected to receive at least 0 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+
+    server.shutdown();
+}
+
 /// Verify that the [DONE] sentinel signal properly terminates the stream
 #[tokio::test]
 async fn stream_done_signal() {
@@ -104,6 +140,131 @@ async fn stream_done_signal() {
         ok_chunks.len()
     );
     assert_eq!(content, "Done", "Stream content mismatch");
+
+    server.shutdown();
+}
+
+/// 401 Unauthorized error on stream initiation before any chunks are received
+#[tokio::test]
+async fn stream_error_401() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 401,
+            body: r#"{"error":{"code":"invalid_api_key","message":"Incorrect API key provided.","param":null,"type":"invalid_request_error"}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","stream":true}"#)
+            .unwrap();
+
+    let result = client.chat_stream(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(result.err().unwrap(), liter_lm::LiterLmError::Authentication { .. }),
+        "Expected Authentication error"
+    );
+
+    server.shutdown();
+}
+
+/// Streaming chat completion where the assistant responds with a tool call across multiple chunks
+#[tokio::test]
+async fn stream_with_tool_calls() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"null"#.to_string(),
+            stream_chunks: vec![
+                r#"{"choices":[{"delta":{"role":"assistant","tool_calls":[{"function":{"name":"get_weather"},"id":"call_1","index":0,"type":"function"}]},"finish_reason":null,"index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"{\"loc"},"index":0}]},"finish_reason":null,"index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"ation\":\"NYC\"}"},"index":0}]},"finish_reason":null,"index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{},"finish_reason":"tool_calls","index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+            ],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"messages":[{"content":"What is the weather in NYC?","role":"user"}],"model":"gpt-4","stream":true,"tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city and state, e.g. New York, NY","type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}"#).unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 4,
+        "Expected to receive at least 4 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+    assert!(!ok_chunks.is_empty(), "Expected at least one stream chunk");
+
+    server.shutdown();
+}
+
+/// Streaming chat completion that includes a usage summary in the final chunk
+#[tokio::test]
+async fn stream_with_usage() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"null"#.to_string(),
+            stream_chunks: vec![
+                r#"{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":"Hi"},"finish_reason":null,"index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" there!"},"finish_reason":null,"index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk","usage":{"completion_tokens":8,"prompt_tokens":10,"total_tokens":18}}"#.to_string(),
+            ],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"messages":[{"content":"Say hi","role":"user"}],"model":"gpt-4","stream":true,"stream_options":{"include_usage":true}}"#).unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected to receive at least 3 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+    let content: String = ok_chunks
+        .iter()
+        .flat_map(|c| c.choices.iter())
+        .filter_map(|ch| ch.delta.content.as_deref())
+        .collect();
+    assert!(
+        ok_chunks.len() >= 2,
+        "Expected at least 2 chunk(s), got {}",
+        ok_chunks.len()
+    );
+    assert_eq!(content, "Hi there!", "Stream content mismatch");
 
     server.shutdown();
 }

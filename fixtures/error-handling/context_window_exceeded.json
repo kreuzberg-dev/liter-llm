@@ -1,0 +1,34 @@
+{
+	"id": "context_window_exceeded",
+	"category": "error-handling",
+	"description": "400 error when the prompt exceeds the model's maximum context length",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Very long prompt that exceeds the context window..."
+				}
+			]
+		},
+		"mock_response": {
+			"status": 400,
+			"body": {
+				"error": {
+					"message": "This model's maximum context length is 8192 tokens",
+					"type": "invalid_request_error",
+					"code": "context_length_exceeded"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "ContextWindowExceeded",
+		"error_status_code": 400
+	},
+	"tags": ["error-handling"],
+	"skip": {}
+}

@@ -1,0 +1,49 @@
+{
+	"id": "finish_reason_content_filter",
+	"category": "chat",
+	"description": "Chat response stopped by content filter with finish_reason of content_filter and null content",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Tell me something controversial"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-filter001",
+				"object": "chat.completion",
+				"created": 1711000100,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": null
+						},
+						"finish_reason": "content_filter"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 14,
+					"completion_tokens": 0,
+					"total_tokens": 14
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_finish_reason": "content_filter",
+		"first_choice_content_null": true
+	},
+	"tags": ["chat"],
+	"skip": {}
+}

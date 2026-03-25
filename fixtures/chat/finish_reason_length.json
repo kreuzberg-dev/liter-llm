@@ -1,0 +1,49 @@
+{
+	"id": "finish_reason_length",
+	"category": "chat",
+	"description": "Chat response truncated due to max_tokens limit with finish_reason of length",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Tell me a long story"
+				}
+			],
+			"max_tokens": 5
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-length001",
+				"object": "chat.completion",
+				"created": 1711000090,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Once upon a time"
+						},
+						"finish_reason": "length"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 12,
+					"completion_tokens": 5,
+					"total_tokens": 17
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_finish_reason": "length"
+	},
+	"tags": ["chat"],
+	"skip": {}
+}

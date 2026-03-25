@@ -1,0 +1,80 @@
+{
+	"id": "tool_choice_required",
+	"category": "chat",
+	"description": "Chat request with tool_choice set to required forces the model to call a tool",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "What is the weather today?"
+				}
+			],
+			"tools": [
+				{
+					"type": "function",
+					"function": {
+						"name": "get_weather",
+						"description": "Get the current weather for a given location",
+						"parameters": {
+							"type": "object",
+							"properties": {
+								"location": {
+									"type": "string",
+									"description": "The city name"
+								}
+							},
+							"required": ["location"]
+						}
+					}
+				}
+			],
+			"tool_choice": "required"
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-required001",
+				"object": "chat.completion",
+				"created": 1711000040,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": null,
+							"tool_calls": [
+								{
+									"id": "call_req001",
+									"type": "function",
+									"function": {
+										"name": "get_weather",
+										"arguments": "{\"location\": \"New York\"}"
+									}
+								}
+							]
+						},
+						"finish_reason": "tool_calls"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 60,
+					"completion_tokens": 15,
+					"total_tokens": 75
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_has_tool_calls": true,
+		"first_tool_call_function_name": "get_weather",
+		"first_choice_finish_reason": "tool_calls"
+	},
+	"tags": ["chat", "tool-calling"],
+	"skip": {}
+}

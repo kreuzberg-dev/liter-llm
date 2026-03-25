@@ -51,3 +51,49 @@ async fn custom_base_url() {
 
     server.shutdown();
 }
+
+/// Client configured with extra custom headers successfully completes a chat request
+#[tokio::test]
+async fn extra_headers() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello! How can I help you?","role":"assistant"}}],"created":1711000140,"id":"chatcmpl-headers001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":8,"prompt_tokens":8,"total_tokens":16}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}"#).unwrap();
+
+    let response = client.chat(req).await.expect("chat call failed");
+    assert_eq!(response.choices.len(), 1, "Choices count mismatch");
+    assert_eq!(
+        response.choices[0].finish_reason,
+        Some(liter_lm::FinishReason::Stop),
+        "finish_reason mismatch"
+    );
+    assert_eq!(
+        response.choices[0].message.content.as_deref(),
+        Some("Hello! How can I help you?"),
+        "message content mismatch"
+    );
+    assert!(response.usage.is_some(), "Expected usage object");
+    assert_eq!(
+        response.usage.as_ref().unwrap().total_tokens,
+        16,
+        "total_tokens mismatch"
+    );
+    assert_eq!(response.model, "gpt-4", "model mismatch");
+
+    server.shutdown();
+}

@@ -1,0 +1,33 @@
+{
+	"id": "not_found_404",
+	"category": "error-handling",
+	"description": "404 Not Found error when requesting a model that does not exist",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-99",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 404,
+			"body": {
+				"error": {
+					"message": "Model not found",
+					"type": "not_found_error"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "NotFound",
+		"error_status_code": 404
+	},
+	"tags": ["error-handling"],
+	"skip": {}
+}

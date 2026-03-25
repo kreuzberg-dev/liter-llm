@@ -1,0 +1,27 @@
+{
+	"id": "list_models_error_401",
+	"category": "list-models",
+	"description": "401 Unauthorized error on list models request when API key is invalid",
+	"api": {
+		"method": "list_models",
+		"request": {},
+		"mock_response": {
+			"status": 401,
+			"body": {
+				"error": {
+					"message": "Incorrect API key provided.",
+					"type": "invalid_request_error",
+					"param": null,
+					"code": "invalid_api_key"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "Authentication",
+		"error_status_code": 401
+	},
+	"tags": ["list-models", "error-handling"],
+	"skip": {}
+}

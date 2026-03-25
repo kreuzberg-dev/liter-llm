@@ -1,0 +1,36 @@
+{
+	"id": "stream_error_401",
+	"category": "streaming",
+	"description": "401 Unauthorized error on stream initiation before any chunks are received",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			],
+			"stream": true
+		},
+		"mock_response": {
+			"status": 401,
+			"body": {
+				"error": {
+					"message": "Incorrect API key provided.",
+					"type": "invalid_request_error",
+					"param": null,
+					"code": "invalid_api_key"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "Authentication",
+		"error_status_code": 401
+	},
+	"tags": ["streaming", "error-handling"],
+	"skip": {}
+}

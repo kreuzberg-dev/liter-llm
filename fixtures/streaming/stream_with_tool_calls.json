@@ -1,0 +1,132 @@
+{
+	"id": "stream_with_tool_calls",
+	"category": "streaming",
+	"description": "Streaming chat completion where the assistant responds with a tool call across multiple chunks",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "What is the weather in NYC?"
+				}
+			],
+			"tools": [
+				{
+					"type": "function",
+					"function": {
+						"name": "get_weather",
+						"description": "Get the current weather for a given location",
+						"parameters": {
+							"type": "object",
+							"properties": {
+								"location": {
+									"type": "string",
+									"description": "The city and state, e.g. New York, NY"
+								}
+							},
+							"required": ["location"]
+						}
+					}
+				}
+			],
+			"stream": true
+		},
+		"mock_response": {
+			"status": 200,
+			"stream_chunks": [
+				{
+					"id": "chatcmpl-toolstream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000010,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"role": "assistant",
+								"tool_calls": [
+									{
+										"index": 0,
+										"id": "call_1",
+										"type": "function",
+										"function": {
+											"name": "get_weather"
+										}
+									}
+								]
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-toolstream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000010,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"tool_calls": [
+									{
+										"index": 0,
+										"function": {
+											"arguments": "{\"loc"
+										}
+									}
+								]
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-toolstream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000010,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"tool_calls": [
+									{
+										"index": 0,
+										"function": {
+											"arguments": "ation\":\"NYC\"}"
+										}
+									}
+								]
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-toolstream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000010,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {},
+							"finish_reason": "tool_calls"
+						}
+					]
+				}
+			]
+		}
+	},
+	"assertions": {
+		"stream_chunk_count_min": 4,
+		"stream_finish_reason": "tool_calls",
+		"stream_has_tool_calls": true,
+		"stream_first_tool_call_name": "get_weather"
+	},
+	"tags": ["streaming", "tool-calling"],
+	"skip": {}
+}

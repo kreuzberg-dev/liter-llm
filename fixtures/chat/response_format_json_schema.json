@@ -1,0 +1,64 @@
+{
+	"id": "response_format_json_schema",
+	"category": "chat",
+	"description": "Chat request with response_format json_schema that validates the output structure",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "What is the temperature in Paris today?"
+				}
+			],
+			"response_format": {
+				"type": "json_schema",
+				"json_schema": {
+					"name": "weather",
+					"schema": {
+						"type": "object",
+						"properties": {
+							"temp": {
+								"type": "number"
+							}
+						},
+						"required": ["temp"]
+					}
+				}
+			}
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-schema001",
+				"object": "chat.completion",
+				"created": 1711000080,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "{\"temp\": 18.5}"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 30,
+					"completion_tokens": 8,
+					"total_tokens": 38
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_content_is_valid_json": true,
+		"first_choice_finish_reason": "stop"
+	},
+	"tags": ["chat"],
+	"skip": {}
+}

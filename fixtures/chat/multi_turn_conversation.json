@@ -1,0 +1,61 @@
+{
+	"id": "multi_turn_conversation",
+	"category": "chat",
+	"description": "Multi-turn conversation with system, user, assistant, and follow-up user messages",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "system",
+					"content": "You are a helpful assistant."
+				},
+				{
+					"role": "user",
+					"content": "What is 2 + 2?"
+				},
+				{
+					"role": "assistant",
+					"content": "2 + 2 equals 4."
+				},
+				{
+					"role": "user",
+					"content": "And what is 4 + 4?"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-multi001",
+				"object": "chat.completion",
+				"created": 1711000030,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "4 + 4 equals 8."
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 45,
+					"completion_tokens": 9,
+					"total_tokens": 54
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_content": "4 + 4 equals 8.",
+		"first_choice_finish_reason": "stop"
+	},
+	"tags": ["chat"],
+	"skip": {}
+}
