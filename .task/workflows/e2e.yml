@@ -1,0 +1,99 @@
+version: "3"
+
+tasks:
+  generate:all:
+    desc: Generate E2E tests for all languages from fixtures
+    cmds:
+      - cargo run -p codegen -- e2e --lang all
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:rust:
+    desc: Generate and format Rust E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang rust
+      - cargo fmt --manifest-path e2e/rust/Cargo.toml
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:python:
+    desc: Generate and lint Python E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang python
+      - uv run --no-sync ruff check --fix e2e/python/
+      - uv run --no-sync ruff format e2e/python/
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:typescript:
+    desc: Generate TypeScript E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang typescript
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:go:
+    desc: Generate and format Go E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang go
+      - gofmt -w e2e/go/
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:java:
+    desc: Generate Java E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang java
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:elixir:
+    desc: Generate Elixir E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang elixir
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:ruby:
+    desc: Generate and format Ruby E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang ruby
+      - bundle exec rubocop -a e2e/ruby/ || true
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:wasm:
+    desc: Generate WASM E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang wasm
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:c:
+    desc: Generate C E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang c
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:php:
+    desc: Generate PHP E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang php
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  generate:csharp:
+    desc: Generate C# E2E tests
+    cmds:
+      - cargo run -p codegen -- e2e --lang csharp
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+
+  test:rust:
+    desc: Run Rust E2E tests (generate + format + test)
+    cmds:
+      - task: generate:rust
+      - cargo test --manifest-path e2e/rust/Cargo.toml
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"

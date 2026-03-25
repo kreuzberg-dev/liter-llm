@@ -1,0 +1,67 @@
+{
+	"name": "liter-lm",
+	"version": "0.1.0",
+	"description": "High-performance LLM client library — unified interface for streaming, tool calling, and provider routing across 50+ providers",
+	"keywords": [
+		"llm",
+		"llm-client",
+		"openai",
+		"anthropic",
+		"streaming",
+		"tool-calling",
+		"provider-routing",
+		"async",
+		"rust"
+	],
+	"author": {
+		"name": "Na'aman Hirschfeld",
+		"email": "naaman@kreuzberg.dev",
+		"url": "https://github.com/kreuzberg-dev/liter-lm"
+	},
+	"homepage": "https://github.com/kreuzberg-dev/liter-lm",
+	"bugs": {
+		"url": "https://github.com/kreuzberg-dev/liter-lm/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kreuzberg-dev/liter-lm.git"
+	},
+	"license": "MIT",
+	"type": "module",
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"engines": {
+		"node": ">= 22"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsup",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest",
+		"test:watch": "vitest --watch",
+		"lint": "biome check src",
+		"lint:fix": "biome check --write src"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.8",
+		"@types/node": "^25.5.0",
+		"tsup": "^8.5.1",
+		"typescript": "^6.0.2",
+		"vitest": "^4.1.1"
+	}
+}

@@ -1,0 +1,24 @@
+[package]
+name = "liter-lm-node"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "Node.js native bindings for liter-lm universal LM API client"
+keywords = ["nodejs", "napi", "llm", "api-client", "bindings"]
+categories = ["api-bindings"]
+
+[package.metadata.cargo-machete]
+ignored = ["napi"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { workspace = true }
+napi-derive = { workspace = true }
+
+[build-dependencies]
+napi-build = { workspace = true }

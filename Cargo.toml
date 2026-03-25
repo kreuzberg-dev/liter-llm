@@ -1,5 +1,12 @@
 [workspace]
-members = ["crates/*"]
+members = [
+    "crates/liter-lm",
+    "crates/liter-lm-ffi",
+    "crates/liter-lm-node",
+    "crates/liter-lm-php",
+    "crates/liter-lm-py",
+    "crates/liter-lm-wasm",
+]
 resolver = "2"
 
 [workspace.package]

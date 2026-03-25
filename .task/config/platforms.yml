@@ -1,0 +1,22 @@
+version: "3"
+
+tasks:
+  setup:sdkman:
+    desc: Install and configure sdkman for JVM toolchain management
+    cmds:
+      - cmd: >-
+          bash -c '
+          echo "Setting up sdkman...";
+          if [ ! -d "$HOME/.sdkman" ]; then
+            echo "Installing sdkman...";
+            curl -s "https://get.sdkman.io" | bash;
+          else
+            echo "sdkman is already installed";
+          fi;
+          echo "Loading sdkman and installing tools from .sdkmanrc...";
+          source "$HOME/.sdkman/bin/sdkman-init.sh";
+          sdk env install;
+          '
+        platforms: [linux, darwin]
+      - cmd: echo "Setting up sdkman (skipped on Windows - use scoop or manual installation)..."
+        platforms: [windows]

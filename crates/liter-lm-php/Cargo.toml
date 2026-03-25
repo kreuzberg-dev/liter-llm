@@ -1,0 +1,22 @@
+[package]
+name = "liter-lm-php"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "PHP bindings for liter-lm universal LM API client"
+keywords = ["php", "ffi", "llm", "api-client", "bindings"]
+categories = ["api-bindings"]
+
+[lib]
+name = "liter_lm_php"
+crate-type = ["cdylib"]
+test = false
+
+[features]
+default = []
+
+[dependencies]
+ext-php-rs = "0.15"

@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  all:
+    desc: Run test suites for all languages
+    cmds:
+      - task: rust
+
+  rust:
+    desc: Run Rust tests
+    cmds:
+      - task: rust:test

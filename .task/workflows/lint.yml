@@ -1,0 +1,7 @@
+version: "3"
+
+tasks:
+  all:
+    desc: Run all linters and formatters via prek (pre-commit framework)
+    cmds:
+      - prek run --all-files
