@@ -1,0 +1,41 @@
+{
+	"id": "basic_list_models",
+	"category": "smoke",
+	"description": "List available models from the API",
+	"api": {
+		"method": "list_models",
+		"request": {},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"data": [
+					{
+						"id": "gpt-4",
+						"object": "model",
+						"created": 1687882411,
+						"owned_by": "openai"
+					},
+					{
+						"id": "gpt-3.5-turbo",
+						"object": "model",
+						"created": 1677610602,
+						"owned_by": "openai"
+					},
+					{
+						"id": "text-embedding-3-small",
+						"object": "model",
+						"created": 1705948997,
+						"owned_by": "openai"
+					}
+				]
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"models_count_min": 1
+	},
+	"tags": ["smoke"],
+	"skip": {}
+}

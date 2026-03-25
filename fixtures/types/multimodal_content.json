@@ -1,0 +1,61 @@
+{
+	"id": "multimodal_content",
+	"category": "types",
+	"description": "User message with mixed text and image_url content parts to verify multimodal serialization",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4o",
+			"messages": [
+				{
+					"role": "user",
+					"content": [
+						{
+							"type": "text",
+							"text": "What is in this image?"
+						},
+						{
+							"type": "image_url",
+							"image_url": {
+								"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png",
+								"detail": "low"
+							}
+						}
+					]
+				}
+			],
+			"max_tokens": 100
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-multi001",
+				"object": "chat.completion",
+				"created": 1711000004,
+				"model": "gpt-4o",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "The image shows a transparent PNG demonstration with colored dice."
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 855,
+					"completion_tokens": 14,
+					"total_tokens": 869
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_finish_reason": "stop"
+	},
+	"tags": ["types", "multimodal"],
+	"skip": {}
+}
