@@ -104,6 +104,20 @@ pub struct Assertions {
     /// Expected concatenated content across all streaming chunks.
     #[serde(default)]
     pub stream_final_content: Option<String>,
+    /// Assert that the stream terminates with a `[DONE]` sentinel and no error.
+    #[serde(default)]
+    pub stream_completes_cleanly: Option<bool>,
+    /// Assert that no chunks are received after the `[DONE]` sentinel.
+    #[serde(default)]
+    pub no_chunks_after_done: Option<bool>,
+
+    // ── Tool calling ─────────────────────────────────────────────────────────
+    /// Assert that the first choice contains at least one tool call.
+    #[serde(default)]
+    pub first_choice_has_tool_calls: Option<bool>,
+    /// Expected `function.name` of the first tool call in the first choice.
+    #[serde(default)]
+    pub first_tool_call_function_name: Option<String>,
 
     // ── Error handling ───────────────────────────────────────────────────────
     /// Expected error variant name (e.g. "Authentication", "RateLimited").

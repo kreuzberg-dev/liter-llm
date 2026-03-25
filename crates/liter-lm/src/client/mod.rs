@@ -79,26 +79,21 @@ impl DefaultClient {
     ///
     /// # Errors
     ///
-    /// Returns [`LiterLmError::InvalidHeader`] if any entry in
-    /// `config.extra_headers` is not a valid HTTP header name or value.
     /// Returns a wrapped [`reqwest::Error`] if the underlying HTTP client
-    /// cannot be constructed.
+    /// cannot be constructed.  Header names and values are pre-validated by
+    /// [`ClientConfigBuilder::header`], so they are inserted directly here.
     pub fn new(config: ClientConfig, model_hint: Option<&str>) -> Result<Self> {
         let provider = build_provider(&config, model_hint);
 
-        // Validate and register extra headers on the shared reqwest client so
-        // they are sent on every request without per-call overhead.
+        // Build the header map from pre-validated headers stored in the config.
+        // The builder already validated each header name/value, so these
+        // conversions are guaranteed to succeed.
         let mut header_map = reqwest::header::HeaderMap::new();
         for (k, v) in config.headers() {
-            let name =
-                reqwest::header::HeaderName::from_bytes(k.as_bytes()).map_err(|e| LiterLmError::InvalidHeader {
-                    name: k.clone(),
-                    reason: e.to_string(),
-                })?;
-            let val = reqwest::header::HeaderValue::from_str(v).map_err(|e| LiterLmError::InvalidHeader {
-                name: k.clone(),
-                reason: e.to_string(),
-            })?;
+            let name = reqwest::header::HeaderName::from_bytes(k.as_bytes())
+                .expect("header name was validated by ClientConfigBuilder");
+            let val =
+                reqwest::header::HeaderValue::from_str(v).expect("header value was validated by ClientConfigBuilder");
             header_map.insert(name, val);
         }
 

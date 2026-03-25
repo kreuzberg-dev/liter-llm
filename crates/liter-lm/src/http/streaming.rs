@@ -36,7 +36,10 @@ pub async fn post_stream(
     let mut attempt = 0u32;
 
     loop {
-        let mut builder = client.post(url).header("Content-Type", "application/json").json(&body);
+        let mut builder = client
+            .post(url)
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .json(&body);
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
         }
@@ -109,19 +112,13 @@ where
             // --- Process any complete lines already in the buffer ---
             // Use memchr for fast newline scanning on the hot streaming path.
             if let Some(newline_pos) = memchr(b'\n', this.buffer.as_bytes()) {
-                // Extract the line in-place using drain to avoid a clone.
-                // We include the '\n' in the drain so the buffer advances past
-                // it; we then trim the extracted slice.
-                let mut line_bytes: String = this.buffer.drain(..=newline_pos).collect();
-
-                // Remove trailing '\r' (CRLF) and leading/trailing whitespace.
-                if line_bytes.ends_with('\n') {
-                    line_bytes.pop();
-                }
-                if line_bytes.ends_with('\r') {
-                    line_bytes.pop();
-                }
-                let line = line_bytes.trim();
+                // Read the line without allocating: slice up to the newline,
+                // strip optional trailing '\r' (CRLF), and trim whitespace.
+                // We allocate only the final trimmed string, then drain the
+                // buffer past the newline.
+                let line = this.buffer[..newline_pos].trim_end_matches('\r').trim().to_string();
+                // Advance the buffer past the '\n'.
+                this.buffer.drain(..=newline_pos);
 
                 // Skip empty lines and SSE comments.
                 if line.is_empty() || line.starts_with(':') {

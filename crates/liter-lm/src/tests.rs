@@ -279,7 +279,9 @@ mod serde_tests {
 
 #[cfg(test)]
 mod provider_tests {
-    use crate::provider::{OpenAiProvider, Provider, detect_provider};
+    use crate::provider::{
+        AuthConfig, AuthType, ConfigDrivenProvider, OpenAiProvider, Provider, ProviderConfig, detect_provider,
+    };
 
     #[test]
     fn openai_matches() {
@@ -327,6 +329,48 @@ mod provider_tests {
     #[test]
     fn detect_unknown_returns_none() {
         assert!(detect_provider("some-random-model").is_none());
+    }
+
+    fn make_provider(auth_type: AuthType) -> ConfigDrivenProvider {
+        ConfigDrivenProvider::new(ProviderConfig {
+            name: "test-provider".into(),
+            display_name: None,
+            base_url: Some("https://api.example.com/v1".into()),
+            auth: Some(AuthConfig {
+                auth_type,
+                env_var: Some("TEST_API_KEY".into()),
+            }),
+            endpoints: None,
+            model_prefixes: None,
+            param_mappings: None,
+        })
+    }
+
+    #[test]
+    fn config_driven_bearer_auth() {
+        let provider = make_provider(AuthType::Bearer);
+        let header = provider.auth_header("my-secret-key");
+        assert!(header.is_some());
+        let (name, value) = header.unwrap();
+        assert_eq!(name, "Authorization");
+        assert_eq!(value, "Bearer my-secret-key");
+    }
+
+    #[test]
+    fn config_driven_api_key_auth() {
+        let provider = make_provider(AuthType::ApiKey);
+        let header = provider.auth_header("my-secret-key");
+        assert!(header.is_some());
+        let (name, value) = header.unwrap();
+        assert_eq!(name, "x-api-key");
+        assert_eq!(value, "my-secret-key");
+    }
+
+    #[test]
+    fn config_driven_no_auth() {
+        let provider = make_provider(AuthType::None);
+        let header = provider.auth_header("my-secret-key");
+        assert!(header.is_none(), "AuthType::None should return no auth header");
     }
 }
 

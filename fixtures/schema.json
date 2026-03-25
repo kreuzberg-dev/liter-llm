@@ -150,8 +150,13 @@
 					"description": "Skip unless the binding under test matches this language"
 				},
 				"platform": {
-					"type": "string",
-					"description": "Skip on this OS platform (e.g. windows)"
+					"oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }],
+					"description": "Skip on these OS platforms (e.g. 'windows' or ['windows', 'linux'])"
+				},
+				"languages": {
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Skip for these language bindings (e.g. ['wasm', 'php'])"
 				},
 				"reason": {
 					"type": "string",

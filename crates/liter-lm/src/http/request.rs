@@ -36,7 +36,10 @@ pub async fn post_json<T: DeserializeOwned>(
     let mut attempt = 0u32;
 
     loop {
-        let mut builder = client.post(url).header("Content-Type", "application/json").json(&body);
+        let mut builder = client
+            .post(url)
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .json(&body);
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
         }

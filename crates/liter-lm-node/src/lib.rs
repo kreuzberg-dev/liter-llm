@@ -109,6 +109,12 @@ pub struct LlmClientOptions {
     pub base_url: Option<String>,
     pub max_retries: Option<u32>,
     /// Timeout in seconds.
+    ///
+    /// Note: NAPI-RS `#[napi(object)]` does not support `u64` directly
+    /// (no `FromNapiValue` impl); `u32` covers ~136 years which is sufficient
+    /// for any realistic timeout.  The Python binding uses `u64` but the
+    /// underlying `Duration::from_secs` accepts `u64`, so there is no semantic
+    /// loss for valid timeout values.
     pub timeout_secs: Option<u32>,
 }
 

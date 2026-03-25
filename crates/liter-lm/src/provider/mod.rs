@@ -53,7 +53,11 @@ pub struct ProviderConfig {
     pub auth: Option<AuthConfig>,
     pub endpoints: Option<Vec<String>>,
     pub model_prefixes: Option<Vec<String>>,
-    pub param_mappings: Option<HashMap<String, String>>,
+    /// Internal parameter mapping overrides for this provider.
+    /// Not part of the public API; use provider-specific transform_request instead.
+    /// Reserved for future use: loaded from providers.json but not yet consumed.
+    #[allow(dead_code)]
+    pub(crate) param_mappings: Option<HashMap<String, String>>,
 }
 
 /// Auth scheme used by a provider.

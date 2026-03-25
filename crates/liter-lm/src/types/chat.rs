@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 use super::common::{
@@ -24,7 +26,7 @@ pub enum FinishReason {
 
 // ─── Request ─────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ChatCompletionRequest {
     pub model: String,
     pub messages: Vec<Message>,
@@ -45,7 +47,9 @@ pub struct ChatCompletionRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub logit_bias: Option<std::collections::HashMap<String, f64>>,
+    /// Token bias map.  Uses `BTreeMap` (sorted keys) for deterministic
+    /// serialization order — important when hashing or signing requests.
+    pub logit_bias: Option<BTreeMap<String, f64>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -60,33 +64,6 @@ pub struct ChatCompletionRequest {
     pub stream_options: Option<StreamOptions>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub seed: Option<i64>,
-}
-
-impl Default for ChatCompletionRequest {
-    /// Create a minimal request with empty model and messages.  Callers must
-    /// set `model` and `messages` before sending.
-    fn default() -> Self {
-        Self {
-            model: String::new(),
-            messages: Vec::new(),
-            temperature: None,
-            top_p: None,
-            n: None,
-            stream: None,
-            stop: None,
-            max_tokens: None,
-            presence_penalty: None,
-            frequency_penalty: None,
-            logit_bias: None,
-            user: None,
-            tools: None,
-            tool_choice: None,
-            parallel_tool_calls: None,
-            response_format: None,
-            stream_options: None,
-            seed: None,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -13,11 +13,11 @@ keywords = ["llm", "openai", "api-client", "ai", "kreuzberg"]
 # Enable the native HTTP stack (reqwest + tokio).  Disable this feature when
 # compiling for WebAssembly, where the browser / Node.js fetch API is used
 # instead and the tokio multi-thread runtime is unavailable.
-native-http = ["dep:reqwest", "dep:tokio", "dep:memchr"]
+native-http = ["dep:reqwest", "dep:tokio", "dep:memchr", "dep:bytes"]
 default = ["native-http"]
 
 [dependencies]
-bytes = { workspace = true }
+bytes = { workspace = true, optional = true }
 futures-core = { workspace = true }
 memchr = { workspace = true, optional = true }
 pin-project-lite = { workspace = true }
