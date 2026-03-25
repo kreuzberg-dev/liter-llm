@@ -20,9 +20,10 @@ const MAX_BUFFER_BYTES: usize = 1024 * 1024; // 1 MiB
 /// Send a streaming POST request and return an SSE stream of
 /// `ChatCompletionChunk`s.
 ///
-/// Before opening the stream, retries on 429 / 503 up to `max_retries` times
-/// honouring any `Retry-After` header.  Once the stream is open, individual
-/// chunk errors are yielded as `Err` items rather than causing a retry.
+/// Before opening the stream, retries on 429 / 500 / 502 / 503 / 504 up to
+/// `max_retries` times honouring any `Retry-After` header.  Once the stream
+/// is open, individual chunk errors are yielded as `Err` items rather than
+/// causing a retry.
 ///
 /// `auth_header` is `Some((name, value))` when the provider requires
 /// authentication, or `None` when no auth header should be added.

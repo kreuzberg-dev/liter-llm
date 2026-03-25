@@ -107,6 +107,10 @@ fn error_kind_label(e: &liter_lm::LiterLmError) -> &'static str {
 pub struct LlmClientOptions {
     pub api_key: String,
     pub base_url: Option<String>,
+    /// Optional model hint for provider auto-detection (e.g. `"groq/llama3-70b"`).
+    /// Pass this when no `baseUrl` is set so the client can select the correct
+    /// provider endpoint and auth style at construction time.
+    pub model_hint: Option<String>,
     pub max_retries: Option<u32>,
     /// Timeout in seconds.
     ///
@@ -148,7 +152,7 @@ impl LlmClient {
         }
 
         let config = builder.build();
-        let client = DefaultClient::new(config, None).map_err(to_napi_err)?;
+        let client = DefaultClient::new(config, options.model_hint.as_deref()).map_err(to_napi_err)?;
         Ok(Self {
             inner: Arc::new(client),
         })

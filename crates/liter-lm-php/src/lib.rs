@@ -99,11 +99,15 @@ impl PhpLlmClient {
     ///
     /// @param string      $apiKey      API key for authentication.
     /// @param string|null $baseUrl     Override provider base URL (optional).
+    /// @param string|null $modelHint   Model hint for provider auto-detection
+    ///                                 (e.g. `"groq/llama3-70b"`).  Used when
+    ///                                 $baseUrl is null.
     /// @param int         $maxRetries  Retries on 429 / 5xx.  Defaults to 3.
     /// @param int         $timeoutSecs Request timeout in seconds.  Defaults to 60.
     pub fn __construct(
         api_key: String,
         base_url: Option<String>,
+        model_hint: Option<String>,
         max_retries: Option<u32>,
         timeout_secs: Option<u64>,
     ) -> PhpResult<Self> {
@@ -120,7 +124,8 @@ impl PhpLlmClient {
         }
 
         let config = builder.build();
-        let client = DefaultClient::new(config, None).map_err(|e| PhpException::from(e.to_string()))?;
+        let client =
+            DefaultClient::new(config, model_hint.as_deref()).map_err(|e| PhpException::from(e.to_string()))?;
 
         Ok(Self { inner: client })
     }

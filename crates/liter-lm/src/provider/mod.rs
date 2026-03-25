@@ -138,6 +138,7 @@ pub trait Provider: Send + Sync {
     }
 
     /// Whether streaming is supported.
+    #[allow(dead_code)] // reserved for future provider-capability checking
     fn supports_streaming(&self) -> bool {
         true
     }
@@ -189,6 +190,7 @@ impl Provider for OpenAiProvider {
 pub struct OpenAiCompatibleProvider {
     pub name: String,
     pub base_url: String,
+    #[allow(dead_code)] // reserved for future env-var based key injection
     pub env_var: String,
     pub model_prefixes: Vec<String>,
 }
@@ -352,13 +354,12 @@ pub fn all_providers() -> Result<&'static [ProviderConfig]> {
     Ok(&registry()?.providers)
 }
 
-/// Return the list of complex provider names.
+/// Return the set of complex provider names.
 ///
 /// Complex providers require custom auth/routing logic beyond simple bearer
 /// tokens (e.g. AWS Bedrock SigV4, Vertex AI OAuth2).
 ///
-/// The returned `Vec` is freshly allocated from the static `HashSet` on each
-/// call; for performance-sensitive callers, cache the result.
-pub fn complex_provider_names() -> Result<Vec<&'static String>> {
-    Ok(registry()?.complex_providers.iter().collect())
+/// The returned reference points into the static registry — no allocation.
+pub fn complex_provider_names() -> Result<&'static HashSet<String>> {
+    Ok(&registry()?.complex_providers)
 }

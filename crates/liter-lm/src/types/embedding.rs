@@ -2,21 +2,33 @@ use serde::{Deserialize, Serialize};
 
 use super::common::Usage;
 
+// ─── Encoding format ──────────────────────────────────────────────────────────
+
+/// The format in which the embedding vectors are returned.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum EmbeddingFormat {
+    /// 32-bit floating-point numbers (default).
+    Float,
+    /// Base64-encoded string representation of the floats.
+    Base64,
+}
+
 // ─── Request ──────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EmbeddingRequest {
     pub model: String,
     pub input: EmbeddingInput,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub encoding_format: Option<String>,
+    pub encoding_format: Option<EmbeddingFormat>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dimensions: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     Single(String),

@@ -87,13 +87,19 @@ impl DefaultClient {
 
         // Build the header map from pre-validated headers stored in the config.
         // The builder already validated each header name/value, so these
-        // conversions are guaranteed to succeed.
+        // conversions are expected to succeed; return a proper error if they
+        // somehow fail rather than panicking.
         let mut header_map = reqwest::header::HeaderMap::new();
         for (k, v) in config.headers() {
-            let name = reqwest::header::HeaderName::from_bytes(k.as_bytes())
-                .expect("header name was validated by ClientConfigBuilder");
-            let val =
-                reqwest::header::HeaderValue::from_str(v).expect("header value was validated by ClientConfigBuilder");
+            let name =
+                reqwest::header::HeaderName::from_bytes(k.as_bytes()).map_err(|_| LiterLmError::InvalidHeader {
+                    name: k.clone(),
+                    reason: "pre-validated header name became invalid".into(),
+                })?;
+            let val = reqwest::header::HeaderValue::from_str(v).map_err(|_| LiterLmError::InvalidHeader {
+                name: k.clone(),
+                reason: "pre-validated header value became invalid".into(),
+            })?;
             header_map.insert(name, val);
         }
 

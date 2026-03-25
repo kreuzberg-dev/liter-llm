@@ -26,7 +26,7 @@ pub enum FinishReason {
 
 // ─── Request ─────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ChatCompletionRequest {
     pub model: String,
     pub messages: Vec<Message>,
@@ -66,7 +66,7 @@ pub struct ChatCompletionRequest {
     pub seed: Option<i64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StreamOptions {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub include_usage: Option<bool>,

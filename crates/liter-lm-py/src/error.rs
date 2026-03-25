@@ -73,6 +73,18 @@ create_exception!(
     LlmError,
     "Error while reading a streaming response from the provider."
 );
+create_exception!(
+    _internal_bindings,
+    InvalidHeaderError,
+    LlmError,
+    "An HTTP header name or value was invalid."
+);
+create_exception!(
+    _internal_bindings,
+    EndpointNotSupportedError,
+    LlmError,
+    "The requested endpoint is not supported by the selected provider."
+);
 
 /// Convert a [`LiterLmError`] into the matching Python exception.
 pub fn to_py_err(e: LiterLmError) -> PyErr {
@@ -89,6 +101,8 @@ pub fn to_py_err(e: LiterLmError) -> PyErr {
         LiterLmError::Timeout => PyErr::new::<LlmTimeoutError, _>(msg),
         LiterLmError::Network(_) => PyErr::new::<NetworkError, _>(msg),
         LiterLmError::Streaming { .. } => PyErr::new::<StreamingError, _>(msg),
+        LiterLmError::InvalidHeader { .. } => PyErr::new::<InvalidHeaderError, _>(msg),
+        LiterLmError::EndpointNotSupported { .. } => PyErr::new::<EndpointNotSupportedError, _>(msg),
         _ => PyErr::new::<LlmError, _>(msg),
     }
 }
@@ -110,5 +124,10 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("LlmTimeoutError", m.py().get_type::<LlmTimeoutError>())?;
     m.add("NetworkError", m.py().get_type::<NetworkError>())?;
     m.add("StreamingError", m.py().get_type::<StreamingError>())?;
+    m.add("InvalidHeaderError", m.py().get_type::<InvalidHeaderError>())?;
+    m.add(
+        "EndpointNotSupportedError",
+        m.py().get_type::<EndpointNotSupportedError>(),
+    )?;
     Ok(())
 }

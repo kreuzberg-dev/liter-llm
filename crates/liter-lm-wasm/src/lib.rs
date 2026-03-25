@@ -47,6 +47,10 @@ export interface LlmClientOptions {
   maxRetries?: number;
   /** Request timeout in seconds (default: 60). */
   timeoutSecs?: number;
+  /** Override the entire Authorization header value (e.g. `"Bearer sk-..."`,
+   *  `"x-api-key abc123"`, or a custom scheme).  When omitted the client
+   *  generates `"Bearer {apiKey}"` automatically. */
+  authHeader?: string;
 }
 
 // ── Shared ────────────────────────────────────────────────────────────────────
@@ -292,6 +296,10 @@ struct ClientOptions {
     #[serde(default = "default_timeout_secs")]
     #[allow(dead_code)] // Stored for future use when we have a WASM-native timeout mechanism
     timeout_secs: u64,
+    /// Optional override for the full Authorization header value.
+    /// When absent the client generates `"Bearer {api_key}"`.
+    #[serde(default)]
+    auth_header: Option<String>,
 }
 
 fn default_max_retries() -> u32 {
@@ -313,6 +321,7 @@ fn default_timeout_secs() -> u64 {
 /// - `baseUrl` (string, optional) — override the provider base URL
 /// - `maxRetries` (number, optional, default 3)
 /// - `timeoutSecs` (number, optional, default 60)
+/// - `authHeader` (string, optional) — override the `Authorization` header value
 ///
 /// # Security note
 ///
@@ -327,6 +336,9 @@ pub struct LlmClient {
     api_key: String,
     base_url: String,
     max_retries: u32,
+    /// Full Authorization header value.  When the user does not provide
+    /// `authHeader` this defaults to `"Bearer {api_key}"`.
+    auth_header_override: Option<String>,
 }
 
 #[wasm_bindgen]
@@ -345,7 +357,16 @@ impl LlmClient {
             api_key: opts.api_key,
             base_url,
             max_retries: opts.max_retries,
+            auth_header_override: opts.auth_header,
         })
+    }
+
+    /// Return the effective Authorization header value: either the override
+    /// provided by the user or the default `"Bearer {api_key}"`.
+    fn effective_auth_header(&self) -> String {
+        self.auth_header_override
+            .clone()
+            .unwrap_or_else(|| format!("Bearer {}", self.api_key))
     }
 
     /// Send a chat completion request.
@@ -353,15 +374,35 @@ impl LlmClient {
     /// Accepts a JS object matching the OpenAI Chat Completions request shape.
     /// Returns a `Promise` that resolves to the parsed response object.
     pub fn chat(&self, request: JsValue) -> Promise {
-        let api_key = self.api_key.clone();
+        let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
 
         wasm_bindgen_futures::future_to_promise(async move {
             let req_json = js_to_json(request)?;
             let url = format!("{base_url}/chat/completions");
-            let resp_json = fetch_json_post(&url, &api_key, req_json, max_retries).await?;
+            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
             json_to_js(&resp_json)
+        })
+    }
+
+    /// Stream a chat completion request.
+    ///
+    /// **Not yet implemented in the WASM binding.**
+    ///
+    /// Returns a `Promise` that always rejects with an error message explaining
+    /// that streaming is not yet supported in WASM.  This stub makes the
+    /// absence of the feature explicit rather than causing a "method not found"
+    /// error at runtime.
+    ///
+    /// TODO: implement using the WASM Streams API (`ReadableStream`) once
+    /// `wasm-streams` stabilises for this use-case.
+    #[wasm_bindgen(js_name = "chatStream")]
+    pub fn chat_stream(&self, _request: JsValue) -> Promise {
+        wasm_bindgen_futures::future_to_promise(async {
+            Err(JsValue::from_str(
+                "chat_stream is not yet supported in the WASM binding",
+            ))
         })
     }
 
@@ -370,14 +411,14 @@ impl LlmClient {
     /// Accepts a JS object matching the OpenAI Embeddings request shape.
     /// Returns a `Promise` that resolves to the parsed response object.
     pub fn embed(&self, request: JsValue) -> Promise {
-        let api_key = self.api_key.clone();
+        let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
 
         wasm_bindgen_futures::future_to_promise(async move {
             let req_json = js_to_json(request)?;
             let url = format!("{base_url}/embeddings");
-            let resp_json = fetch_json_post(&url, &api_key, req_json, max_retries).await?;
+            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
             json_to_js(&resp_json)
         })
     }
@@ -387,20 +428,15 @@ impl LlmClient {
     /// Returns a `Promise` that resolves to the parsed models list object.
     #[wasm_bindgen(js_name = "listModels")]
     pub fn list_models(&self) -> Promise {
-        let api_key = self.api_key.clone();
+        let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
 
         wasm_bindgen_futures::future_to_promise(async move {
             let url = format!("{base_url}/models");
-            let resp_json = fetch_json_get(&url, &api_key, max_retries).await?;
+            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
             json_to_js(&resp_json)
         })
-    }
-
-    /// Return the library version string.
-    pub fn version(&self) -> String {
-        env!("CARGO_PKG_VERSION").to_string()
     }
 }
 
@@ -427,9 +463,12 @@ impl Drop for LlmClient {
 ///
 /// Retries on 429 / 5xx up to `max_retries` times with exponential backoff
 /// (100 ms, 200 ms, 400 ms … capped at 10 s) using `gloo_timers`.
-async fn fetch_json_post(
+///
+/// `auth_header_value` is the full `Authorization` header value
+/// (e.g. `"Bearer sk-..."`).
+async fn fetch_json_post_with_auth(
     url: &str,
-    api_key: &str,
+    auth_header_value: &str,
     body: serde_json::Value,
     max_retries: u32,
 ) -> Result<serde_json::Value, JsValue> {
@@ -437,7 +476,7 @@ async fn fetch_json_post(
 
     let mut attempt = 0u32;
     loop {
-        let result = do_fetch_post(url, api_key, &body_str).await;
+        let result = do_fetch_post(url, auth_header_value, &body_str).await;
         match result {
             Ok(value) => return Ok(value),
             Err(e) if attempt < max_retries && is_retryable_error(&e) => {
@@ -453,10 +492,16 @@ async fn fetch_json_post(
 /// Perform a JSON GET request using the JS `fetch` API.
 ///
 /// Retries on 429 / 5xx up to `max_retries` times with exponential backoff.
-async fn fetch_json_get(url: &str, api_key: &str, max_retries: u32) -> Result<serde_json::Value, JsValue> {
+///
+/// `auth_header_value` is the full `Authorization` header value.
+async fn fetch_json_get_with_auth(
+    url: &str,
+    auth_header_value: &str,
+    max_retries: u32,
+) -> Result<serde_json::Value, JsValue> {
     let mut attempt = 0u32;
     loop {
-        let result = do_fetch_get(url, api_key).await;
+        let result = do_fetch_get(url, auth_header_value).await;
         match result {
             Ok(value) => return Ok(value),
             Err(e) if attempt < max_retries && is_retryable_error(&e) => {
@@ -517,21 +562,34 @@ fn is_retryable_error(error: &JsValue) -> bool {
     false
 }
 
-/// Inner POST implementation using `web_sys::Request` / `fetch`.
-async fn do_fetch_post(url: &str, api_key: &str, body: &str) -> Result<serde_json::Value, JsValue> {
+/// Shared inner fetch implementation using the JS `fetch` API.
+///
+/// - `method`: HTTP method string (`"POST"` or `"GET"`).
+/// - `url`: Target URL.
+/// - `auth_header`: Value for the `Authorization` header.
+/// - `body`: Optional JSON body string (included only for POST / PUT requests).
+async fn do_fetch(
+    method: &str,
+    url: &str,
+    auth_header: &str,
+    body: Option<&str>,
+) -> Result<serde_json::Value, JsValue> {
     use js_sys::Reflect;
     use wasm_bindgen::JsCast;
 
-    // Build headers object.
     let headers = js_sys::Object::new();
-    Reflect::set(&headers, &"Content-Type".into(), &"application/json".into())?;
-    Reflect::set(&headers, &"Authorization".into(), &format!("Bearer {api_key}").into())?;
+    if let Some(b) = body {
+        Reflect::set(&headers, &"Content-Type".into(), &"application/json".into())?;
+        let _ = b; // used below
+    }
+    Reflect::set(&headers, &"Authorization".into(), &auth_header.into())?;
 
-    // Build init object.
     let init = js_sys::Object::new();
-    Reflect::set(&init, &"method".into(), &"POST".into())?;
+    Reflect::set(&init, &"method".into(), &method.into())?;
     Reflect::set(&init, &"headers".into(), &headers.into())?;
-    Reflect::set(&init, &"body".into(), &JsValue::from_str(body))?;
+    if let Some(b) = body {
+        Reflect::set(&init, &"body".into(), &JsValue::from_str(b))?;
+    }
 
     let global = js_sys::global();
 
@@ -553,35 +611,18 @@ async fn do_fetch_post(url: &str, api_key: &str, body: &str) -> Result<serde_jso
     extract_json_from_response(response).await
 }
 
+/// Inner POST implementation using `web_sys::Request` / `fetch`.
+///
+/// `auth_header_value` is the full `Authorization` header value.
+async fn do_fetch_post(url: &str, auth_header_value: &str, body: &str) -> Result<serde_json::Value, JsValue> {
+    do_fetch("POST", url, auth_header_value, Some(body)).await
+}
+
 /// Inner GET implementation using `web_sys::Request` / `fetch`.
-async fn do_fetch_get(url: &str, api_key: &str) -> Result<serde_json::Value, JsValue> {
-    use js_sys::Reflect;
-    use wasm_bindgen::JsCast;
-
-    let headers = js_sys::Object::new();
-    Reflect::set(&headers, &"Authorization".into(), &format!("Bearer {api_key}").into())?;
-
-    let init = js_sys::Object::new();
-    Reflect::set(&init, &"method".into(), &"GET".into())?;
-    Reflect::set(&init, &"headers".into(), &headers.into())?;
-
-    let global = js_sys::global();
-
-    let fetch_fn =
-        Reflect::get(&global, &"fetch".into()).map_err(|_| js_err("fetch is not available in this environment"))?;
-    let fetch_fn: js_sys::Function = fetch_fn
-        .dyn_into()
-        .map_err(|_| js_err("global.fetch is not a function"))?;
-
-    let response_promise = fetch_fn
-        .call2(&global, &JsValue::from_str(url), &init.into())
-        .map_err(|e| js_err(format!("fetch call failed: {e:?}")))?;
-    let response_promise: Promise = response_promise
-        .dyn_into()
-        .map_err(|_| js_err("fetch did not return a Promise"))?;
-
-    let response = JsFuture::from(response_promise).await?;
-    extract_json_from_response(response).await
+///
+/// `auth_header_value` is the full `Authorization` header value.
+async fn do_fetch_get(url: &str, auth_header_value: &str) -> Result<serde_json::Value, JsValue> {
+    do_fetch("GET", url, auth_header_value, None).await
 }
 
 /// Read the response body as JSON, checking the HTTP status first.

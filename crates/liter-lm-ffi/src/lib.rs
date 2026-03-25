@@ -102,6 +102,9 @@ fn runtime() -> Result<&'static tokio::runtime::Runtime, String> {
 ///   when using a provider that does not require authentication.
 /// - `base_url`: NUL-terminated base URL override.  Pass `NULL` to use the
 ///   default provider routing based on model-name prefix.
+/// - `model_hint`: NUL-terminated model name hint for provider auto-detection
+///   (e.g. `"groq/llama3-70b"`).  Pass `NULL` to default to OpenAI.  Used
+///   only when `base_url` is also `NULL`.
 ///
 /// # Return value
 ///
@@ -114,9 +117,14 @@ fn runtime() -> Result<&'static tokio::runtime::Runtime, String> {
 ///
 /// - `api_key` must be a valid, non-null, NUL-terminated C string.
 /// - `base_url` may be `NULL` (treated as no override) or a valid NUL-terminated C string.
+/// - `model_hint` may be `NULL` (treated as no hint) or a valid NUL-terminated C string.
 /// - The caller owns the returned pointer and must call `literlm_client_free` exactly once.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn literlm_client_new(api_key: *const c_char, base_url: *const c_char) -> *mut LiterLmClient {
+pub unsafe extern "C" fn literlm_client_new(
+    api_key: *const c_char,
+    base_url: *const c_char,
+    model_hint: *const c_char,
+) -> *mut LiterLmClient {
     clear_last_error();
 
     // SAFETY: caller guarantees `api_key` is non-null and NUL-terminated.
@@ -149,9 +157,24 @@ pub unsafe extern "C" fn literlm_client_new(api_key: *const c_char, base_url: *c
         }
     }
 
+    // Parse model_hint: NULL or empty string → None; otherwise Some(&str).
+    // SAFETY: `model_hint` is either NULL (skip) or a valid NUL-terminated C string.
+    let model_hint_str: Option<String> = if model_hint.is_null() {
+        None
+    } else {
+        match unsafe { CStr::from_ptr(model_hint) }.to_str() {
+            Ok(s) if !s.is_empty() => Some(s.to_owned()),
+            Ok(_) => None, // empty string — treat as no hint
+            Err(e) => {
+                set_last_error(format!("literlm_client_new: model_hint is not valid UTF-8: {e}"));
+                return std::ptr::null_mut();
+            }
+        }
+    };
+
     let config: ClientConfig = config_builder.build();
 
-    match DefaultClient::new(config, None) {
+    match DefaultClient::new(config, model_hint_str.as_deref()) {
         Ok(client) => {
             let handle = Box::new(LiterLmClient { inner: client });
             Box::into_raw(handle)
@@ -581,7 +604,7 @@ pub unsafe extern "C" fn literlm_free_string(s: *mut c_char) {
 ///
 /// Always safe to call.
 #[unsafe(no_mangle)]
-pub extern "C" fn liter_lm_version() -> *const c_char {
+pub extern "C" fn literlm_version() -> *const c_char {
     // SAFETY: VERSION is 'static, NUL-terminated, and lives for the duration
     // of the program.  It is initialised exactly once via OnceLock on first
     // call.  The raw pointer is never freed by the caller (documented above).
@@ -605,7 +628,7 @@ mod tests {
 
     #[test]
     fn version_is_non_null() {
-        let ptr = liter_lm_version();
+        let ptr = literlm_version();
         assert!(!ptr.is_null());
         // SAFETY: `ptr` points to a static NUL-terminated string.
         let s = unsafe { CStr::from_ptr(ptr) }.to_str().unwrap();
@@ -633,7 +656,7 @@ mod tests {
     #[test]
     fn client_new_null_api_key_returns_null() {
         // SAFETY: passing NULL api_key is documented to return NULL + set error.
-        let client = unsafe { literlm_client_new(std::ptr::null(), std::ptr::null()) };
+        let client = unsafe { literlm_client_new(std::ptr::null(), std::ptr::null(), std::ptr::null()) };
         assert!(client.is_null());
         let err = literlm_last_error();
         assert!(!err.is_null());
@@ -645,8 +668,8 @@ mod tests {
     #[test]
     fn client_new_and_free_empty_key() {
         let api_key = CString::new("test-key").unwrap();
-        // SAFETY: api_key is a valid NUL-terminated string; base_url is NULL.
-        let client = unsafe { literlm_client_new(api_key.as_ptr(), std::ptr::null()) };
+        // SAFETY: api_key is a valid NUL-terminated string; base_url and model_hint are NULL.
+        let client = unsafe { literlm_client_new(api_key.as_ptr(), std::ptr::null(), std::ptr::null()) };
         // Construction may fail if reqwest internals fail, but on CI it should succeed.
         if !client.is_null() {
             // SAFETY: client was returned by literlm_client_new.
@@ -679,8 +702,8 @@ mod tests {
     #[test]
     fn chat_null_request_returns_null() {
         let api_key = CString::new("test-key").unwrap();
-        // SAFETY: api_key is valid; base_url is NULL.
-        let client = unsafe { literlm_client_new(api_key.as_ptr(), std::ptr::null()) };
+        // SAFETY: api_key is valid; base_url and model_hint are NULL.
+        let client = unsafe { literlm_client_new(api_key.as_ptr(), std::ptr::null(), std::ptr::null()) };
         if client.is_null() {
             return; // skip if construction failed
         }

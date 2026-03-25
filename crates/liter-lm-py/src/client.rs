@@ -90,6 +90,10 @@ fn kwargs_to_json(kwargs: &Bound<'_, PyDict>) -> PyResult<serde_json::Value> {
 #[pyclass(frozen, name = "LlmClient")]
 pub struct PyLlmClient {
     inner: Arc<DefaultClient>,
+    /// Stored for __repr__ display only.
+    base_url: Option<String>,
+    /// Stored for __repr__ display only.
+    max_retries: u32,
 }
 
 #[pymethods]
@@ -99,22 +103,33 @@ impl PyLlmClient {
     /// Args:
     ///     api_key: API key for authentication.
     ///     base_url: Override provider base URL (useful for mock/local servers).
+    ///     model_hint: Hint for provider auto-detection (e.g. ``"groq/llama3-70b"``).
+    ///         Pass this when no ``base_url`` is set so the client can select the
+    ///         correct provider endpoint and auth style at construction time.
     ///     max_retries: Retries on 429 / 5xx.  Defaults to ``3``.
     ///     timeout: Request timeout in seconds.  Defaults to ``60``.
     #[new]
-    #[pyo3(signature = (*, api_key, base_url = None, max_retries = 3, timeout = 60))]
-    fn new(api_key: String, base_url: Option<String>, max_retries: u32, timeout: u64) -> PyResult<Self> {
+    #[pyo3(signature = (*, api_key, base_url = None, model_hint = None, max_retries = 3, timeout = 60))]
+    fn new(
+        api_key: String,
+        base_url: Option<String>,
+        model_hint: Option<String>,
+        max_retries: u32,
+        timeout: u64,
+    ) -> PyResult<Self> {
         let mut builder = ClientConfigBuilder::new(api_key);
-        if let Some(url) = base_url {
-            builder = builder.base_url(url);
+        if let Some(ref url) = base_url {
+            builder = builder.base_url(url.clone());
         }
         builder = builder.max_retries(max_retries);
         builder = builder.timeout(std::time::Duration::from_secs(timeout));
         let config = builder.build();
 
-        let client = DefaultClient::new(config, None).map_err(to_py_err)?;
+        let client = DefaultClient::new(config, model_hint.as_deref()).map_err(to_py_err)?;
         Ok(Self {
             inner: Arc::new(client),
+            base_url,
+            max_retries,
         })
     }
 
@@ -176,7 +191,7 @@ impl PyLlmClient {
                         let _ = tx.send(Err(e)).await;
                     }
                     Ok(mut stream) => loop {
-                        if cancelled_bg.load(Ordering::Relaxed) {
+                        if cancelled_bg.load(Ordering::Acquire) {
                             break;
                         }
                         let next = std::future::poll_fn(|cx: &mut Context<'_>| {
@@ -234,8 +249,11 @@ impl PyLlmClient {
         })
     }
 
-    fn __repr__(&self) -> &'static str {
-        "LlmClient(...)"
+    fn __repr__(&self) -> String {
+        match &self.base_url {
+            Some(url) => format!("LlmClient(base_url={url:?}, max_retries={})", self.max_retries),
+            None => format!("LlmClient(max_retries={})", self.max_retries),
+        }
     }
 }
 
@@ -314,7 +332,7 @@ impl PyAsyncChunkIterator {
     ) -> PyResult<Bound<'py, PyAny>> {
         // Signal the producer to stop and drain/close the receiver so the
         // background task's sends fail fast.
-        self.cancelled.store(true, Ordering::Relaxed);
+        self.cancelled.store(true, Ordering::Release);
         let rx = Arc::clone(&self.rx);
         let handle = Arc::clone(&self.handle);
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
@@ -337,7 +355,7 @@ impl PyAsyncChunkIterator {
     /// Called automatically by ``__aexit__``.  Can also be called manually
     /// when the iterator is discarded early.
     fn cancel(&self) {
-        self.cancelled.store(true, Ordering::Relaxed);
+        self.cancelled.store(true, Ordering::Release);
     }
 }
 
@@ -346,6 +364,6 @@ impl Drop for PyAsyncChunkIterator {
         // Best-effort cancellation signal when the Python object is GC'd
         // without going through __aexit__.  The background task checks this
         // flag on every iteration and will stop on its next loop.
-        self.cancelled.store(true, Ordering::Relaxed);
+        self.cancelled.store(true, Ordering::Release);
     }
 }

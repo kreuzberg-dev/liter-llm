@@ -29,6 +29,8 @@ class ContentPolicyError(BadRequestError): ...
 class LlmTimeoutError(LlmError): ...
 class NetworkError(LlmError): ...
 class StreamingError(LlmError): ...
+class InvalidHeaderError(LlmError): ...
+class EndpointNotSupportedError(LlmError): ...
 
 # ─── Request param TypedDicts ─────────────────────────────────────────────────
 
@@ -140,6 +142,7 @@ class Usage:
     @property
     def total_tokens(self) -> int: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]  # unhashable — __eq__ defined without __hash__
 
 # ─── Tool calls ───────────────────────────────────────────────────────────────
 
@@ -149,6 +152,7 @@ class FunctionCall:
     @property
     def arguments(self) -> str: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class ToolCall:
     @property
@@ -156,6 +160,7 @@ class ToolCall:
     @property
     def function(self) -> FunctionCall: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 # ─── Message and choice types ─────────────────────────────────────────────────
 
@@ -171,6 +176,7 @@ class AssistantMessage:
     @property
     def refusal(self) -> str | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class Choice:
     @property
@@ -180,6 +186,7 @@ class Choice:
     @property
     def finish_reason(self) -> _FinishReason | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 # ─── Chat completion response ─────────────────────────────────────────────────
 
@@ -199,6 +206,7 @@ class ChatCompletionResponse:
     @property
     def service_tier(self) -> str | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 # ─── Streaming chunk types ────────────────────────────────────────────────────
 
@@ -208,6 +216,7 @@ class StreamFunctionCall:
     @property
     def arguments(self) -> str | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class StreamToolCall:
     @property
@@ -217,6 +226,7 @@ class StreamToolCall:
     @property
     def function(self) -> StreamFunctionCall | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class StreamDelta:
     @property
@@ -228,6 +238,7 @@ class StreamDelta:
     @property
     def tool_calls(self) -> list[StreamToolCall] | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class StreamChoice:
     @property
@@ -237,6 +248,7 @@ class StreamChoice:
     @property
     def finish_reason(self) -> _FinishReason | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class ChatCompletionChunk:
     @property
@@ -250,6 +262,7 @@ class ChatCompletionChunk:
     @property
     def usage(self) -> Usage | None: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 # ─── Embedding types ──────────────────────────────────────────────────────────
 
@@ -259,6 +272,7 @@ class EmbeddingObject:
     @property
     def index(self) -> int: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class EmbeddingResponse:
     @property
@@ -268,6 +282,7 @@ class EmbeddingResponse:
     @property
     def usage(self) -> Usage: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 # ─── Models list types ────────────────────────────────────────────────────────
 
@@ -279,11 +294,13 @@ class ModelObject:
     @property
     def owned_by(self) -> str: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 class ModelsListResponse:
     @property
     def data(self) -> list[ModelObject]: ...
     def __eq__(self, other: object) -> bool: ...
+    __hash__: None  # type: ignore[assignment]
 
 # ─── Async streaming iterator ─────────────────────────────────────────────────
 
@@ -307,6 +324,7 @@ class LlmClient:
         *,
         api_key: str,
         base_url: str | None = None,
+        model_hint: str | None = None,
         max_retries: int = 3,
         timeout: int = 60,
     ) -> None: ...

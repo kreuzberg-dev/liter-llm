@@ -76,6 +76,9 @@ typedef void (*LiterLmStreamCallback)(const char *chunk_json, void *user_data);
  *   when using a provider that does not require authentication.
  * - `base_url`: NUL-terminated base URL override.  Pass `NULL` to use the
  *   default provider routing based on model-name prefix.
+ * - `model_hint`: NUL-terminated model name hint for provider auto-detection
+ *   (e.g. `"groq/llama3-70b"`).  Pass `NULL` to default to OpenAI.  Used
+ *   only when `base_url` is also `NULL`.
  *
  * # Return value
  *
@@ -88,9 +91,12 @@ typedef void (*LiterLmStreamCallback)(const char *chunk_json, void *user_data);
  *
  * - `api_key` must be a valid, non-null, NUL-terminated C string.
  * - `base_url` may be `NULL` (treated as no override) or a valid NUL-terminated C string.
+ * - `model_hint` may be `NULL` (treated as no hint) or a valid NUL-terminated C string.
  * - The caller owns the returned pointer and must call `literlm_client_free` exactly once.
  */
-LITER_LM_EXPORT LiterLmClient *literlm_client_new(const char *api_key, const char *base_url);
+LITER_LM_EXPORT
+LiterLmClient *literlm_client_new(const char *api_key, const char *base_url,
+                                  const char *model_hint);
 
 /**
  * Free a client created by [`literlm_client_new`].
@@ -242,6 +248,6 @@ LITER_LM_EXPORT void literlm_free_string(char *s);
  *
  * Always safe to call.
  */
-LITER_LM_EXPORT const char *liter_lm_version(void);
+LITER_LM_EXPORT const char *literlm_version(void);
 
 #endif /* LITER_LM_FFI_H */
