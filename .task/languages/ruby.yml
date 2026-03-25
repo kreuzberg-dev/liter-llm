@@ -3,13 +3,13 @@ version: "3"
 tasks:
   deps:
     desc: Install Ruby dependencies
-    dir: crates/ts-pack-ruby
+    dir: packages/ruby
     cmds:
       - bundle install
 
   update:
     desc: Update Ruby dependencies to latest versions
-    dir: crates/ts-pack-ruby
+    dir: packages/ruby
     cmds:
       - echo "Updating Ruby dependencies to latest versions..."
       - bundle update --all --conservative=false
@@ -17,7 +17,7 @@ tasks:
       - bundle outdated || true
 
   vendor:
-    desc: Vendor ts-pack-core into Ruby package
+    desc: Vendor liter-lm-core into Ruby package
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
@@ -25,16 +25,16 @@ tasks:
 
   build:
     desc: Build Ruby native extension (requires Ruby 3.2-3.4 via rbenv)
-    dir: crates/ts-pack-ruby
+    dir: packages/ruby
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
-      CARGO_TARGET_DIR: "{{.PROJECT_ROOT}}/crates/ts-pack-ruby/target"
+      CARGO_TARGET_DIR: "{{.PROJECT_ROOT}}/crates/liter-lm-ruby/target"
     cmds:
       - bundle exec rake compile
 
   test:
     desc: Run Ruby tests
-    dir: crates/ts-pack-ruby
+    dir: packages/ruby
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
@@ -42,64 +42,52 @@ tasks:
 
   format:
     desc: Format Ruby code
-    dir: crates/ts-pack-ruby
-    env:
-      RBENV_VERSION: "3.4.8"
+    dir: packages/ruby
     cmds:
-      - eval "$(rbenv init - bash)" && bundle exec rubocop -a
+      - bundle exec rubocop --config .rubocop.yml --autocorrect-all .
 
   format:check:
     desc: Check Ruby formatting (CI)
-    dir: crates/ts-pack-ruby
-    env:
-      RBENV_VERSION: "3.4.8"
+    dir: packages/ruby
     cmds:
-      - eval "$(rbenv init - bash)" && bundle exec rubocop --format simple
+      - bundle exec rubocop --config .rubocop.yml --format simple .
 
   lint:
     desc: Lint Ruby code
-    dir: crates/ts-pack-ruby
-    env:
-      RBENV_VERSION: "3.4.8"
+    dir: packages/ruby
     cmds:
-      - eval "$(rbenv init - bash)" && bundle exec rubocop
+      - bundle exec rubocop --config .rubocop.yml .
 
   lint:check:
     desc: Check Ruby linting without modifications (CI)
-    dir: crates/ts-pack-ruby
-    env:
-      RBENV_VERSION: "3.4.8"
+    dir: packages/ruby
     cmds:
-      - eval "$(rbenv init - bash)" && bundle exec rubocop --format simple
+      - bundle exec rubocop --config .rubocop.yml --format simple .
 
   typecheck:
     desc: Run Steep type checking
-    dir: crates/ts-pack-ruby
-    env:
-      RBENV_VERSION: "3.4.8"
+    dir: packages/ruby
     cmds:
-      - eval "$(rbenv init - bash)" && bundle exec steep check
+      - bundle exec steep check
 
   rbs-validate:
     desc: Validate RBS type signatures
-    dir: crates/ts-pack-ruby
-    env:
-      RBENV_VERSION: "3.4.8"
+    dir: packages/ruby
     cmds:
-      - eval "$(rbenv init - bash)" && bundle exec rbs validate
+      - bundle exec rbs validate
 
   clean:
     desc: Clean Ruby build artifacts
-    dir: crates/ts-pack-ruby
+    dir: packages/ruby
     cmds:
-      - rm -rf tmp lib/tree_sitter_language_pack/ts_pack_ruby.* vendor/ts-pack-core vendor/Cargo.toml
+      - rm -rf tmp lib/liter_lm/liter_lm_ruby.* vendor/liter-lm-core vendor/Cargo.toml
 
   e2e:generate:
     desc: Generate Ruby E2E tests from fixtures
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
-      - cargo run -p e2e-generator -- generate --lang ruby
+      - cargo run -p codegen -- generate --lang ruby
 
   e2e:test:
     desc: Run Ruby E2E tests

@@ -1,0 +1,23 @@
+[package]
+name = "liter-lm-py"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "Python bindings for liter-lm universal LM API client"
+keywords = ["python", "pyo3", "llm", "api-client", "bindings"]
+categories = ["api-bindings"]
+
+[lib]
+name = "_internal_bindings"
+crate-type = ["cdylib", "rlib"]
+test = false
+
+[features]
+default = ["extension-module"]
+extension-module = ["pyo3/extension-module"]
+
+[dependencies]
+pyo3 = { workspace = true }

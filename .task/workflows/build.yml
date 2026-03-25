@@ -1,0 +1,17 @@
+version: "3"
+
+tasks:
+  all:
+    desc: Build core libraries and language bindings
+    cmds:
+      - task: rust
+
+  rust:
+    desc: Build all Rust crates
+    cmds:
+      - task: rust:build
+
+  rust:release:
+    desc: Build all Rust crates in release mode
+    cmds:
+      - task: rust:build:release

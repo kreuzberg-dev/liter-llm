@@ -1,0 +1,20 @@
+[package]
+name = "liter-lm-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "C FFI bindings for liter-lm universal LM API client"
+keywords = ["ffi", "bindings", "llm", "api-client", "ai"]
+categories = ["development-tools::ffi", "api-bindings"]
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[features]
+default = []
+
+[build-dependencies]
+cbindgen = "0.29"

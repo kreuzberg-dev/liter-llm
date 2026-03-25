@@ -1,30 +1,52 @@
 version: "3"
 
 includes:
+  _cfg:
+    taskfile: .task/config/vars.yml
+    internal: true
+  _platforms:
+    taskfile: .task/config/platforms.yml
+    internal: true
   rust:
-    taskfile: .task/rust.yml
+    taskfile: .task/languages/rust.yml
   python:
-    taskfile: .task/python.yml
+    taskfile: .task/languages/python.yml
   node:
-    taskfile: .task/node.yml
+    taskfile: .task/languages/node.yml
   go:
-    taskfile: .task/go.yml
+    taskfile: .task/languages/go.yml
   java:
-    taskfile: .task/java.yml
+    taskfile: .task/languages/java.yml
   elixir:
-    taskfile: .task/elixir.yml
+    taskfile: .task/languages/elixir.yml
   c:
-    taskfile: .task/c.yml
+    taskfile: .task/languages/c.yml
   ruby:
-    taskfile: .task/ruby.yml
+    taskfile: .task/languages/ruby.yml
   wasm:
-    taskfile: .task/wasm.yml
+    taskfile: .task/languages/wasm.yml
   php:
-    taskfile: .task/php.yml
+    taskfile: .task/languages/php.yml
   csharp:
-    taskfile: .task/csharp.yml
+    taskfile: .task/languages/csharp.yml
+  _build_wf:
+    taskfile: .task/workflows/build.yml
+    internal: true
+  _test_wf:
+    taskfile: .task/workflows/test.yml
+    internal: true
+  _lint_wf:
+    taskfile: .task/workflows/lint.yml
+    internal: true
+  _e2e_wf:
+    taskfile: .task/workflows/e2e.yml
+    internal: true
   version:
-    taskfile: .task/version.yml
+    taskfile: .task/tools/version-sync.yml
+  tools:
+    taskfile: .task/tools/general.yml
+  test-apps:
+    taskfile: .task/tools/test-apps.yml
 
 vars:
   PROJECT_ROOT:
@@ -41,22 +63,7 @@ tasks:
   setup:
     desc: "Install all dependencies and initialize project. Idempotent - safe to re-run anytime."
     cmds:
-      - cmd: >-
-          bash -c '
-          echo "Setting up sdkman...";
-          if [ ! -d "$HOME/.sdkman" ]; then
-            echo "Installing sdkman...";
-            curl -s "https://get.sdkman.io" | bash;
-          else
-            echo "sdkman is already installed";
-          fi;
-          echo "Loading sdkman and installing tools from .sdkmanrc...";
-          source "$HOME/.sdkman/bin/sdkman-init.sh";
-          sdk env install;
-          '
-        platforms: [linux, darwin]
-      - cmd: echo "Setting up sdkman (skipped on Windows - use scoop or manual installation)..."
-        platforms: [windows]
+      - task: _platforms:setup:sdkman
       - echo "Installing language tools..."
       - task: rust:install
       - task: python:install
@@ -72,13 +79,13 @@ tasks:
       - prek install
       - prek install --hook-type commit-msg
       - echo "Generating AI rules..."
-      - task: ai-rulez
+      - task: tools:ai-rulez
       - echo "Setup complete - safe to re-run anytime"
 
   ai-rulez:
     desc: Generate ai-rulez configuration files (CLAUDE.md, etc.)
     cmds:
-      - npx -y ai-rulez@latest generate
+      - task: tools:ai-rulez
 
   build:
     desc: Build core libraries and language bindings
@@ -175,100 +182,70 @@ tasks:
       - task: generate:providers
       - task: e2e:generate:all
 
-  # E2E test generation
+  # E2E test generation (delegates to e2e workflow)
   e2e:generate:all:
     desc: Generate E2E tests for all languages from fixtures
     cmds:
-      - cargo run -p codegen -- e2e --lang all
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:all
 
   e2e:generate:rust:
     desc: Generate and format Rust E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang rust
-      - cargo fmt --manifest-path e2e/rust/Cargo.toml
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:rust
 
   e2e:generate:python:
     desc: Generate and lint Python E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang python
-      - uv run --no-sync ruff check --fix e2e/python/
-      - uv run --no-sync ruff format e2e/python/
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:python
 
   e2e:generate:typescript:
     desc: Generate TypeScript E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang typescript
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:typescript
 
   e2e:generate:go:
     desc: Generate and format Go E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang go
-      - gofmt -w e2e/go/
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:go
 
   e2e:generate:java:
     desc: Generate Java E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang java
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:java
 
   e2e:generate:elixir:
     desc: Generate Elixir E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang elixir
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:elixir
 
   e2e:generate:ruby:
     desc: Generate and format Ruby E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang ruby
-      - bundle exec rubocop -a e2e/ruby/ || true
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:ruby
 
   e2e:generate:wasm:
     desc: Generate WASM E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang wasm
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:wasm
 
   e2e:generate:c:
     desc: Generate C E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang c
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:c
 
   e2e:generate:php:
     desc: Generate PHP E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang php
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:php
 
   e2e:generate:csharp:
     desc: Generate C# E2E tests
     cmds:
-      - cargo run -p codegen -- e2e --lang csharp
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: e2e:generate:csharp
 
   e2e:test:rust:
     desc: Run Rust E2E tests (generate + format + test)
     cmds:
-      - task: e2e:generate:rust
-      - cargo test --manifest-path e2e/rust/Cargo.toml
+      - task: e2e:test:rust
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
