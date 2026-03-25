@@ -1,0 +1,35 @@
+# AI-Rulez V3 MCP (Model Context Protocol) Servers
+# Configuration for MCP server integrations
+# Documentation: https://github.com/Goldziher/ai-rulez
+
+# Schema reference for IDE validation
+$schema: https://raw.githubusercontent.com/Goldziher/ai-rulez/main/schema/ai-rules-v3-mcp.schema.json
+
+# Version (required)
+version: "3.0"
+
+# MCP Servers
+mcp_servers:
+  # ai-rulez MCP server for managing your .ai-rulez/ configuration
+  - name: ai-rulez
+    description: AI-Rulez MCP server for configuration management
+    command: npx
+    args:
+      - "-y"
+      - "ai-rulez@latest"
+      - "mcp"
+    transport: stdio
+    enabled: true
+
+  # Example: GitHub integration for repository operations
+  - name: github
+    description: GitHub integration for repository operations and automation
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-github"
+    env:
+      # Set GITHUB_PERSONAL_ACCESS_TOKEN environment variable or use ${GITHUB_TOKEN}
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+    transport: stdio
+    enabled: true
