@@ -39,9 +39,8 @@ RSpec.describe "list-models" do
 
     response = get_json(server.url, "/models")
 
-    expect(response.code.to_i).to eq(200)
-
-    body = JSON.parse(response.body)
+    expect(response.code.to_i).to eq(401)
+    expect(response.code.to_i).to be >= 400
 
   ensure
     server&.stop

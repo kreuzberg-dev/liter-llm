@@ -61,9 +61,8 @@ RSpec.describe "embed" do
 
     response = post_json(server.url, "/embeddings", '{"input":"Hello world","model":"text-embedding-3-small"}')
 
-    expect(response.code.to_i).to eq(200)
-
-    body = JSON.parse(response.body)
+    expect(response.code.to_i).to eq(401)
+    expect(response.code.to_i).to be >= 400
 
   ensure
     server&.stop

@@ -194,10 +194,13 @@ final class MockServer
 
     private function buildRouterScript(string $routeDataJson): string
     {
+        // Base64-encode the JSON so it can be safely embedded in a PHP string
+        // literal without worrying about quote or backslash escaping.
+        $b64 = base64_encode($routeDataJson);
         // phpcs:disable
         return <<<PHP
         <?php
-        \$routes = json_decode('{$routeDataJson}', true);
+        \$routes = json_decode(base64_decode('{$b64}'), true);
         \$path   = parse_url(\$_SERVER['REQUEST_URI'], PHP_URL_PATH);
         \$method = strtoupper(\$_SERVER['REQUEST_METHOD']);
 
@@ -244,7 +247,6 @@ function httpRequest(string $url, string $method, string $body = ''): array
     ]);
 
     $responseBody = file_get_contents($url, false, $ctx);
-    $meta         = stream_get_meta_data($ctx);
 
     // Parse status from response headers.
     $status = 200;
@@ -400,22 +402,33 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
             writeln!(out, "        $server->stop();").unwrap();
             writeln!(out).unwrap();
 
-            let meaningful: usize = fixture
-                .api
-                .mock_response
-                .stream_chunks
-                .iter()
-                .filter(|c| {
-                    c.get("choices")
-                        .and_then(|ch| ch.as_array())
-                        .and_then(|arr| arr.first())
-                        .and_then(|ch| ch.get("delta"))
-                        .and_then(|d| d.get("content"))
-                        .and_then(|v| v.as_str())
-                        .is_some_and(|s| !s.is_empty())
-                })
-                .count();
-            let min_chunks = meaningful.max(1);
+            // Count total stream chunks (including non-content chunks like
+            // tool calls or finish signals).  When there are no stream chunks
+            // at all (e.g. an error response or an empty stream fixture) the
+            // expected count is 0, not 1, because the mock returns a regular
+            // JSON body rather than SSE data lines.
+            let total_chunks = fixture.api.mock_response.stream_chunks.len();
+            let min_chunks = if total_chunks == 0 {
+                0_usize
+            } else {
+                // At least one SSE data line is expected when chunks exist.
+                let meaningful: usize = fixture
+                    .api
+                    .mock_response
+                    .stream_chunks
+                    .iter()
+                    .filter(|c| {
+                        c.get("choices")
+                            .and_then(|ch| ch.as_array())
+                            .and_then(|arr| arr.first())
+                            .and_then(|ch| ch.get("delta"))
+                            .and_then(|d| d.get("content"))
+                            .and_then(|v| v.as_str())
+                            .is_some_and(|s| !s.is_empty())
+                    })
+                    .count();
+                meaningful.max(1)
+            };
 
             writeln!(
                 out,

@@ -106,10 +106,13 @@ final class MockServer
 
     private function buildRouterScript(string $routeDataJson): string
     {
+        // Base64-encode the JSON so it can be safely embedded in a PHP string
+        // literal without worrying about quote or backslash escaping.
+        $b64 = base64_encode($routeDataJson);
         // phpcs:disable
         return <<<PHP
         <?php
-        \$routes = json_decode('{$routeDataJson}', true);
+        \$routes = json_decode(base64_decode('{$b64}'), true);
         \$path   = parse_url(\$_SERVER['REQUEST_URI'], PHP_URL_PATH);
         \$method = strtoupper(\$_SERVER['REQUEST_METHOD']);
 
@@ -156,7 +159,6 @@ function httpRequest(string $url, string $method, string $body = ''): array
     ]);
 
     $responseBody = file_get_contents($url, false, $ctx);
-    $meta         = stream_get_meta_data($ctx);
 
     // Parse status from response headers.
     $status = 200;

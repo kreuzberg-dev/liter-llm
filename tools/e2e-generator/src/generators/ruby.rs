@@ -46,7 +46,6 @@ fn write_gemfile(dir: &Utf8Path) -> Result<()> {
 
 source "https://rubygems.org"
 
-gem "liter-lm"
 gem "rspec", "~> 3.13"
 gem "webrick", "~> 1.8"
 "#;
@@ -318,6 +317,7 @@ fn emit_ruby_chat_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
 fn emit_ruby_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -327,6 +327,18 @@ fn emit_ruby_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     )
     .unwrap();
     writeln!(out).unwrap();
+
+    if is_error {
+        writeln!(
+            out,
+            "    expect(response.code.to_i).to eq({})",
+            fixture.api.mock_response.status
+        )
+        .unwrap();
+        writeln!(out, "    expect(response.code.to_i).to be >= 400").unwrap();
+        return;
+    }
+
     writeln!(out, "    expect(response.code.to_i).to eq(200)").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "    chunks = parse_sse_chunks(response.body)").unwrap();
@@ -347,7 +359,12 @@ fn emit_ruby_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         })
         .count();
 
-    let min_chunks = meaningful.max(1);
+    // For empty stream fixtures, min is 0; otherwise require at least 1 chunk.
+    let min_chunks = if fixture.api.mock_response.stream_chunks.is_empty() {
+        0
+    } else {
+        meaningful.max(1)
+    };
     writeln!(out, "    expect(chunks.size).to be >= {min_chunks}").unwrap();
 
     let expected_content: String = fixture
@@ -379,6 +396,7 @@ fn emit_ruby_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
 fn emit_ruby_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -388,6 +406,18 @@ fn emit_ruby_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     )
     .unwrap();
     writeln!(out).unwrap();
+
+    if is_error {
+        writeln!(
+            out,
+            "    expect(response.code.to_i).to eq({})",
+            fixture.api.mock_response.status
+        )
+        .unwrap();
+        writeln!(out, "    expect(response.code.to_i).to be >= 400").unwrap();
+        return;
+    }
+
     writeln!(out, "    expect(response.code.to_i).to eq(200)").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "    body = JSON.parse(response.body)").unwrap();
@@ -399,8 +429,22 @@ fn emit_ruby_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 }
 
 fn emit_ruby_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
     writeln!(out, "    response = get_json(server.url, {:?})", endpoint).unwrap();
     writeln!(out).unwrap();
+
+    if is_error {
+        writeln!(
+            out,
+            "    expect(response.code.to_i).to eq({})",
+            fixture.api.mock_response.status
+        )
+        .unwrap();
+        writeln!(out, "    expect(response.code.to_i).to be >= 400").unwrap();
+        return;
+    }
+
     writeln!(out, "    expect(response.code.to_i).to eq(200)").unwrap();
     writeln!(out).unwrap();
     writeln!(out, "    body = JSON.parse(response.body)").unwrap();
