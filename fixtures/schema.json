@@ -1,0 +1,164 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/kreuzberg-dev/liter-lm/fixtures/schema.json",
+	"title": "LiterLM E2E Fixture",
+	"description": "Schema for liter-lm end-to-end test fixtures",
+	"type": "object",
+	"required": ["id", "category", "description", "api", "assertions"],
+	"additionalProperties": false,
+	"properties": {
+		"id": {
+			"type": "string",
+			"pattern": "^[a-z][a-z0-9_]*$",
+			"description": "Unique snake_case identifier used as the test function name"
+		},
+		"category": {
+			"type": "string",
+			"enum": ["smoke", "streaming", "error-handling", "tool-calling", "types", "configuration"],
+			"description": "Category grouping for the fixture"
+		},
+		"description": {
+			"type": "string",
+			"minLength": 5,
+			"description": "Human-readable description of what this fixture tests"
+		},
+		"api": {
+			"type": "object",
+			"required": ["method", "request", "mock_response"],
+			"additionalProperties": false,
+			"properties": {
+				"method": {
+					"type": "string",
+					"enum": ["chat", "chat_stream", "embed", "list_models"],
+					"description": "The API method being tested"
+				},
+				"request": {
+					"type": "object",
+					"description": "The request payload to send to the API"
+				},
+				"mock_response": {
+					"type": "object",
+					"required": ["status"],
+					"additionalProperties": true,
+					"properties": {
+						"status": {
+							"type": "integer",
+							"minimum": 100,
+							"maximum": 599,
+							"description": "HTTP status code to return"
+						},
+						"body": {
+							"type": "object",
+							"description": "JSON response body (for non-streaming responses)"
+						},
+						"stream_chunks": {
+							"type": "array",
+							"description": "Array of SSE chunk objects for streaming responses",
+							"items": {
+								"type": "object"
+							}
+						},
+						"stream_terminator": {
+							"type": "string",
+							"description": "Optional explicit stream terminator, e.g. \"[DONE]\""
+						}
+					}
+				}
+			}
+		},
+		"assertions": {
+			"type": "object",
+			"description": "Key-value assertions to verify on the response",
+			"additionalProperties": true,
+			"properties": {
+				"response_not_null": {
+					"type": "boolean"
+				},
+				"choices_count": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"first_choice_content": {
+					"type": "string"
+				},
+				"first_choice_finish_reason": {
+					"type": "string"
+				},
+				"usage_total_tokens": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"model": {
+					"type": "string"
+				},
+				"embedding_count": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"embedding_dimensions": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"models_count_min": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"stream_chunk_count_min": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"stream_final_content": {
+					"type": "string"
+				},
+				"stream_completes_cleanly": {
+					"type": "boolean"
+				},
+				"no_chunks_after_done": {
+					"type": "boolean"
+				},
+				"error_type": {
+					"type": "string",
+					"enum": ["Authentication", "RateLimited", "ServerError", "NotFound", "InvalidRequest", "Timeout"]
+				},
+				"error_status_code": {
+					"type": "integer",
+					"minimum": 400,
+					"maximum": 599
+				},
+				"first_choice_has_tool_calls": {
+					"type": "boolean"
+				},
+				"first_tool_call_function_name": {
+					"type": "string"
+				}
+			}
+		},
+		"tags": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "Optional labels for filtering test runs",
+			"default": []
+		},
+		"skip": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"requires_language": {
+					"type": "string",
+					"description": "Skip unless the binding under test matches this language"
+				},
+				"platform": {
+					"type": "string",
+					"description": "Skip on this OS platform (e.g. windows)"
+				},
+				"reason": {
+					"type": "string",
+					"description": "Human-readable explanation for why the test is skipped"
+				}
+			},
+			"description": "Conditions under which the test should be skipped"
+		}
+	}
+}

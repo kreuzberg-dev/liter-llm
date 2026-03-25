@@ -6,6 +6,7 @@ members = [
     "crates/liter-lm-php",
     "crates/liter-lm-py",
     "crates/liter-lm-wasm",
+    "tools/e2e-generator",
 ]
 resolver = "2"
 
@@ -20,6 +21,7 @@ description = "A universal LM API client with polyglot bindings"
 keywords = ["llm", "openai", "api-client", "ai", "kreuzberg"]
 
 [workspace.dependencies]
+anyhow = "1"
 base64 = "0.22"
 bytes = "1"
 

@@ -1,0 +1,16 @@
+[package]
+name = "e2e-generator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[dependencies]
+anyhow = { workspace = true }
+camino = "1.2"
+clap = { workspace = true }
+itertools = "0.14"
+serde = { workspace = true }
+serde_json = { workspace = true }
+walkdir = "2.5"
