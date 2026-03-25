@@ -22,13 +22,22 @@ after_includes = """
     #define LITER_LM_EXPORT
   #endif
 #endif
+
+/**
+ * Opaque handle to a liter-lm client.
+ * Create with literlm_client_new(), free with literlm_client_free().
+ */
+typedef struct LiterLmClient LiterLmClient;
 """
 
 [fn]
 prefix = "LITER_LM_EXPORT"
 
 [export]
-include = []
+# LiterLmClient is emitted as an opaque typedef in after_includes above;
+# exclude it from cbindgen's automatic struct export to avoid a duplicate
+# or broken definition referencing a private Rust type.
+exclude = ["LiterLmClient"]
 
 [parse]
 parse_deps = false

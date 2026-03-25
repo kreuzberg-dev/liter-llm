@@ -20,3 +20,7 @@ default = []
 
 [dependencies]
 ext-php-rs = "0.15"
+liter-lm = { path = "../liter-lm" }
+once_cell = "1"
+serde_json = { workspace = true }
+tokio = { workspace = true }

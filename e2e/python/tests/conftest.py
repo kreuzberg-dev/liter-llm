@@ -64,7 +64,10 @@ def _make_handler(route: MockRoute):  # noqa: ANN202
             await response.write(b"data: [DONE]\n\n")
             return response
         else:
-            body = json.dumps(route.body)
+            # If the body is already a JSON string, serve it directly to
+            # avoid double-encoding.  Dicts and other values are serialised
+            # with json.dumps as usual.
+            body = route.body if isinstance(route.body, str) else json.dumps(route.body)
             return web.Response(
                 status=route.status,
                 content_type="application/json",

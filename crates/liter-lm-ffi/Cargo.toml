@@ -16,5 +16,10 @@ crate-type = ["cdylib", "staticlib", "rlib"]
 [features]
 default = []
 
+[dependencies]
+liter-lm = { path = "../liter-lm" }
+serde_json.workspace = true
+tokio.workspace = true
+
 [build-dependencies]
 cbindgen = "0.29"

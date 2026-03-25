@@ -20,4 +20,9 @@ default = ["extension-module"]
 extension-module = ["pyo3/extension-module"]
 
 [dependencies]
+futures-core = { workspace = true }
+liter-lm = { path = "../liter-lm" }
 pyo3 = { workspace = true }
+pyo3-async-runtimes = { version = "0.28", features = ["tokio-runtime"] }
+serde_json = { workspace = true }
+tokio = { workspace = true }

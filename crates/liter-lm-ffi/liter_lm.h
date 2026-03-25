@@ -34,12 +34,156 @@
   #endif
 #endif
 
+/**
+ * Opaque handle to a liter-lm client.
+ * Create with literlm_client_new(), free with literlm_client_free().
+ */
+typedef struct LiterLmClient LiterLmClient;
+
+
+/**
+ * Create a new liter-lm client.
+ *
+ * # Parameters
+ *
+ * - `api_key`: NUL-terminated API key string.  Pass an empty string (`""`)
+ *   when using a provider that does not require authentication.
+ * - `base_url`: NUL-terminated base URL override.  Pass `NULL` to use the
+ *   default provider routing based on model-name prefix.
+ *
+ * # Return value
+ *
+ * Returns a heap-allocated `LiterLmClient*` on success, or `NULL` on failure.
+ * Check [`literlm_last_error`] for the error message when `NULL` is returned.
+ *
+ * The returned pointer must be freed with [`literlm_client_free`].
+ *
+ * # Safety
+ *
+ * - `api_key` must be a valid, non-null, NUL-terminated C string.
+ * - `base_url` may be `NULL` (treated as no override) or a valid NUL-terminated C string.
+ * - The caller owns the returned pointer and must call `literlm_client_free` exactly once.
+ */
+LITER_LM_EXPORT LiterLmClient *literlm_client_new(const char *api_key, const char *base_url);
+
+/**
+ * Free a client created by [`literlm_client_new`].
+ *
+ * # Safety
+ *
+ * - `client` must be a valid pointer returned by `literlm_client_new`.
+ * - `client` must not be used after this call (use-after-free is UB).
+ * - Passing `NULL` is safe and is a no-op.
+ */
+LITER_LM_EXPORT void literlm_client_free(LiterLmClient *client);
+
+/**
+ * Send a chat completion request.
+ *
+ * # Parameters
+ *
+ * - `client`: A valid client pointer.
+ * - `request_json`: NUL-terminated JSON string conforming to the
+ *   `ChatCompletionRequest` schema.
+ *
+ * # Return value
+ *
+ * Returns a heap-allocated NUL-terminated JSON string containing the
+ * `ChatCompletionResponse` on success, or `NULL` on failure.
+ * Check [`literlm_last_error`] on failure.
+ *
+ * The caller must free the returned string with [`literlm_free_string`].
+ *
+ * # Safety
+ *
+ * - `client` must be a valid, non-null pointer returned by `literlm_client_new`.
+ * - `request_json` must be a valid, non-null, NUL-terminated UTF-8 JSON string.
+ */
+LITER_LM_EXPORT char *literlm_chat(const LiterLmClient *client, const char *request_json);
+
+/**
+ * Send an embedding request.
+ *
+ * # Parameters
+ *
+ * - `client`: A valid client pointer.
+ * - `request_json`: NUL-terminated JSON string conforming to the
+ *   `EmbeddingRequest` schema.
+ *
+ * # Return value
+ *
+ * Returns a heap-allocated NUL-terminated JSON string containing the
+ * `EmbeddingResponse` on success, or `NULL` on failure.
+ * Check [`literlm_last_error`] on failure.
+ *
+ * The caller must free the returned string with [`literlm_free_string`].
+ *
+ * # Safety
+ *
+ * - `client` must be a valid, non-null pointer returned by `literlm_client_new`.
+ * - `request_json` must be a valid, non-null, NUL-terminated UTF-8 JSON string.
+ */
+LITER_LM_EXPORT char *literlm_embed(const LiterLmClient *client, const char *request_json);
+
+/**
+ * List available models.
+ *
+ * # Parameters
+ *
+ * - `client`: A valid client pointer.
+ *
+ * # Return value
+ *
+ * Returns a heap-allocated NUL-terminated JSON string containing the
+ * `ModelsListResponse` on success, or `NULL` on failure.
+ * Check [`literlm_last_error`] on failure.
+ *
+ * The caller must free the returned string with [`literlm_free_string`].
+ *
+ * # Safety
+ *
+ * - `client` must be a valid, non-null pointer returned by `literlm_client_new`.
+ */
+LITER_LM_EXPORT char *literlm_list_models(const LiterLmClient *client);
+
+/**
+ * Retrieve the last error message for the current thread.
+ *
+ * Returns a `const char*` pointer to the NUL-terminated error string, or
+ * `NULL` if no error has occurred since the last successful call.
+ *
+ * The returned pointer is valid only until the **next** liter-lm function
+ * call on the **same thread**.  The caller must **not** free this pointer.
+ *
+ * # Safety
+ *
+ * Always safe to call.  No preconditions.
+ */
+LITER_LM_EXPORT const char *literlm_last_error(void);
+
+/**
+ * Free a string returned by [`literlm_chat`], [`literlm_embed`], or
+ * [`literlm_list_models`].
+ *
+ * # Safety
+ *
+ * - `s` must be a pointer returned by one of the functions listed above.
+ * - `s` must not be used after this call (use-after-free is UB).
+ * - Passing `NULL` is safe and is a no-op.
+ * - Do **not** pass the pointer returned by [`literlm_last_error`]; that
+ *   pointer must not be freed.
+ */
+LITER_LM_EXPORT void literlm_free_string(char *s);
 
 /**
  * Returns the version string of the liter-lm library.
  *
+ * The returned pointer is valid for the lifetime of the program and must
+ * **not** be freed.
+ *
  * # Safety
- * The returned pointer is valid for the lifetime of the program and must NOT be freed.
+ *
+ * Always safe to call.
  */
 LITER_LM_EXPORT const char *liter_lm_version(void);
 

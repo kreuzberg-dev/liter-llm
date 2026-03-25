@@ -10,15 +10,15 @@ description = "Node.js native bindings for liter-lm universal LM API client"
 keywords = ["nodejs", "napi", "llm", "api-client", "bindings"]
 categories = ["api-bindings"]
 
-[package.metadata.cargo-machete]
-ignored = ["napi"]
-
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = { workspace = true }
+liter-lm = { path = "../liter-lm" }
+napi = { version = "3", features = ["napi4", "serde-json", "async"] }
 napi-derive = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [build-dependencies]
 napi-build = { workspace = true }
