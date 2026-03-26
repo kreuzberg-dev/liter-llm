@@ -201,7 +201,7 @@ pub struct JsonSchemaFormat {
 
 // ─── Usage ───────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Usage {
     pub prompt_tokens: u64,
     pub completion_tokens: u64,

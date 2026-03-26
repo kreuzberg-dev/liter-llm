@@ -350,7 +350,7 @@ impl Provider for VertexAiProvider {
             *body = json!({
                 "id": "gemini-resp",
                 "object": "chat.completion",
-                "created": 0u64,
+                "created": super::unix_timestamp_secs(),
                 "model": "",
                 "choices": [{
                     "index": 0,
@@ -440,7 +440,7 @@ impl Provider for VertexAiProvider {
         *body = json!({
             "id": response_id,
             "object": "chat.completion",
-            "created": 0u64,
+            "created": super::unix_timestamp_secs(),
             "model": "",
             "choices": [{
                 "index": 0,
@@ -528,7 +528,7 @@ impl Provider for VertexAiProvider {
         let chunk = ChatCompletionChunk {
             id,
             object: "chat.completion.chunk".to_owned(),
-            created: 0,
+            created: super::unix_timestamp_secs(),
             model,
             choices: vec![StreamChoice {
                 index: 0,

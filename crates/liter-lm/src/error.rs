@@ -122,15 +122,26 @@ impl LiterLmError {
     /// so callers can honour the server-requested delay without re-parsing the
     /// header.
     pub fn from_status(status: u16, body: &str, retry_after: Option<Duration>) -> Self {
-        let message = serde_json::from_str::<ErrorResponse>(body)
-            .map(|r| r.error.message)
-            .unwrap_or_else(|_| body.to_string());
+        let parsed = serde_json::from_str::<ErrorResponse>(body).ok();
+        let code = parsed.as_ref().and_then(|r| r.error.code.clone());
+        let message = parsed.map(|r| r.error.message).unwrap_or_else(|| body.to_string());
 
         match status {
             401 | 403 => Self::Authentication { message },
             429 => Self::RateLimited { message, retry_after },
-            400 => {
-                if message.contains("context_length_exceeded")
+            400 | 422 => {
+                // Check the structured `code` field first — it is more reliable
+                // than substring matching on the human-readable message.
+                if code.as_deref() == Some("context_length_exceeded") {
+                    Self::ContextWindowExceeded { message }
+                } else if code.as_deref() == Some("content_policy_violation")
+                    || code.as_deref() == Some("content_filter")
+                {
+                    Self::ContentPolicy { message }
+                }
+                // Fall back to message-based heuristics for providers that do not
+                // populate the `code` field.
+                else if message.contains("context_length_exceeded")
                     || message.contains("context window")
                     || message.contains("maximum context length")
                 {

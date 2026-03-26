@@ -143,8 +143,7 @@ fn record_response(span: &tracing::Span, resp: &LlmResponse) {
             span.record("gen_ai.response.id", r.id.as_str());
             span.record("gen_ai.response.model", r.model.as_str());
 
-            let finish_reasons =
-                finish_reasons_str(&r.choices.iter().map(|c| c.finish_reason.as_ref()).collect::<Vec<_>>());
+            let finish_reasons = finish_reasons_str(r.choices.iter().map(|c| c.finish_reason.as_ref()));
             if !finish_reasons.is_empty() {
                 span.record("gen_ai.response.finish_reasons", finish_reasons.as_str());
             }
@@ -166,17 +165,27 @@ fn record_response(span: &tracing::Span, resp: &LlmResponse) {
 
 /// Build a space-separated string of finish reason names from an iterator of
 /// optional [`FinishReason`] values.  `None` entries are skipped.
-fn finish_reasons_str(reasons: &[Option<&FinishReason>]) -> String {
-    reasons
-        .iter()
-        .filter_map(|r| r.map(finish_reason_name))
-        .fold(String::new(), |mut acc, name| {
-            if !acc.is_empty() {
-                acc.push(' ');
-            }
-            acc.push_str(name);
-            acc
-        })
+///
+/// Optimised for the common single-choice case: when there is exactly one
+/// reason, the static `&str` is returned directly as an owned `String` without
+/// an intermediate `Vec` or repeated `push_str` calls.
+fn finish_reasons_str<'a>(reasons: impl Iterator<Item = Option<&'a FinishReason>>) -> String {
+    // Fast path: single reason (the overwhelmingly common case).
+    let first = reasons.filter_map(|r| r.map(finish_reason_name));
+    // We need to re-bind after filter_map, so use a peekable to check length.
+    let mut iter = first.peekable();
+    let Some(first_name) = iter.next() else {
+        return String::new();
+    };
+    if iter.peek().is_none() {
+        return first_name.to_owned();
+    }
+    // Multi-choice path: fold remaining names with space separator.
+    iter.fold(first_name.to_owned(), |mut acc, name| {
+        acc.push(' ');
+        acc.push_str(name);
+        acc
+    })
 }
 
 /// Map a [`FinishReason`] variant to its GenAI semantic convention string.

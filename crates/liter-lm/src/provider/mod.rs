@@ -1,10 +1,23 @@
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Deserialize;
 
 use crate::error::{LiterLmError, Result};
+
+/// Return the current Unix epoch timestamp in seconds.
+///
+/// Used by provider transformers to populate the `created` field in
+/// OpenAI-compatible response objects. Falls back to `0` if the system
+/// clock is before the epoch (should never happen in practice).
+pub(crate) fn unix_timestamp_secs() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
 
 /// The streaming wire format a provider uses for its response stream.
 ///

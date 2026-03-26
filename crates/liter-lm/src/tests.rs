@@ -1058,11 +1058,15 @@ mod retry_tests {
 
     #[test]
     fn exponential_backoff() {
+        use std::time::Duration;
+        // With jitter in [0.5, 1.0] of the base delay, verify each attempt
+        // stays within its expected range.  Base delays: 1s, 2s, 4s.
         let d0 = should_retry(429, 0, 3, None).unwrap();
         let d1 = should_retry(429, 1, 3, None).unwrap();
         let d2 = should_retry(429, 2, 3, None).unwrap();
-        assert!(d1 > d0);
-        assert!(d2 > d1);
+        assert!(d0 >= Duration::from_millis(500) && d0 <= Duration::from_secs(1));
+        assert!(d1 >= Duration::from_secs(1) && d1 <= Duration::from_secs(2));
+        assert!(d2 >= Duration::from_secs(2) && d2 <= Duration::from_secs(4));
     }
 
     #[test]
@@ -1079,8 +1083,8 @@ mod retry_tests {
         // Retry-After is only honoured for 429; on 500 we use exponential backoff.
         let server_delay = Duration::from_secs(42);
         let delay = should_retry(500, 0, 3, Some(server_delay)).unwrap();
-        // Exponential backoff for attempt 0 = 1 s, not 42 s.
-        assert_eq!(delay, Duration::from_secs(1));
+        // Exponential backoff for attempt 0 = 1 s base, with jitter in [0.5, 1.0].
+        assert!(delay >= Duration::from_millis(500) && delay <= Duration::from_secs(1));
     }
 
     #[test]
@@ -1094,9 +1098,13 @@ mod retry_tests {
     #[test]
     fn retry_on_504() {
         use std::time::Duration;
-        assert_eq!(should_retry(504, 0, 3, None), Some(Duration::from_secs(1)));
-        assert_eq!(should_retry(504, 1, 3, None), Some(Duration::from_secs(2)));
-        assert_eq!(should_retry(504, 2, 3, None), Some(Duration::from_secs(4)));
+        // Jitter scales base delay by [0.5, 1.0], so we check ranges.
+        let d0 = should_retry(504, 0, 3, None).unwrap();
+        assert!(d0 >= Duration::from_millis(500) && d0 <= Duration::from_secs(1));
+        let d1 = should_retry(504, 1, 3, None).unwrap();
+        assert!(d1 >= Duration::from_secs(1) && d1 <= Duration::from_secs(2));
+        let d2 = should_retry(504, 2, 3, None).unwrap();
+        assert!(d2 >= Duration::from_secs(2) && d2 <= Duration::from_secs(4));
     }
 
     #[test]
@@ -1126,9 +1134,9 @@ mod retry_tests {
     #[test]
     fn exponential_backoff_caps_at_30s() {
         use std::time::Duration;
-        // Attempt 5 would be 2^5 = 32 seconds, but capped at 30
+        // Attempt 5 would be 2^5 = 32 seconds, capped at 30, then jitter [0.5, 1.0].
         let delay = should_retry(500, 5, 10, None).unwrap();
-        assert_eq!(delay, Duration::from_secs(30));
+        assert!(delay >= Duration::from_secs(15) && delay <= Duration::from_secs(30));
     }
 }
 

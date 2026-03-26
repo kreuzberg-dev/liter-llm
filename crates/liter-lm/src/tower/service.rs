@@ -124,4 +124,8 @@ impl Stream for OwnedChunksStream {
     fn poll_next(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         Poll::Ready(self.chunks.pop_front().map(Ok))
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.chunks.len(), Some(self.chunks.len()))
+    }
 }
