@@ -157,314 +157,12 @@ impl Provider for VertexAiProvider {
         }
     }
 
-    /// Convert an OpenAI-style chat request to Gemini `generateContent` format.
-    ///
-    /// Key differences:
-    /// - System messages are extracted to `system_instruction.parts[]`.
-    /// - Assistant role becomes `model`.
-    /// - Tool calls map to `functionCall` parts; tool results map to `functionResponse` parts.
-    /// - Generation parameters live in `generationConfig`.
-    /// - Multimodal content arrays are translated to Gemini's `inlineData` format.
-    /// - `response_format` is translated to `generationConfig.responseMimeType`.
-    /// - `tool_choice` is translated to `toolConfig.functionCallingConfig.mode`.
     fn transform_request(&self, body: &mut serde_json::Value) -> Result<()> {
-        use serde_json::json;
-
-        // Take ownership of the messages array to avoid cloning.
-        let messages = body
-            .as_object_mut()
-            .and_then(|o| o.remove("messages"))
-            .and_then(|v| match v {
-                serde_json::Value::Array(arr) => Some(arr),
-                _ => None,
-            })
-            .unwrap_or_default();
-
-        let mut system_parts: Vec<serde_json::Value> = vec![];
-        let mut contents: Vec<serde_json::Value> = vec![];
-
-        for msg in &messages {
-            let role = msg.get("role").and_then(|r| r.as_str()).unwrap_or("");
-            let content = msg.get("content");
-
-            match role {
-                "system" | "developer" => {
-                    if let Some(text) = content.and_then(|c| c.as_str()) {
-                        system_parts.push(json!({"text": text}));
-                    }
-                }
-                "user" => {
-                    let parts = convert_user_content_to_gemini(content);
-                    contents.push(json!({"role": "user", "parts": parts}));
-                }
-                "assistant" => {
-                    let mut parts: Vec<serde_json::Value> = vec![];
-                    if let Some(text) = content.and_then(|c| c.as_str())
-                        && !text.is_empty()
-                    {
-                        parts.push(json!({"text": text}));
-                    }
-                    // Convert OpenAI tool_calls to Gemini functionCall parts.
-                    if let Some(tool_calls) = msg.get("tool_calls").and_then(|t| t.as_array()) {
-                        for tc in tool_calls {
-                            let args: serde_json::Value = tc
-                                .pointer("/function/arguments")
-                                .and_then(|a| a.as_str())
-                                .and_then(|s| serde_json::from_str(s).ok())
-                                .unwrap_or_else(|| json!({}));
-                            parts.push(json!({
-                                "functionCall": {
-                                    "name": tc.pointer("/function/name"),
-                                    "args": args
-                                }
-                            }));
-                        }
-                    }
-                    if parts.is_empty() {
-                        parts.push(json!({"text": ""}));
-                    }
-                    // Gemini uses "model" role for assistant turns.
-                    contents.push(json!({"role": "model", "parts": parts}));
-                }
-                "tool" => {
-                    // Map tool result back to a user turn with a functionResponse part.
-                    // Gemini requires the function name — use the `name` field only.
-                    // The `tool_call_id` is an OpenAI correlation ID, not a function name,
-                    // so we must not fall back to it.
-                    let name = msg.get("name").and_then(|n| n.as_str()).unwrap_or("tool");
-                    let result_content = content.cloned().unwrap_or(json!(null));
-                    contents.push(json!({
-                        "role": "user",
-                        "parts": [{
-                            "functionResponse": {
-                                "name": name,
-                                "response": {"result": result_content}
-                            }
-                        }]
-                    }));
-                }
-                _ => {}
-            }
-        }
-
-        // Build generationConfig from OpenAI parameters.
-        let mut gen_config = json!({});
-        // Support both max_tokens (legacy) and max_completion_tokens (newer OpenAI spec).
-        if let Some(max_tokens) = body.get("max_completion_tokens").or_else(|| body.get("max_tokens")) {
-            gen_config["maxOutputTokens"] = max_tokens.clone();
-        }
-        if let Some(temp) = body.get("temperature") {
-            gen_config["temperature"] = temp.clone();
-        }
-        if let Some(top_p) = body.get("top_p") {
-            gen_config["topP"] = top_p.clone();
-        }
-        if let Some(stop) = body.get("stop") {
-            let sequences = if let Some(s) = stop.as_str() {
-                vec![json!(s)]
-            } else {
-                stop.as_array().cloned().unwrap_or_default()
-            };
-            gen_config["stopSequences"] = json!(sequences);
-        }
-
-        // Translate response_format to Gemini's responseMimeType.
-        if let Some(rf) = body.get("response_format") {
-            let rf_type = rf.get("type").and_then(|t| t.as_str()).unwrap_or("");
-            match rf_type {
-                "json_object" => {
-                    gen_config["responseMimeType"] = json!("application/json");
-                }
-                "json_schema" => {
-                    gen_config["responseMimeType"] = json!("application/json");
-                    // If a JSON schema is provided, pass it through.
-                    if let Some(schema) = rf.get("json_schema").and_then(|s| s.get("schema")) {
-                        gen_config["responseSchema"] = schema.clone();
-                    }
-                }
-                // "text" or unknown types: no special handling needed.
-                _ => {}
-            }
-        }
-
-        // Translate OpenAI tools array to Gemini functionDeclarations.
-        let tools_value = body.get("tools").and_then(|t| t.as_array()).map(|arr| {
-            let declarations: Vec<serde_json::Value> = arr
-                .iter()
-                .map(|t| {
-                    let name = t.pointer("/function/name").cloned().unwrap_or(json!("unknown"));
-                    let description = t.pointer("/function/description").cloned().unwrap_or(json!(""));
-                    let parameters = t
-                        .pointer("/function/parameters")
-                        .cloned()
-                        .unwrap_or_else(|| json!({"type": "object"}));
-                    json!({
-                        "name": name,
-                        "description": description,
-                        "parameters": parameters
-                    })
-                })
-                .collect();
-            json!([{"functionDeclarations": declarations}])
-        });
-
-        // Translate tool_choice to Gemini toolConfig.functionCallingConfig.mode.
-        let tool_config = translate_tool_choice(body.get("tool_choice"));
-
-        let mut new_body = json!({"contents": contents});
-        if !system_parts.is_empty() {
-            // Gemini API requires camelCase: systemInstruction.
-            new_body["systemInstruction"] = json!({"parts": system_parts});
-        }
-        if let Some(obj) = gen_config.as_object()
-            && !obj.is_empty()
-        {
-            new_body["generationConfig"] = gen_config;
-        }
-        if let Some(tools) = tools_value {
-            new_body["tools"] = tools;
-        }
-        if let Some(tc) = tool_config {
-            new_body["toolConfig"] = tc;
-        }
-
-        *body = new_body;
-        Ok(())
+        transform_gemini_request(body)
     }
 
-    /// Normalize a Gemini `generateContent` response to OpenAI chat completion format.
-    ///
-    /// Gemini wraps the response in `candidates[0].content.parts[]`.
-    /// Finish reasons use Gemini terminology (`STOP`, `MAX_TOKENS`, `SAFETY`, …)
-    /// and are mapped to the OpenAI `finish_reason` set.
-    ///
-    /// **Known limitation:** The `model` field in the normalized response is
-    /// always `""`.  Gemini/Vertex AI does not include the model name in its
-    /// response body — the model is only present in the request URL path.
-    /// Threading the model through would require a signature change to
-    /// `transform_response`.
     fn transform_response(&self, body: &mut serde_json::Value) -> Result<()> {
-        use serde_json::json;
-
-        // Check for a blocked prompt (no candidates, but promptFeedback.blockReason set).
-        let candidates = body.get("candidates").and_then(|c| c.as_array());
-        if candidates.is_none_or(|c| c.is_empty()) {
-            let block_reason = body
-                .pointer("/promptFeedback/blockReason")
-                .and_then(|r| r.as_str())
-                .unwrap_or("UNKNOWN");
-            let prompt_tokens = body
-                .pointer("/usageMetadata/promptTokenCount")
-                .and_then(|v| v.as_u64())
-                .unwrap_or(0);
-            *body = json!({
-                "id": "gemini-resp",
-                "object": "chat.completion",
-                "created": super::unix_timestamp_secs(),
-                "model": "",
-                "choices": [{
-                    "index": 0,
-                    "message": {"role": "assistant", "content": null},
-                    "finish_reason": "content_filter"
-                }],
-                "usage": {
-                    "prompt_tokens": prompt_tokens,
-                    "completion_tokens": 0,
-                    "total_tokens": prompt_tokens
-                },
-                "system_fingerprint": null,
-                "_block_reason": block_reason
-            });
-            return Ok(());
-        }
-
-        let candidate = body.pointer("/candidates/0").cloned();
-        let finish_reason_raw = candidate
-            .as_ref()
-            .and_then(|c| c.get("finishReason"))
-            .and_then(|f| f.as_str())
-            .unwrap_or("STOP");
-        let parts = candidate
-            .as_ref()
-            .and_then(|c| c.pointer("/content/parts"))
-            .and_then(|p| p.as_array())
-            .cloned()
-            .unwrap_or_default();
-
-        // Collect text content from parts.
-        let text: String = parts
-            .iter()
-            .filter_map(|p| p.get("text").and_then(|t| t.as_str()))
-            .collect::<Vec<_>>()
-            .join("");
-
-        // Collect functionCall parts and convert to OpenAI tool_calls.
-        // Each call gets a unique ID via an atomic counter to avoid collisions
-        // when the same function is called multiple times.
-        let tool_calls: Vec<serde_json::Value> = parts
-            .iter()
-            .filter_map(|p| {
-                p.get("functionCall").map(|fc| {
-                    let name = fc.get("name").and_then(|n| n.as_str()).unwrap_or("unknown");
-                    let call_id = TOOL_CALL_COUNTER.fetch_add(1, Ordering::Relaxed);
-                    let arguments = serde_json::to_string(fc.get("args").unwrap_or(&json!({}))).unwrap_or_default();
-                    json!({
-                        "id": format!("call_{name}_{call_id}"),
-                        "type": "function",
-                        "function": {
-                            "name": fc.get("name"),
-                            "arguments": arguments
-                        }
-                    })
-                })
-            })
-            .collect();
-
-        let finish_reason = match finish_reason_raw {
-            "STOP" => "stop",
-            "MAX_TOKENS" => "length",
-            "SAFETY" | "RECITATION" | "BLOCKLIST" | "PROHIBITED_CONTENT" | "SPII" | "IMAGE_SAFETY" => "content_filter",
-            "LANGUAGE" | "OTHER" => "stop",
-            "TOOL_CODE" | "FUNCTION_CALL" => "tool_calls",
-            _ => "stop",
-        };
-
-        let prompt_tokens = body
-            .pointer("/usageMetadata/promptTokenCount")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0);
-        let completion_tokens = body
-            .pointer("/usageMetadata/candidatesTokenCount")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0);
-
-        let response_id = body.get("responseId").cloned().unwrap_or_else(|| json!("gemini-resp"));
-
-        let content_value: serde_json::Value = if text.is_empty() { json!(null) } else { json!(text) };
-
-        let mut message = json!({"role": "assistant", "content": content_value});
-        if !tool_calls.is_empty() {
-            message["tool_calls"] = json!(tool_calls);
-        }
-
-        *body = json!({
-            "id": response_id,
-            "object": "chat.completion",
-            "created": super::unix_timestamp_secs(),
-            "model": "",
-            "choices": [{
-                "index": 0,
-                "message": message,
-                "finish_reason": finish_reason
-            }],
-            "usage": {
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "total_tokens": prompt_tokens + completion_tokens
-            }
-        });
-
-        Ok(())
+        transform_gemini_response(body)
     }
 
     /// Build the streaming URL: appends `?alt=sse` to enable SSE streaming.
@@ -480,113 +178,493 @@ impl Provider for VertexAiProvider {
         format!("{url}?alt=sse")
     }
 
-    /// Parse a single SSE event from Gemini's streaming endpoint.
-    ///
-    /// Gemini streaming uses SSE with `?alt=sse`.  Each event data is a complete
-    /// `generateContent` JSON response.  We reuse `transform_response` to
-    /// normalize it into OpenAI format, then build a `ChatCompletionChunk` from
-    /// the first choice's message content.
-    ///
-    /// **Note:** The `id` and `model` fields are empty strings on every chunk
-    /// because Gemini's streaming payloads do not include them, and this parser
-    /// is stateless.  This differs from the OpenAI format where every chunk
-    /// includes the real `id` and `model`.
     fn parse_stream_event(&self, event_data: &str) -> Result<Option<ChatCompletionChunk>> {
-        // NOTE: `[DONE]` is handled at the SSE parser level; no check needed here.
-        if event_data.trim().is_empty() {
-            return Ok(None);
+        parse_gemini_stream_event(event_data)
+    }
+}
+
+// ── Shared Gemini transform functions ────────────────────────────────────────
+//
+// These are `pub(crate)` so that both `VertexAiProvider` and `GoogleAiProvider`
+// can reuse the same Gemini request/response translation logic.
+
+/// Convert an OpenAI-style chat request to Gemini `generateContent` format.
+///
+/// Key translations:
+/// - System messages → `systemInstruction.parts[]`.
+/// - Assistant role → `model` role.
+/// - Tool calls → `functionCall` parts; tool results → `functionResponse` parts.
+/// - Generation parameters → `generationConfig`.
+/// - Multimodal content arrays → Gemini's `inlineData` / `fileData` format.
+/// - `response_format` → `generationConfig.responseMimeType`.
+/// - `tool_choice` → `toolConfig.functionCallingConfig.mode`.
+/// - `extra_body.safety_settings` → top-level `safetySettings` array.
+/// - `extra_body.grounding_config` / `google_search_retrieval` → `tools` entry.
+/// - `extra_body.cached_content` → top-level `cachedContent` field.
+/// - `ContentPart::Document` → `inlineData` with the document's MIME type.
+pub(crate) fn transform_gemini_request(body: &mut serde_json::Value) -> Result<()> {
+    use serde_json::json;
+
+    // Extract extra_body before taking ownership of fields, since it may contain
+    // Gemini-specific extensions (safety_settings, grounding_config, cached_content).
+    let extra_body = body
+        .as_object_mut()
+        .and_then(|o| o.remove("extra_body"))
+        .and_then(|v| match v {
+            serde_json::Value::Object(map) => Some(map),
+            _ => None,
+        });
+
+    // Take ownership of the messages array to avoid cloning.
+    let messages = body
+        .as_object_mut()
+        .and_then(|o| o.remove("messages"))
+        .and_then(|v| match v {
+            serde_json::Value::Array(arr) => Some(arr),
+            _ => None,
+        })
+        .unwrap_or_default();
+
+    let mut system_parts: Vec<serde_json::Value> = vec![];
+    let mut contents: Vec<serde_json::Value> = vec![];
+
+    for msg in &messages {
+        let role = msg.get("role").and_then(|r| r.as_str()).unwrap_or("");
+        let content = msg.get("content");
+
+        match role {
+            "system" | "developer" => {
+                if let Some(text) = content.and_then(|c| c.as_str()) {
+                    system_parts.push(json!({"text": text}));
+                }
+            }
+            "user" => {
+                let parts = convert_user_content_to_gemini(content);
+                contents.push(json!({"role": "user", "parts": parts}));
+            }
+            "assistant" => {
+                let mut parts: Vec<serde_json::Value> = vec![];
+                if let Some(text) = content.and_then(|c| c.as_str())
+                    && !text.is_empty()
+                {
+                    parts.push(json!({"text": text}));
+                }
+                // Convert OpenAI tool_calls to Gemini functionCall parts.
+                if let Some(tool_calls) = msg.get("tool_calls").and_then(|t| t.as_array()) {
+                    for tc in tool_calls {
+                        let args: serde_json::Value = tc
+                            .pointer("/function/arguments")
+                            .and_then(|a| a.as_str())
+                            .and_then(|s| serde_json::from_str(s).ok())
+                            .unwrap_or_else(|| json!({}));
+                        parts.push(json!({
+                            "functionCall": {
+                                "name": tc.pointer("/function/name"),
+                                "args": args
+                            }
+                        }));
+                    }
+                }
+                if parts.is_empty() {
+                    parts.push(json!({"text": ""}));
+                }
+                // Gemini uses "model" role for assistant turns.
+                contents.push(json!({"role": "model", "parts": parts}));
+            }
+            "tool" => {
+                // Map tool result back to a user turn with a functionResponse part.
+                // Gemini requires the function name — use the `name` field only.
+                // The `tool_call_id` is an OpenAI correlation ID, not a function name,
+                // so we must not fall back to it.
+                let name = msg.get("name").and_then(|n| n.as_str()).unwrap_or("tool");
+                let result_content = content.cloned().unwrap_or(json!(null));
+                contents.push(json!({
+                    "role": "user",
+                    "parts": [{
+                        "functionResponse": {
+                            "name": name,
+                            "response": {"result": result_content}
+                        }
+                    }]
+                }));
+            }
+            _ => {}
+        }
+    }
+
+    // Build generationConfig from OpenAI parameters.
+    let mut gen_config = json!({});
+    // Support both max_tokens (legacy) and max_completion_tokens (newer OpenAI spec).
+    if let Some(max_tokens) = body.get("max_completion_tokens").or_else(|| body.get("max_tokens")) {
+        gen_config["maxOutputTokens"] = max_tokens.clone();
+    }
+    if let Some(temp) = body.get("temperature") {
+        gen_config["temperature"] = temp.clone();
+    }
+    if let Some(top_p) = body.get("top_p") {
+        gen_config["topP"] = top_p.clone();
+    }
+    if let Some(stop) = body.get("stop") {
+        let sequences = if let Some(s) = stop.as_str() {
+            vec![json!(s)]
+        } else {
+            stop.as_array().cloned().unwrap_or_default()
+        };
+        gen_config["stopSequences"] = json!(sequences);
+    }
+
+    // Translate response_format to Gemini's responseMimeType.
+    if let Some(rf) = body.get("response_format") {
+        let rf_type = rf.get("type").and_then(|t| t.as_str()).unwrap_or("");
+        match rf_type {
+            "json_object" => {
+                gen_config["responseMimeType"] = json!("application/json");
+            }
+            "json_schema" => {
+                gen_config["responseMimeType"] = json!("application/json");
+                // If a JSON schema is provided, pass it through.
+                if let Some(schema) = rf.get("json_schema").and_then(|s| s.get("schema")) {
+                    gen_config["responseSchema"] = schema.clone();
+                }
+            }
+            // "text" or unknown types: no special handling needed.
+            _ => {}
+        }
+    }
+
+    // Translate OpenAI tools array to Gemini functionDeclarations.
+    let mut tools_value = body.get("tools").and_then(|t| t.as_array()).map(|arr| {
+        let declarations: Vec<serde_json::Value> = arr
+            .iter()
+            .map(|t| {
+                let name = t.pointer("/function/name").cloned().unwrap_or(json!("unknown"));
+                let description = t.pointer("/function/description").cloned().unwrap_or(json!(""));
+                let parameters = t
+                    .pointer("/function/parameters")
+                    .cloned()
+                    .unwrap_or_else(|| json!({"type": "object"}));
+                json!({
+                    "name": name,
+                    "description": description,
+                    "parameters": parameters
+                })
+            })
+            .collect();
+        json!([{"functionDeclarations": declarations}])
+    });
+
+    // Translate tool_choice to Gemini toolConfig.functionCallingConfig.mode.
+    let tool_config = translate_tool_choice(body.get("tool_choice"));
+
+    // ── extra_body extensions ────────────────────────────────────────────────
+    let mut safety_settings: Option<serde_json::Value> = None;
+    let mut cached_content: Option<serde_json::Value> = None;
+
+    if let Some(ref eb) = extra_body {
+        // Safety settings: inject as top-level safetySettings array.
+        if let Some(ss) = eb.get("safety_settings") {
+            safety_settings = Some(ss.clone());
         }
 
-        let mut body: serde_json::Value = serde_json::from_str(event_data).map_err(|e| LiterLmError::Streaming {
-            message: format!("failed to parse Gemini SSE data: {e}"),
-        })?;
+        // Grounding / Google Search: add google_search_retrieval to tools array.
+        if eb.contains_key("grounding_config") || eb.contains_key("google_search_retrieval") {
+            let grounding_tool = json!({"google_search_retrieval": {}});
+            match &mut tools_value {
+                Some(existing) => {
+                    if let Some(arr) = existing.as_array_mut() {
+                        arr.push(grounding_tool);
+                    }
+                }
+                None => {
+                    tools_value = Some(json!([grounding_tool]));
+                }
+            }
+        }
 
-        // Normalize to OpenAI chat completion format.
-        self.transform_response(&mut body)?;
-
-        // Extract fields from the normalized response.
-        let id = body
-            .get("id")
-            .and_then(|v| v.as_str())
-            .unwrap_or("gemini-resp")
-            .to_owned();
-        let model = body.get("model").and_then(|v| v.as_str()).unwrap_or("").to_owned();
-
-        let choice = body.pointer("/choices/0");
-        let content = choice
-            .and_then(|c| c.pointer("/message/content"))
-            .and_then(|v| v.as_str())
-            .map(ToOwned::to_owned);
-        let finish_reason_str = choice
-            .and_then(|c| c.get("finish_reason"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
-
-        // Extract tool_calls from the normalized message if present.
-        let stream_tool_calls = choice
-            .and_then(|c| c.pointer("/message/tool_calls"))
-            .and_then(|v| v.as_array())
-            .filter(|arr| !arr.is_empty())
-            .map(|arr| {
-                use crate::types::{StreamFunctionCall, StreamToolCall, ToolType};
-                arr.iter()
-                    .enumerate()
-                    .map(|(idx, tc)| StreamToolCall {
-                        index: idx as u32,
-                        id: tc.get("id").and_then(|v| v.as_str()).map(ToOwned::to_owned),
-                        call_type: Some(ToolType::Function),
-                        function: tc.get("function").map(|f| StreamFunctionCall {
-                            name: f.get("name").and_then(|v| v.as_str()).map(ToOwned::to_owned),
-                            arguments: f.get("arguments").and_then(|v| v.as_str()).map(ToOwned::to_owned),
-                        }),
-                    })
-                    .collect::<Vec<_>>()
-            });
-
-        use crate::types::{FinishReason, StreamChoice, StreamDelta};
-
-        let finish_reason = match finish_reason_str {
-            "stop" => Some(FinishReason::Stop),
-            "length" => Some(FinishReason::Length),
-            "tool_calls" => Some(FinishReason::ToolCalls),
-            "content_filter" => Some(FinishReason::ContentFilter),
-            _ => None,
-        };
-
-        let chunk = ChatCompletionChunk {
-            id,
-            object: "chat.completion.chunk".to_owned(),
-            created: super::unix_timestamp_secs(),
-            model,
-            choices: vec![StreamChoice {
-                index: 0,
-                delta: StreamDelta {
-                    role: Some("assistant".to_owned()),
-                    content,
-                    tool_calls: stream_tool_calls,
-                    function_call: None,
-                    refusal: None,
-                },
-                finish_reason,
-            }],
-            usage: None,
-            system_fingerprint: None,
-            service_tier: None,
-        };
-
-        Ok(Some(chunk))
+        // Context caching: inject as top-level cachedContent field.
+        if let Some(cc) = eb.get("cached_content") {
+            cached_content = Some(cc.clone());
+        }
     }
+
+    let mut new_body = json!({"contents": contents});
+    if !system_parts.is_empty() {
+        // Gemini API requires camelCase: systemInstruction.
+        new_body["systemInstruction"] = json!({"parts": system_parts});
+    }
+    if let Some(obj) = gen_config.as_object()
+        && !obj.is_empty()
+    {
+        new_body["generationConfig"] = gen_config;
+    }
+    if let Some(tools) = tools_value {
+        new_body["tools"] = tools;
+    }
+    if let Some(tc) = tool_config {
+        new_body["toolConfig"] = tc;
+    }
+    if let Some(ss) = safety_settings {
+        new_body["safetySettings"] = ss;
+    }
+    if let Some(cc) = cached_content {
+        new_body["cachedContent"] = cc;
+    }
+
+    *body = new_body;
+    Ok(())
+}
+
+/// Normalize a Gemini `generateContent` response to OpenAI chat completion format.
+///
+/// Gemini wraps the response in `candidates[0].content.parts[]`.
+/// Finish reasons use Gemini terminology (`STOP`, `MAX_TOKENS`, `SAFETY`, ...)
+/// and are mapped to the OpenAI `finish_reason` set.
+///
+/// If `groundingMetadata` is present on the candidate, it is included in the
+/// response as `_grounding_metadata` for supplementary use by callers.
+///
+/// **Known limitation:** The `model` field in the normalized response is
+/// always `""`.  Gemini/Vertex AI does not include the model name in its
+/// response body -- the model is only present in the request URL path.
+pub(crate) fn transform_gemini_response(body: &mut serde_json::Value) -> Result<()> {
+    use serde_json::json;
+
+    // Check for a blocked prompt (no candidates, but promptFeedback.blockReason set).
+    let candidates = body.get("candidates").and_then(|c| c.as_array());
+    if candidates.is_none_or(|c| c.is_empty()) {
+        let block_reason = body
+            .pointer("/promptFeedback/blockReason")
+            .and_then(|r| r.as_str())
+            .unwrap_or("UNKNOWN");
+        let prompt_tokens = body
+            .pointer("/usageMetadata/promptTokenCount")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
+        *body = json!({
+            "id": "gemini-resp",
+            "object": "chat.completion",
+            "created": super::unix_timestamp_secs(),
+            "model": "",
+            "choices": [{
+                "index": 0,
+                "message": {"role": "assistant", "content": null},
+                "finish_reason": "content_filter"
+            }],
+            "usage": {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": 0,
+                "total_tokens": prompt_tokens
+            },
+            "system_fingerprint": null,
+            "_block_reason": block_reason
+        });
+        return Ok(());
+    }
+
+    let candidate = body.pointer("/candidates/0").cloned();
+    let finish_reason_raw = candidate
+        .as_ref()
+        .and_then(|c| c.get("finishReason"))
+        .and_then(|f| f.as_str())
+        .unwrap_or("STOP");
+    let parts = candidate
+        .as_ref()
+        .and_then(|c| c.pointer("/content/parts"))
+        .and_then(|p| p.as_array())
+        .cloned()
+        .unwrap_or_default();
+
+    // Collect text content from parts.
+    let text: String = parts
+        .iter()
+        .filter_map(|p| p.get("text").and_then(|t| t.as_str()))
+        .collect::<Vec<_>>()
+        .join("");
+
+    // Collect functionCall parts and convert to OpenAI tool_calls.
+    // Each call gets a unique ID via an atomic counter to avoid collisions
+    // when the same function is called multiple times.
+    let tool_calls: Vec<serde_json::Value> = parts
+        .iter()
+        .filter_map(|p| {
+            p.get("functionCall").map(|fc| {
+                let name = fc.get("name").and_then(|n| n.as_str()).unwrap_or("unknown");
+                let call_id = TOOL_CALL_COUNTER.fetch_add(1, Ordering::Relaxed);
+                let arguments = serde_json::to_string(fc.get("args").unwrap_or(&json!({}))).unwrap_or_default();
+                json!({
+                    "id": format!("call_{name}_{call_id}"),
+                    "type": "function",
+                    "function": {
+                        "name": fc.get("name"),
+                        "arguments": arguments
+                    }
+                })
+            })
+        })
+        .collect();
+
+    let finish_reason = match finish_reason_raw {
+        "STOP" => "stop",
+        "MAX_TOKENS" => "length",
+        "SAFETY" | "RECITATION" | "BLOCKLIST" | "PROHIBITED_CONTENT" | "SPII" | "IMAGE_SAFETY" => "content_filter",
+        "LANGUAGE" | "OTHER" => "stop",
+        "TOOL_CODE" | "FUNCTION_CALL" => "tool_calls",
+        _ => "stop",
+    };
+
+    let prompt_tokens = body
+        .pointer("/usageMetadata/promptTokenCount")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    let completion_tokens = body
+        .pointer("/usageMetadata/candidatesTokenCount")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+
+    let response_id = body.get("responseId").cloned().unwrap_or_else(|| json!("gemini-resp"));
+
+    let content_value: serde_json::Value = if text.is_empty() { json!(null) } else { json!(text) };
+
+    let mut message = json!({"role": "assistant", "content": content_value});
+    if !tool_calls.is_empty() {
+        message["tool_calls"] = json!(tool_calls);
+    }
+
+    // Extract grounding metadata if present (supplementary data from Google Search grounding).
+    let grounding_metadata = candidate.as_ref().and_then(|c| c.get("groundingMetadata")).cloned();
+
+    let mut result = json!({
+        "id": response_id,
+        "object": "chat.completion",
+        "created": super::unix_timestamp_secs(),
+        "model": "",
+        "choices": [{
+            "index": 0,
+            "message": message,
+            "finish_reason": finish_reason
+        }],
+        "usage": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens
+        }
+    });
+
+    if let Some(gm) = grounding_metadata {
+        result["_grounding_metadata"] = gm;
+    }
+
+    *body = result;
+
+    Ok(())
+}
+
+/// Parse a single SSE event from Gemini's streaming endpoint.
+///
+/// Gemini streaming uses SSE with `?alt=sse`.  Each event data is a complete
+/// `generateContent` JSON response.  We reuse `transform_gemini_response` to
+/// normalize it into OpenAI format, then build a `ChatCompletionChunk` from
+/// the first choice's message content.
+///
+/// **Note:** The `id` and `model` fields are empty strings on every chunk
+/// because Gemini's streaming payloads do not include them, and this parser
+/// is stateless.
+pub(crate) fn parse_gemini_stream_event(event_data: &str) -> Result<Option<ChatCompletionChunk>> {
+    // NOTE: `[DONE]` is handled at the SSE parser level; no check needed here.
+    if event_data.trim().is_empty() {
+        return Ok(None);
+    }
+
+    let mut body: serde_json::Value = serde_json::from_str(event_data).map_err(|e| LiterLmError::Streaming {
+        message: format!("failed to parse Gemini SSE data: {e}"),
+    })?;
+
+    // Normalize to OpenAI chat completion format.
+    transform_gemini_response(&mut body)?;
+
+    // Extract fields from the normalized response.
+    let id = body
+        .get("id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("gemini-resp")
+        .to_owned();
+    let model = body.get("model").and_then(|v| v.as_str()).unwrap_or("").to_owned();
+
+    let choice = body.pointer("/choices/0");
+    let content = choice
+        .and_then(|c| c.pointer("/message/content"))
+        .and_then(|v| v.as_str())
+        .map(ToOwned::to_owned);
+    let finish_reason_str = choice
+        .and_then(|c| c.get("finish_reason"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+
+    // Extract tool_calls from the normalized message if present.
+    let stream_tool_calls = choice
+        .and_then(|c| c.pointer("/message/tool_calls"))
+        .and_then(|v| v.as_array())
+        .filter(|arr| !arr.is_empty())
+        .map(|arr| {
+            use crate::types::{StreamFunctionCall, StreamToolCall, ToolType};
+            arr.iter()
+                .enumerate()
+                .map(|(idx, tc)| StreamToolCall {
+                    index: idx as u32,
+                    id: tc.get("id").and_then(|v| v.as_str()).map(ToOwned::to_owned),
+                    call_type: Some(ToolType::Function),
+                    function: tc.get("function").map(|f| StreamFunctionCall {
+                        name: f.get("name").and_then(|v| v.as_str()).map(ToOwned::to_owned),
+                        arguments: f.get("arguments").and_then(|v| v.as_str()).map(ToOwned::to_owned),
+                    }),
+                })
+                .collect::<Vec<_>>()
+        });
+
+    use crate::types::{FinishReason, StreamChoice, StreamDelta};
+
+    let finish_reason = match finish_reason_str {
+        "stop" => Some(FinishReason::Stop),
+        "length" => Some(FinishReason::Length),
+        "tool_calls" => Some(FinishReason::ToolCalls),
+        "content_filter" => Some(FinishReason::ContentFilter),
+        _ => None,
+    };
+
+    let chunk = ChatCompletionChunk {
+        id,
+        object: "chat.completion.chunk".to_owned(),
+        created: super::unix_timestamp_secs(),
+        model,
+        choices: vec![StreamChoice {
+            index: 0,
+            delta: StreamDelta {
+                role: Some("assistant".to_owned()),
+                content,
+                tool_calls: stream_tool_calls,
+                function_call: None,
+                refusal: None,
+            },
+            finish_reason,
+        }],
+        usage: None,
+        system_fingerprint: None,
+        service_tier: None,
+    };
+
+    Ok(Some(chunk))
 }
 
 // ── Helper functions ──────────────────────────────────────────────────────────
 
 /// Convert OpenAI user content (string or content-part array) to Gemini parts.
 ///
-/// Handles three cases:
+/// Handles four cases:
 /// 1. Plain string -> single text part.
 /// 2. Array of content parts -> each part converted to Gemini format.
-/// 3. None/null -> single empty text part.
-fn convert_user_content_to_gemini(content: Option<&serde_json::Value>) -> Vec<serde_json::Value> {
+/// 3. `ContentPart::Document` -> Gemini `inlineData` with the document's MIME type.
+/// 4. None/null -> single empty text part.
+pub(crate) fn convert_user_content_to_gemini(content: Option<&serde_json::Value>) -> Vec<serde_json::Value> {
     use serde_json::json;
 
     match content {
@@ -620,6 +698,21 @@ fn convert_user_content_to_gemini(content: Option<&serde_json::Value>) -> Vec<se
                                 "fileData": {
                                     "mimeType": "image/jpeg",
                                     "fileUri": url
+                                }
+                            }))
+                        }
+                        "document" => {
+                            // ContentPart::Document -> Gemini inlineData.
+                            let doc = part.get("document")?;
+                            let data = doc.get("data").and_then(|d| d.as_str())?;
+                            let media_type = doc
+                                .get("media_type")
+                                .and_then(|m| m.as_str())
+                                .unwrap_or("application/pdf");
+                            Some(json!({
+                                "inlineData": {
+                                    "mimeType": media_type,
+                                    "data": data
                                 }
                             }))
                         }
@@ -865,6 +958,119 @@ mod tests {
         assert_eq!(stop_seqs[1], "STOP");
     }
 
+    // ── transform_request: safety settings ───────────────────────────────────
+
+    #[test]
+    fn transform_request_safety_settings_from_extra_body() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "extra_body": {
+                "safety_settings": [
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}
+                ]
+            }
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        let settings = body["safetySettings"].as_array().unwrap();
+        assert_eq!(settings.len(), 2);
+        assert_eq!(settings[0]["category"], "HARM_CATEGORY_HATE_SPEECH");
+        assert_eq!(settings[0]["threshold"], "BLOCK_MEDIUM_AND_ABOVE");
+        assert_eq!(settings[1]["category"], "HARM_CATEGORY_DANGEROUS_CONTENT");
+    }
+
+    // ── transform_request: grounding / Google Search ─────────────────────────
+
+    #[test]
+    fn transform_request_grounding_config_adds_google_search() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "What happened today?"}],
+            "extra_body": {
+                "grounding_config": {}
+            }
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        let tools = body["tools"].as_array().unwrap();
+        assert!(
+            tools.iter().any(|t| t.get("google_search_retrieval").is_some()),
+            "tools should contain google_search_retrieval"
+        );
+    }
+
+    #[test]
+    fn transform_request_google_search_retrieval_with_existing_tools() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "tools": [{"type": "function", "function": {"name": "f", "parameters": {}}}],
+            "extra_body": {
+                "google_search_retrieval": {}
+            }
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        let tools = body["tools"].as_array().unwrap();
+        // Should have functionDeclarations + google_search_retrieval.
+        assert_eq!(tools.len(), 2);
+        assert!(tools[0].get("functionDeclarations").is_some());
+        assert!(tools[1].get("google_search_retrieval").is_some());
+    }
+
+    // ── transform_request: context caching ───────────────────────────────────
+
+    #[test]
+    fn transform_request_cached_content_from_extra_body() {
+        let p = provider();
+        let cached = "projects/xxx/locations/xxx/cachedContents/abc123";
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "extra_body": {
+                "cached_content": cached
+            }
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["cachedContent"], cached);
+    }
+
+    // ── transform_request: document handling ─────────────────────────────────
+
+    #[test]
+    fn transform_request_document_content_part() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Summarize this document."},
+                    {
+                        "type": "document",
+                        "document": {
+                            "data": "JVBERi0xLjQ=",
+                            "media_type": "application/pdf"
+                        }
+                    }
+                ]
+            }]
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        let parts = body["contents"][0]["parts"].as_array().unwrap();
+        assert_eq!(parts.len(), 2);
+        assert_eq!(parts[0]["text"], "Summarize this document.");
+        assert_eq!(parts[1]["inlineData"]["mimeType"], "application/pdf");
+        assert_eq!(parts[1]["inlineData"]["data"], "JVBERi0xLjQ=");
+    }
+
     // ── transform_response ────────────────────────────────────────────────────
 
     #[test]
@@ -1002,6 +1208,34 @@ mod tests {
                 "Gemini finishReason '{gemini_reason}' should map to '{expected_oai_reason}'"
             );
         }
+    }
+
+    #[test]
+    fn transform_response_grounding_metadata_preserved() {
+        let p = provider();
+        let mut body = json!({
+            "candidates": [{
+                "content": {
+                    "role": "model",
+                    "parts": [{"text": "grounded answer"}]
+                },
+                "finishReason": "STOP",
+                "groundingMetadata": {
+                    "searchEntryPoint": {"renderedContent": "<html>...</html>"},
+                    "groundingChunks": [{"web": {"uri": "https://example.com", "title": "Example"}}]
+                }
+            }],
+            "usageMetadata": {"promptTokenCount": 5, "candidatesTokenCount": 3}
+        });
+
+        p.transform_response(&mut body).unwrap();
+
+        assert_eq!(body["choices"][0]["message"]["content"], "grounded answer");
+        assert!(
+            body.get("_grounding_metadata").is_some(),
+            "grounding metadata should be preserved"
+        );
+        assert!(body["_grounding_metadata"]["groundingChunks"].as_array().unwrap().len() == 1);
     }
 
     // ── parse_stream_event ────────────────────────────────────────────────────
@@ -1228,6 +1462,19 @@ mod tests {
         let parts = convert_user_content_to_gemini(None);
         assert_eq!(parts.len(), 1);
         assert_eq!(parts[0]["text"], "");
+    }
+
+    #[test]
+    fn convert_user_content_document_part() {
+        let content = json!([
+            {"type": "text", "text": "Read this PDF."},
+            {"type": "document", "document": {"data": "base64data==", "media_type": "application/pdf"}}
+        ]);
+        let parts = convert_user_content_to_gemini(Some(&content));
+        assert_eq!(parts.len(), 2);
+        assert_eq!(parts[0]["text"], "Read this PDF.");
+        assert_eq!(parts[1]["inlineData"]["mimeType"], "application/pdf");
+        assert_eq!(parts[1]["inlineData"]["data"], "base64data==");
     }
 
     #[test]

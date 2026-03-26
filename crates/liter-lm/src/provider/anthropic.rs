@@ -15,6 +15,20 @@ static ANTHROPIC_EXTRA_HEADERS: &[(&str, &str)] = &[("anthropic-version", "2023-
 /// Anthropic requires this field; OpenAI makes it optional.
 const DEFAULT_MAX_TOKENS: u64 = 4096;
 
+/// Known Anthropic hosted tool type names that require beta headers.
+const HOSTED_TOOL_TYPES: &[&str] = &[
+    "computer_20241022",
+    "computer_use_20250124",
+    "web_search_20250305",
+    "code_execution_20250522",
+];
+
+/// Anthropic beta header values for hosted tool features.
+const BETA_COMPUTER_USE: &str = "computer-use-2025-01-24";
+const BETA_WEB_SEARCH: &str = "web-search-2025-03-05";
+const BETA_CODE_EXECUTION: &str = "code-execution-2025-05-22";
+const BETA_THINKING: &str = "thinking-2025-04-14";
+
 /// Anthropic provider (Claude model family).
 ///
 /// Differences from the OpenAI-compatible baseline:
@@ -41,6 +55,53 @@ impl Provider for AnthropicProvider {
 
     fn extra_headers(&self) -> &'static [(&'static str, &'static str)] {
         ANTHROPIC_EXTRA_HEADERS
+    }
+
+    /// Compute request-dependent beta headers based on the request body.
+    ///
+    /// Inspects the body for features that require Anthropic beta headers:
+    /// - `thinking` field present -> `anthropic-beta: thinking-2025-04-14`
+    /// - Hosted tools (computer_use, web_search, code_execution) -> appropriate betas
+    ///
+    /// Multiple betas are combined with comma separator.
+    fn dynamic_headers(&self, body: &serde_json::Value) -> Vec<(String, String)> {
+        let mut betas: Vec<&str> = Vec::new();
+
+        // Check for extended thinking.
+        if body.get("thinking").is_some() {
+            betas.push(BETA_THINKING);
+        }
+
+        // Check for hosted tools in the tools array.
+        if let Some(tools) = body.get("tools").and_then(|t| t.as_array()) {
+            for tool in tools {
+                let tool_type = tool.get("type").and_then(|t| t.as_str()).unwrap_or("");
+                match tool_type {
+                    "computer_20241022" | "computer_use_20250124" => {
+                        if !betas.contains(&BETA_COMPUTER_USE) {
+                            betas.push(BETA_COMPUTER_USE);
+                        }
+                    }
+                    "web_search_20250305" => {
+                        if !betas.contains(&BETA_WEB_SEARCH) {
+                            betas.push(BETA_WEB_SEARCH);
+                        }
+                    }
+                    "code_execution_20250522" => {
+                        if !betas.contains(&BETA_CODE_EXECUTION) {
+                            betas.push(BETA_CODE_EXECUTION);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        if betas.is_empty() {
+            vec![]
+        } else {
+            vec![("anthropic-beta".to_owned(), betas.join(","))]
+        }
     }
 
     fn matches_model(&self, model: &str) -> bool {
@@ -170,11 +231,83 @@ impl Provider for AnthropicProvider {
         }
 
         // ── 7. Convert tools from OpenAI format to Anthropic format ───────────
+        // Hosted tools (computer_use, web_search, code_execution) are passed through
+        // as-is in Anthropic's native format; only function-type tools are converted.
         if let Some(tools) = body.as_object_mut().and_then(|o| o.remove("tools"))
             && let Some(tools_array) = tools.as_array()
         {
-            let anthropic_tools: Vec<Value> = tools_array.iter().map(convert_tool_to_anthropic).collect();
+            let anthropic_tools: Vec<Value> = tools_array
+                .iter()
+                .map(|tool| {
+                    let tool_type = tool.get("type").and_then(|t| t.as_str()).unwrap_or("");
+                    if is_hosted_tool_type(tool_type) {
+                        // Pass through hosted tool definitions as-is.
+                        tool.clone()
+                    } else {
+                        convert_tool_to_anthropic(tool)
+                    }
+                })
+                .collect();
             body["tools"] = json!(anthropic_tools);
+        }
+
+        // ── 7a. Extended thinking / reasoning effort ──────────────────────────
+        // Map reasoning_effort (from body or extra_body) to Anthropic's thinking block.
+        let reasoning_effort = body
+            .as_object_mut()
+            .and_then(|o| o.remove("reasoning_effort"))
+            .and_then(|v| v.as_str().map(String::from))
+            .or_else(|| {
+                body.pointer("/extra_body/reasoning_effort")
+                    .and_then(|v| v.as_str().map(String::from))
+            });
+
+        if let Some(effort) = reasoning_effort {
+            let budget_tokens: u64 = match effort.as_str() {
+                "low" => 1024,
+                "medium" => 4096,
+                "high" => 16384,
+                _ => 4096, // default to medium for unknown values
+            };
+            body["thinking"] = json!({
+                "type": "enabled",
+                "budget_tokens": budget_tokens
+            });
+        }
+
+        // ── 7b. Response format → JSON mode ───────────────────────────────────
+        // Anthropic doesn't have a native JSON mode, so we prepend system instructions.
+        if let Some(response_format) = body.as_object_mut().and_then(|o| o.remove("response_format")) {
+            let rf_type = response_format.get("type").and_then(|t| t.as_str()).unwrap_or("");
+            match rf_type {
+                "json_object" => {
+                    // Prepend a system instruction to respond with valid JSON.
+                    let instruction = json!({"type": "text", "text": "Respond with valid JSON only. Do not include any text outside the JSON object."});
+                    if let Some(system) = body.get_mut("system").and_then(|s| s.as_array_mut()) {
+                        system.insert(0, instruction);
+                    } else {
+                        body["system"] = json!([instruction]);
+                    }
+                }
+                "json_schema" => {
+                    // Prepend the schema as a system instruction.
+                    if let Some(schema_def) = response_format.get("json_schema") {
+                        let schema_name = schema_def.get("name").and_then(|n| n.as_str()).unwrap_or("output");
+                        let schema = schema_def.get("schema").cloned().unwrap_or(json!({}));
+                        let schema_str = serde_json::to_string_pretty(&schema).unwrap_or_default();
+                        let instruction_text = format!(
+                            "Respond with valid JSON matching the following schema named '{schema_name}':\n```json\n{schema_str}\n```\nDo not include any text outside the JSON object."
+                        );
+                        let instruction = json!({"type": "text", "text": instruction_text});
+                        if let Some(system) = body.get_mut("system").and_then(|s| s.as_array_mut()) {
+                            system.insert(0, instruction);
+                        } else {
+                            body["system"] = json!([instruction]);
+                        }
+                    }
+                }
+                _ => {} // "text" or unknown — no-op
+            }
         }
 
         // ── 8. Remove unsupported parameters ──────────────────────────────────
@@ -187,9 +320,9 @@ impl Provider for AnthropicProvider {
                 "stream",
                 "stream_options",
                 "parallel_tool_calls",
-                "response_format",
                 "service_tier",
                 "user",
+                "reasoning_effort",
             ] {
                 obj.remove(*key);
             }
@@ -221,6 +354,8 @@ impl Provider for AnthropicProvider {
         // Extract text content from `type: "text"` blocks only.
         // Thinking blocks (`type: "thinking"`) are Anthropic's internal chain-of-thought
         // and are intentionally excluded from the user-facing content field.
+        // Citation blocks (`type: "citation"`) are metadata — the text they reference
+        // is already included in adjacent text blocks, so they are skipped here.
         let text_content: Option<String> = content_blocks.as_ref().map(|blocks| {
             blocks
                 .iter()
@@ -612,7 +747,15 @@ fn convert_message_to_anthropic(msg: Value) -> Value {
     match role {
         "user" => {
             let content = convert_user_content_to_anthropic(msg.get("content"));
-            json!({"role": "user", "content": content})
+            let mut user_msg = json!({"role": "user", "content": content});
+            // Propagate message-level cache_control to the last content block.
+            if let Some(cc) = msg.get("cache_control")
+                && let Some(blocks) = user_msg.get_mut("content").and_then(|c| c.as_array_mut())
+                && let Some(last) = blocks.last_mut()
+            {
+                last["cache_control"] = cc.clone();
+            }
+            user_msg
         }
         "assistant" => {
             let mut blocks: Vec<Value> = Vec::new();
@@ -621,7 +764,12 @@ fn convert_message_to_anthropic(msg: Value) -> Value {
             if let Some(text) = msg.get("content").and_then(|c| c.as_str())
                 && !text.is_empty()
             {
-                blocks.push(json!({"type": "text", "text": text}));
+                let mut block = json!({"type": "text", "text": text});
+                // Propagate cache_control from the assistant message to its text block.
+                if let Some(cc) = msg.get("cache_control") {
+                    block["cache_control"] = cc.clone();
+                }
+                blocks.push(block);
             }
 
             // Tool call blocks.
@@ -745,7 +893,31 @@ fn convert_user_content_to_anthropic(content: Option<&Value>) -> Value {
                         }
                         "image_url" => {
                             let url = part.pointer("/image_url/url").and_then(|u| u.as_str())?;
-                            Some(convert_image_url_to_anthropic_source(url))
+                            let mut block = convert_image_url_to_anthropic_source(url);
+                            if let Some(cc) = part.get("cache_control") {
+                                block["cache_control"] = cc.clone();
+                            }
+                            Some(block)
+                        }
+                        "document" => {
+                            // Convert ContentPart::Document to Anthropic document block.
+                            let data = part.pointer("/document/data").and_then(|d| d.as_str())?;
+                            let media_type = part
+                                .pointer("/document/media_type")
+                                .and_then(|m| m.as_str())
+                                .unwrap_or("application/pdf");
+                            let mut block = json!({
+                                "type": "document",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": media_type,
+                                    "data": data
+                                }
+                            });
+                            if let Some(cc) = part.get("cache_control") {
+                                block["cache_control"] = cc.clone();
+                            }
+                            Some(block)
                         }
                         _ => {
                             // Unknown content part types: fall back to text representation
@@ -823,7 +995,19 @@ fn convert_tool_to_anthropic(tool: &Value) -> Value {
         tool_def["description"] = desc;
     }
 
+    // Propagate cache_control if present on the tool definition.
+    if let Some(cc) = tool.get("cache_control") {
+        tool_def["cache_control"] = cc.clone();
+    } else if let Some(cc) = function.and_then(|f| f.get("cache_control")) {
+        tool_def["cache_control"] = cc.clone();
+    }
+
     tool_def
+}
+
+/// Check whether a tool type string represents an Anthropic hosted tool.
+fn is_hosted_tool_type(tool_type: &str) -> bool {
+    HOSTED_TOOL_TYPES.contains(&tool_type)
 }
 
 /// Map an Anthropic `stop_reason` string to an OpenAI `finish_reason` string.
@@ -1655,5 +1839,357 @@ mod tests {
     fn map_stop_reason_content_filter() {
         assert_eq!(map_stop_reason("content_filtered"), "content_filter");
         assert_eq!(map_stop_reason("refusal"), "content_filter");
+    }
+
+    // ── Phase 1A: Extended thinking / reasoning effort ──────────────────────
+
+    #[test]
+    fn transform_request_reasoning_effort_low() {
+        let mut body = json!({
+            "model": "claude-sonnet-4-20250514",
+            "messages": [{"role": "user", "content": "Think about this"}],
+            "reasoning_effort": "low"
+        });
+        provider().transform_request(&mut body).unwrap();
+        assert_eq!(body["thinking"]["type"], "enabled");
+        assert_eq!(body["thinking"]["budget_tokens"], 1024);
+        assert!(
+            body.get("reasoning_effort").is_none(),
+            "reasoning_effort should be removed"
+        );
+    }
+
+    #[test]
+    fn transform_request_reasoning_effort_medium() {
+        let mut body = json!({
+            "model": "claude-sonnet-4-20250514",
+            "messages": [{"role": "user", "content": "Think about this"}],
+            "reasoning_effort": "medium"
+        });
+        provider().transform_request(&mut body).unwrap();
+        assert_eq!(body["thinking"]["type"], "enabled");
+        assert_eq!(body["thinking"]["budget_tokens"], 4096);
+    }
+
+    #[test]
+    fn transform_request_reasoning_effort_high() {
+        let mut body = json!({
+            "model": "claude-sonnet-4-20250514",
+            "messages": [{"role": "user", "content": "Think deeply"}],
+            "reasoning_effort": "high"
+        });
+        provider().transform_request(&mut body).unwrap();
+        assert_eq!(body["thinking"]["type"], "enabled");
+        assert_eq!(body["thinking"]["budget_tokens"], 16384);
+    }
+
+    #[test]
+    fn transform_request_reasoning_effort_from_extra_body() {
+        let mut body = json!({
+            "model": "claude-sonnet-4-20250514",
+            "messages": [{"role": "user", "content": "Think"}],
+            "extra_body": {"reasoning_effort": "high"}
+        });
+        provider().transform_request(&mut body).unwrap();
+        assert_eq!(body["thinking"]["type"], "enabled");
+        assert_eq!(body["thinking"]["budget_tokens"], 16384);
+    }
+
+    // ── Phase 1A: Dynamic beta headers ──────────────────────────────────────
+
+    #[test]
+    fn dynamic_headers_thinking_beta() {
+        let body = json!({
+            "thinking": {"type": "enabled", "budget_tokens": 4096},
+            "messages": [{"role": "user", "content": "Hi"}]
+        });
+        let headers = provider().dynamic_headers(&body);
+        assert_eq!(headers.len(), 1);
+        assert_eq!(headers[0].0, "anthropic-beta");
+        assert!(headers[0].1.contains("thinking-2025-04-14"));
+    }
+
+    #[test]
+    fn dynamic_headers_web_search_beta() {
+        let body = json!({
+            "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+            "messages": [{"role": "user", "content": "Search for Rust"}]
+        });
+        let headers = provider().dynamic_headers(&body);
+        assert_eq!(headers.len(), 1);
+        assert!(headers[0].1.contains("web-search-2025-03-05"));
+    }
+
+    #[test]
+    fn dynamic_headers_multiple_betas_combined() {
+        let body = json!({
+            "thinking": {"type": "enabled", "budget_tokens": 4096},
+            "tools": [
+                {"type": "computer_use_20250124", "display_width_px": 1024, "display_height_px": 768},
+                {"type": "web_search_20250305", "name": "web_search"}
+            ]
+        });
+        let headers = provider().dynamic_headers(&body);
+        assert_eq!(headers.len(), 1);
+        let beta_value = &headers[0].1;
+        assert!(beta_value.contains("thinking-2025-04-14"));
+        assert!(beta_value.contains("computer-use-2025-01-24"));
+        assert!(beta_value.contains("web-search-2025-03-05"));
+    }
+
+    #[test]
+    fn dynamic_headers_no_betas_returns_empty() {
+        let body = json!({
+            "messages": [{"role": "user", "content": "Hi"}]
+        });
+        let headers = provider().dynamic_headers(&body);
+        assert!(headers.is_empty());
+    }
+
+    #[test]
+    fn dynamic_headers_code_execution_beta() {
+        let body = json!({
+            "tools": [{"type": "code_execution_20250522"}]
+        });
+        let headers = provider().dynamic_headers(&body);
+        assert_eq!(headers.len(), 1);
+        assert!(headers[0].1.contains("code-execution-2025-05-22"));
+    }
+
+    // ── Phase 1A: Prompt caching on messages + tools ────────────────────────
+
+    #[test]
+    fn transform_request_tool_cache_control_propagated() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{"role": "user", "content": "Hi"}],
+            "tools": [{
+                "type": "function",
+                "cache_control": {"type": "ephemeral"},
+                "function": {
+                    "name": "get_weather",
+                    "description": "Get weather",
+                    "parameters": {"type": "object", "properties": {}}
+                }
+            }]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let tools = body["tools"].as_array().unwrap();
+        assert_eq!(tools[0]["cache_control"]["type"], "ephemeral");
+    }
+
+    #[test]
+    fn transform_request_assistant_message_cache_control() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [
+                {"role": "user", "content": "Hi"},
+                {"role": "assistant", "content": "Hello!", "cache_control": {"type": "ephemeral"}},
+                {"role": "user", "content": "How are you?"}
+            ]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let messages = body["messages"].as_array().unwrap();
+        let assistant_msg = messages.iter().find(|m| m["role"] == "assistant").unwrap();
+        let content = assistant_msg["content"].as_array().unwrap();
+        assert_eq!(content[0]["cache_control"]["type"], "ephemeral");
+    }
+
+    #[test]
+    fn transform_request_user_message_level_cache_control() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{
+                "role": "user",
+                "content": "Hello",
+                "cache_control": {"type": "ephemeral"}
+            }]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let messages = body["messages"].as_array().unwrap();
+        let content = messages[0]["content"].as_array().unwrap();
+        assert_eq!(content[0]["cache_control"]["type"], "ephemeral");
+    }
+
+    // ── Phase 1A: Document/PDF handling ─────────────────────────────────────
+
+    #[test]
+    fn transform_request_document_content_part() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Analyze this document"},
+                    {"type": "document", "document": {
+                        "data": "JVBERi0xLjQ=",
+                        "media_type": "application/pdf"
+                    }}
+                ]
+            }]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let messages = body["messages"].as_array().unwrap();
+        let content = messages[0]["content"].as_array().unwrap();
+        assert_eq!(content[0]["type"], "text");
+        assert_eq!(content[1]["type"], "document");
+        assert_eq!(content[1]["source"]["type"], "base64");
+        assert_eq!(content[1]["source"]["media_type"], "application/pdf");
+        assert_eq!(content[1]["source"]["data"], "JVBERi0xLjQ=");
+    }
+
+    #[test]
+    fn transform_request_document_with_cache_control() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "document", "document": {
+                        "data": "JVBERi0xLjQ=",
+                        "media_type": "application/pdf"
+                    }, "cache_control": {"type": "ephemeral"}}
+                ]
+            }]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let messages = body["messages"].as_array().unwrap();
+        let content = messages[0]["content"].as_array().unwrap();
+        assert_eq!(content[0]["cache_control"]["type"], "ephemeral");
+    }
+
+    // ── Phase 1A: Response format -> JSON mode ──────────────────────────────
+
+    #[test]
+    fn transform_request_json_object_response_format() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{"role": "user", "content": "Give me JSON"}],
+            "response_format": {"type": "json_object"}
+        });
+        provider().transform_request(&mut body).unwrap();
+        assert!(body.get("response_format").is_none());
+        let system = body["system"].as_array().unwrap();
+        assert!(system[0]["text"].as_str().unwrap().contains("valid JSON"));
+    }
+
+    #[test]
+    fn transform_request_json_schema_response_format() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{"role": "user", "content": "Give me structured output"}],
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "person",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "age": {"type": "integer"}
+                        }
+                    }
+                }
+            }
+        });
+        provider().transform_request(&mut body).unwrap();
+        assert!(body.get("response_format").is_none());
+        let system = body["system"].as_array().unwrap();
+        let instruction = system[0]["text"].as_str().unwrap();
+        assert!(instruction.contains("person"));
+        assert!(instruction.contains("schema"));
+    }
+
+    #[test]
+    fn transform_request_json_object_with_existing_system() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [
+                {"role": "system", "content": "You are helpful."},
+                {"role": "user", "content": "Give me JSON"}
+            ],
+            "response_format": {"type": "json_object"}
+        });
+        provider().transform_request(&mut body).unwrap();
+        let system = body["system"].as_array().unwrap();
+        assert_eq!(system.len(), 2);
+        assert!(system[0]["text"].as_str().unwrap().contains("valid JSON"));
+        assert_eq!(system[1]["text"], "You are helpful.");
+    }
+
+    // ── Phase 1A: Hosted tools ──────────────────────────────────────────────
+
+    #[test]
+    fn transform_request_hosted_tool_passed_through() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{"role": "user", "content": "Search the web"}],
+            "tools": [
+                {"type": "web_search_20250305", "name": "web_search", "max_uses": 3},
+                {"type": "function", "function": {
+                    "name": "get_weather",
+                    "parameters": {"type": "object", "properties": {}}
+                }}
+            ]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let tools = body["tools"].as_array().unwrap();
+        assert_eq!(tools.len(), 2);
+        assert_eq!(tools[0]["type"], "web_search_20250305");
+        assert_eq!(tools[0]["max_uses"], 3);
+        assert_eq!(tools[1]["name"], "get_weather");
+        assert!(tools[1].get("input_schema").is_some());
+    }
+
+    #[test]
+    fn transform_request_computer_use_tool_passed_through() {
+        let mut body = json!({
+            "model": "claude-3-5-sonnet-20241022",
+            "messages": [{"role": "user", "content": "Use the computer"}],
+            "tools": [{
+                "type": "computer_20241022",
+                "display_width_px": 1024,
+                "display_height_px": 768
+            }]
+        });
+        provider().transform_request(&mut body).unwrap();
+        let tools = body["tools"].as_array().unwrap();
+        assert_eq!(tools[0]["type"], "computer_20241022");
+        assert_eq!(tools[0]["display_width_px"], 1024);
+    }
+
+    // ── Phase 1A: Citation blocks in response ───────────────────────────────
+
+    #[test]
+    fn transform_response_citation_blocks_skipped() {
+        let mut body = json!({
+            "id": "msg_cite",
+            "type": "message",
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "According to the document, "},
+                {"type": "citation", "cited_text": "Rust is fast", "document_index": 0},
+                {"type": "text", "text": "Rust is a fast language."}
+            ],
+            "model": "claude-3-5-sonnet-20241022",
+            "stop_reason": "end_turn",
+            "usage": {"input_tokens": 50, "output_tokens": 20}
+        });
+        provider().transform_response(&mut body).unwrap();
+        let content = body["choices"][0]["message"]["content"].as_str().unwrap();
+        assert_eq!(content, "According to the document, Rust is a fast language.");
+        assert!(!content.contains("citation"));
+    }
+
+    // ── Phase 1A: is_hosted_tool_type helper ────────────────────────────────
+
+    #[test]
+    fn is_hosted_tool_type_recognizes_all_types() {
+        assert!(is_hosted_tool_type("computer_20241022"));
+        assert!(is_hosted_tool_type("computer_use_20250124"));
+        assert!(is_hosted_tool_type("web_search_20250305"));
+        assert!(is_hosted_tool_type("code_execution_20250522"));
+        assert!(!is_hosted_tool_type("function"));
+        assert!(!is_hosted_tool_type("custom_tool"));
     }
 }

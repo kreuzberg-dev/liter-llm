@@ -9,6 +9,24 @@ use crate::types::ChatCompletionChunk;
 /// Default AWS region for Bedrock when none is specified.
 const DEFAULT_REGION: &str = "us-east-1";
 
+/// Map reasoning effort levels to budget_tokens for Claude-on-Bedrock extended thinking.
+fn reasoning_effort_to_budget_tokens(effort: &str) -> u64 {
+    match effort {
+        "low" => 1024,
+        "medium" => 4096,
+        "high" => 16384,
+        _ => 4096, // default to medium
+    }
+}
+
+/// Extract a document format from a MIME type string.
+///
+/// E.g. `"application/pdf"` → `"pdf"`, `"text/csv"` → `"csv"`.
+fn format_from_media_type(media_type: &str) -> &str {
+    // Use the subtype portion after the slash.
+    media_type.split('/').nth(1).unwrap_or("pdf")
+}
+
 /// Percent-encode a model ID for use in a URL path segment.
 ///
 /// Bedrock model IDs can contain colons and slashes that must be encoded.
@@ -159,9 +177,16 @@ impl Provider for BedrockProvider {
     /// Chat completions map to `/model/{encoded_model}/converse`.
     /// Embeddings map to `/model/{encoded_model}/invoke`.
     /// All other paths are passed through unchanged.
+    ///
+    /// When the `BEDROCK_CROSS_REGION` environment variable is set, the
+    /// cross-region inference profile prefix is prepended to the model ID.
+    /// For example, with `BEDROCK_CROSS_REGION=us`, model
+    /// `anthropic.claude-3-sonnet-20240229-v1:0` becomes
+    /// `us.anthropic.claude-3-sonnet-20240229-v1:0`.
     fn build_url(&self, endpoint_path: &str, model: &str) -> String {
         let base = self.base_url();
-        let encoded_model = percent_encode_model(model);
+        let effective_model = apply_cross_region_prefix(model);
+        let encoded_model = percent_encode_model(&effective_model);
         if endpoint_path.contains("chat/completions") {
             format!("{base}/model/{encoded_model}/converse")
         } else if endpoint_path.contains("embeddings") {
@@ -174,7 +199,8 @@ impl Provider for BedrockProvider {
     /// Build the streaming URL: `/model/{id}/converse-stream`.
     fn build_stream_url(&self, endpoint_path: &str, model: &str) -> String {
         let base = self.base_url();
-        let encoded_model = percent_encode_model(model);
+        let effective_model = apply_cross_region_prefix(model);
+        let encoded_model = percent_encode_model(&effective_model);
         if endpoint_path.contains("chat/completions") {
             format!("{base}/model/{encoded_model}/converse-stream")
         } else {
@@ -256,6 +282,23 @@ impl Provider for BedrockProvider {
                                             // include as text so the message is not silently dropped.
                                             Some(json!({"text": url}))
                                         }
+                                    }
+                                    "document" => {
+                                        // Map ContentPart::Document to Bedrock document block.
+                                        let data =
+                                            part.pointer("/document/data").and_then(|d| d.as_str()).unwrap_or("");
+                                        let media_type = part
+                                            .pointer("/document/media_type")
+                                            .and_then(|m| m.as_str())
+                                            .unwrap_or("application/pdf");
+                                        let format = format_from_media_type(media_type);
+                                        Some(json!({
+                                            "document": {
+                                                "name": "doc",
+                                                "format": format,
+                                                "source": {"bytes": data}
+                                            }
+                                        }))
                                     }
                                     _ => None,
                                 }
@@ -360,6 +403,51 @@ impl Provider for BedrockProvider {
             })
         });
 
+        // ── Extended thinking / reasoning effort ────────────────────────────
+        // When reasoning_effort is set, map to Bedrock's additionalModelRequestFields
+        // for Claude-on-Bedrock extended thinking.
+        let mut additional_model_fields: Option<serde_json::Value> = None;
+        if let Some(effort) = body.get("reasoning_effort").and_then(|e| e.as_str()) {
+            let budget_tokens = reasoning_effort_to_budget_tokens(effort);
+            additional_model_fields = Some(json!({
+                "thinking": {
+                    "type": "enabled",
+                    "budget_tokens": budget_tokens
+                }
+            }));
+        }
+
+        // ── Response format → system instruction ────────────────────────────
+        // Bedrock/Claude doesn't have native JSON mode. When response_format is
+        // json_schema or json_object, add a system instruction for JSON output.
+        if let Some(response_format) = body.get("response_format") {
+            let rf_type = response_format.get("type").and_then(|t| t.as_str()).unwrap_or("");
+            match rf_type {
+                "json_schema" => {
+                    let schema = response_format.get("json_schema").and_then(|js| js.get("schema"));
+                    let schema_str = schema
+                        .map(|s| serde_json::to_string_pretty(s).unwrap_or_default())
+                        .unwrap_or_default();
+                    let instruction = if schema_str.is_empty() {
+                        "You MUST respond with valid JSON only. No other text.".to_owned()
+                    } else {
+                        format!(
+                            "You MUST respond with valid JSON only that conforms to this schema:\n```json\n{schema_str}\n```\nNo other text outside the JSON."
+                        )
+                    };
+                    system_parts.push(json!({"text": instruction}));
+                }
+                "json_object" => {
+                    system_parts.push(json!({"text": "You MUST respond with valid JSON only. No other text."}));
+                }
+                _ => {}
+            }
+        }
+
+        // ── Guardrails ──────────────────────────────────────────────────────
+        // Extract guardrailConfig from extra_body if present.
+        let guardrail_config = body.get("extra_body").and_then(|eb| eb.get("guardrailConfig")).cloned();
+
         // Assemble the Bedrock Converse request body.
         let mut new_body = json!({
             "messages": converse_messages,
@@ -374,6 +462,12 @@ impl Provider for BedrockProvider {
         }
         if let Some(tc) = tool_config {
             new_body["toolConfig"] = tc;
+        }
+        if let Some(amf) = additional_model_fields {
+            new_body["additionalModelRequestFields"] = amf;
+        }
+        if let Some(gc) = guardrail_config {
+            new_body["guardrailConfig"] = gc;
         }
 
         *body = new_body;
@@ -675,6 +769,29 @@ pub(crate) fn parse_bedrock_stream_event(event_type: &str, payload: &str) -> Res
             // Unknown event type — skip silently.
             Ok(None)
         }
+    }
+}
+
+/// Apply the cross-region inference profile prefix when `BEDROCK_CROSS_REGION`
+/// is set.
+///
+/// When the env var is set (e.g. `BEDROCK_CROSS_REGION=us`), the model ID
+/// `anthropic.claude-3-sonnet-20240229-v1:0` becomes
+/// `us.anthropic.claude-3-sonnet-20240229-v1:0`.
+///
+/// If the model already starts with the cross-region prefix, it is returned
+/// unchanged to avoid double-prefixing.
+fn apply_cross_region_prefix(model: &str) -> String {
+    match std::env::var("BEDROCK_CROSS_REGION") {
+        Ok(region) if !region.is_empty() => {
+            let prefix = format!("{region}.");
+            if model.starts_with(&prefix) {
+                model.to_owned()
+            } else {
+                format!("{prefix}{model}")
+            }
+        }
+        _ => model.to_owned(),
     }
 }
 
@@ -1124,5 +1241,268 @@ mod tests {
     fn parse_stream_event_unknown_returns_none() {
         let result = parse_bedrock_stream_event("futureEventType", r#"{}"#).unwrap();
         assert!(result.is_none());
+    }
+
+    // ── Extended thinking / reasoning effort ─────────────────────────────────
+
+    #[test]
+    fn transform_request_reasoning_effort_low() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "Think step by step."}],
+            "reasoning_effort": "low",
+            "max_tokens": 1000
+        });
+        p.transform_request(&mut body).unwrap();
+
+        let amf = &body["additionalModelRequestFields"];
+        assert_eq!(amf["thinking"]["type"], "enabled");
+        assert_eq!(amf["thinking"]["budget_tokens"], 1024);
+    }
+
+    #[test]
+    fn transform_request_reasoning_effort_medium() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "Think."}],
+            "reasoning_effort": "medium"
+        });
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["additionalModelRequestFields"]["thinking"]["budget_tokens"], 4096);
+    }
+
+    #[test]
+    fn transform_request_reasoning_effort_high() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "Think hard."}],
+            "reasoning_effort": "high"
+        });
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["additionalModelRequestFields"]["thinking"]["budget_tokens"], 16384);
+    }
+
+    #[test]
+    fn transform_request_no_reasoning_effort_omits_amf() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}]
+        });
+        p.transform_request(&mut body).unwrap();
+
+        assert!(body.get("additionalModelRequestFields").is_none());
+    }
+
+    // ── Document handling ────────────────────────────────────────────────────
+
+    #[test]
+    fn transform_request_document_content_part() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Summarize this document."},
+                    {
+                        "type": "document",
+                        "document": {
+                            "data": "JVBERi0xLjQ=",
+                            "media_type": "application/pdf"
+                        }
+                    }
+                ]
+            }]
+        });
+        p.transform_request(&mut body).unwrap();
+
+        let content = body["messages"][0]["content"].as_array().unwrap();
+        assert_eq!(content.len(), 2);
+
+        // First part: text
+        assert_eq!(content[0]["text"], "Summarize this document.");
+
+        // Second part: document
+        let doc = &content[1]["document"];
+        assert_eq!(doc["name"], "doc");
+        assert_eq!(doc["format"], "pdf");
+        assert_eq!(doc["source"]["bytes"], "JVBERi0xLjQ=");
+    }
+
+    #[test]
+    fn transform_request_document_csv_format() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "document",
+                        "document": {
+                            "data": "Y29sMSxjb2wy",
+                            "media_type": "text/csv"
+                        }
+                    }
+                ]
+            }]
+        });
+        p.transform_request(&mut body).unwrap();
+
+        let doc = &body["messages"][0]["content"][0]["document"];
+        assert_eq!(doc["format"], "csv");
+    }
+
+    // ── Guardrails ───────────────────────────────────────────────────────────
+
+    #[test]
+    fn transform_request_guardrails() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hello"}],
+            "extra_body": {
+                "guardrailConfig": {
+                    "guardrailIdentifier": "my-guardrail-id",
+                    "guardrailVersion": "DRAFT",
+                    "trace": "enabled"
+                }
+            }
+        });
+        p.transform_request(&mut body).unwrap();
+
+        let gc = &body["guardrailConfig"];
+        assert_eq!(gc["guardrailIdentifier"], "my-guardrail-id");
+        assert_eq!(gc["guardrailVersion"], "DRAFT");
+        assert_eq!(gc["trace"], "enabled");
+    }
+
+    #[test]
+    fn transform_request_no_guardrails_omits_config() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hello"}]
+        });
+        p.transform_request(&mut body).unwrap();
+
+        assert!(body.get("guardrailConfig").is_none());
+    }
+
+    // ── Response format / structured output ──────────────────────────────────
+
+    #[test]
+    fn transform_request_json_object_response_format() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "Give me JSON."}],
+            "response_format": {"type": "json_object"}
+        });
+        p.transform_request(&mut body).unwrap();
+
+        // Should have a system instruction for JSON output.
+        let system = body["system"].as_array().unwrap();
+        let has_json_instruction = system
+            .iter()
+            .any(|s| s["text"].as_str().unwrap_or("").contains("valid JSON"));
+        assert!(has_json_instruction, "should inject JSON instruction in system");
+    }
+
+    #[test]
+    fn transform_request_json_schema_response_format() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "Give me structured data."}],
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "my_schema",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"}
+                        }
+                    }
+                }
+            }
+        });
+        p.transform_request(&mut body).unwrap();
+
+        let system = body["system"].as_array().unwrap();
+        let json_instruction = system
+            .iter()
+            .find(|s| s["text"].as_str().unwrap_or("").contains("valid JSON"))
+            .unwrap();
+        let text = json_instruction["text"].as_str().unwrap();
+        assert!(
+            text.contains("conforms to this schema"),
+            "should include schema reference: {text}"
+        );
+        assert!(text.contains("\"name\""), "should include the schema content: {text}");
+    }
+
+    #[test]
+    fn transform_request_text_response_format_no_injection() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hello"}],
+            "response_format": {"type": "text"}
+        });
+        p.transform_request(&mut body).unwrap();
+
+        // No system instruction should be added for plain text format.
+        assert!(body.get("system").is_none());
+    }
+
+    // ── Cross-region inference ───────────────────────────────────────────────
+
+    #[test]
+    fn apply_cross_region_prefix_when_set() {
+        // SAFETY: env vars are process-global; this test should not run in parallel
+        // with other tests that rely on BEDROCK_CROSS_REGION. The test runner
+        // serialises tests in this module by default.
+        unsafe { std::env::set_var("BEDROCK_CROSS_REGION", "us") };
+        let result = super::apply_cross_region_prefix("anthropic.claude-3-sonnet-20240229-v1:0");
+        assert_eq!(result, "us.anthropic.claude-3-sonnet-20240229-v1:0");
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
+    }
+
+    #[test]
+    fn apply_cross_region_prefix_no_double_prefix() {
+        // SAFETY: see apply_cross_region_prefix_when_set.
+        unsafe { std::env::set_var("BEDROCK_CROSS_REGION", "eu") };
+        let result = super::apply_cross_region_prefix("eu.anthropic.claude-3-sonnet-20240229-v1:0");
+        assert_eq!(
+            result, "eu.anthropic.claude-3-sonnet-20240229-v1:0",
+            "should not double-prefix"
+        );
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
+    }
+
+    #[test]
+    fn apply_cross_region_prefix_unset() {
+        // SAFETY: see apply_cross_region_prefix_when_set.
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
+        let result = super::apply_cross_region_prefix("anthropic.claude-3-sonnet-20240229-v1:0");
+        assert_eq!(result, "anthropic.claude-3-sonnet-20240229-v1:0");
+    }
+
+    // ── Helper function tests ────────────────────────────────────────────────
+
+    #[test]
+    fn reasoning_effort_budget_tokens() {
+        assert_eq!(super::reasoning_effort_to_budget_tokens("low"), 1024);
+        assert_eq!(super::reasoning_effort_to_budget_tokens("medium"), 4096);
+        assert_eq!(super::reasoning_effort_to_budget_tokens("high"), 16384);
+        assert_eq!(super::reasoning_effort_to_budget_tokens("unknown"), 4096);
+    }
+
+    #[test]
+    fn format_from_media_type_extraction() {
+        assert_eq!(super::format_from_media_type("application/pdf"), "pdf");
+        assert_eq!(super::format_from_media_type("text/csv"), "csv");
+        assert_eq!(
+            super::format_from_media_type("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+            "vnd.openxmlformats-officedocument.wordprocessingml.document"
+        );
+        assert_eq!(super::format_from_media_type("pdf"), "pdf"); // fallback
     }
 }

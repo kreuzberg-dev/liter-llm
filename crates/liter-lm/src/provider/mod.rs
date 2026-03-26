@@ -309,6 +309,7 @@ pub trait Provider: Send + Sync {
 pub mod anthropic;
 pub mod azure;
 pub mod bedrock;
+pub mod google_ai;
 pub mod vertex;
 
 // ── Built-in providers ───────────────────────────────────────────────────────
@@ -455,10 +456,11 @@ impl Provider for ConfigDrivenProvider {
 /// 1. OpenAI hardcoded patterns (gpt-*, o1-*, text-embedding-*, …).
 /// 2. Anthropic: `claude-*` model names or `anthropic/` prefix.
 /// 3. Azure: `azure/` prefix.
-/// 4. Vertex AI: `vertex_ai/` prefix.
-/// 5. AWS Bedrock: `bedrock/` prefix.
-/// 6. `"provider/"` prefix — look up the prefix in the registry.
-/// 7. Walk all registry entries and check their `model_prefixes`.
+/// 4. Google AI Studio: `gemini/` or `google_ai/` prefix.
+/// 5. Vertex AI: `vertex_ai/` prefix.
+/// 6. AWS Bedrock: `bedrock/` prefix.
+/// 7. `"provider/"` prefix — look up the prefix in the registry.
+/// 8. Walk all registry entries and check their `model_prefixes`.
 ///
 /// Returns `None` when no built-in provider matches.  The caller should fall
 /// back to a config-specified `base_url` or default to [`OpenAiProvider`].
@@ -484,12 +486,17 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         return Some(Box::new(azure::AzureProvider::new()));
     }
 
-    // 4. Vertex AI: "vertex_ai/" prefix.
+    // 4. Google AI Studio: "gemini/" or "google_ai/" prefix.
+    if model.starts_with("gemini/") || model.starts_with("google_ai/") {
+        return Some(Box::new(google_ai::GoogleAiProvider));
+    }
+
+    // 5. Vertex AI: "vertex_ai/" prefix.
     if model.starts_with("vertex_ai/") {
         return Some(Box::new(vertex::VertexAiProvider::from_env()));
     }
 
-    // 5. AWS Bedrock: "bedrock/" prefix.
+    // 6. AWS Bedrock: "bedrock/" prefix.
     if model.starts_with("bedrock/") {
         return Some(Box::new(bedrock::BedrockProvider::from_env()));
     }
