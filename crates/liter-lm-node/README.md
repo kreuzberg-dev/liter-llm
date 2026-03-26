@@ -216,13 +216,32 @@ Route to any provider using the `provider/model` prefix convention:
 - **Auth Injection** - API keys managed via environment variables, never hardcoded
 - **Error Handling** - Structured errors with provider context and retry hints
 
+### Observability (OpenTelemetry GenAI Semantic Conventions)
+
+liter-lm implements the [OpenTelemetry Semantic Conventions for Generative AI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) systems. When the `tracing` feature is enabled, every LLM call emits structured spans with:
+
+| Attribute | Description |
+|-----------|-------------|
+| `gen_ai.operation.name` | `chat`, `embeddings`, `list_models` |
+| `gen_ai.request.model` | Requested model name |
+| `gen_ai.system` | Provider name (`openai`, `anthropic`, etc.) |
+| `gen_ai.response.id` | Completion ID from the provider |
+| `gen_ai.response.model` | Actual model used (may differ from request) |
+| `gen_ai.response.finish_reasons` | Why generation stopped |
+| `gen_ai.usage.input_tokens` | Prompt token count |
+| `gen_ai.usage.output_tokens` | Completion token count |
+| `gen_ai.usage.cost` | Estimated USD cost (via `CostTrackingLayer`) |
+| `error.type` | Error variant on failure |
+
+Enable `otel` feature for OpenTelemetry export via `tracing-opentelemetry`.
+
 ### Performance
 
 | Characteristic | Detail |
 |----------------|--------|
 | **Provider resolution** | Once at client construction, zero per-request overhead |
 | **HTTP layer** | `reqwest` with configurable timeouts and connection pooling |
-| **Streaming** | `BoxStream` for composable async streaming |
+| **Streaming** | Zero-allocation SSE parser with `memchr` |
 | **Memory** | Keys wrapped in `secrecy::SecretString`, never logged |
 
 ## Streaming
