@@ -35,7 +35,7 @@ Install with go get:
 go get {{ package_name }}
 ```
 
-For more details on FFI setup and native library linking, see the [Go README](https://github.com/kreuzberg-dev/liter-lm/blob/main/packages/go/README.md).
+For more details on FFI setup and native library linking, see the [Go README](https://github.com/kreuzberg-dev/liter-llm/blob/main/packages/go/README.md).
 
 {% elif pm == "maven" %}
 Add to your `pom.xml`:
@@ -43,7 +43,7 @@ Add to your `pom.xml`:
 ```xml
 <dependency>
     <groupId>dev.kreuzberg</groupId>
-    <artifactId>liter-lm</artifactId>
+    <artifactId>liter-llm</artifactId>
     <version>{{ version }}</version>
 </dependency>
 ```
@@ -51,7 +51,7 @@ Add to your `pom.xml`:
 Or use Gradle:
 
 ```gradle
-implementation 'dev.kreuzberg:liter-lm:{{ version }}'
+implementation 'dev.kreuzberg:liter-llm:{{ version }}'
 ```
 
 {% elif pm == "rubygems" %}
@@ -144,7 +144,7 @@ go get {{ package_name }}
 ```xml
 <dependency>
     <groupId>dev.kreuzberg</groupId>
-    <artifactId>liter-lm</artifactId>
+    <artifactId>liter-llm</artifactId>
     <version>{{ version }}</version>
 </dependency>
 ```
@@ -152,7 +152,7 @@ go get {{ package_name }}
 {% elif pm == "gradle" %}
 **Gradle:**
 ```gradle
-implementation 'dev.kreuzberg:liter-lm:{{ version }}'
+implementation 'dev.kreuzberg:liter-llm:{{ version }}'
 ```
 
 {% elif pm == "rubygems" %}
@@ -231,5 +231,5 @@ Pre-built binaries available for:
 - Modern browser with WebAssembly support, or Deno 1.0+, or Cloudflare Workers
 - API keys via environment variables or runtime configuration
 {% else %}
-- See [Installation Guide](https://github.com/kreuzberg-dev/liter-lm#installation) for requirements
+- See [Installation Guide](https://github.com/kreuzberg-dev/liter-llm#installation) for requirements
 {% endif %}

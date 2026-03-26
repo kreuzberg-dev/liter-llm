@@ -1847,7 +1847,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77"
 
 [[package]]
-name = "liter-lm"
+name = "liter-llm"
 version = "1.0.0-rc.1"
 dependencies = [
  "aws-credential-types",
@@ -1875,25 +1875,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "liter-lm-ffi"
+name = "liter-llm-ffi"
 version = "1.0.0-rc.1"
 dependencies = [
  "base64 0.22.1",
  "bytes",
  "cbindgen",
  "futures-core",
- "liter-lm",
+ "liter-llm",
  "serde",
  "serde_json",
  "tokio",
 ]
 
 [[package]]
-name = "liter-lm-node"
+name = "liter-llm-node"
 version = "1.0.0-rc.1"
 dependencies = [
  "futures-core",
- "liter-lm",
+ "liter-llm",
  "napi",
  "napi-build",
  "napi-derive",
@@ -1902,22 +1902,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "liter-lm-php"
+name = "liter-llm-php"
 version = "1.0.0-rc.1"
 dependencies = [
  "ext-php-rs",
  "futures-core",
- "liter-lm",
+ "liter-llm",
  "serde_json",
  "tokio",
 ]
 
 [[package]]
-name = "liter-lm-py"
+name = "liter-llm-py"
 version = "1.0.0-rc.1"
 dependencies = [
  "futures-core",
- "liter-lm",
+ "liter-llm",
  "pyo3",
  "pyo3-async-runtimes",
  "serde",
@@ -1926,7 +1926,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "liter-lm-wasm"
+name = "liter-llm-wasm"
 version = "1.0.0-rc.1"
 dependencies = [
  "js-sys",

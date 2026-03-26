@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/lib/common.sh — shared helper functions for liter-lm shell scripts.
+# scripts/lib/common.sh — shared helper functions for liter-llm shell scripts.
 #
 # Source this file at the top of any script:
 #   source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"

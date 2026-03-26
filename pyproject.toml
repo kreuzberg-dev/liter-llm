@@ -1,5 +1,5 @@
 [project]
-name = "liter-lm"
+name = "liter-llm"
 version = "1.0.0-rc.1"
 description = "A universal LM API client with polyglot bindings — fast, type-safe, compiled"
 readme = "README.md"
@@ -27,10 +27,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Typing :: Typed",
 ]
-urls.documentation = "https://github.com/kreuzberg-dev/liter-lm#readme"
-urls.homepage = "https://github.com/kreuzberg-dev/liter-lm"
-urls.issues = "https://github.com/kreuzberg-dev/liter-lm/issues"
-urls.repository = "https://github.com/kreuzberg-dev/liter-lm"
+urls.documentation = "https://github.com/kreuzberg-dev/liter-llm#readme"
+urls.homepage = "https://github.com/kreuzberg-dev/liter-llm"
+urls.issues = "https://github.com/kreuzberg-dev/liter-llm/issues"
+urls.repository = "https://github.com/kreuzberg-dev/liter-llm"
 
 [dependency-groups]
 dev = [

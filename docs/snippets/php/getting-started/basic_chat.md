@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-use LiterLm\LlmClient;
-use LiterLm\ChatRequest;
-use LiterLm\Message;
+use LiterLlm\LlmClient;
+use LiterLlm\ChatRequest;
+use LiterLlm\Message;
 
 $client = new LlmClient();
 $response = $client->chat(new ChatRequest(

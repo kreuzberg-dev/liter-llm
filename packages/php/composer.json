@@ -1,5 +1,5 @@
 {
-	"name": "kreuzberg/liter-lm",
+	"name": "kreuzberg/liter-llm",
 	"description": "High-performance LLM client for PHP. Unified interface for streaming, tool calling, and provider routing across OpenAI, Anthropic, and 50+ providers. Powered by Rust core.",
 	"version": "1.0.0-rc.1",
 	"type": "php-ext",
@@ -16,10 +16,10 @@
 		"performance",
 		"php8"
 	],
-	"homepage": "https://github.com/kreuzberg-dev/liter-lm",
+	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
 	"support": {
-		"issues": "https://github.com/kreuzberg-dev/liter-lm/issues",
-		"source": "https://github.com/kreuzberg-dev/liter-lm"
+		"issues": "https://github.com/kreuzberg-dev/liter-llm/issues",
+		"source": "https://github.com/kreuzberg-dev/liter-llm"
 	},
 	"authors": [
 		{
@@ -38,12 +38,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"LiterLm\\": "src/"
+			"LiterLlm\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"LiterLm\\Tests\\": "tests/"
+			"LiterLlm\\Tests\\": "tests/"
 		}
 	},
 	"scripts": {

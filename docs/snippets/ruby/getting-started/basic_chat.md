@@ -1,9 +1,9 @@
 ```ruby
 # frozen_string_literal: true
 
-require "liter_lm"
+require "liter_llm"
 
-client = LiterLm::Client.new
+client = LiterLlm::Client.new
 response = client.chat(
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Hello!" }]

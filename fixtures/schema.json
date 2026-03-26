@@ -1,8 +1,8 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "https://github.com/kreuzberg-dev/liter-lm/fixtures/schema.json",
+	"$id": "https://github.com/kreuzberg-dev/liter-llm/fixtures/schema.json",
 	"title": "LiterLM E2E Fixture",
-	"description": "Schema for liter-lm end-to-end test fixtures",
+	"description": "Schema for liter-llm end-to-end test fixtures",
 	"type": "object",
 	"required": ["id", "category", "description", "api", "assertions"],
 	"additionalProperties": false,

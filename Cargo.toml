@@ -1,11 +1,11 @@
 [workspace]
 members = [
-    "crates/liter-lm",
-    "crates/liter-lm-ffi",
-    "crates/liter-lm-node",
-    "crates/liter-lm-php",
-    "crates/liter-lm-py",
-    "crates/liter-lm-wasm",
+    "crates/liter-llm",
+    "crates/liter-llm-ffi",
+    "crates/liter-llm-node",
+    "crates/liter-llm-php",
+    "crates/liter-llm-py",
+    "crates/liter-llm-wasm",
     "tools/e2e-generator",
 ]
 resolver = "2"
@@ -14,7 +14,7 @@ resolver = "2"
 version = "1.0.0-rc.1"
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/kreuzberg-dev/liter-lm"
+repository = "https://github.com/kreuzberg-dev/liter-llm"
 homepage = "https://kreuzberg.dev"
 authors = ["Na'aman Hirschfeld <naaman@kreuzberg.dev>"]
 description = "A universal LM API client with polyglot bindings"

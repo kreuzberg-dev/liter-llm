@@ -1,5 +1,5 @@
 ```csharp
-using LiterLm;
+using LiterLlm;
 
 var client = new LlmClient();
 var response = await client.ChatAsync(new ChatRequest

@@ -14,7 +14,7 @@ tasks:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
       - task: vendor
-      - cargo build --release --manifest-path crates/liter-lm-php/Cargo.toml
+      - cargo build --release --manifest-path crates/liter-llm-php/Cargo.toml
 
   build:dev:
     desc: Build PHP extension in debug mode
@@ -22,7 +22,7 @@ tasks:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
       - task: vendor
-      - cargo build --manifest-path crates/liter-lm-php/Cargo.toml
+      - cargo build --manifest-path crates/liter-llm-php/Cargo.toml
 
   test:
     desc: Run PHP smoke test
@@ -62,7 +62,7 @@ tasks:
   clean:
     desc: Clean PHP build artifacts
     cmds:
-      - rm -rf crates/liter-lm-php/vendor crates/liter-lm-php/target
+      - rm -rf crates/liter-llm-php/vendor crates/liter-llm-php/target
 
   update:
     desc: Update PHP dependencies to latest versions (including major versions)

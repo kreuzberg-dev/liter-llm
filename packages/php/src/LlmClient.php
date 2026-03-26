@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace LiterLm;
+namespace LiterLlm;
 
 /**
- * PHPStan type aliases for LiterLm JSON shapes.
+ * PHPStan type aliases for LiterLlm JSON shapes.
  *
  * These aliases document the exact array structure that each JSON-string
  * argument / return value encodes so that static analysis can verify callers
@@ -40,7 +40,7 @@ namespace LiterLm;
  */
 
 /**
- * Unified LLM client backed by the liter-lm Rust core.
+ * Unified LLM client backed by the liter-llm Rust core.
  *
  * All I/O methods accept a JSON-encoded request string and return a
  * JSON-encoded response string.  Use {@see json_encode} / {@see json_decode}
@@ -48,7 +48,7 @@ namespace LiterLm;
  *
  * @example
  * ```php
- * $client = new \LiterLm\LlmClient('sk-...', 'https://api.openai.com/v1');
+ * $client = new \LiterLlm\LlmClient('sk-...', 'https://api.openai.com/v1');
  *
  * $response = json_decode($client->chat(json_encode([
  *     'model'    => 'gpt-4',
@@ -71,10 +71,10 @@ class LlmClient
      * @param int         $timeoutSecs Request timeout in seconds.
      */
     public function __construct(
-        string $apiKey,
-        ?string $baseUrl = null,
-        int $maxRetries = 3,
-        int $timeoutSecs = 60,
+        private readonly string $apiKey,
+        private readonly ?string $baseUrl = null,
+        private readonly int $maxRetries = 3,
+        private readonly int $timeoutSecs = 60,
     ) {
     }
 
@@ -93,6 +93,7 @@ class LlmClient
      */
     public function chat(string $requestJson): string
     {
+        throw new \RuntimeException('Native extension not loaded');
     }
 
     /**
@@ -117,6 +118,7 @@ class LlmClient
      */
     public function chatStream(string $requestJson): string
     {
+        throw new \RuntimeException('Native extension not loaded');
     }
 
     /**
@@ -133,6 +135,7 @@ class LlmClient
      */
     public function embed(string $requestJson): string
     {
+        throw new \RuntimeException('Native extension not loaded');
     }
 
     /**
@@ -146,5 +149,6 @@ class LlmClient
      */
     public function listModels(): string
     {
+        throw new \RuntimeException('Native extension not loaded');
     }
 }

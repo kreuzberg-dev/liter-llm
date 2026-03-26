@@ -1,10 +1,10 @@
-# liter-lm
+# liter-llm
 
 > Universal LLM API client for 100+ LLM providers with polyglot bindings.
 
 ## About
 
-liter-lm provides unified access to 100+ LLM providers with a single API. Built in Rust with thin bindings for every major platform.
+liter-llm provides unified access to 100+ LLM providers with a single API. Built in Rust with thin bindings for every major platform.
 
 API keys are configured once at client construction and provider routing is automatic based on model name prefixes.
 
@@ -13,12 +13,12 @@ API keys are configured once at client construction and provider routing is auto
 Part of the kreuzberg.dev ecosystem:
 - **Kreuzberg** — Document intelligence: https://github.com/kreuzberg-dev/kreuzberg
 - **html-to-markdown** — HTML to Markdown converter: https://github.com/kreuzberg-dev/html-to-markdown
-- **liter-lm** — Universal LLM API client (this repo): https://github.com/kreuzberg-dev/liter-lm
+- **liter-llm** — Universal LLM API client (this repo): https://github.com/kreuzberg-dev/liter-llm
 
 ## Links
 
 - Website: https://kreuzberg.dev
-- Documentation: https://docs.liter-lm.kreuzberg.dev
+- Documentation: https://docs.liter-llm.kreuzberg.dev
 - Discord: https://discord.gg/xt9WY3GnKR
 - Contact: naaman@kreuzberg.dev
 

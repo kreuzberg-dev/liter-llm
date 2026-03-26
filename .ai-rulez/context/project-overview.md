@@ -8,12 +8,12 @@ Liter-LM is a universal LLM API client written in Rust with native bindings for 
 
 ## Crate Layout
 
-- `crates/liter-lm` — Core library: client, providers, types, HTTP layer, error handling
-- `crates/liter-lm-py` — Python bindings (PyO3)
-- `crates/liter-lm-node` — Node.js bindings (NAPI-RS)
-- `crates/liter-lm-ffi` — C FFI layer for Go, Java, C#
-- `crates/liter-lm-php` — PHP bindings (ext-php-rs)
-- `crates/liter-lm-wasm` — WebAssembly bindings (wasm-bindgen)
+- `crates/liter-llm` — Core library: client, providers, types, HTTP layer, error handling
+- `crates/liter-llm-py` — Python bindings (PyO3)
+- `crates/liter-llm-node` — Node.js bindings (NAPI-RS)
+- `crates/liter-llm-ffi` — C FFI layer for Go, Java, C#
+- `crates/liter-llm-php` — PHP bindings (ext-php-rs)
+- `crates/liter-llm-wasm` — WebAssembly bindings (wasm-bindgen)
 
 ## Language Packages
 

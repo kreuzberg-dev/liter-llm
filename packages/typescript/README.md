@@ -1,40 +1,40 @@
-# liter-lm (TypeScript/Node.js)
+# liter-llm (TypeScript/Node.js)
 
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0;">
   <!-- Language Badges -->
-  <a href="https://crates.io/crates/liter-lm">
-    <img src="https://img.shields.io/crates/v/liter-lm?label=Rust&color=007ec6" alt="Rust">
+  <a href="https://crates.io/crates/liter-llm">
+    <img src="https://img.shields.io/crates/v/liter-llm?label=Rust&color=007ec6" alt="Rust">
   </a>
-  <a href="https://pypi.org/project/liter-lm/">
-    <img src="https://img.shields.io/pypi/v/liter-lm?label=Python&color=007ec6" alt="Python">
+  <a href="https://pypi.org/project/liter-llm/">
+    <img src="https://img.shields.io/pypi/v/liter-llm?label=Python&color=007ec6" alt="Python">
   </a>
-  <a href="https://www.npmjs.com/package/liter-lm">
-    <img src="https://img.shields.io/npm/v/liter-lm?label=TypeScript&color=007ec6" alt="TypeScript">
+  <a href="https://www.npmjs.com/package/liter-llm">
+    <img src="https://img.shields.io/npm/v/liter-llm?label=TypeScript&color=007ec6" alt="TypeScript">
   </a>
-  <a href="https://pkg.go.dev/github.com/kreuzberg-dev/liter-lm/go">
-    <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-lm?label=Go&color=007ec6" alt="Go">
+  <a href="https://pkg.go.dev/github.com/kreuzberg-dev/liter-llm/go">
+    <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-llm?label=Go&color=007ec6" alt="Go">
   </a>
-  <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-lm">
-    <img src="https://img.shields.io/maven-central/v/dev.kreuzberg/liter-lm?label=Java&color=007ec6" alt="Java">
+  <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-llm">
+    <img src="https://img.shields.io/maven-central/v/dev.kreuzberg/liter-llm?label=Java&color=007ec6" alt="Java">
   </a>
-  <a href="https://rubygems.org/gems/liter_lm">
-    <img src="https://img.shields.io/gem/v/liter_lm?label=Ruby&color=007ec6" alt="Ruby">
+  <a href="https://rubygems.org/gems/liter_llm">
+    <img src="https://img.shields.io/gem/v/liter_llm?label=Ruby&color=007ec6" alt="Ruby">
   </a>
-  <a href="https://packagist.org/packages/kreuzberg/liter-lm">
-    <img src="https://img.shields.io/packagist/v/kreuzberg/liter-lm?label=PHP&color=007ec6" alt="PHP">
+  <a href="https://packagist.org/packages/kreuzberg/liter-llm">
+    <img src="https://img.shields.io/packagist/v/kreuzberg/liter-llm?label=PHP&color=007ec6" alt="PHP">
   </a>
-  <a href="https://www.nuget.org/packages/LiterLm/">
-    <img src="https://img.shields.io/nuget/v/LiterLm?label=C%23&color=007ec6" alt="C#">
+  <a href="https://www.nuget.org/packages/LiterLlm/">
+    <img src="https://img.shields.io/nuget/v/LiterLlm?label=C%23&color=007ec6" alt="C#">
   </a>
-  <a href="https://hex.pm/packages/liter_lm">
-    <img src="https://img.shields.io/hexpm/v/liter_lm?label=Elixir&color=007ec6" alt="Elixir">
+  <a href="https://hex.pm/packages/liter_llm">
+    <img src="https://img.shields.io/hexpm/v/liter_llm?label=Elixir&color=007ec6" alt="Elixir">
   </a>
 
   <!-- Project Info -->
-  <a href="https://github.com/kreuzberg-dev/liter-lm/blob/main/LICENSE">
+  <a href="https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-007ec6" alt="License">
   </a>
-  <a href="https://github.com/kreuzberg-dev/liter-lm">
+  <a href="https://github.com/kreuzberg-dev/liter-llm">
     <img src="https://img.shields.io/badge/GitHub-liter--lm-007ec6?logo=github" alt="GitHub">
   </a>
 </div>
@@ -49,19 +49,19 @@ definitions and native async/Promise support.
 **npm:**
 
 ```bash
-npm install liter-lm
+npm install liter-llm
 ```
 
 **pnpm:**
 
 ```bash
-pnpm add liter-lm
+pnpm add liter-llm
 ```
 
 ## Quick Start
 
 ```typescript
-import { LlmClient } from "liter-lm";
+import { LlmClient } from "liter-llm";
 
 const client = new LlmClient();
 const response = await client.chat({
@@ -89,7 +89,7 @@ console.log(response.content);
 Stream tokens as they are generated for responsive user experiences:
 
 ```typescript
-import { LlmClient } from "liter-lm";
+import { LlmClient } from "liter-llm";
 
 const client = new LlmClient();
 const stream = client.chatStream({
@@ -108,7 +108,7 @@ console.log();
 Define tools for the model to call with structured outputs:
 
 ```typescript
-import { LlmClient, type Tool } from "liter-lm";
+import { LlmClient, type Tool } from "liter-llm";
 
 const client = new LlmClient();
 
@@ -154,10 +154,10 @@ The client picks up keys automatically — no per-call configuration required.
 
 ## Documentation
 
-- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-lm)**
-- **[Provider List](https://github.com/kreuzberg-dev/liter-lm/blob/main/schemas/providers.json)**
-- **[Contributing Guide](https://github.com/kreuzberg-dev/liter-lm/blob/main/CONTRIBUTING.md)**
+- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)**
+- **[Provider List](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
+- **[Contributing Guide](https://github.com/kreuzberg-dev/liter-llm/blob/main/CONTRIBUTING.md)**
 
 ## License
 
-MIT License — see [LICENSE](https://github.com/kreuzberg-dev/liter-lm/blob/main/LICENSE) for details.
+MIT License — see [LICENSE](https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE) for details.

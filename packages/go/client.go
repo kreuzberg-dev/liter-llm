@@ -1,4 +1,4 @@
-package literlm
+package literllm
 
 import (
 	"bufio"
@@ -24,7 +24,7 @@ const (
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 
-// LlmClient is the contract that all liter-lm client implementations satisfy.
+// LlmClient is the contract that all liter-llm client implementations satisfy.
 type LlmClient interface {
 	// Chat sends a non-streaming chat completion request.
 	Chat(ctx context.Context, req *ChatCompletionRequest) (*ChatCompletionResponse, error)
@@ -156,8 +156,8 @@ type Client struct {
 // At minimum, provide [WithAPIKey] (or set the OPENAI_API_KEY environment
 // variable yourself and pass an empty key if the provider does not need it).
 //
-//	client := literlm.NewClient(
-//	    literlm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+//	client := literllm.NewClient(
+//	    literllm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
 //	)
 func NewClient(opts ...Option) *Client {
 	cfg := ClientConfig{
@@ -179,7 +179,7 @@ func (c *Client) buildRequest(ctx context.Context, method, path string, body io.
 	url := c.config.baseURL + path
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
-		return nil, fmt.Errorf("literlm: build request: %w", err)
+		return nil, fmt.Errorf("literllm: build request: %w", err)
 	}
 	if c.config.apiKey != "" {
 		req.Header.Set(headerAuthorization, "Bearer "+c.config.apiKey)
@@ -200,7 +200,7 @@ func (c *Client) buildRequest(ctx context.Context, method, path string, body io.
 func (c *Client) do(req *http.Request) (*http.Response, error) {
 	resp, err := c.config.httpClient.Do(req) //nolint:gosec // URL is from trusted config, not user input
 	if err != nil {
-		return nil, fmt.Errorf("literlm: HTTP request failed: %w", err)
+		return nil, fmt.Errorf("literllm: HTTP request failed: %w", err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		defer resp.Body.Close()
@@ -243,7 +243,7 @@ func extractErrorMessage(resp *http.Response) string {
 func marshalBody(v any) (io.Reader, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
-		return nil, fmt.Errorf("literlm: marshal request body: %w", err)
+		return nil, fmt.Errorf("literllm: marshal request body: %w", err)
 	}
 	return bytes.NewReader(data), nil
 }
@@ -289,7 +289,7 @@ func (c *Client) Chat(ctx context.Context, req *ChatCompletionRequest) (*ChatCom
 
 	var result ChatCompletionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode chat response: %w", err)
+		return nil, fmt.Errorf("literllm: decode chat response: %w", err)
 	}
 	return &result, nil
 }
@@ -403,7 +403,7 @@ func (c *Client) Embed(ctx context.Context, req *EmbeddingRequest) (*EmbeddingRe
 
 	var result EmbeddingResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode embedding response: %w", err)
+		return nil, fmt.Errorf("literllm: decode embedding response: %w", err)
 	}
 	return &result, nil
 }
@@ -425,7 +425,7 @@ func (c *Client) ListModels(ctx context.Context) (*ModelsListResponse, error) {
 
 	var result ModelsListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode models response: %w", err)
+		return nil, fmt.Errorf("literllm: decode models response: %w", err)
 	}
 	return &result, nil
 }
@@ -459,7 +459,7 @@ func (c *Client) ImageGenerate(ctx context.Context, req *CreateImageRequest) (*I
 
 	var result ImagesResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode image response: %w", err)
+		return nil, fmt.Errorf("literllm: decode image response: %w", err)
 	}
 	return &result, nil
 }
@@ -499,7 +499,7 @@ func (c *Client) Speech(ctx context.Context, req *CreateSpeechRequest) ([]byte, 
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("literlm: read speech response: %w", err)
+		return nil, fmt.Errorf("literllm: read speech response: %w", err)
 	}
 	return data, nil
 }
@@ -533,7 +533,7 @@ func (c *Client) Transcribe(ctx context.Context, req *CreateTranscriptionRequest
 
 	var result TranscriptionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode transcription response: %w", err)
+		return nil, fmt.Errorf("literllm: decode transcription response: %w", err)
 	}
 	return &result, nil
 }
@@ -564,7 +564,7 @@ func (c *Client) Moderate(ctx context.Context, req *ModerationRequest) (*Moderat
 
 	var result ModerationResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode moderation response: %w", err)
+		return nil, fmt.Errorf("literllm: decode moderation response: %w", err)
 	}
 	return &result, nil
 }
@@ -601,7 +601,7 @@ func (c *Client) Rerank(ctx context.Context, req *RerankRequest) (*RerankRespons
 
 	var result RerankResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode rerank response: %w", err)
+		return nil, fmt.Errorf("literllm: decode rerank response: %w", err)
 	}
 	return &result, nil
 }
@@ -632,7 +632,7 @@ func (c *Client) CreateFile(ctx context.Context, req *CreateFileRequest) (*FileO
 
 	var result FileObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode file response: %w", err)
+		return nil, fmt.Errorf("literllm: decode file response: %w", err)
 	}
 	return &result, nil
 }
@@ -656,7 +656,7 @@ func (c *Client) RetrieveFile(ctx context.Context, fileID string) (*FileObject, 
 
 	var result FileObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode file response: %w", err)
+		return nil, fmt.Errorf("literllm: decode file response: %w", err)
 	}
 	return &result, nil
 }
@@ -680,7 +680,7 @@ func (c *Client) DeleteFile(ctx context.Context, fileID string) (*DeleteResponse
 
 	var result DeleteResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode delete response: %w", err)
+		return nil, fmt.Errorf("literllm: decode delete response: %w", err)
 	}
 	return &result, nil
 }
@@ -717,7 +717,7 @@ func (c *Client) ListFiles(ctx context.Context, query *FileListQuery) (*FileList
 
 	var result FileListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode file list response: %w", err)
+		return nil, fmt.Errorf("literllm: decode file list response: %w", err)
 	}
 	return &result, nil
 }
@@ -741,7 +741,7 @@ func (c *Client) FileContent(ctx context.Context, fileID string) ([]byte, error)
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("literlm: read file content: %w", err)
+		return nil, fmt.Errorf("literllm: read file content: %w", err)
 	}
 	return data, nil
 }
@@ -772,7 +772,7 @@ func (c *Client) CreateBatch(ctx context.Context, req *CreateBatchRequest) (*Bat
 
 	var result BatchObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode batch response: %w", err)
+		return nil, fmt.Errorf("literllm: decode batch response: %w", err)
 	}
 	return &result, nil
 }
@@ -796,7 +796,7 @@ func (c *Client) RetrieveBatch(ctx context.Context, batchID string) (*BatchObjec
 
 	var result BatchObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode batch response: %w", err)
+		return nil, fmt.Errorf("literllm: decode batch response: %w", err)
 	}
 	return &result, nil
 }
@@ -830,7 +830,7 @@ func (c *Client) ListBatches(ctx context.Context, query *BatchListQuery) (*Batch
 
 	var result BatchListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode batch list response: %w", err)
+		return nil, fmt.Errorf("literllm: decode batch list response: %w", err)
 	}
 	return &result, nil
 }
@@ -854,7 +854,7 @@ func (c *Client) CancelBatch(ctx context.Context, batchID string) (*BatchObject,
 
 	var result BatchObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode batch response: %w", err)
+		return nil, fmt.Errorf("literllm: decode batch response: %w", err)
 	}
 	return &result, nil
 }
@@ -888,7 +888,7 @@ func (c *Client) CreateResponse(ctx context.Context, req *CreateResponseRequest)
 
 	var result ResponseObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode response: %w", err)
+		return nil, fmt.Errorf("literllm: decode response: %w", err)
 	}
 	return &result, nil
 }
@@ -912,7 +912,7 @@ func (c *Client) RetrieveResponse(ctx context.Context, responseID string) (*Resp
 
 	var result ResponseObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode response: %w", err)
+		return nil, fmt.Errorf("literllm: decode response: %w", err)
 	}
 	return &result, nil
 }
@@ -936,7 +936,7 @@ func (c *Client) CancelResponse(ctx context.Context, responseID string) (*Respon
 
 	var result ResponseObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literlm: decode response: %w", err)
+		return nil, fmt.Errorf("literllm: decode response: %w", err)
 	}
 	return &result, nil
 }

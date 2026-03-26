@@ -1,3 +1,3 @@
-module github.com/kreuzberg-dev/liter-lm/go
+module github.com/kreuzberg-dev/liter-llm/go
 
 go 1.23

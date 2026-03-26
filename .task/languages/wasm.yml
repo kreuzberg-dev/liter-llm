@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  WASM_DIR: "{{.PROJECT_ROOT}}/crates/liter-lm-wasm"
+  WASM_DIR: "{{.PROJECT_ROOT}}/crates/liter-llm-wasm"
   # Homebrew LLVM clang supports wasm32 target; system clang on macOS does not
   WASM_CC: '{{.WASM_CC | default "/opt/homebrew/opt/llvm/bin/clang"}}'
   WASM_SYSROOT: '{{.WASM_SYSROOT | default "/opt/homebrew/share/wasi-sysroot"}}'

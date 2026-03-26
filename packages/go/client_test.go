@@ -1,4 +1,4 @@
-package literlm_test
+package literllm_test
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	"strings"
 	"testing"
 
-	literlm "github.com/kreuzberg-dev/liter-lm/go"
+	literllm "github.com/kreuzberg-dev/liter-llm/go"
 )
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 // newTestClient creates a Client pointed at the given test server URL with a
 // dummy API key.
-func newTestClient(serverURL string) *literlm.Client {
-	return literlm.NewClient(
-		literlm.WithAPIKey("test-key"),
-		literlm.WithBaseURL(serverURL),
+func newTestClient(serverURL string) *literllm.Client {
+	return literllm.NewClient(
+		literllm.WithAPIKey("test-key"),
+		literllm.WithBaseURL(serverURL),
 	)
 }
 
@@ -29,9 +29,9 @@ func newTestClient(serverURL string) *literlm.Client {
 
 func TestNewTextMessage(t *testing.T) {
 	t.Parallel()
-	msg := literlm.NewTextMessage(literlm.RoleUser, "hello")
-	if msg.Role != literlm.RoleUser {
-		t.Errorf("expected role %q, got %q", literlm.RoleUser, msg.Role)
+	msg := literllm.NewTextMessage(literllm.RoleUser, "hello")
+	if msg.Role != literllm.RoleUser {
+		t.Errorf("expected role %q, got %q", literllm.RoleUser, msg.Role)
 	}
 	var content string
 	if err := json.Unmarshal(msg.Content, &content); err != nil {
@@ -44,12 +44,12 @@ func TestNewTextMessage(t *testing.T) {
 
 func TestNewPartsMessage(t *testing.T) {
 	t.Parallel()
-	parts := []literlm.ContentPart{
-		{Type: literlm.ContentPartTypeText, Text: "describe this"},
-		{Type: literlm.ContentPartTypeImageURL, ImageURL: &literlm.ImageURL{URL: "https://example.com/img.png"}},
+	parts := []literllm.ContentPart{
+		{Type: literllm.ContentPartTypeText, Text: "describe this"},
+		{Type: literllm.ContentPartTypeImageURL, ImageURL: &literllm.ImageURL{URL: "https://example.com/img.png"}},
 	}
-	msg := literlm.NewPartsMessage(literlm.RoleUser, parts)
-	var decoded []literlm.ContentPart
+	msg := literllm.NewPartsMessage(literllm.RoleUser, parts)
+	var decoded []literllm.ContentPart
 	if err := json.Unmarshal(msg.Content, &decoded); err != nil {
 		t.Fatalf("content should be a JSON array: %v", err)
 	}
@@ -62,12 +62,12 @@ func TestToolChoiceMarshal(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name  string
-		input literlm.ToolChoice
+		input literllm.ToolChoice
 		want  string
 	}{
-		{"auto", literlm.ToolChoiceAuto, `"auto"`},
-		{"required", literlm.ToolChoiceRequired, `"required"`},
-		{"none", literlm.ToolChoiceNone, `"none"`},
+		{"auto", literllm.ToolChoiceAuto, `"auto"`},
+		{"required", literllm.ToolChoiceRequired, `"required"`},
+		{"none", literllm.ToolChoiceNone, `"none"`},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestToolChoiceMarshal(t *testing.T) {
 
 func TestNewSpecificToolChoice(t *testing.T) {
 	t.Parallel()
-	tc := literlm.NewSpecificToolChoice("get_weather")
+	tc := literllm.NewSpecificToolChoice("get_weather")
 	raw, _ := json.Marshal(tc)
 	var obj struct {
 		Type     string `json:"type"`
@@ -106,13 +106,13 @@ func TestNewSpecificToolChoice(t *testing.T) {
 
 func TestStopSequenceRoundtrip(t *testing.T) {
 	t.Parallel()
-	single := literlm.NewStopString("STOP")
+	single := literllm.NewStopString("STOP")
 	b, _ := json.Marshal(single)
 	if string(b) != `"STOP"` {
 		t.Errorf("single stop: expected %q, got %s", `"STOP"`, b)
 	}
 
-	multi := literlm.NewStopStrings([]string{"END", "DONE"})
+	multi := literllm.NewStopStrings([]string{"END", "DONE"})
 	b, _ = json.Marshal(multi)
 	if string(b) != `["END","DONE"]` {
 		t.Errorf("multi stop: expected %q, got %s", `["END","DONE"]`, b)
@@ -121,13 +121,13 @@ func TestStopSequenceRoundtrip(t *testing.T) {
 
 func TestEmbeddingInputRoundtrip(t *testing.T) {
 	t.Parallel()
-	single := literlm.NewEmbeddingInputSingle("hello world")
+	single := literllm.NewEmbeddingInputSingle("hello world")
 	b, _ := json.Marshal(single)
 	if string(b) != `"hello world"` {
 		t.Errorf("single input: expected %q, got %s", `"hello world"`, b)
 	}
 
-	multi := literlm.NewEmbeddingInputMultiple([]string{"a", "b"})
+	multi := literllm.NewEmbeddingInputMultiple([]string{"a", "b"})
 	b, _ = json.Marshal(multi)
 	if string(b) != `["a","b"]` {
 		t.Errorf("multi input: expected %q, got %s", `["a","b"]`, b)
@@ -142,21 +142,21 @@ func TestAPIErrorIs(t *testing.T) {
 		statusCode int
 		sentinel   error
 	}{
-		{http.StatusUnauthorized, literlm.ErrAuthentication},
-		{http.StatusForbidden, literlm.ErrAuthentication},
-		{http.StatusTooManyRequests, literlm.ErrRateLimit},
-		{http.StatusNotFound, literlm.ErrNotFound},
-		{http.StatusBadRequest, literlm.ErrInvalidRequest},
-		{http.StatusInternalServerError, literlm.ErrProviderError},
+		{http.StatusUnauthorized, literllm.ErrAuthentication},
+		{http.StatusForbidden, literllm.ErrAuthentication},
+		{http.StatusTooManyRequests, literllm.ErrRateLimit},
+		{http.StatusNotFound, literllm.ErrNotFound},
+		{http.StatusBadRequest, literllm.ErrInvalidRequest},
+		{http.StatusInternalServerError, literllm.ErrProviderError},
 	}
 	for _, tc := range tests {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(tc.statusCode)
 		}))
 		client := newTestClient(server.URL)
-		req := &literlm.ChatCompletionRequest{
+		req := &literllm.ChatCompletionRequest{
 			Model:    "gpt-4o",
-			Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
+			Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
 		}
 		_, err := client.Chat(context.Background(), req)
 		server.Close()
@@ -180,15 +180,15 @@ func TestStreamErrorIs(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	req := &literlm.ChatCompletionRequest{
+	req := &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
 	}
-	err := client.ChatStream(context.Background(), req, func(c *literlm.ChatCompletionChunk) error { return nil })
+	err := client.ChatStream(context.Background(), req, func(c *literllm.ChatCompletionChunk) error { return nil })
 	if err == nil {
 		t.Fatal("expected error for malformed chunk, got nil")
 	}
-	if !errors.Is(err, literlm.ErrStream) {
+	if !errors.Is(err, literllm.ErrStream) {
 		t.Errorf("expected errors.Is(ErrStream), got %T: %v", err, err)
 	}
 }
@@ -197,63 +197,63 @@ func TestStreamErrorIs(t *testing.T) {
 
 func TestChat_NilRequest(t *testing.T) {
 	t.Parallel()
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
 	_, err := client.Chat(context.Background(), nil)
-	if !errors.Is(err, literlm.ErrInvalidRequest) {
+	if !errors.Is(err, literllm.ErrInvalidRequest) {
 		t.Errorf("expected ErrInvalidRequest, got %v", err)
 	}
 }
 
 func TestChat_EmptyModel(t *testing.T) {
 	t.Parallel()
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
-	_, err := client.Chat(context.Background(), &literlm.ChatCompletionRequest{
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
+	_, err := client.Chat(context.Background(), &literllm.ChatCompletionRequest{
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
 	})
-	if !errors.Is(err, literlm.ErrInvalidRequest) {
+	if !errors.Is(err, literllm.ErrInvalidRequest) {
 		t.Errorf("expected ErrInvalidRequest for empty model, got %v", err)
 	}
 }
 
 func TestChat_EmptyMessages(t *testing.T) {
 	t.Parallel()
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
-	_, err := client.Chat(context.Background(), &literlm.ChatCompletionRequest{
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
+	_, err := client.Chat(context.Background(), &literllm.ChatCompletionRequest{
 		Model: "gpt-4o",
 	})
-	if !errors.Is(err, literlm.ErrInvalidRequest) {
+	if !errors.Is(err, literllm.ErrInvalidRequest) {
 		t.Errorf("expected ErrInvalidRequest for empty messages, got %v", err)
 	}
 }
 
 func TestEmbed_NilRequest(t *testing.T) {
 	t.Parallel()
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
 	_, err := client.Embed(context.Background(), nil)
-	if !errors.Is(err, literlm.ErrInvalidRequest) {
+	if !errors.Is(err, literllm.ErrInvalidRequest) {
 		t.Errorf("expected ErrInvalidRequest, got %v", err)
 	}
 }
 
 func TestEmbed_EmptyModel(t *testing.T) {
 	t.Parallel()
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
-	_, err := client.Embed(context.Background(), &literlm.EmbeddingRequest{
-		Input: literlm.NewEmbeddingInputSingle("text"),
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
+	_, err := client.Embed(context.Background(), &literllm.EmbeddingRequest{
+		Input: literllm.NewEmbeddingInputSingle("text"),
 	})
-	if !errors.Is(err, literlm.ErrInvalidRequest) {
+	if !errors.Is(err, literllm.ErrInvalidRequest) {
 		t.Errorf("expected ErrInvalidRequest for empty model, got %v", err)
 	}
 }
 
 func TestChatStream_NilHandler(t *testing.T) {
 	t.Parallel()
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
-	err := client.ChatStream(context.Background(), &literlm.ChatCompletionRequest{
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
+	err := client.ChatStream(context.Background(), &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
 	}, nil)
-	if !errors.Is(err, literlm.ErrInvalidRequest) {
+	if !errors.Is(err, literllm.ErrInvalidRequest) {
 		t.Errorf("expected ErrInvalidRequest for nil handler, got %v", err)
 	}
 }
@@ -290,9 +290,9 @@ func TestChat_Success(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	resp, err := client.Chat(context.Background(), &literlm.ChatCompletionRequest{
+	resp, err := client.Chat(context.Background(), &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -324,11 +324,11 @@ func TestChatStream_Success(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	var chunks []*literlm.ChatCompletionChunk
-	err := client.ChatStream(context.Background(), &literlm.ChatCompletionRequest{
+	var chunks []*literllm.ChatCompletionChunk
+	err := client.ChatStream(context.Background(), &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
-	}, func(c *literlm.ChatCompletionChunk) error {
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
+	}, func(c *literllm.ChatCompletionChunk) error {
 		chunks = append(chunks, c)
 		return nil
 	})
@@ -359,10 +359,10 @@ func TestChatStream_HandlerError(t *testing.T) {
 
 	sentinel := errors.New("handler abort")
 	client := newTestClient(server.URL)
-	err := client.ChatStream(context.Background(), &literlm.ChatCompletionRequest{
+	err := client.ChatStream(context.Background(), &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
-	}, func(c *literlm.ChatCompletionChunk) error {
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
+	}, func(c *literllm.ChatCompletionChunk) error {
 		return sentinel
 	})
 	if !errors.Is(err, sentinel) {
@@ -388,9 +388,9 @@ func TestEmbed_Success(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	resp, err := client.Embed(context.Background(), &literlm.EmbeddingRequest{
+	resp, err := client.Embed(context.Background(), &literllm.EmbeddingRequest{
 		Model: "text-embedding-3-small",
-		Input: literlm.NewEmbeddingInputSingle("hello"),
+		Input: literllm.NewEmbeddingInputSingle("hello"),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -450,10 +450,10 @@ func TestListModels_ProviderError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
-	if !errors.Is(err, literlm.ErrProviderError) {
+	if !errors.Is(err, literllm.ErrProviderError) {
 		t.Errorf("expected ErrProviderError, got %T: %v", err, err)
 	}
-	var apiErr *literlm.APIError
+	var apiErr *literllm.APIError
 	switch {
 	case !errors.As(err, &apiErr):
 		t.Errorf("expected *APIError, got %T", err)
@@ -467,7 +467,7 @@ func TestListModels_ProviderError(t *testing.T) {
 func TestNewClient_DefaultBaseURL(t *testing.T) {
 	t.Parallel()
 	// Constructing without a base URL should not panic.
-	client := literlm.NewClient(literlm.WithAPIKey("k"))
+	client := literllm.NewClient(literllm.WithAPIKey("k"))
 	if client == nil {
 		t.Fatal("expected non-nil client")
 	}
@@ -486,9 +486,9 @@ func TestWithBaseURL_TrailingSlashStripped(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := literlm.NewClient(
-		literlm.WithAPIKey("k"),
-		literlm.WithBaseURL(server.URL+"/"),
+	client := literllm.NewClient(
+		literllm.WithAPIKey("k"),
+		literllm.WithBaseURL(server.URL+"/"),
 	)
 	client.ListModels(context.Background()) //nolint:errcheck
 
@@ -544,24 +544,24 @@ func TestChat_WithToolCalling(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	toolChoice := literlm.NewSpecificToolChoice("get_weather")
-	tool := literlm.ChatCompletionTool{
-		Type: literlm.ToolTypeFunction,
-		Function: literlm.FunctionDefinition{
+	toolChoice := literllm.NewSpecificToolChoice("get_weather")
+	tool := literllm.ChatCompletionTool{
+		Type: literllm.ToolTypeFunction,
+		Function: literllm.FunctionDefinition{
 			Name: "get_weather",
 		},
 	}
 
-	resp, err := client.Chat(context.Background(), &literlm.ChatCompletionRequest{
+	resp, err := client.Chat(context.Background(), &literllm.ChatCompletionRequest{
 		Model:      "gpt-4o",
-		Messages:   []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "get weather")},
-		Tools:      []literlm.ChatCompletionTool{tool},
+		Messages:   []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "get weather")},
+		Tools:      []literllm.ChatCompletionTool{tool},
 		ToolChoice: &toolChoice,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if *resp.Choices[0].FinishReason != literlm.FinishReasonToolCalls {
+	if *resp.Choices[0].FinishReason != literllm.FinishReasonToolCalls {
 		t.Errorf("expected finish_reason tool_calls, got %v", resp.Choices[0].FinishReason)
 	}
 }
@@ -580,11 +580,11 @@ func TestChatStream_ChunkOrder(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	var chunks []*literlm.ChatCompletionChunk
-	err := client.ChatStream(context.Background(), &literlm.ChatCompletionRequest{
+	var chunks []*literllm.ChatCompletionChunk
+	err := client.ChatStream(context.Background(), &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
-	}, func(c *literlm.ChatCompletionChunk) error {
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
+	}, func(c *literllm.ChatCompletionChunk) error {
 		chunks = append(chunks, c)
 		return nil
 	})
@@ -631,9 +631,9 @@ func TestEmbed_BatchInput(t *testing.T) {
 	defer server.Close()
 
 	client := newTestClient(server.URL)
-	resp, err := client.Embed(context.Background(), &literlm.EmbeddingRequest{
+	resp, err := client.Embed(context.Background(), &literllm.EmbeddingRequest{
 		Model: "text-embedding-3-small",
-		Input: literlm.NewEmbeddingInputMultiple([]string{"first", "second", "third"}),
+		Input: literllm.NewEmbeddingInputMultiple([]string{"first", "second", "third"}),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -650,10 +650,10 @@ func TestAPIErrorClassification(t *testing.T) {
 		sentinel   error
 		name       string
 	}{
-		{http.StatusForbidden, literlm.ErrAuthentication, "403 Forbidden"},
-		{http.StatusBadGateway, literlm.ErrProviderError, "502 Bad Gateway"},
-		{http.StatusServiceUnavailable, literlm.ErrProviderError, "503 Service Unavailable"},
-		{http.StatusGatewayTimeout, literlm.ErrProviderError, "504 Gateway Timeout"},
+		{http.StatusForbidden, literllm.ErrAuthentication, "403 Forbidden"},
+		{http.StatusBadGateway, literllm.ErrProviderError, "502 Bad Gateway"},
+		{http.StatusServiceUnavailable, literllm.ErrProviderError, "503 Service Unavailable"},
+		{http.StatusGatewayTimeout, literllm.ErrProviderError, "504 Gateway Timeout"},
 	}
 
 	for _, tc := range tests {
@@ -665,9 +665,9 @@ func TestAPIErrorClassification(t *testing.T) {
 			defer server.Close()
 
 			client := newTestClient(server.URL)
-			_, err := client.Chat(context.Background(), &literlm.ChatCompletionRequest{
+			_, err := client.Chat(context.Background(), &literllm.ChatCompletionRequest{
 				Model:    "gpt-4o",
-				Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
+				Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
 			})
 			if err == nil {
 				t.Fatal("expected error, got nil")
@@ -691,17 +691,17 @@ func TestStreamError_Wrapping(t *testing.T) {
 
 	client := newTestClient(server.URL)
 	count := 0
-	err := client.ChatStream(context.Background(), &literlm.ChatCompletionRequest{
+	err := client.ChatStream(context.Background(), &literllm.ChatCompletionRequest{
 		Model:    "gpt-4o",
-		Messages: []literlm.Message{literlm.NewTextMessage(literlm.RoleUser, "hi")},
-	}, func(c *literlm.ChatCompletionChunk) error {
+		Messages: []literllm.Message{literllm.NewTextMessage(literllm.RoleUser, "hi")},
+	}, func(c *literllm.ChatCompletionChunk) error {
 		count++
 		return nil
 	})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
-	if !errors.Is(err, literlm.ErrStream) {
+	if !errors.Is(err, literllm.ErrStream) {
 		t.Errorf("expected ErrStream, got %T: %v", err, err)
 	}
 	// Verify we got the first chunk before error
@@ -712,18 +712,18 @@ func TestStreamError_Wrapping(t *testing.T) {
 
 func TestNewTextMessage_AllRoles(t *testing.T) {
 	t.Parallel()
-	roles := []literlm.Role{
-		literlm.RoleSystem,
-		literlm.RoleUser,
-		literlm.RoleAssistant,
-		literlm.RoleTool,
-		literlm.RoleDeveloper,
+	roles := []literllm.Role{
+		literllm.RoleSystem,
+		literllm.RoleUser,
+		literllm.RoleAssistant,
+		literllm.RoleTool,
+		literllm.RoleDeveloper,
 	}
 
 	for _, role := range roles {
 		t.Run(string(role), func(t *testing.T) {
 			t.Parallel()
-			msg := literlm.NewTextMessage(role, "test content")
+			msg := literllm.NewTextMessage(role, "test content")
 			if msg.Role != role {
 				t.Errorf("expected role %q, got %q", role, msg.Role)
 			}

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+
+    <PackageId>LiterLlm</PackageId>
+    <Version>1.0.0-rc.1</Version>
+    <Authors>kreuzberg.dev</Authors>
+    <Company>kreuzberg.dev</Company>
+    <Description>High-performance LLM client for .NET powered by Rust. Unified interface for streaming completions, tool calling, and provider routing across OpenAI, Anthropic, and 50+ LLM providers.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kreuzberg-dev/liter-llm</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kreuzberg-dev/liter-llm</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>liter-llm;llm;openai;anthropic;streaming;tool-calling;provider-routing;rust;ffi;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Version 0.1.0</PackageReleaseNotes>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" Condition="Exists('../README.md')" />
+    <None Include="runtimes/**" Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

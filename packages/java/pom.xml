@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.kreuzberg</groupId>
-    <artifactId>liter-lm</artifactId>
+    <artifactId>liter-llm</artifactId>
     <version>1.0.0-rc.1</version>
     <packaging>jar</packaging>
 
-    <name>LiterLm Java</name>
-    <description>Java bindings for liter-lm — unified LLM client with streaming, tool calling, and provider routing</description>
-    <url>https://github.com/kreuzberg-dev/liter-lm</url>
+    <name>LiterLlm Java</name>
+    <description>Java bindings for liter-llm — unified LLM client with streaming, tool calling, and provider routing</description>
+    <url>https://github.com/kreuzberg-dev/liter-llm</url>
 
     <licenses>
         <license>
@@ -28,9 +28,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/kreuzberg-dev/liter-lm.git</connection>
-        <developerConnection>scm:git:ssh://github.com:kreuzberg-dev/liter-lm.git</developerConnection>
-        <url>https://github.com/kreuzberg-dev/liter-lm</url>
+        <connection>scm:git:git://github.com/kreuzberg-dev/liter-llm.git</connection>
+        <developerConnection>scm:git:ssh://github.com:kreuzberg-dev/liter-llm.git</developerConnection>
+        <url>https://github.com/kreuzberg-dev/liter-llm</url>
     </scm>
 
     <properties>

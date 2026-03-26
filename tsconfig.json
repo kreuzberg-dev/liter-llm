@@ -35,10 +35,5 @@
 
 		"noEmit": true
 	},
-	"files": [],
-	"references": [
-		{ "path": "./crates/liter-lm-node" },
-		{ "path": "./crates/liter-lm-wasm" },
-		{ "path": "./tests/test_apps/node" }
-	]
+	"include": ["packages/typescript/src/**/*.ts"]
 }

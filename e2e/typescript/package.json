@@ -1,5 +1,5 @@
 {
-  "name": "liter-lm-e2e-tests",
+  "name": "liter-llm-e2e-tests",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +9,6 @@
     "vitest": "^4.1.2"
   },
   "dependencies": {
-    "liter-lm": "link:../../packages/typescript"
+    "liter-llm": "link:../../packages/typescript"
   }
 }

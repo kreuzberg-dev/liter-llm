@@ -1,5 +1,5 @@
 ```typescript
-import { LlmClient } from "liter-lm";
+import { LlmClient } from "liter-llm";
 
 const client = new LlmClient();
 const response = await client.chat({

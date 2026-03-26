@@ -1,7 +1,7 @@
 ```java
-import dev.kreuzberg.literlm.LlmClient;
-import dev.kreuzberg.literlm.ChatRequest;
-import dev.kreuzberg.literlm.Message;
+import dev.kreuzberg.literllm.LlmClient;
+import dev.kreuzberg.literllm.ChatRequest;
+import dev.kreuzberg.literllm.Message;
 
 public class Main {
     public static void main(String[] args) throws Exception {

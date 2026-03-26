@@ -5,7 +5,7 @@ import (
  "context"
  "fmt"
 
- llm "github.com/kreuzberg-dev/liter-lm/go"
+ llm "github.com/kreuzberg-dev/liter-llm/go"
 )
 
 func main() {

@@ -1,6 +1,6 @@
-# Contributing to liter-lm
+# Contributing to liter-llm
 
-Thank you for your interest in contributing to liter-lm! This guide will help you get started with development.
+Thank you for your interest in contributing to liter-llm! This guide will help you get started with development.
 
 ## Table of Contents
 
@@ -330,7 +330,7 @@ task version:sync
 
 ## Questions?
 
-- Check existing [issues](https://github.com/kreuzberg-dev/liter-lm/issues)
+- Check existing [issues](https://github.com/kreuzberg-dev/liter-llm/issues)
 - Join our [Discord community](https://discord.gg/xt9WY3GnKR)
 
-Thank you for contributing to liter-lm!
+Thank you for contributing to liter-llm!

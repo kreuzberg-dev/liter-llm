@@ -1,5 +1,5 @@
 ```typescript
-import { LlmClient, type Tool } from "liter-lm";
+import { LlmClient, type Tool } from "liter-llm";
 
 const client = new LlmClient();
 

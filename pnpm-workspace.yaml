@@ -1,3 +1,3 @@
 packages:
-  - "crates/liter-lm-node"
+  - "crates/liter-llm-node"
   - "e2e/typescript"

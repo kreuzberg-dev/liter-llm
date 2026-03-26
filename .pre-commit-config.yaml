@@ -75,9 +75,9 @@ repos:
             "--allow-staged",
             "--workspace",
             "--exclude",
-            "liter-lm-php",
+            "liter-llm-php",
             "--exclude",
-            "liter-lm-wasm",
+            "liter-llm-wasm",
             "--all-targets",
             "--",
             "-D",
@@ -159,7 +159,7 @@ repos:
     hooks:
       - id: clang-format
         args: [--style=file]
-        files: (^crates/liter-lm-ffi/)
+        files: (^crates/liter-llm-ffi/)
         exclude: (include/)
       - id: cppcheck
         args:
@@ -168,7 +168,7 @@ repos:
             "--enable=warning,style,performance",
             "--suppress=missingIncludeSystem",
           ]
-        files: (^crates/liter-lm-ffi/)
+        files: (^crates/liter-llm-ffi/)
 
   # Go: formatting and linting via Taskfile
   - repo: local

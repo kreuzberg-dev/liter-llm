@@ -1,6 +1,6 @@
 ```elixir
 {:ok, response} =
-  LiterLm.chat(
+  LiterLlm.chat(
     model: "openai/gpt-4o",
     messages: [
       %{"role" => "user", "content" => "Hello!"}

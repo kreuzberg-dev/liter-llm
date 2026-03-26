@@ -1,6 +1,6 @@
 ```python
 import asyncio
-from liter_lm import LlmClient, Tool, ToolParameter
+from liter_llm import LlmClient, Tool, ToolParameter
 
 async def main() -> None:
     client = LlmClient()

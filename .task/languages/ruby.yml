@@ -22,7 +22,7 @@ tasks:
       - bundle outdated || true
 
   vendor:
-    desc: Vendor liter-lm-core into Ruby package
+    desc: Vendor liter-llm-core into Ruby package
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
@@ -33,7 +33,7 @@ tasks:
     dir: packages/ruby
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
-      CARGO_TARGET_DIR: "{{.PROJECT_ROOT}}/crates/liter-lm-ruby/target"
+      CARGO_TARGET_DIR: "{{.PROJECT_ROOT}}/crates/liter-llm-ruby/target"
     cmds:
       - bundle exec rake compile
 
@@ -85,7 +85,7 @@ tasks:
     desc: Clean Ruby build artifacts
     dir: packages/ruby
     cmds:
-      - rm -rf tmp lib/liter_lm/liter_lm_ruby.* vendor/liter-lm-core vendor/Cargo.toml
+      - rm -rf tmp lib/liter_llm/liter_llm_ruby.* vendor/liter-llm-core vendor/Cargo.toml
 
   e2e:generate:
     desc: Generate Ruby E2E tests from fixtures

@@ -1,5 +1,5 @@
 {
-	"name": "liter-lm",
+	"name": "liter-llm",
 	"version": "1.0.0-rc.1",
 	"description": "High-performance LLM client library \u2014 unified interface for streaming, tool calling, and provider routing across 50+ providers",
 	"keywords": [
@@ -16,15 +16,15 @@
 	"author": {
 		"name": "Na'aman Hirschfeld",
 		"email": "naaman@kreuzberg.dev",
-		"url": "https://github.com/kreuzberg-dev/liter-lm"
+		"url": "https://github.com/kreuzberg-dev/liter-llm"
 	},
-	"homepage": "https://github.com/kreuzberg-dev/liter-lm",
+	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
 	"bugs": {
-		"url": "https://github.com/kreuzberg-dev/liter-lm/issues"
+		"url": "https://github.com/kreuzberg-dev/liter-llm/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/kreuzberg-dev/liter-lm.git"
+		"url": "https://github.com/kreuzberg-dev/liter-llm.git"
 	},
 	"license": "MIT",
 	"type": "module",

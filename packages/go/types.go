@@ -1,10 +1,10 @@
-// Package literlm provides a Go client for the liter-lm universal LLM API.
+// Package literllm provides a Go client for the liter-llm universal LLM API.
 //
 // It speaks the OpenAI-compatible HTTP API directly — no cgo, no CGO, no
 // shared libraries required.  The same wire format is used for all
-// 100+ providers supported by liter-lm; the model-name prefix
+// 100+ providers supported by liter-llm; the model-name prefix
 // (e.g. "groq/llama3-70b") selects the provider and endpoint.
-package literlm
+package literllm
 
 import "encoding/json"
 
@@ -13,7 +13,7 @@ import "encoding/json"
 func mustMarshal(v any) json.RawMessage {
 	raw, err := json.Marshal(v)
 	if err != nil {
-		panic("literlm: unexpected marshal error: " + err.Error())
+		panic("literllm: unexpected marshal error: " + err.Error())
 	}
 	return raw
 }

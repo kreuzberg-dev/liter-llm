@@ -1,9 +1,9 @@
-site_name: liter-lm
+site_name: liter-llm
 site_description: "Universal LLM API client for 100+ providers with polyglot bindings."
-site_url: https://docs.liter-lm.kreuzberg.dev
+site_url: https://docs.liter-llm.kreuzberg.dev
 site_author: kreuzberg.dev
-repo_name: kreuzberg-dev/liter-lm
-repo_url: https://github.com/kreuzberg-dev/liter-lm
+repo_name: kreuzberg-dev/liter-llm
+repo_url: https://github.com/kreuzberg-dev/liter-llm
 edit_uri: edit/main/docs/
 copyright: Copyright &copy; 2024-2026 Kreuzberg.dev
 
@@ -117,19 +117,19 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/kreuzberg-dev/liter-lm
+      link: https://github.com/kreuzberg-dev/liter-llm
       name: View on GitHub
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/liter-lm/
+      link: https://pypi.org/project/liter-llm/
       name: View on PyPI
     - icon: fontawesome/brands/docker
-      link: https://github.com/kreuzberg-dev/liter-lm/pkgs/container/liter-lm
+      link: https://github.com/kreuzberg-dev/liter-llm/pkgs/container/liter-llm
       name: View on GitHub Container Registry
     - icon: fontawesome/brands/npm
-      link: https://www.npmjs.com/package/@kreuzberg/liter-lm
+      link: https://www.npmjs.com/package/@kreuzberg/liter-llm
       name: View on npm
     - icon: fontawesome/brands/rust
-      link: https://crates.io/crates/liter-lm
+      link: https://crates.io/crates/liter-llm
       name: View on crates.io
   status:
     new: Recently added

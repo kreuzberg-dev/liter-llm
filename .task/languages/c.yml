@@ -6,7 +6,7 @@ tasks:
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
-      - cargo build -p liter-lm-ffi --release
+      - cargo build -p liter-llm-ffi --release
 
   build:
     desc: Build FFI library (alias for build:ffi)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Steep configuration for the LiterLm Ruby package.
+# Steep configuration for the LiterLlm Ruby package.
 
 target :lib do
   signature 'sig'
@@ -14,5 +14,5 @@ target :lib do
 
   # 1. Native extension entry point — methods are defined in Rust via Magnus
   #    and cannot be resolved by Steep's static analysis.
-  ignore 'lib/liter_lm_rb.rb' if File.exist?('lib/liter_lm_rb.rb')
+  ignore 'lib/liter_llm_rb.rb' if File.exist?('lib/liter_llm_rb.rb')
 end

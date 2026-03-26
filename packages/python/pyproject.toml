@@ -3,7 +3,7 @@ build-backend = "maturin"
 requires = [ "maturin>=1,<2" ]
 
 [project]
-name = "liter-lm"
+name = "liter-llm"
 version = "1.0.0-rc.1"
 description = """\
   High-performance LLM client library for Python. Unified interface for streaming, tool calling, and provider routing \
@@ -43,18 +43,18 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [ "typing-extensions>=4.15; python_version<'3.13'" ]
-urls.Changelog = "https://github.com/kreuzberg-dev/liter-lm/blob/main/CHANGELOG.md"
-urls.Homepage = "https://github.com/kreuzberg-dev/liter-lm"
-urls.Issues = "https://github.com/kreuzberg-dev/liter-lm/issues"
-urls.Repository = "https://github.com/kreuzberg-dev/liter-lm"
-urls.Source = "https://github.com/kreuzberg-dev/liter-lm"
+urls.Changelog = "https://github.com/kreuzberg-dev/liter-llm/blob/main/CHANGELOG.md"
+urls.Homepage = "https://github.com/kreuzberg-dev/liter-llm"
+urls.Issues = "https://github.com/kreuzberg-dev/liter-llm/issues"
+urls.Repository = "https://github.com/kreuzberg-dev/liter-llm"
+urls.Source = "https://github.com/kreuzberg-dev/liter-llm"
 
 [tool.maturin]
-module-name = "liter_lm._internal_bindings"
-manifest-path = "../../crates/liter-lm-py/Cargo.toml"
+module-name = "liter_llm._internal_bindings"
+manifest-path = "../../crates/liter-llm-py/Cargo.toml"
 include = [
-  { path = "liter_lm/_internal_bindings.pyi", format = [ "wheel", "sdist" ] },
-  { path = "liter_lm/py.typed", format = [ "wheel", "sdist" ] },
+  { path = "liter_llm/_internal_bindings.pyi", format = [ "wheel", "sdist" ] },
+  { path = "liter_llm/py.typed", format = [ "wheel", "sdist" ] },
 ]
 
 [tool.pytest]

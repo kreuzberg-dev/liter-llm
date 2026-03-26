@@ -88,7 +88,7 @@ tasks:
     desc: Run C test_app smoke test
     dir: tests/test_apps/c
     cmds:
-      - cmake -B build -DCMAKE_PREFIX_PATH=${LITER_LM_FFI_PREFIX:-/usr/local}
+      - cmake -B build -DCMAKE_PREFIX_PATH=${LITER_LLM_FFI_PREFIX:-/usr/local}
       - cmake --build build
       - ./build/smoke_test
 

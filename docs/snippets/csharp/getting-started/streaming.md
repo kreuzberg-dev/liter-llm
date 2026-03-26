@@ -1,5 +1,5 @@
 ```csharp
-using LiterLm;
+using LiterLlm;
 
 var client = new LlmClient();
 await foreach (var chunk in client.ChatStreamAsync(new ChatRequest

@@ -2,42 +2,42 @@
 
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0;">
   <!-- Language Bindings -->
-  <a href="https://crates.io/crates/liter-lm">
-    <img src="https://img.shields.io/crates/v/liter-lm?label=Rust&color=007ec6" alt="Rust">
+  <a href="https://crates.io/crates/liter-llm">
+    <img src="https://img.shields.io/crates/v/liter-llm?label=Rust&color=007ec6" alt="Rust">
   </a>
-  <a href="https://hex.pm/packages/liter_lm">
-    <img src="https://img.shields.io/hexpm/v/liter_lm?label=Elixir&color=007ec6" alt="Elixir">
+  <a href="https://hex.pm/packages/liter_llm">
+    <img src="https://img.shields.io/hexpm/v/liter_llm?label=Elixir&color=007ec6" alt="Elixir">
   </a>
-  <a href="https://pypi.org/project/liter-lm/">
-    <img src="https://img.shields.io/pypi/v/liter-lm?label=Python&color=007ec6" alt="Python">
+  <a href="https://pypi.org/project/liter-llm/">
+    <img src="https://img.shields.io/pypi/v/liter-llm?label=Python&color=007ec6" alt="Python">
   </a>
-  <a href="https://www.npmjs.com/package/liter-lm">
-    <img src="https://img.shields.io/npm/v/liter-lm?label=Node.js&color=007ec6" alt="Node.js">
+  <a href="https://www.npmjs.com/package/liter-llm">
+    <img src="https://img.shields.io/npm/v/liter-llm?label=Node.js&color=007ec6" alt="Node.js">
   </a>
-  <a href="https://www.npmjs.com/package/liter-lm-wasm">
-    <img src="https://img.shields.io/npm/v/liter-lm-wasm?label=WASM&color=007ec6" alt="WASM">
+  <a href="https://www.npmjs.com/package/liter-llm-wasm">
+    <img src="https://img.shields.io/npm/v/liter-llm-wasm?label=WASM&color=007ec6" alt="WASM">
   </a>
-  <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-lm">
-    <img src="https://img.shields.io/maven-central/v/dev.kreuzberg/liter-lm?label=Java&color=007ec6" alt="Java">
+  <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-llm">
+    <img src="https://img.shields.io/maven-central/v/dev.kreuzberg/liter-llm?label=Java&color=007ec6" alt="Java">
   </a>
-  <a href="https://github.com/kreuzberg-dev/liter-lm/releases">
-    <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-lm?label=Go&color=007ec6" alt="Go">
+  <a href="https://github.com/kreuzberg-dev/liter-llm/releases">
+    <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-llm?label=Go&color=007ec6" alt="Go">
   </a>
-  <a href="https://www.nuget.org/packages/LiterLm/">
-    <img src="https://img.shields.io/nuget/v/LiterLm?label=C%23&color=007ec6" alt="C#">
+  <a href="https://www.nuget.org/packages/LiterLlm/">
+    <img src="https://img.shields.io/nuget/v/LiterLlm?label=C%23&color=007ec6" alt="C#">
   </a>
-  <a href="https://packagist.org/packages/kreuzberg-dev/liter-lm">
-    <img src="https://img.shields.io/packagist/v/kreuzberg-dev/liter-lm?label=PHP&color=007ec6" alt="PHP">
+  <a href="https://packagist.org/packages/kreuzberg-dev/liter-llm">
+    <img src="https://img.shields.io/packagist/v/kreuzberg-dev/liter-llm?label=PHP&color=007ec6" alt="PHP">
   </a>
-  <a href="https://rubygems.org/gems/liter-lm">
-    <img src="https://img.shields.io/gem/v/liter-lm?label=Ruby&color=007ec6" alt="Ruby">
+  <a href="https://rubygems.org/gems/liter-llm">
+    <img src="https://img.shields.io/gem/v/liter-llm?label=Ruby&color=007ec6" alt="Ruby">
   </a>
 
   <!-- Project Info -->
-  <a href="https://github.com/kreuzberg-dev/liter-lm/blob/main/LICENSE">
+  <a href="https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-007ec6" alt="License">
   </a>
-  <a href="https://github.com/kreuzberg-dev/liter-lm">
+  <a href="https://github.com/kreuzberg-dev/liter-llm">
     <img src="https://img.shields.io/badge/docs-GitHub-007ec6" alt="Documentation">
   </a>
 </div>
@@ -55,7 +55,7 @@ Install via one of the supported package managers:
 ```xml
 <dependency>
     <groupId>dev.kreuzberg</groupId>
-    <artifactId>liter-lm</artifactId>
+    <artifactId>liter-llm</artifactId>
     <version>1.0.0-rc.1</version>
 </dependency>
 ```
@@ -63,7 +63,7 @@ Install via one of the supported package managers:
 **Gradle:**
 
 ```gradle
-implementation 'dev.kreuzberg:liter-lm:1.0.0-rc.1'
+implementation 'dev.kreuzberg:liter-llm:1.0.0-rc.1'
 ```
 
 ### System Requirements
@@ -78,9 +78,9 @@ implementation 'dev.kreuzberg:liter-lm:1.0.0-rc.1'
 Send a message to any provider using the `provider/model` prefix:
 
 ```java
-import dev.kreuzberg.literlm.LlmClient;
-import dev.kreuzberg.literlm.ChatRequest;
-import dev.kreuzberg.literlm.Message;
+import dev.kreuzberg.literllm.LlmClient;
+import dev.kreuzberg.literllm.ChatRequest;
+import dev.kreuzberg.literllm.Message;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -102,9 +102,9 @@ public class Main {
 Stream tokens in real time:
 
 ```java
-import dev.kreuzberg.literlm.LlmClient;
-import dev.kreuzberg.literlm.ChatRequest;
-import dev.kreuzberg.literlm.Message;
+import dev.kreuzberg.literllm.LlmClient;
+import dev.kreuzberg.literllm.ChatRequest;
+import dev.kreuzberg.literllm.Message;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -124,8 +124,8 @@ public class Main {
 
 ### Next Steps
 
-- **[Provider Registry](https://github.com/kreuzberg-dev/liter-lm/blob/main/schemas/providers.json)** - Full list of supported providers
-- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-lm)** - Source, issues, and discussions
+- **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** - Full list of supported providers
+- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
 
 ## Features
 
@@ -145,7 +145,7 @@ Route to any provider using the `provider/model` prefix convention:
 | **Google Vertex** | `vertexai/gemini-1.5-pro` |
 | **Amazon Bedrock** | `bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0` |
 
-**[Complete Provider List](https://github.com/kreuzberg-dev/liter-lm/blob/main/schemas/providers.json)**
+**[Complete Provider List](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
 
 ### Key Capabilities
 
@@ -164,7 +164,7 @@ Route to any provider using the `provider/model` prefix convention:
 
 ### Observability (OpenTelemetry GenAI Semantic Conventions)
 
-liter-lm implements the [OpenTelemetry Semantic Conventions for Generative AI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) systems. When the `tracing` feature is enabled, every LLM call emits structured spans with:
+liter-llm implements the [OpenTelemetry Semantic Conventions for Generative AI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) systems. When the `tracing` feature is enabled, every LLM call emits structured spans with:
 
 | Attribute | Description |
 |-----------|-------------|
@@ -195,9 +195,9 @@ Enable `otel` feature for OpenTelemetry export via `tracing-opentelemetry`.
 This binding supports real-time streaming responses:
 
 ```java
-import dev.kreuzberg.literlm.LlmClient;
-import dev.kreuzberg.literlm.ChatRequest;
-import dev.kreuzberg.literlm.Message;
+import dev.kreuzberg.literllm.LlmClient;
+import dev.kreuzberg.literllm.ChatRequest;
+import dev.kreuzberg.literllm.Message;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -234,17 +234,17 @@ groq/llama-3.1-70b-versatile
 mistral/mistral-large-latest
 ```
 
-See the [provider registry](https://github.com/kreuzberg-dev/liter-lm/blob/main/schemas/providers.json) for the full list.
+See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the full list.
 
 ## Documentation
 
-- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-lm)**
-- **[API Reference](https://github.com/kreuzberg-dev/liter-lm#api-reference)**
-- **[Provider Registry](https://github.com/kreuzberg-dev/liter-lm/blob/main/schemas/providers.json)**
+- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)**
+- **[API Reference](https://github.com/kreuzberg-dev/liter-llm#api-reference)**
+- **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
 
 ## Contributing
 
-Contributions are welcome! See [Contributing Guide](https://github.com/kreuzberg-dev/liter-lm/blob/main/CONTRIBUTING.md).
+Contributions are welcome! See [Contributing Guide](https://github.com/kreuzberg-dev/liter-llm/blob/main/CONTRIBUTING.md).
 
 ## License
 
@@ -252,5 +252,5 @@ MIT License - see LICENSE file for details.
 
 ## Support
 
-- **GitHub Issues**: [Report bugs](https://github.com/kreuzberg-dev/liter-lm/issues)
-- **Discussions**: [Ask questions](https://github.com/kreuzberg-dev/liter-lm/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/kreuzberg-dev/liter-llm/issues)
+- **Discussions**: [Ask questions](https://github.com/kreuzberg-dev/liter-llm/discussions)

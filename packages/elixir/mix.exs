@@ -1,12 +1,12 @@
-defmodule LiterLm.MixProject do
+defmodule LiterLlm.MixProject do
   use Mix.Project
 
   @version "1.0.0-rc.1"
-  @source_url "https://github.com/kreuzberg-dev/liter-lm"
+  @source_url "https://github.com/kreuzberg-dev/liter-llm"
 
   def project do
     [
-      app: :liter_lm,
+      app: :liter_llm,
       version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
@@ -17,7 +17,7 @@ defmodule LiterLm.MixProject do
       package: package(),
       docs: docs(),
       source_url: @source_url,
-      rustler_crates: [liter_lm: [mode: :release]]
+      rustler_crates: [liter_llm: [mode: :release]]
     ]
   end
 
@@ -44,9 +44,9 @@ defmodule LiterLm.MixProject do
       links: %{GitHub: @source_url},
       files: ~w(
         lib
-        native/liter_lm_rustler/src
-        native/liter_lm_rustler/Cargo.toml
-        native/liter_lm_rustler/Cargo.lock
+        native/liter_llm_rustler/src
+        native/liter_llm_rustler/Cargo.toml
+        native/liter_llm_rustler/Cargo.lock
         mix.exs
         README.md
         .formatter.exs
@@ -56,7 +56,7 @@ defmodule LiterLm.MixProject do
 
   defp docs do
     [
-      main: "LiterLm",
+      main: "LiterLlm",
       source_url: @source_url,
       extras: ["README.md"],
       deps: [elixir: "https://hexdocs.pm/elixir/"]

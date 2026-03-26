@@ -1,4 +1,4 @@
-package literlm
+package literllm
 
 import (
 	"errors"
@@ -10,22 +10,22 @@ import (
 
 // ErrInvalidRequest is returned when the caller supplies a malformed request
 // (e.g. missing required fields, invalid JSON).
-var ErrInvalidRequest = errors.New("literlm: invalid request")
+var ErrInvalidRequest = errors.New("literllm: invalid request")
 
 // ErrAuthentication is returned when the provider rejects the API key.
-var ErrAuthentication = errors.New("literlm: authentication failed")
+var ErrAuthentication = errors.New("literllm: authentication failed")
 
 // ErrRateLimit is returned when the provider rate-limits the request.
-var ErrRateLimit = errors.New("literlm: rate limit exceeded")
+var ErrRateLimit = errors.New("literllm: rate limit exceeded")
 
 // ErrNotFound is returned when the requested model or resource does not exist.
-var ErrNotFound = errors.New("literlm: not found")
+var ErrNotFound = errors.New("literllm: not found")
 
 // ErrProviderError is returned for provider-side 5xx errors.
-var ErrProviderError = errors.New("literlm: provider error")
+var ErrProviderError = errors.New("literllm: provider error")
 
 // ErrStream is returned when a streaming response cannot be parsed.
-var ErrStream = errors.New("literlm: stream error")
+var ErrStream = errors.New("literllm: stream error")
 
 // ─── Typed error ──────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ type APIError struct {
 
 // Error implements the error interface.
 func (e *APIError) Error() string {
-	return fmt.Sprintf("literlm: API error %d: %s", e.StatusCode, e.Message)
+	return fmt.Sprintf("literllm: API error %d: %s", e.StatusCode, e.Message)
 }
 
 // Unwrap makes errors.Is and errors.As traverse the sentinel chain.
@@ -90,9 +90,9 @@ type StreamError struct {
 // Error implements the error interface.
 func (e *StreamError) Error() string {
 	if e.Cause != nil {
-		return fmt.Sprintf("literlm: stream error: %s: %v", e.Message, e.Cause)
+		return fmt.Sprintf("literllm: stream error: %s: %v", e.Message, e.Cause)
 	}
-	return fmt.Sprintf("literlm: stream error: %s", e.Message)
+	return fmt.Sprintf("literllm: stream error: %s", e.Message)
 }
 
 // Unwrap enables errors.Is chaining through ErrStream and the underlying cause.

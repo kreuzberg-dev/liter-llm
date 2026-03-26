@@ -1,14 +1,14 @@
 {
-	"name": "kreuzberg/liter-lm",
+	"name": "kreuzberg/liter-llm",
 	"description": "A universal LM API client with polyglot bindings \u2014 fast, type-safe, compiled",
 	"version": "1.0.0-rc.1",
 	"type": "php-ext",
 	"license": "MIT",
 	"keywords": ["llm", "openai", "api-client", "ai", "php8", "rust", "performance"],
-	"homepage": "https://github.com/kreuzberg-dev/liter-lm",
+	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
 	"support": {
-		"issues": "https://github.com/kreuzberg-dev/liter-lm/issues",
-		"source": "https://github.com/kreuzberg-dev/liter-lm"
+		"issues": "https://github.com/kreuzberg-dev/liter-llm/issues",
+		"source": "https://github.com/kreuzberg-dev/liter-llm"
 	},
 	"authors": [
 		{
@@ -21,7 +21,7 @@
 		"php": "^8.4"
 	},
 	"replace": {
-		"ext-liter_lm_php": "*"
+		"ext-liter_llm_php": "*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^11.0",
@@ -29,7 +29,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"LiterLm\\": "packages/php/src/"
+			"LiterLlm\\": "packages/php/src/"
 		}
 	},
 	"scripts": {
@@ -41,11 +41,11 @@
 	"minimum-stability": "stable",
 	"prefer-stable": true,
 	"php-ext": {
-		"extension-name": "liter_lm_php",
+		"extension-name": "liter_llm_php",
 		"priority": 50,
 		"support": {
-			"source-url": "https://github.com/kreuzberg-dev/liter-lm",
-			"download-url": "https://github.com/kreuzberg-dev/liter-lm/releases"
+			"source-url": "https://github.com/kreuzberg-dev/liter-llm",
+			"download-url": "https://github.com/kreuzberg-dev/liter-llm/releases"
 		}
 	}
 }

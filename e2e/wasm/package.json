@@ -1,5 +1,5 @@
 {
-  "name": "liter-lm-wasm-e2e-tests",
+  "name": "liter-llm-wasm-e2e-tests",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +9,6 @@
     "vitest": "^3.0.0"
   },
   "dependencies": {
-    "liter-lm-wasm": "../../packages/wasm"
+    "liter-llm-wasm": "../../packages/wasm"
   }
 }

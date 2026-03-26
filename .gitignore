@@ -111,14 +111,14 @@ e2e/elixir/_build/
 e2e/php/vendor/
 
 # C FFI test binaries
-crates/liter-lm-ffi/tests/c/test_*
-!crates/liter-lm-ffi/tests/c/test_*.c
-crates/liter-lm-ffi/tests/c/*.o
-crates/liter-lm-ffi/tests/c/*.dSYM/
+crates/liter-llm-ffi/tests/c/test_*
+!crates/liter-llm-ffi/tests/c/test_*.c
+crates/liter-llm-ffi/tests/c/*.o
+crates/liter-llm-ffi/tests/c/*.dSYM/
 
 # NAPI-RS generated files
-crates/liter-lm-node/index.d.ts
-crates/liter-lm-node/index.js
+crates/liter-llm-node/index.d.ts
+crates/liter-llm-node/index.js
 
 # Generated pkg-config files
 *.pc

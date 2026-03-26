@@ -118,7 +118,7 @@ def update_pyproject_toml(file_path: Path, version: str) -> tuple[bool, str, str
 
 
 def update_package_json(file_path: Path, version: str) -> tuple[bool, str, str]:
-    """Update the version field (and any liter-lm/* dep versions) in package.json."""
+    """Update the version field (and any liter-llm/* dep versions) in package.json."""
     data = json.loads(file_path.read_text(encoding="utf-8"))
     old_version = data.get("version", "N/A")
     changed = False
@@ -127,14 +127,14 @@ def update_package_json(file_path: Path, version: str) -> tuple[bool, str, str]:
         data["version"] = version
         changed = True
 
-    # Update any internal liter-lm package cross-references.
+    # Update any internal liter-llm package cross-references.
     def _maybe_update_deps(section: str) -> None:
         nonlocal changed
         deps = data.get(section)
         if not isinstance(deps, dict):
             return
         for dep_name, dep_ver in list(deps.items()):
-            if not dep_name.startswith(("liter-lm", "@liter-lm/")):
+            if not dep_name.startswith(("liter-llm", "@liter-llm/")):
                 continue
             if isinstance(dep_ver, str) and dep_ver.startswith(("workspace:", "file:", "link:", "portal:")):
                 continue
@@ -268,16 +268,16 @@ def update_csproj(file_path: Path, version: str) -> tuple[bool, str, str]:
 
 def update_go_mod(file_path: Path, version: str) -> tuple[bool, str, str]:
     """
-    Update liter-lm module version references in a go.mod require block.
+    Update liter-llm module version references in a go.mod require block.
 
     Note: Go module versioning is typically handled via git tags (v0.1.0).
-    This function updates any require lines that reference the liter-lm module.
+    This function updates any require lines that reference the liter-llm module.
     If no such require line exists (standalone package), a warning is emitted.
     """
     content = file_path.read_text(encoding="utf-8")
 
     pattern = (
-        r"(github\.com/kreuzberg-dev/liter-lm(?:/[^\s]+)?\s+)"
+        r"(github\.com/kreuzberg-dev/liter-llm(?:/[^\s]+)?\s+)"
         r"v([0-9]+\.[0-9]+\.[0-9]+(?:-[^\s]+)?)"
     )
     match = re.search(pattern, content)
@@ -375,7 +375,7 @@ def build_targets(
     repo_root: Path,
 ) -> list[tuple[Path, Callable[[Path, str], tuple[bool, str, str]]]]:
     """
-    Return the ordered list of (file_path, updater) pairs for liter-lm.
+    Return the ordered list of (file_path, updater) pairs for liter-llm.
 
     Files that do not exist are still listed; _process_file handles the skip.
     """
@@ -470,7 +470,7 @@ def run(
     Returns an exit code (0 = success, 1 = failure / would-change).
     """
     label = "dry-run" if dry_run else ("check" if check_mode else "sync")
-    print(f"\n{_color(BOLD + f'liter-lm version {label}', BOLD)} — {_color(version, CYAN)} (from Cargo.toml)\n")
+    print(f"\n{_color(BOLD + f'liter-llm version {label}', BOLD)} — {_color(version, CYAN)} (from Cargo.toml)\n")
 
     targets = build_targets(repo_root)
     targets += collect_gemspecs(repo_root)
@@ -496,7 +496,7 @@ def run(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Synchronise version across all liter-lm package manifests.",
+        description="Synchronise version across all liter-llm package manifests.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
