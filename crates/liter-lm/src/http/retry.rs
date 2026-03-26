@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 /// Determine whether to retry based on status code and attempt number.
 ///
@@ -6,6 +6,11 @@ use std::time::Duration;
 ///
 /// When `retry_after` is provided (parsed from the `Retry-After` response
 /// header) it takes precedence over exponential backoff for 429 responses.
+///
+/// Exponential backoff includes jitter to prevent thundering-herd effects
+/// when multiple clients retry simultaneously. The jitter scales the delay
+/// to a random value in `[0.5 * base, 1.0 * base]` using the low-order bits
+/// of the system clock as a lightweight entropy source.
 pub fn should_retry(status: u16, attempt: u32, max_retries: u32, retry_after: Option<Duration>) -> Option<Duration> {
     if attempt >= max_retries {
         return None;
@@ -27,7 +32,17 @@ pub fn should_retry(status: u16, attempt: u32, max_retries: u32, retry_after: Op
     // Exponential backoff: 1s, 2s, 4s, 8s … capped at 30 s.
     // Use checked_shl to avoid overflow on large attempt counts.
     let base_delay = Duration::from_secs(1u64.checked_shl(attempt).unwrap_or(u64::MAX));
-    Some(base_delay.min(Duration::from_secs(30)))
+    let capped = base_delay.min(Duration::from_secs(30));
+
+    // Apply jitter: scale to [0.5, 1.0] of the capped delay.
+    // Use nanosecond component of the system clock as a lightweight entropy source.
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .subsec_nanos();
+    // jitter_factor in [0.5, 1.0]
+    let jitter_factor = 0.5 + (f64::from(nanos % 1000) / 2000.0);
+    Some(capped.mul_f64(jitter_factor))
 }
 
 /// Parse the value of a `Retry-After` header into a `Duration`.

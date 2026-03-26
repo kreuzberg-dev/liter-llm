@@ -91,13 +91,17 @@ pub async fn post_json_raw(
     body: serde_json::Value,
     max_retries: u32,
 ) -> Result<serde_json::Value> {
+    // Serialize the body once up front so retries reuse the same bytes
+    // instead of re-serializing on every attempt.
+    let body_bytes = serde_json::to_vec(&body)?;
+
     let mut retry_count = 0u32;
 
     let resp = with_retry(max_retries, || {
         let mut builder = client
             .post(url)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
-            .json(&body);
+            .body(body_bytes.clone());
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
         }

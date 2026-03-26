@@ -6,6 +6,9 @@ use crate::error::{LiterLmError, Result};
 use crate::provider::Provider;
 use crate::types::{ChatCompletionChunk, FinishReason, StreamChoice, StreamDelta, StreamFunctionCall, StreamToolCall};
 
+/// Anthropic's stable API version. This is the only GA version as of 2025;
+/// Anthropic gates new features via beta headers (e.g. `anthropic-beta`),
+/// not by bumping the version date.
 static ANTHROPIC_EXTRA_HEADERS: &[(&str, &str)] = &[("anthropic-version", "2023-06-01")];
 
 /// Default max_tokens for Anthropic requests when none is specified.
@@ -68,10 +71,14 @@ impl Provider for AnthropicProvider {
     ///   `logit_bias`, `stream` (the client handles stream separately).
     fn transform_request(&self, body: &mut Value) -> Result<()> {
         // ── 0. Validate messages array is non-empty ────────────────────────────
+        // Take ownership of the messages array to avoid cloning.
         let messages = body
-            .get("messages")
-            .and_then(|m| m.as_array())
-            .cloned()
+            .as_object_mut()
+            .and_then(|o| o.remove("messages"))
+            .and_then(|v| match v {
+                Value::Array(arr) => Some(arr),
+                _ => None,
+            })
             .unwrap_or_default();
 
         if messages.is_empty() {
@@ -139,18 +146,17 @@ impl Provider for AnthropicProvider {
         body.as_object_mut().map(|o| o.remove("max_completion_tokens"));
 
         // ── 5. Convert stop → stop_sequences (must be array) ─────────────────
-        if let Some(stop) = body.get("stop").cloned() {
+        if let Some(stop) = body.as_object_mut().and_then(|o| o.remove("stop")) {
             let stop_sequences = match stop {
                 Value::String(s) => json!([s]),
-                Value::Array(_) => stop,
+                arr @ Value::Array(_) => arr,
                 _ => json!([]),
             };
             body["stop_sequences"] = stop_sequences;
-            body.as_object_mut().map(|o| o.remove("stop"));
         }
 
         // ── 6. Convert tool_choice ─────────────────────────────────────────────
-        if let Some(tool_choice) = body.get("tool_choice").cloned() {
+        if let Some(tool_choice) = body.as_object_mut().and_then(|o| o.remove("tool_choice")) {
             let anthropic_tool_choice = convert_tool_choice(&tool_choice);
             match anthropic_tool_choice {
                 Some(tc) => {
@@ -158,14 +164,13 @@ impl Provider for AnthropicProvider {
                 }
                 None => {
                     // tool_choice: "none" → remove tools entirely
-                    body.as_object_mut().map(|o| o.remove("tool_choice"));
                     body.as_object_mut().map(|o| o.remove("tools"));
                 }
             }
         }
 
         // ── 7. Convert tools from OpenAI format to Anthropic format ───────────
-        if let Some(tools) = body.get("tools").cloned()
+        if let Some(tools) = body.as_object_mut().and_then(|o| o.remove("tools"))
             && let Some(tools_array) = tools.as_array()
         {
             let anthropic_tools: Vec<Value> = tools_array.iter().map(convert_tool_to_anthropic).collect();
@@ -213,20 +218,14 @@ impl Provider for AnthropicProvider {
 
         let content_blocks = body.get("content").and_then(|v| v.as_array()).cloned();
 
-        // Extract text content by joining all text blocks.
-        // Also collect thinking blocks as text (prefixed so callers can parse if needed).
+        // Extract text content from `type: "text"` blocks only.
+        // Thinking blocks (`type: "thinking"`) are Anthropic's internal chain-of-thought
+        // and are intentionally excluded from the user-facing content field.
         let text_content: Option<String> = content_blocks.as_ref().map(|blocks| {
             blocks
                 .iter()
-                .filter(|b| matches!(b.get("type").and_then(|t| t.as_str()), Some("text") | Some("thinking")))
-                .filter_map(|b| {
-                    // "text" blocks have a "text" field; "thinking" blocks have a "thinking" field.
-                    if b.get("type").and_then(|t| t.as_str()) == Some("thinking") {
-                        b.get("thinking").and_then(|t| t.as_str())
-                    } else {
-                        b.get("text").and_then(|t| t.as_str())
-                    }
-                })
+                .filter(|b| b.get("type").and_then(|t| t.as_str()) == Some("text"))
+                .filter_map(|b| b.get("text").and_then(|t| t.as_str()))
                 .collect::<Vec<_>>()
                 .join("")
         });
@@ -300,7 +299,7 @@ impl Provider for AnthropicProvider {
         *body = json!({
             "id": id,
             "object": "chat.completion",
-            "created": 0u64,
+            "created": super::unix_timestamp_secs(),
             "model": model,
             "choices": [{
                 "index": 0,
@@ -368,7 +367,7 @@ impl Provider for AnthropicProvider {
                 Ok(Some(ChatCompletionChunk {
                     id,
                     object: "chat.completion.chunk".to_owned(),
-                    created: 0,
+                    created: super::unix_timestamp_secs(),
                     model,
                     choices: vec![StreamChoice {
                         index: 0,
@@ -464,7 +463,7 @@ impl Provider for AnthropicProvider {
                 Ok(Some(ChatCompletionChunk {
                     id: String::new(),
                     object: "chat.completion.chunk".to_owned(),
-                    created: 0,
+                    created: super::unix_timestamp_secs(),
                     model: String::new(),
                     choices: vec![StreamChoice {
                         index: 0,
@@ -512,16 +511,50 @@ impl Provider for AnthropicProvider {
 
 /// Sanitize a tool_call_id so it only contains characters allowed by Anthropic: `[a-zA-Z0-9_-]`.
 /// Any other character is replaced with `_`.
-fn sanitize_tool_call_id(id: &str) -> String {
-    id.chars()
-        .map(|c| {
-            if c.is_ascii_alphanumeric() || c == '_' || c == '-' {
-                c
-            } else {
-                '_'
+///
+/// Convert an OpenAI `image_url` URL to an Anthropic image source block.
+///
+/// Handles two cases:
+/// - Data URIs (`data:<media_type>;base64,<data>`) → base64 source.
+/// - Plain URLs → url source.
+fn convert_image_url_to_anthropic_source(url: &str) -> Value {
+    if url.starts_with("data:")
+        && let Some((header, data)) = url.split_once(',')
+    {
+        let media_type = header.trim_start_matches("data:").trim_end_matches(";base64");
+        return json!({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": media_type,
+                "data": data
             }
-        })
-        .collect()
+        });
+    }
+    json!({
+        "type": "image",
+        "source": {"type": "url", "url": url}
+    })
+}
+
+/// Returns a borrowed `Cow` when the ID is already valid, avoiding allocation
+/// on the common path (e.g. IDs starting with `toolu_`).
+fn sanitize_tool_call_id(id: &str) -> Cow<'_, str> {
+    if id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-') {
+        Cow::Borrowed(id)
+    } else {
+        Cow::Owned(
+            id.chars()
+                .map(|c| {
+                    if c.is_ascii_alphanumeric() || c == '_' || c == '-' {
+                        c
+                    } else {
+                        '_'
+                    }
+                })
+                .collect(),
+        )
+    }
 }
 
 /// Merge consecutive messages with the same role by concatenating their content blocks.
@@ -633,25 +666,8 @@ fn convert_message_to_anthropic(msg: Value) -> Value {
                             let part_type = part.get("type").and_then(|t| t.as_str()).unwrap_or("text");
                             match part_type {
                                 "image_url" => {
-                                    // Convert image_url to Anthropic image source.
                                     let url = part.pointer("/image_url/url").and_then(|u| u.as_str()).unwrap_or("");
-                                    if url.starts_with("data:")
-                                        && let Some((header, data)) = url.split_once(',')
-                                    {
-                                        let media_type = header.trim_start_matches("data:").trim_end_matches(";base64");
-                                        return json!({
-                                            "type": "image",
-                                            "source": {
-                                                "type": "base64",
-                                                "media_type": media_type,
-                                                "data": data
-                                            }
-                                        });
-                                    }
-                                    json!({
-                                        "type": "image",
-                                        "source": {"type": "url", "url": url}
-                                    })
+                                    convert_image_url_to_anthropic_source(url)
                                 }
                                 _ => {
                                     let text = part.get("text").and_then(|t| t.as_str()).unwrap_or("");
@@ -723,30 +739,8 @@ fn convert_user_content_to_anthropic(content: Option<&Value>) -> Value {
                             Some(block)
                         }
                         "image_url" => {
-                            // Convert data-URI or plain URL to Anthropic image source.
                             let url = part.pointer("/image_url/url").and_then(|u| u.as_str())?;
-                            if url.starts_with("data:") {
-                                // data:<media_type>;base64,<data>
-                                if let Some((header, data)) = url.split_once(',') {
-                                    let media_type = header.trim_start_matches("data:").trim_end_matches(";base64");
-                                    return Some(json!({
-                                        "type": "image",
-                                        "source": {
-                                            "type": "base64",
-                                            "media_type": media_type,
-                                            "data": data
-                                        }
-                                    }));
-                                }
-                            }
-                            // Plain URL — use Anthropic's url source type.
-                            Some(json!({
-                                "type": "image",
-                                "source": {
-                                    "type": "url",
-                                    "url": url
-                                }
-                            }))
+                            Some(convert_image_url_to_anthropic_source(url))
                         }
                         _ => {
                             // Unknown content part types: fall back to text representation
@@ -843,7 +837,7 @@ fn make_text_chunk(id: &str, model: &str, text: &str) -> ChatCompletionChunk {
     ChatCompletionChunk {
         id: id.to_owned(),
         object: "chat.completion.chunk".to_owned(),
-        created: 0,
+        created: super::unix_timestamp_secs(),
         model: model.to_owned(),
         choices: vec![StreamChoice {
             index: 0,
@@ -867,7 +861,7 @@ fn make_empty_chunk_with_tool_start(tool_index: u32, tool_id: String, tool_name:
     ChatCompletionChunk {
         id: String::new(),
         object: "chat.completion.chunk".to_owned(),
-        created: 0,
+        created: super::unix_timestamp_secs(),
         model: String::new(),
         choices: vec![StreamChoice {
             index: 0,
@@ -899,7 +893,7 @@ fn make_tool_arguments_delta(tool_index: u32, partial_json: &str) -> ChatComplet
     ChatCompletionChunk {
         id: String::new(),
         object: "chat.completion.chunk".to_owned(),
-        created: 0,
+        created: super::unix_timestamp_secs(),
         model: String::new(),
         choices: vec![StreamChoice {
             index: 0,
@@ -1531,7 +1525,7 @@ mod tests {
     }
 
     #[test]
-    fn transform_response_thinking_block_included_in_content() {
+    fn transform_response_thinking_block_excluded_from_content() {
         let mut body = json!({
             "id": "msg_think",
             "type": "message",
@@ -1546,8 +1540,12 @@ mod tests {
         });
         provider().transform_response(&mut body).unwrap();
         let content = body["choices"][0]["message"]["content"].as_str().unwrap();
-        assert!(content.contains("Let me reason..."));
-        assert!(content.contains("The answer is 42."));
+        // Thinking blocks are internal chain-of-thought and must NOT appear in user-facing content.
+        assert!(
+            !content.contains("Let me reason..."),
+            "thinking blocks should be filtered out"
+        );
+        assert_eq!(content, "The answer is 42.");
     }
 
     #[test]
@@ -1638,9 +1636,13 @@ mod tests {
 
     #[test]
     fn sanitize_tool_call_id_replaces_invalid_chars() {
-        assert_eq!(sanitize_tool_call_id("call.abc!123"), "call_abc_123");
-        assert_eq!(sanitize_tool_call_id("call-abc_123"), "call-abc_123");
-        assert_eq!(sanitize_tool_call_id("call abc"), "call_abc");
+        assert_eq!(sanitize_tool_call_id("call.abc!123").as_ref(), "call_abc_123");
+        assert_eq!(sanitize_tool_call_id("call-abc_123").as_ref(), "call-abc_123");
+        assert_eq!(sanitize_tool_call_id("call abc").as_ref(), "call_abc");
+        // Already-valid IDs should borrow (no allocation).
+        assert!(matches!(sanitize_tool_call_id("toolu_01abc"), Cow::Borrowed(_)));
+        // IDs with invalid chars should allocate.
+        assert!(matches!(sanitize_tool_call_id("call.123"), Cow::Owned(_)));
     }
 
     #[test]
