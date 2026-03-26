@@ -27,6 +27,7 @@ bytes = "1"
 
 # CLI (for tools)
 clap = { version = "4", features = ["derive"] }
+dashmap = "6"
 futures-core = "0.3"
 jsonschema = "0.45"
 
@@ -56,6 +57,8 @@ serde_json = "1"
 thiserror = "2"
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1" # Reserved for future streaming utilities and stream combinators
+tower = { version = "0.5", features = ["retry", "limit", "timeout", "buffer", "load-shed", "steer", "util"] }
+tower-http = { version = "0.6", features = ["follow-redirect", "set-header", "sensitive-headers", "trace", "request-id"] }
 tower-layer = "0.3"
 tower-service = "0.3"
 tracing = "0.1"

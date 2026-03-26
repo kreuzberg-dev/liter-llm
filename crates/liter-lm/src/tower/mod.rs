@@ -36,6 +36,9 @@ mod tests;
 pub mod tracing;
 pub mod types;
 
+// Re-export tower core types for convenient access
+pub use tower::ServiceExt;
+
 pub use cost::{CostTrackingLayer, CostTrackingService};
 pub use fallback::{FallbackLayer, FallbackService};
 pub use router::{Router, RoutingStrategy};

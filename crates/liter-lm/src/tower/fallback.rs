@@ -1,7 +1,7 @@
 use std::task::{Context, Poll};
 
-use tower_layer::Layer;
-use tower_service::Service;
+use tower::Layer;
+use tower::Service;
 
 use super::types::{LlmRequest, LlmResponse};
 use crate::client::BoxFuture;

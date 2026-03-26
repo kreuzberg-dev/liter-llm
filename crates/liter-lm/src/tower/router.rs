@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::task::{Context, Poll};
 
-use tower_service::Service;
+use tower::Service;
 
 use super::types::{LlmRequest, LlmResponse};
 use crate::client::BoxFuture;

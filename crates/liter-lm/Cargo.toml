@@ -9,6 +9,9 @@ authors.workspace = true
 description = "A universal LM API client — fast, type-safe, compiled"
 keywords = ["llm", "openai", "api-client", "ai", "kreuzberg"]
 
+[package.metadata.cargo-machete]
+ignored = ["dashmap", "tower-http"]
+
 [features]
 # Enable the native HTTP stack (reqwest + tokio).  Disable this feature when
 # compiling for WebAssembly, where the browser / Node.js fetch API is used
@@ -19,7 +22,7 @@ native-http = ["dep:reqwest", "dep:tokio", "dep:memchr", "dep:bytes"]
 # Tower middleware integration.
 tracing = ["dep:tracing"]
 # Tower middleware integration (LlmService, TracingLayer, FallbackLayer).
-tower = ["dep:tower-layer", "dep:tower-service", "dep:bytes", "tracing"]
+tower = ["dep:tower", "dep:tower-http", "dep:dashmap", "dep:bytes", "tracing"]
 # OpenTelemetry export bridge via `tracing-opentelemetry`.  Depends on `tracing`
 # and re-exports `tracing_opentelemetry` so callers can compose their own
 # subscriber stack without a hard dependency on the crate themselves.
@@ -38,6 +41,7 @@ default = ["native-http"]
 aws-credential-types = { version = "1", optional = true }
 aws-sigv4 = { version = "1", features = ["sign-http", "http1"], optional = true }
 bytes = { workspace = true, optional = true }
+dashmap = { workspace = true, optional = true }
 futures-core = { workspace = true }
 memchr = { workspace = true, optional = true }
 opentelemetry = { workspace = true, optional = true }
@@ -48,8 +52,8 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["time", "rt", "macros"], optional = true }
-tower-layer = { workspace = true, optional = true }
-tower-service = { workspace = true, optional = true }
+tower = { workspace = true, optional = true }
+tower-http = { workspace = true, optional = true }
 tracing = { workspace = true, optional = true }
 tracing-opentelemetry = { workspace = true, optional = true }
 

@@ -309,7 +309,9 @@ pub trait Provider: Send + Sync {
 pub mod anthropic;
 pub mod azure;
 pub mod bedrock;
+pub mod cohere;
 pub mod google_ai;
+pub mod mistral;
 pub mod vertex;
 
 // ── Built-in providers ───────────────────────────────────────────────────────
@@ -499,6 +501,20 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
     // 6. AWS Bedrock: "bedrock/" prefix.
     if model.starts_with("bedrock/") {
         return Some(Box::new(bedrock::BedrockProvider::from_env()));
+    }
+
+    // 7. Cohere: "command-*" model names or "cohere/" prefix.
+    if model.starts_with("command-") || model.starts_with("cohere/") {
+        return Some(Box::new(cohere::CohereProvider));
+    }
+
+    // 8. Mistral: "mistral-*", "codestral-*", "pixtral-*" model names or "mistral/" prefix.
+    if model.starts_with("mistral-")
+        || model.starts_with("codestral-")
+        || model.starts_with("pixtral-")
+        || model.starts_with("mistral/")
+    {
+        return Some(Box::new(mistral::MistralProvider));
     }
 
     // Grab the registry; if it failed to parse we cannot route.

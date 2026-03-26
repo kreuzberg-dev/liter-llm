@@ -22,8 +22,8 @@
 
 use std::task::{Context, Poll};
 
-use tower_layer::Layer;
-use tower_service::Service;
+use tower::Layer;
+use tower::Service;
 
 use super::types::{LlmRequest, LlmResponse};
 use crate::client::BoxFuture;
@@ -110,8 +110,8 @@ fn record_cost(model: &Option<String>, resp: &LlmResponse) {
 
 #[cfg(test)]
 mod tests {
-    use tower_layer::Layer as _;
-    use tower_service::Service as _;
+    use tower::Layer as _;
+    use tower::Service as _;
 
     use crate::tower::service::LlmService;
     use crate::tower::types::{LlmRequest, LlmResponse};

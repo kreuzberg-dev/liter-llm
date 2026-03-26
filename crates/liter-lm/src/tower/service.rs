@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::task::{Context, Poll};
 
 use futures_core::Stream;
-use tower_service::Service;
+use tower::Service;
 
 use super::types::{LlmRequest, LlmResponse};
 use crate::client::{BoxFuture, LlmClient};

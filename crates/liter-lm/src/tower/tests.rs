@@ -5,7 +5,7 @@
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use tower_service::Service;
+use tower::Service;
 
 use std::pin::Pin;
 use std::task::{Context, Poll};
@@ -26,7 +26,7 @@ use crate::types::{
     AssistantMessage, ChatCompletionRequest, ChatCompletionResponse, Choice, EmbeddingInput, EmbeddingObject,
     EmbeddingRequest, EmbeddingResponse, FinishReason, Message, ModelsListResponse, SystemMessage, Usage,
 };
-use tower_layer::Layer;
+use tower::Layer;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
