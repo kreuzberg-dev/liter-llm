@@ -328,9 +328,7 @@ impl Provider for AnthropicProvider {
     /// - `content_block_stop`, `ping`: skipped (returns `Ok(None)` — no content to emit).
     /// - `error`: returns `Err(LiterLmError::Streaming)`.
     fn parse_stream_event(&self, event_data: &str) -> Result<Option<ChatCompletionChunk>> {
-        if event_data == "[DONE]" {
-            return Ok(None);
-        }
+        // NOTE: `[DONE]` is handled at the SSE parser level; no check needed here.
 
         let event: Value = serde_json::from_str(event_data).map_err(|e| LiterLmError::Streaming {
             message: format!("failed to parse Anthropic SSE event: {e}"),
@@ -1273,9 +1271,14 @@ mod tests {
     // ── parse_stream_event tests ──────────────────────────────────────────────
 
     #[test]
-    fn parse_stream_event_done_returns_none() {
-        let result = provider().parse_stream_event("[DONE]").unwrap();
-        assert!(result.is_none());
+    fn parse_stream_event_done_is_handled_at_sse_level() {
+        // `[DONE]` is now caught by the SSE parser before reaching the provider.
+        // If it were to reach the provider, it would be invalid JSON.
+        let result = provider().parse_stream_event("[DONE]");
+        assert!(
+            result.is_err(),
+            "[DONE] is not valid JSON and should error if it reaches the provider"
+        );
     }
 
     #[test]

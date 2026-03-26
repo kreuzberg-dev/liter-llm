@@ -36,17 +36,21 @@ pub struct Router<S> {
 impl<S> Router<S> {
     /// Create a new router.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// Panics if `deployments` is empty — a router with no deployments
-    /// cannot handle any request.
-    pub fn new(deployments: Vec<S>, strategy: RoutingStrategy) -> Self {
-        assert!(!deployments.is_empty(), "Router requires at least one deployment");
-        Self {
+    /// Returns [`LiterLmError::BadRequest`] if `deployments` is empty — a
+    /// router with no deployments cannot handle any request.
+    pub fn new(deployments: Vec<S>, strategy: RoutingStrategy) -> Result<Self> {
+        if deployments.is_empty() {
+            return Err(LiterLmError::BadRequest {
+                message: "Router requires at least one deployment".into(),
+            });
+        }
+        Ok(Self {
             deployments,
             strategy,
             counter: Arc::new(AtomicUsize::new(0)),
-        }
+        })
     }
 }
 

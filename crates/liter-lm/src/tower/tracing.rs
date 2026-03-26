@@ -87,6 +87,7 @@ where
             gen_ai.usage.output_tokens = tracing::field::Empty,
             gen_ai.response.id = tracing::field::Empty,
             gen_ai.response.model = tracing::field::Empty,
+            gen_ai.usage.cost = tracing::field::Empty,
             gen_ai.response.finish_reasons = tracing::field::Empty,
             error.type = tracing::field::Empty,
         );
@@ -147,21 +148,19 @@ fn record_response(span: &tracing::Span, resp: &LlmResponse) {
             if !finish_reasons.is_empty() {
                 span.record("gen_ai.response.finish_reasons", finish_reasons.as_str());
             }
-
-            if let Some(ref usage) = r.usage {
-                span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
-                span.record("gen_ai.usage.output_tokens", usage.completion_tokens);
-            }
         }
         LlmResponse::Embed(r) => {
             span.record("gen_ai.response.model", r.model.as_str());
-
-            if let Some(ref usage) = r.usage {
-                span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
-            }
         }
         // Streaming and model-list responses do not carry aggregated usage or response metadata.
         LlmResponse::ChatStream(_) | LlmResponse::ListModels(_) => {}
+    }
+
+    // Record usage tokens from the shared accessor — avoids duplicating the
+    // match arms that extract `Option<&Usage>` from each response variant.
+    if let Some(usage) = resp.usage() {
+        span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
+        span.record("gen_ai.usage.output_tokens", usage.completion_tokens);
     }
 }
 

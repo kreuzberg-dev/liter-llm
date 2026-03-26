@@ -154,15 +154,26 @@ where
                 if let Some(raw) = line.strip_prefix("data:") {
                     // Strip exactly one optional leading space (RFC 8895 §3.3).
                     let data = raw.strip_prefix(' ').unwrap_or(raw).trim();
-                    // Delegate to the provider-supplied parser.  `Ok(None)`
-                    // means the stream sentinel was reached (e.g. `[DONE]`).
+
+                    // Handle the OpenAI `[DONE]` sentinel at the SSE parser
+                    // level — this terminates the stream regardless of provider.
+                    if data == "[DONE]" {
+                        this.buffer.drain(..=newline_pos);
+                        return Poll::Ready(None);
+                    }
+
+                    // Delegate to the provider-supplied parser.
+                    // - `Ok(Some(chunk))` → yield the chunk.
+                    // - `Ok(None)` → skip this event (e.g. Anthropic ping,
+                    //   content_block_stop, message_stop) and continue parsing.
+                    // - `Err(e)` → yield the error to the consumer.
                     let result = (this.parse_event)(data);
                     this.buffer.drain(..=newline_pos);
-                    return match result {
-                        Ok(None) => Poll::Ready(None),
-                        Ok(Some(chunk)) => Poll::Ready(Some(Ok(chunk))),
-                        Err(e) => Poll::Ready(Some(Err(e))),
-                    };
+                    match result {
+                        Ok(None) => continue,
+                        Ok(Some(chunk)) => return Poll::Ready(Some(Ok(chunk))),
+                        Err(e) => return Poll::Ready(Some(Err(e))),
+                    }
                 }
 
                 // Ignore other SSE fields (event:, id:, retry:).

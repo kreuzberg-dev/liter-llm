@@ -1,8 +1,15 @@
 use std::borrow::Cow;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::error::{LiterLmError, Result};
 use crate::provider::Provider;
 use crate::types::ChatCompletionChunk;
+
+/// Default Vertex AI location when none is specified.
+const DEFAULT_LOCATION: &str = "us-central1";
+
+/// Global counter for generating unique tool call IDs.
+static TOOL_CALL_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Google Vertex AI / Gemini provider.
 ///
@@ -10,9 +17,10 @@ use crate::types::ChatCompletionChunk;
 /// - Auth uses `Authorization: Bearer <token>` where the token is a Google
 ///   Cloud OAuth2 access token (obtained via ADC, service account, or
 ///   `gcloud auth print-access-token`).
-/// - The base URL is **required** and must be set via `base_url` in
-///   [`ClientConfig`]. It should be the Vertex AI Gemini endpoint, e.g.:
-///   `https://us-central1-aiplatform.googleapis.com/v1/projects/{project}/locations/{region}`
+/// - The base URL is constructed from `VERTEXAI_PROJECT` and `VERTEXAI_LOCATION`
+///   environment variables, or can be overridden via `base_url` in [`ClientConfig`].
+///   The resulting URL follows the pattern:
+///   `https://{location}-aiplatform.googleapis.com/v1/projects/{project}/locations/{location}`
 /// - Model names are routed via the `vertex_ai/` prefix which is stripped
 ///   before being sent in the request body.
 /// - The native Gemini `generateContent` format is used, not the OpenAI
@@ -26,9 +34,21 @@ use crate::types::ChatCompletionChunk;
 /// Token refresh is the caller's responsibility.  A future release will add
 /// ADC / service-account-based automatic refresh.
 ///
+/// # Environment variables
+///
+/// - `VERTEXAI_PROJECT` (required): Google Cloud project ID.
+/// - `VERTEXAI_LOCATION` (optional): GCP region, defaults to `us-central1`.
+///
 /// # Configuration
 ///
 /// ```rust,ignore
+/// // Option 1: Use environment variables (recommended).
+/// // export VERTEXAI_PROJECT=my-project
+/// // export VERTEXAI_LOCATION=us-central1
+/// let config = ClientConfigBuilder::new("ya29.your-access-token").build();
+/// let client = DefaultClient::new(config, Some("vertex_ai/gemini-2.0-flash"))?;
+///
+/// // Option 2: Explicit base_url override (bypasses env var resolution).
 /// let config = ClientConfigBuilder::new("ya29.your-access-token")
 ///     .base_url(
 ///         "https://us-central1-aiplatform.googleapis.com/v1/\
@@ -37,19 +57,70 @@ use crate::types::ChatCompletionChunk;
 ///     .build();
 /// let client = DefaultClient::new(config, Some("vertex_ai/gemini-2.0-flash"))?;
 /// ```
-pub struct VertexAiProvider;
+pub struct VertexAiProvider {
+    /// Cached base URL: `https://{location}-aiplatform.googleapis.com/v1/projects/{project}/locations/{location}`.
+    base_url: String,
+}
+
+impl VertexAiProvider {
+    /// Construct with an explicit project and location.
+    #[must_use]
+    pub fn new(project: impl Into<String>, location: impl Into<String>) -> Self {
+        let project = project.into();
+        let location = location.into();
+        let base_url =
+            format!("https://{location}-aiplatform.googleapis.com/v1/projects/{project}/locations/{location}");
+        Self { base_url }
+    }
+
+    /// Construct from environment variables.
+    ///
+    /// Reads `VERTEXAI_PROJECT` and `VERTEXAI_LOCATION` (defaults to `us-central1`).
+    /// If `VERTEXAI_PROJECT` is not set, the base URL will be empty and
+    /// [`validate`] will return an error.
+    #[must_use]
+    pub fn from_env() -> Self {
+        let project = std::env::var("VERTEXAI_PROJECT").unwrap_or_default();
+        let location = std::env::var("VERTEXAI_LOCATION").unwrap_or_else(|_| DEFAULT_LOCATION.to_owned());
+        if project.is_empty() {
+            return Self {
+                base_url: String::new(),
+            };
+        }
+        Self::new(project, location)
+    }
+}
 
 impl Provider for VertexAiProvider {
     fn name(&self) -> &str {
         "vertex_ai"
     }
 
-    /// Vertex AI base URL is always customer- and region-specific.
+    /// Vertex AI base URL constructed from project and location.
     ///
-    /// Returns an empty string when no `base_url` override is present in
-    /// [`ClientConfig`].  The caller is expected to always supply a `base_url`.
+    /// Returns an empty string when the provider was constructed without a
+    /// valid project (e.g. `VERTEXAI_PROJECT` not set). The [`validate`]
+    /// method catches this at client construction time.
     fn base_url(&self) -> &str {
-        ""
+        &self.base_url
+    }
+
+    /// Validate that required configuration is present.
+    ///
+    /// Checks that the base URL was successfully constructed from environment
+    /// variables (`VERTEXAI_PROJECT` is required, `VERTEXAI_LOCATION` defaults
+    /// to `us-central1`).
+    fn validate(&self) -> Result<()> {
+        if self.base_url.is_empty() {
+            return Err(LiterLmError::BadRequest {
+                message: "Vertex AI requires a project ID. \
+                          Set VERTEXAI_PROJECT (and optionally VERTEXAI_LOCATION) \
+                          in the environment, or provide an explicit base_url in \
+                          ClientConfig."
+                    .into(),
+            });
+        }
+        Ok(())
     }
 
     fn auth_header<'a>(&'a self, api_key: &'a str) -> Option<(Cow<'static, str>, Cow<'a, str>)> {
@@ -93,6 +164,9 @@ impl Provider for VertexAiProvider {
     /// - Assistant role becomes `model`.
     /// - Tool calls map to `functionCall` parts; tool results map to `functionResponse` parts.
     /// - Generation parameters live in `generationConfig`.
+    /// - Multimodal content arrays are translated to Gemini's `inlineData` format.
+    /// - `response_format` is translated to `generationConfig.responseMimeType`.
+    /// - `tool_choice` is translated to `toolConfig.functionCallingConfig.mode`.
     fn transform_request(&self, body: &mut serde_json::Value) -> Result<()> {
         use serde_json::json;
 
@@ -116,12 +190,7 @@ impl Provider for VertexAiProvider {
                     }
                 }
                 "user" => {
-                    let parts = if let Some(text) = content.and_then(|c| c.as_str()) {
-                        vec![json!({"text": text})]
-                    } else {
-                        // Fallback for non-string content.
-                        vec![json!({"text": ""})]
-                    };
+                    let parts = convert_user_content_to_gemini(content);
                     contents.push(json!({"role": "user", "parts": parts}));
                 }
                 "assistant" => {
@@ -195,6 +264,25 @@ impl Provider for VertexAiProvider {
             gen_config["stopSequences"] = json!(sequences);
         }
 
+        // Translate response_format to Gemini's responseMimeType.
+        if let Some(rf) = body.get("response_format") {
+            let rf_type = rf.get("type").and_then(|t| t.as_str()).unwrap_or("");
+            match rf_type {
+                "json_object" => {
+                    gen_config["responseMimeType"] = json!("application/json");
+                }
+                "json_schema" => {
+                    gen_config["responseMimeType"] = json!("application/json");
+                    // If a JSON schema is provided, pass it through.
+                    if let Some(schema) = rf.get("json_schema").and_then(|s| s.get("schema")) {
+                        gen_config["responseSchema"] = schema.clone();
+                    }
+                }
+                // "text" or unknown types: no special handling needed.
+                _ => {}
+            }
+        }
+
         // Translate OpenAI tools array to Gemini functionDeclarations.
         let tools_value = body.get("tools").and_then(|t| t.as_array()).map(|arr| {
             let declarations: Vec<serde_json::Value> = arr
@@ -216,6 +304,9 @@ impl Provider for VertexAiProvider {
             json!([{"functionDeclarations": declarations}])
         });
 
+        // Translate tool_choice to Gemini toolConfig.functionCallingConfig.mode.
+        let tool_config = translate_tool_choice(body.get("tool_choice"));
+
         let mut new_body = json!({"contents": contents});
         if !system_parts.is_empty() {
             // Gemini API requires camelCase: systemInstruction.
@@ -228,6 +319,9 @@ impl Provider for VertexAiProvider {
         }
         if let Some(tools) = tools_value {
             new_body["tools"] = tools;
+        }
+        if let Some(tc) = tool_config {
+            new_body["toolConfig"] = tc;
         }
 
         *body = new_body;
@@ -295,14 +389,17 @@ impl Provider for VertexAiProvider {
             .join("");
 
         // Collect functionCall parts and convert to OpenAI tool_calls.
+        // Each call gets a unique ID via an atomic counter to avoid collisions
+        // when the same function is called multiple times.
         let tool_calls: Vec<serde_json::Value> = parts
             .iter()
             .filter_map(|p| {
                 p.get("functionCall").map(|fc| {
                     let name = fc.get("name").and_then(|n| n.as_str()).unwrap_or("unknown");
+                    let call_id = TOOL_CALL_COUNTER.fetch_add(1, Ordering::Relaxed);
                     let arguments = serde_json::to_string(fc.get("args").unwrap_or(&json!({}))).unwrap_or_default();
                     json!({
-                        "id": format!("call_{name}"),
+                        "id": format!("call_{name}_{call_id}"),
                         "type": "function",
                         "function": {
                             "name": fc.get("name"),
@@ -367,7 +464,8 @@ impl Provider for VertexAiProvider {
     /// normalize it into OpenAI format, then build a `ChatCompletionChunk` from
     /// the first choice's message content.
     fn parse_stream_event(&self, event_data: &str) -> Result<Option<ChatCompletionChunk>> {
-        if event_data.trim().is_empty() || event_data == "[DONE]" {
+        // NOTE: `[DONE]` is handled at the SSE parser level; no check needed here.
+        if event_data.trim().is_empty() {
             return Ok(None);
         }
 
@@ -452,6 +550,107 @@ impl Provider for VertexAiProvider {
     }
 }
 
+// ── Helper functions ──────────────────────────────────────────────────────────
+
+/// Convert OpenAI user content (string or content-part array) to Gemini parts.
+///
+/// Handles three cases:
+/// 1. Plain string -> single text part.
+/// 2. Array of content parts -> each part converted to Gemini format.
+/// 3. None/null -> single empty text part.
+fn convert_user_content_to_gemini(content: Option<&serde_json::Value>) -> Vec<serde_json::Value> {
+    use serde_json::json;
+
+    match content {
+        Some(serde_json::Value::String(s)) => vec![json!({"text": s})],
+        Some(serde_json::Value::Array(parts)) => {
+            parts
+                .iter()
+                .filter_map(|part| {
+                    let part_type = part.get("type").and_then(|t| t.as_str())?;
+                    match part_type {
+                        "text" => {
+                            let text = part.get("text").and_then(|t| t.as_str()).unwrap_or("");
+                            Some(json!({"text": text}))
+                        }
+                        "image_url" => {
+                            let url = part.pointer("/image_url/url").and_then(|u| u.as_str())?;
+                            if url.starts_with("data:") {
+                                // data:<media_type>;base64,<data>
+                                if let Some((header, data)) = url.split_once(',') {
+                                    let mime_type = header.trim_start_matches("data:").trim_end_matches(";base64");
+                                    return Some(json!({
+                                        "inlineData": {
+                                            "mimeType": mime_type,
+                                            "data": data
+                                        }
+                                    }));
+                                }
+                            }
+                            // Plain URL -- use Gemini's fileData format.
+                            Some(json!({
+                                "fileData": {
+                                    "mimeType": "image/jpeg",
+                                    "fileUri": url
+                                }
+                            }))
+                        }
+                        _ => {
+                            // Unknown content part types: fall back to text representation.
+                            let text = part.get("text").and_then(|t| t.as_str()).unwrap_or("");
+                            if text.is_empty() {
+                                None
+                            } else {
+                                Some(json!({"text": text}))
+                            }
+                        }
+                    }
+                })
+                .collect()
+        }
+        _ => vec![json!({"text": ""})],
+    }
+}
+
+/// Translate OpenAI `tool_choice` to Gemini `toolConfig.functionCallingConfig`.
+///
+/// OpenAI `tool_choice` values:
+/// - `"none"` -> `NONE`
+/// - `"auto"` -> `AUTO`
+/// - `"required"` -> `ANY`
+/// - `{"type": "function", "function": {"name": "..."}}` -> `ANY` with `allowedFunctionNames`
+fn translate_tool_choice(tool_choice: Option<&serde_json::Value>) -> Option<serde_json::Value> {
+    use serde_json::json;
+
+    let tc = tool_choice?;
+
+    if let Some(s) = tc.as_str() {
+        let mode = match s {
+            "none" => "NONE",
+            "auto" => "AUTO",
+            "required" => "ANY",
+            _ => return None,
+        };
+        return Some(json!({
+            "functionCallingConfig": {
+                "mode": mode
+            }
+        }));
+    }
+
+    // Object form: {"type": "function", "function": {"name": "specific_fn"}}
+    if let Some(name) = tc.pointer("/function/name").and_then(|n| n.as_str()) {
+        return Some(json!({
+            "functionCallingConfig": {
+                "mode": "ANY",
+                "allowedFunctionNames": [name]
+            }
+        }));
+    }
+
+    None
+}
+
 // ── Unit tests ────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -462,18 +661,74 @@ mod tests {
     use crate::provider::Provider;
 
     fn provider() -> VertexAiProvider {
-        VertexAiProvider
+        VertexAiProvider::new("test-project", "us-central1")
+    }
+
+    fn provider_without_project() -> VertexAiProvider {
+        VertexAiProvider {
+            base_url: String::new(),
+        }
+    }
+
+    // ── validate ──────────────────────────────────────────────────────────────
+
+    #[test]
+    fn validate_succeeds_with_project() {
+        let p = provider();
+        assert!(p.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_fails_without_project() {
+        let p = provider_without_project();
+        let err = p.validate().unwrap_err();
+        assert!(
+            err.to_string().contains("VERTEXAI_PROJECT"),
+            "error should mention VERTEXAI_PROJECT"
+        );
+    }
+
+    // ── base_url ──────────────────────────────────────────────────────────────
+
+    #[test]
+    fn base_url_constructed_from_project_and_location() {
+        let p = provider();
+        assert_eq!(
+            p.base_url(),
+            "https://us-central1-aiplatform.googleapis.com/v1/projects/test-project/locations/us-central1"
+        );
+    }
+
+    #[test]
+    fn base_url_custom_location() {
+        let p = VertexAiProvider::new("my-proj", "europe-west1");
+        assert_eq!(
+            p.base_url(),
+            "https://europe-west1-aiplatform.googleapis.com/v1/projects/my-proj/locations/europe-west1"
+        );
     }
 
     // ── build_url ─────────────────────────────────────────────────────────────
 
     #[test]
     fn build_url_returns_empty_without_base() {
-        // VertexAiProvider.base_url() returns "" when no override is set.
-        // The build_url implementation must propagate that gracefully.
-        let p = provider();
+        let p = provider_without_project();
         let url = p.build_url("/chat/completions", "gemini-2.0-flash");
         assert!(url.is_empty(), "should return empty string without a base URL");
+    }
+
+    #[test]
+    fn build_url_chat_completions() {
+        let p = provider();
+        let url = p.build_url("/chat/completions", "gemini-2.0-flash");
+        assert!(url.ends_with("/publishers/google/models/gemini-2.0-flash:generateContent"));
+    }
+
+    #[test]
+    fn build_url_embeddings() {
+        let p = provider();
+        let url = p.build_url("/embeddings", "text-embedding-004");
+        assert!(url.ends_with("/publishers/google/models/text-embedding-004:predict"));
     }
 
     // ── transform_request ─────────────────────────────────────────────────────
@@ -614,7 +869,55 @@ mod tests {
     }
 
     #[test]
-    fn transform_response_tool_calls() {
+    fn transform_response_tool_calls_have_unique_ids() {
+        let p = provider();
+        let mut body = json!({
+            "candidates": [{
+                "content": {
+                    "role": "model",
+                    "parts": [
+                        {
+                            "functionCall": {
+                                "name": "get_weather",
+                                "args": {"city": "Berlin"}
+                            }
+                        },
+                        {
+                            "functionCall": {
+                                "name": "get_weather",
+                                "args": {"city": "Paris"}
+                            }
+                        }
+                    ]
+                },
+                "finishReason": "STOP"
+            }],
+            "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 5}
+        });
+
+        p.transform_response(&mut body).unwrap();
+
+        let tool_calls = body["choices"][0]["message"]["tool_calls"].as_array().unwrap();
+        assert_eq!(tool_calls.len(), 2);
+
+        // Both calls should have the function name "get_weather" but different IDs.
+        let id0 = tool_calls[0]["id"].as_str().unwrap();
+        let id1 = tool_calls[1]["id"].as_str().unwrap();
+        assert_ne!(id0, id1, "tool call IDs must be unique even for the same function");
+        assert!(id0.starts_with("call_get_weather_"));
+        assert!(id1.starts_with("call_get_weather_"));
+
+        // Verify arguments are correct.
+        let args0: serde_json::Value =
+            serde_json::from_str(tool_calls[0]["function"]["arguments"].as_str().unwrap()).unwrap();
+        let args1: serde_json::Value =
+            serde_json::from_str(tool_calls[1]["function"]["arguments"].as_str().unwrap()).unwrap();
+        assert_eq!(args0["city"], "Berlin");
+        assert_eq!(args1["city"], "Paris");
+    }
+
+    #[test]
+    fn transform_response_single_tool_call() {
         let p = provider();
         let mut body = json!({
             "candidates": [{
@@ -636,11 +939,13 @@ mod tests {
 
         let tool_calls = body["choices"][0]["message"]["tool_calls"].as_array().unwrap();
         assert_eq!(tool_calls.len(), 1);
-        assert_eq!(tool_calls[0]["id"], "call_get_weather");
         assert_eq!(tool_calls[0]["function"]["name"], "get_weather");
-        let args: serde_json::Value =
-            serde_json::from_str(tool_calls[0]["function"]["arguments"].as_str().unwrap()).unwrap();
-        assert_eq!(args["city"], "Berlin");
+        // ID should contain the function name and a unique counter.
+        let id = tool_calls[0]["id"].as_str().unwrap();
+        assert!(
+            id.starts_with("call_get_weather_"),
+            "id should start with call_get_weather_, got: {id}"
+        );
     }
 
     #[test]
@@ -681,10 +986,15 @@ mod tests {
     }
 
     #[test]
-    fn parse_stream_event_done_returns_none() {
+    fn parse_stream_event_done_is_handled_at_sse_level() {
+        // `[DONE]` is now caught by the SSE parser before reaching the provider.
+        // If it were to reach the provider, it would be invalid JSON.
         let p = provider();
-        let result = p.parse_stream_event("[DONE]").unwrap();
-        assert!(result.is_none());
+        let result = p.parse_stream_event("[DONE]");
+        assert!(
+            result.is_err(),
+            "[DONE] is not valid JSON and should error if it reaches the provider"
+        );
     }
 
     #[test]
@@ -719,5 +1029,201 @@ mod tests {
         assert!(p.matches_model("vertex_ai/gemini-2.0-flash"));
         assert!(!p.matches_model("gemini-2.0-flash"));
         assert!(!p.matches_model("gpt-4"));
+    }
+
+    // ── multimodal content ────────────────────────────────────────────────────
+
+    #[test]
+    fn transform_request_multimodal_user_content() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What is in this image?"},
+                    {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,/9j/abc=="}}
+                ]
+            }]
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        let parts = body["contents"][0]["parts"].as_array().unwrap();
+        assert_eq!(parts.len(), 2);
+        assert_eq!(parts[0]["text"], "What is in this image?");
+        assert_eq!(parts[1]["inlineData"]["mimeType"], "image/jpeg");
+        assert_eq!(parts[1]["inlineData"]["data"], "/9j/abc==");
+    }
+
+    #[test]
+    fn transform_request_multimodal_url_image() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Describe this."},
+                    {"type": "image_url", "image_url": {"url": "https://example.com/image.jpg"}}
+                ]
+            }]
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        let parts = body["contents"][0]["parts"].as_array().unwrap();
+        assert_eq!(parts.len(), 2);
+        assert_eq!(parts[1]["fileData"]["fileUri"], "https://example.com/image.jpg");
+    }
+
+    // ── response_format translation ───────────────────────────────────────────
+
+    #[test]
+    fn transform_request_response_format_json_object() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "response_format": {"type": "json_object"}
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["generationConfig"]["responseMimeType"], "application/json");
+    }
+
+    #[test]
+    fn transform_request_response_format_json_schema() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "test",
+                    "schema": {"type": "object", "properties": {"name": {"type": "string"}}}
+                }
+            }
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["generationConfig"]["responseMimeType"], "application/json");
+        assert_eq!(body["generationConfig"]["responseSchema"]["type"], "object");
+    }
+
+    // ── tool_choice translation ───────────────────────────────────────────────
+
+    #[test]
+    fn transform_request_tool_choice_auto() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "tools": [{"type": "function", "function": {"name": "f", "parameters": {}}}],
+            "tool_choice": "auto"
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["toolConfig"]["functionCallingConfig"]["mode"], "AUTO");
+    }
+
+    #[test]
+    fn transform_request_tool_choice_none() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "tools": [{"type": "function", "function": {"name": "f", "parameters": {}}}],
+            "tool_choice": "none"
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["toolConfig"]["functionCallingConfig"]["mode"], "NONE");
+    }
+
+    #[test]
+    fn transform_request_tool_choice_required() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "tools": [{"type": "function", "function": {"name": "f", "parameters": {}}}],
+            "tool_choice": "required"
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["toolConfig"]["functionCallingConfig"]["mode"], "ANY");
+    }
+
+    #[test]
+    fn transform_request_tool_choice_specific_function() {
+        let p = provider();
+        let mut body = json!({
+            "messages": [{"role": "user", "content": "hi"}],
+            "tools": [{"type": "function", "function": {"name": "get_weather", "parameters": {}}}],
+            "tool_choice": {"type": "function", "function": {"name": "get_weather"}}
+        });
+
+        p.transform_request(&mut body).unwrap();
+
+        assert_eq!(body["toolConfig"]["functionCallingConfig"]["mode"], "ANY");
+        assert_eq!(
+            body["toolConfig"]["functionCallingConfig"]["allowedFunctionNames"][0],
+            "get_weather"
+        );
+    }
+
+    // ── helper function tests ─────────────────────────────────────────────────
+
+    #[test]
+    fn convert_user_content_string() {
+        let content = json!("Hello!");
+        let parts = convert_user_content_to_gemini(Some(&content));
+        assert_eq!(parts.len(), 1);
+        assert_eq!(parts[0]["text"], "Hello!");
+    }
+
+    #[test]
+    fn convert_user_content_array_with_image() {
+        let content = json!([
+            {"type": "text", "text": "What is this?"},
+            {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBOR"}}
+        ]);
+        let parts = convert_user_content_to_gemini(Some(&content));
+        assert_eq!(parts.len(), 2);
+        assert_eq!(parts[0]["text"], "What is this?");
+        assert_eq!(parts[1]["inlineData"]["mimeType"], "image/png");
+        assert_eq!(parts[1]["inlineData"]["data"], "iVBOR");
+    }
+
+    #[test]
+    fn convert_user_content_none() {
+        let parts = convert_user_content_to_gemini(None);
+        assert_eq!(parts.len(), 1);
+        assert_eq!(parts[0]["text"], "");
+    }
+
+    #[test]
+    fn translate_tool_choice_string_values() {
+        let auto = translate_tool_choice(Some(&json!("auto"))).unwrap();
+        assert_eq!(auto["functionCallingConfig"]["mode"], "AUTO");
+
+        let none = translate_tool_choice(Some(&json!("none"))).unwrap();
+        assert_eq!(none["functionCallingConfig"]["mode"], "NONE");
+
+        let required = translate_tool_choice(Some(&json!("required"))).unwrap();
+        assert_eq!(required["functionCallingConfig"]["mode"], "ANY");
+    }
+
+    #[test]
+    fn translate_tool_choice_specific_function() {
+        let tc = json!({"type": "function", "function": {"name": "my_fn"}});
+        let result = translate_tool_choice(Some(&tc)).unwrap();
+        assert_eq!(result["functionCallingConfig"]["mode"], "ANY");
+        assert_eq!(result["functionCallingConfig"]["allowedFunctionNames"][0], "my_fn");
+    }
+
+    #[test]
+    fn translate_tool_choice_none_input() {
+        assert!(translate_tool_choice(None).is_none());
     }
 }

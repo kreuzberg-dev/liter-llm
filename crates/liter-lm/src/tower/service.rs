@@ -23,6 +23,7 @@ pub struct LlmService<C> {
 
 impl<C> LlmService<C> {
     /// Wrap `client` in a tower-compatible service.
+    #[must_use]
     pub fn new(client: C) -> Self {
         Self {
             inner: Arc::new(client),

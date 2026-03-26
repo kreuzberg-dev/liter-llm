@@ -393,7 +393,10 @@ fn make_round_robin_router() -> (Router<LlmService<MockClient>>, [Arc<MockClient
         Arc::clone(&clients[2].inner),
     ];
     let deployments: Vec<_> = clients.into_iter().map(LlmService::new).collect();
-    (Router::new(deployments, RoutingStrategy::RoundRobin), counters)
+    (
+        Router::new(deployments, RoutingStrategy::RoundRobin).expect("non-empty deployments"),
+        counters,
+    )
 }
 
 #[tokio::test]
@@ -432,7 +435,7 @@ async fn router_fallback_tries_next_on_transient_error_then_succeeds() {
     ];
     let third_counter = Arc::clone(&deployments[2].inner().inner);
 
-    let mut router = Router::new(deployments, RoutingStrategy::Fallback);
+    let mut router = Router::new(deployments, RoutingStrategy::Fallback).expect("non-empty deployments");
     let resp = router.call(LlmRequest::Chat(chat_req("gpt-4"))).await.unwrap();
 
     assert!(
@@ -456,7 +459,7 @@ async fn router_fallback_stops_on_non_transient_error() {
     let deployments: Vec<LlmService<MockClient>> =
         vec![LlmService::new(MockClient::failing_auth()), LlmService::new(ok_client)];
 
-    let mut router = Router::new(deployments, RoutingStrategy::Fallback);
+    let mut router = Router::new(deployments, RoutingStrategy::Fallback).expect("non-empty deployments");
     let result = router.call(LlmRequest::Chat(chat_req("gpt-4"))).await;
 
     assert!(result.is_err(), "expected non-transient error to propagate immediately");

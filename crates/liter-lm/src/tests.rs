@@ -816,7 +816,7 @@ mod provider_tests {
     #[test]
     fn vertex_ai_bare_model_not_stripped() {
         use crate::provider::vertex::VertexAiProvider;
-        let p = VertexAiProvider;
+        let p = VertexAiProvider::new("test-project", "us-central1");
         assert_eq!(p.strip_model_prefix("gemini-2.0-flash"), "gemini-2.0-flash");
     }
 
@@ -835,7 +835,7 @@ mod provider_tests {
     #[test]
     fn vertex_ai_extra_headers_are_empty() {
         use crate::provider::vertex::VertexAiProvider;
-        let p = VertexAiProvider;
+        let p = VertexAiProvider::new("test-project", "us-central1");
         assert!(p.extra_headers().is_empty());
     }
 

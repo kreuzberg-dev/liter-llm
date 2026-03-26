@@ -22,6 +22,7 @@ pub struct FallbackLayer<F> {
 
 impl<F> FallbackLayer<F> {
     /// Create a new fallback layer with the given fallback service.
+    #[must_use]
     pub fn new(fallback: F) -> Self {
         Self { fallback }
     }

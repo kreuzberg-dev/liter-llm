@@ -99,21 +99,9 @@ where
 /// tracing span as `gen_ai.usage.cost`.
 fn record_cost(model: &Option<String>, resp: &LlmResponse) {
     let Some(model_name) = model else { return };
+    let Some(usage) = resp.usage() else { return };
 
-    let (prompt_tokens, completion_tokens) = match resp {
-        LlmResponse::Chat(r) => {
-            let Some(ref u) = r.usage else { return };
-            (u.prompt_tokens, u.completion_tokens)
-        }
-        LlmResponse::Embed(r) => {
-            let Some(ref u) = r.usage else { return };
-            (u.prompt_tokens, u.completion_tokens)
-        }
-        // Streaming and model-list responses do not carry aggregated usage.
-        LlmResponse::ChatStream(_) | LlmResponse::ListModels(_) => return,
-    };
-
-    if let Some(usd) = cost::completion_cost(model_name, prompt_tokens, completion_tokens) {
+    if let Some(usd) = cost::completion_cost(model_name, usage.prompt_tokens, usage.completion_tokens) {
         tracing::Span::current().record("gen_ai.usage.cost", usd);
     }
 }

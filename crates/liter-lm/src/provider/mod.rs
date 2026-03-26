@@ -202,16 +202,16 @@ pub trait Provider: Send + Sync {
 
     /// Parse a single SSE event data string into a `ChatCompletionChunk`.
     ///
-    /// Default: OpenAI format (JSON parse, `[DONE]` sentinel).
+    /// Default: OpenAI format (straight JSON parse).
     /// Anthropic and Vertex override for their native streaming event formats.
     ///
-    /// Returns `Ok(None)` for the terminal `[DONE]` sentinel (stream complete).
+    /// The `[DONE]` sentinel is handled at the SSE parser level before this
+    /// method is called, so implementations do not need to check for it.
+    ///
     /// Returns `Ok(Some(chunk))` for a successfully parsed event.
+    /// Returns `Ok(None)` to skip this event (continue reading the stream).
     /// Returns `Err` when the event cannot be parsed.
     fn parse_stream_event(&self, event_data: &str) -> Result<Option<crate::types::ChatCompletionChunk>> {
-        if event_data == "[DONE]" {
-            return Ok(None);
-        }
         serde_json::from_str::<crate::types::ChatCompletionChunk>(event_data)
             .map(Some)
             .map_err(|e| LiterLmError::Streaming {
@@ -434,7 +434,7 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
 
     // 4. Vertex AI: "vertex_ai/" prefix.
     if model.starts_with("vertex_ai/") {
-        return Some(Box::new(vertex::VertexAiProvider));
+        return Some(Box::new(vertex::VertexAiProvider::from_env()));
     }
 
     // 5. AWS Bedrock: "bedrock/" prefix.

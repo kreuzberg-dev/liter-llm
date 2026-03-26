@@ -1,7 +1,7 @@
 use crate::client::BoxStream;
 use crate::types::{
     ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, EmbeddingRequest, EmbeddingResponse,
-    ModelsListResponse,
+    ModelsListResponse, Usage,
 };
 
 /// The request variant passed through the tower `Service` stack.
@@ -66,6 +66,21 @@ pub enum LlmResponse {
     Embed(EmbeddingResponse),
     /// Model list.
     ListModels(ModelsListResponse),
+}
+
+impl LlmResponse {
+    /// Return the usage data from the response, if present.
+    ///
+    /// Streaming and model-list responses do not carry aggregated usage data
+    /// and always return `None`.
+    #[must_use]
+    pub fn usage(&self) -> Option<&Usage> {
+        match self {
+            Self::Chat(r) => r.usage.as_ref(),
+            Self::Embed(r) => r.usage.as_ref(),
+            Self::ChatStream(_) | Self::ListModels(_) => None,
+        }
+    }
 }
 
 impl std::fmt::Debug for LlmResponse {

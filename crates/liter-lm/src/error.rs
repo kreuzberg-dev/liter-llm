@@ -80,10 +80,14 @@ impl LiterLmError {
     /// alternative endpoint.
     #[must_use]
     pub fn is_transient(&self) -> bool {
-        matches!(
-            self,
-            Self::RateLimited { .. } | Self::ServiceUnavailable { .. } | Self::Timeout | Self::ServerError { .. }
-        )
+        match self {
+            Self::RateLimited { .. } | Self::ServiceUnavailable { .. } | Self::Timeout | Self::ServerError { .. } => {
+                true
+            }
+            #[cfg(feature = "native-http")]
+            Self::Network(_) => true,
+            _ => false,
+        }
     }
 
     /// Return the OpenTelemetry `error.type` string for this error variant.
@@ -138,6 +142,7 @@ impl LiterLmError {
                 }
             }
             404 => Self::NotFound { message },
+            408 => Self::Timeout,
             500 => Self::ServerError { message },
             502..=504 => Self::ServiceUnavailable { message },
             _ => Self::ServerError { message },
