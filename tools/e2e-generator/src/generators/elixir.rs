@@ -55,6 +55,7 @@ defmodule LiterLmE2E.MixProject do
       version: "0.1.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps()
     ]
   end
@@ -62,6 +63,9 @@ defmodule LiterLmE2E.MixProject do
   def application do
     [extra_applications: [:logger]]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
@@ -291,15 +295,18 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
     writeln!(out, "  test {test_name:?} do").unwrap();
 
     // Build routes list.
+    // Use {:?} (Rust debug format) directly on the JSON string — it wraps in double
+    // quotes and escapes inner `"` as `\"`, which Elixir string literals decode
+    // correctly to the original JSON.  Calling elixir_string_escape first would
+    // produce double-escaped backslashes that Jason cannot parse.
     let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
-    let body_elixir = elixir_string_escape(&body_json);
 
     writeln!(out, "    routes = [").unwrap();
     writeln!(out, "      %{{").unwrap();
     writeln!(out, "        path: {:?},", endpoint).unwrap();
     writeln!(out, "        method: {:?},", http_method).unwrap();
     writeln!(out, "        status: {status},").unwrap();
-    writeln!(out, "        body: {:?},", body_elixir).unwrap();
+    writeln!(out, "        body: {:?},", body_json).unwrap();
 
     if fixture.api.mock_response.stream_chunks.is_empty() {
         writeln!(out, "        stream_chunks: []").unwrap();
@@ -307,8 +314,7 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
         writeln!(out, "        stream_chunks: [").unwrap();
         for chunk in &fixture.api.mock_response.stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
-            let chunk_elixir = elixir_string_escape(&chunk_json);
-            writeln!(out, "          {:?},", chunk_elixir).unwrap();
+            writeln!(out, "          {:?},", chunk_json).unwrap();
         }
         writeln!(out, "        ]").unwrap();
     }
@@ -329,22 +335,21 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
 
 fn emit_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, http_method: &str, is_error: bool) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-    let req_elixir = elixir_string_escape(&req_json);
 
     let method_lower = http_method.to_lowercase();
 
     if http_method == "GET" {
         writeln!(
             out,
-            "    {{:ok, resp}} = Req.{method_lower}(base_url <> {:?})",
+            "    {{:ok, resp}} = Req.{method_lower}(base_url <> {:?}, decode_body: false)",
             endpoint
         )
         .unwrap();
     } else {
         writeln!(
             out,
-            "    {{:ok, resp}} = Req.{method_lower}(base_url <> {:?}, body: {:?}, headers: [{{\"content-type\", \"application/json\"}}])",
-            endpoint, req_elixir
+            "    {{:ok, resp}} = Req.{method_lower}(base_url <> {:?}, body: {:?}, headers: [{{\"content-type\", \"application/json\"}}], decode_body: false)",
+            endpoint, req_json
         ).unwrap();
     }
 
@@ -365,12 +370,14 @@ fn emit_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, http_meth
 
 fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str, is_error: bool) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-    let req_elixir = elixir_string_escape(&req_json);
 
+    // Use decode_body: false so the SSE body is received as a raw binary
+    // (Plug.Cowboy buffers chunked responses in tests; into: :self returns
+    // Req.Response.Async which is not a binary).
     writeln!(
         out,
-        "    {{:ok, resp}} = Req.post(base_url <> {:?}, body: {:?}, headers: [{{\"content-type\", \"application/json\"}}], into: :self)",
-        endpoint, req_elixir
+        "    {{:ok, resp}} = Req.post(base_url <> {:?}, body: {:?}, headers: [{{\"content-type\", \"application/json\"}}], decode_body: false)",
+        endpoint, req_json
     ).unwrap();
 
     if is_error {
@@ -490,10 +497,6 @@ fn endpoint_for_method(method: &str) -> &'static str {
         "list_models" => "/models",
         _ => "/chat/completions",
     }
-}
-
-fn elixir_string_escape(s: &str) -> String {
-    s.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 fn module_name(category: &str) -> String {

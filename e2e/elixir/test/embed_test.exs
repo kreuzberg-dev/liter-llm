@@ -12,7 +12,7 @@ defmodule LiterLmE2E.EmbedTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"data\\\":[{\\\"embedding\\\":[0.1,0.2,0.3,0.4,0.5],\\\"index\\\":0,\\\"object\\\":\\\"embedding\\\"},{\\\"embedding\\\":[0.5,0.4,0.3,0.2,0.1],\\\"index\\\":1,\\\"object\\\":\\\"embedding\\\"}],\\\"model\\\":\\\"text-embedding-3-small\\\",\\\"object\\\":\\\"list\\\",\\\"usage\\\":{\\\"completion_tokens\\\":0,\\\"prompt_tokens\\\":2,\\\"total_tokens\\\":2}}",
+          "{\"data\":[{\"embedding\":[0.1,0.2,0.3,0.4,0.5],\"index\":0,\"object\":\"embedding\"},{\"embedding\":[0.5,0.4,0.3,0.2,0.1],\"index\":1,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}",
         stream_chunks: []
       }
     ]
@@ -21,9 +21,9 @@ defmodule LiterLmE2E.EmbedTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/embeddings",
-        body:
-          "{\\\"input\\\":[\\\"Hello\\\",\\\"World\\\"],\\\"model\\\":\\\"text-embedding-3-small\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"input\":[\"Hello\",\"World\"],\"model\":\"text-embedding-3-small\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -39,7 +39,7 @@ defmodule LiterLmE2E.EmbedTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"data\\\":[{\\\"embedding\\\":[0.123,0.456,0.789,0.012,0.345],\\\"index\\\":0,\\\"object\\\":\\\"embedding\\\"}],\\\"model\\\":\\\"text-embedding-3-small\\\",\\\"object\\\":\\\"list\\\",\\\"usage\\\":{\\\"completion_tokens\\\":0,\\\"prompt_tokens\\\":2,\\\"total_tokens\\\":2}}",
+          "{\"data\":[{\"embedding\":[0.123,0.456,0.789,0.012,0.345],\"index\":0,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}",
         stream_chunks: []
       }
     ]
@@ -49,8 +49,9 @@ defmodule LiterLmE2E.EmbedTest do
     {:ok, resp} =
       Req.post(base_url <> "/embeddings",
         body:
-          "{\\\"encoding_format\\\":\\\"float\\\",\\\"input\\\":\\\"Test input\\\",\\\"model\\\":\\\"text-embedding-3-small\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"encoding_format\":\"float\",\"input\":\"Test input\",\"model\":\"text-embedding-3-small\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -66,7 +67,7 @@ defmodule LiterLmE2E.EmbedTest do
         method: "POST",
         status: 401,
         body:
-          "{\\\"error\\\":{\\\"code\\\":\\\"invalid_api_key\\\",\\\"message\\\":\\\"Incorrect API key provided.\\\",\\\"param\\\":null,\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided.\",\"param\":null,\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
@@ -75,8 +76,9 @@ defmodule LiterLmE2E.EmbedTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/embeddings",
-        body: "{\\\"input\\\":\\\"Hello world\\\",\\\"model\\\":\\\"text-embedding-3-small\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 401
@@ -89,7 +91,7 @@ defmodule LiterLmE2E.EmbedTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"data\\\":[{\\\"embedding\\\":[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08],\\\"index\\\":0,\\\"object\\\":\\\"embedding\\\"}],\\\"model\\\":\\\"text-embedding-3-small\\\",\\\"object\\\":\\\"list\\\",\\\"usage\\\":{\\\"completion_tokens\\\":0,\\\"prompt_tokens\\\":2,\\\"total_tokens\\\":2}}",
+          "{\"data\":[{\"embedding\":[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08],\"index\":0,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}",
         stream_chunks: []
       }
     ]
@@ -99,8 +101,9 @@ defmodule LiterLmE2E.EmbedTest do
     {:ok, resp} =
       Req.post(base_url <> "/embeddings",
         body:
-          "{\\\"dimensions\\\":256,\\\"input\\\":\\\"Hello world\\\",\\\"model\\\":\\\"text-embedding-3-small\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"dimensions\":256,\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200

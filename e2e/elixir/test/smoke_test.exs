@@ -12,7 +12,7 @@ defmodule LiterLmE2E.SmokeTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"Hello!\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-abc123\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":5,\\\"prompt_tokens\\\":10,\\\"total_tokens\\\":15}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-abc123\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":5,\"prompt_tokens\":10,\"total_tokens\":15}}",
         stream_chunks: []
       }
     ]
@@ -22,8 +22,9 @@ defmodule LiterLmE2E.SmokeTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Say hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"temperature\\\":0}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Say hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"temperature\":0}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -43,7 +44,7 @@ defmodule LiterLmE2E.SmokeTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"data\\\":[{\\\"embedding\\\":[0.1,0.2,0.3,0.4,0.5],\\\"index\\\":0,\\\"object\\\":\\\"embedding\\\"}],\\\"model\\\":\\\"text-embedding-3-small\\\",\\\"object\\\":\\\"list\\\",\\\"usage\\\":{\\\"completion_tokens\\\":0,\\\"prompt_tokens\\\":2,\\\"total_tokens\\\":2}}",
+          "{\"data\":[{\"embedding\":[0.1,0.2,0.3,0.4,0.5],\"index\":0,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}",
         stream_chunks: []
       }
     ]
@@ -52,8 +53,9 @@ defmodule LiterLmE2E.SmokeTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/embeddings",
-        body: "{\\\"input\\\":\\\"Hello world\\\",\\\"model\\\":\\\"text-embedding-3-small\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -69,14 +71,14 @@ defmodule LiterLmE2E.SmokeTest do
         method: "GET",
         status: 200,
         body:
-          "{\\\"data\\\":[{\\\"created\\\":1687882411,\\\"id\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"model\\\",\\\"owned_by\\\":\\\"openai\\\"},{\\\"created\\\":1677610602,\\\"id\\\":\\\"gpt-3.5-turbo\\\",\\\"object\\\":\\\"model\\\",\\\"owned_by\\\":\\\"openai\\\"},{\\\"created\\\":1705948997,\\\"id\\\":\\\"text-embedding-3-small\\\",\\\"object\\\":\\\"model\\\",\\\"owned_by\\\":\\\"openai\\\"}],\\\"object\\\":\\\"list\\\"}",
+          "{\"data\":[{\"created\":1687882411,\"id\":\"gpt-4\",\"object\":\"model\",\"owned_by\":\"openai\"},{\"created\":1677610602,\"id\":\"gpt-3.5-turbo\",\"object\":\"model\",\"owned_by\":\"openai\"},{\"created\":1705948997,\"id\":\"text-embedding-3-small\",\"object\":\"model\",\"owned_by\":\"openai\"}],\"object\":\"list\"}",
         stream_chunks: []
       }
     ]
 
     {:ok, base_url} = MockServer.start(routes)
 
-    {:ok, resp} = Req.get(base_url <> "/models")
+    {:ok, resp} = Req.get(base_url <> "/models", decode_body: false)
     assert resp.status == 200
     doc = Jason.decode!(resp.body)
 

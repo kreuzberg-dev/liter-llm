@@ -12,7 +12,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"s[::-1]\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000130,\\\"id\\\":\\\"chatcmpl-dev001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":5,\\\"prompt_tokens\\\":28,\\\"total_tokens\\\":33}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"s[::-1]\",\"role\":\"assistant\"}}],\"created\":1711000130,\"id\":\"chatcmpl-dev001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":5,\"prompt_tokens\":28,\"total_tokens\":33}}",
         stream_chunks: []
       }
     ]
@@ -22,8 +22,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"You are a coding assistant. Always respond with concise code examples.\\\",\\\"role\\\":\\\"developer\\\"},{\\\"content\\\":\\\"How do I reverse a string in Python?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"You are a coding assistant. Always respond with concise code examples.\",\"role\":\"developer\"},{\"content\":\"How do I reverse a string in Python?\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -43,7 +44,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"content_filter\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":null,\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000100,\\\"id\\\":\\\"chatcmpl-filter001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":0,\\\"prompt_tokens\\\":14,\\\"total_tokens\\\":14}}",
+          "{\"choices\":[{\"finish_reason\":\"content_filter\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\"}}],\"created\":1711000100,\"id\":\"chatcmpl-filter001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":14,\"total_tokens\":14}}",
         stream_chunks: []
       }
     ]
@@ -53,8 +54,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Tell me something controversial\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Tell me something controversial\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -73,7 +75,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"length\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"Once upon a time\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000090,\\\"id\\\":\\\"chatcmpl-length001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":5,\\\"prompt_tokens\\\":12,\\\"total_tokens\\\":17}}",
+          "{\"choices\":[{\"finish_reason\":\"length\",\"index\":0,\"message\":{\"content\":\"Once upon a time\",\"role\":\"assistant\"}}],\"created\":1711000090,\"id\":\"chatcmpl-length001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":5,\"prompt_tokens\":12,\"total_tokens\":17}}",
         stream_chunks: []
       }
     ]
@@ -83,8 +85,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"max_tokens\\\":5,\\\"messages\\\":[{\\\"content\\\":\\\"Tell me a long story\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"max_tokens\":5,\"messages\":[{\"content\":\"Tell me a long story\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -104,7 +107,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"4 + 4 equals 8.\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000030,\\\"id\\\":\\\"chatcmpl-multi001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":9,\\\"prompt_tokens\\\":45,\\\"total_tokens\\\":54}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"4 + 4 equals 8.\",\"role\":\"assistant\"}}],\"created\":1711000030,\"id\":\"chatcmpl-multi001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":45,\"total_tokens\":54}}",
         stream_chunks: []
       }
     ]
@@ -114,8 +117,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"You are a helpful assistant.\\\",\\\"role\\\":\\\"system\\\"},{\\\"content\\\":\\\"What is 2 + 2?\\\",\\\"role\\\":\\\"user\\\"},{\\\"content\\\":\\\"2 + 2 equals 4.\\\",\\\"role\\\":\\\"assistant\\\"},{\\\"content\\\":\\\"And what is 4 + 4?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"You are a helpful assistant.\",\"role\":\"system\"},{\"content\":\"What is 2 + 2?\",\"role\":\"user\"},{\"content\":\"2 + 2 equals 4.\",\"role\":\"assistant\"},{\"content\":\"And what is 4 + 4?\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -135,7 +139,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"tool_calls\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":null,\\\"role\\\":\\\"assistant\\\",\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"location\\\\\\\": \\\\\\\"New York\\\\\\\"}\\\",\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_par001\\\",\\\"type\\\":\\\"function\\\"},{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"location\\\\\\\": \\\\\\\"London\\\\\\\"}\\\",\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_par002\\\",\\\"type\\\":\\\"function\\\"}]}}],\\\"created\\\":1711000060,\\\"id\\\":\\\"chatcmpl-parallel001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":30,\\\"prompt_tokens\\\":65,\\\"total_tokens\\\":95}}",
+          "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"New York\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_par001\",\"type\":\"function\"},{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"London\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_par002\",\"type\":\"function\"}]}}],\"created\":1711000060,\"id\":\"chatcmpl-parallel001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":30,\"prompt_tokens\":65,\"total_tokens\":95}}",
         stream_chunks: []
       }
     ]
@@ -145,8 +149,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"What is the weather in NYC and London?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"parallel_tool_calls\\\":true,\\\"tools\\\":[{\\\"function\\\":{\\\"description\\\":\\\"Get the current weather for a given location\\\",\\\"name\\\":\\\"get_weather\\\",\\\"parameters\\\":{\\\"properties\\\":{\\\"location\\\":{\\\"description\\\":\\\"The city name\\\",\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"location\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"function\\\"}]}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"What is the weather in NYC and London?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"parallel_tool_calls\":true,\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city name\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -165,7 +170,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"{\\\\\\\"name\\\\\\\": \\\\\\\"Alice\\\\\\\", \\\\\\\"age\\\\\\\": 30}\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000070,\\\"id\\\":\\\"chatcmpl-json001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":12,\\\"prompt_tokens\\\":25,\\\"total_tokens\\\":37}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"{\\\"name\\\": \\\"Alice\\\", \\\"age\\\": 30}\",\"role\":\"assistant\"}}],\"created\":1711000070,\"id\":\"chatcmpl-json001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":12,\"prompt_tokens\":25,\"total_tokens\":37}}",
         stream_chunks: []
       }
     ]
@@ -175,8 +180,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Respond with JSON only.\\\",\\\"role\\\":\\\"system\\\"},{\\\"content\\\":\\\"Give me a user object with name and age fields.\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"response_format\\\":{\\\"type\\\":\\\"json_object\\\"}}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Respond with JSON only.\",\"role\":\"system\"},{\"content\":\"Give me a user object with name and age fields.\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"response_format\":{\"type\":\"json_object\"}}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -199,7 +205,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"{\\\\\\\"temp\\\\\\\": 18.5}\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000080,\\\"id\\\":\\\"chatcmpl-schema001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":8,\\\"prompt_tokens\\\":30,\\\"total_tokens\\\":38}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"{\\\"temp\\\": 18.5}\",\"role\":\"assistant\"}}],\"created\":1711000080,\"id\":\"chatcmpl-schema001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":8,\"prompt_tokens\":30,\"total_tokens\":38}}",
         stream_chunks: []
       }
     ]
@@ -209,8 +215,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"What is the temperature in Paris today?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"response_format\\\":{\\\"json_schema\\\":{\\\"name\\\":\\\"weather\\\",\\\"schema\\\":{\\\"properties\\\":{\\\"temp\\\":{\\\"type\\\":\\\"number\\\"}},\\\"required\\\":[\\\"temp\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"json_schema\\\"}}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"What is the temperature in Paris today?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"response_format\":{\"json_schema\":{\"name\":\"weather\",\"schema\":{\"properties\":{\"temp\":{\"type\":\"number\"}},\"required\":[\"temp\"],\"type\":\"object\"}},\"type\":\"json_schema\"}}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -230,7 +237,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"7\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000120,\\\"id\\\":\\\"chatcmpl-seed001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"system_fingerprint\\\":\\\"fp_abc12345\\\",\\\"usage\\\":{\\\"completion_tokens\\\":1,\\\"prompt_tokens\\\":12,\\\"total_tokens\\\":13}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"7\",\"role\":\"assistant\"}}],\"created\":1711000120,\"id\":\"chatcmpl-seed001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"system_fingerprint\":\"fp_abc12345\",\"usage\":{\"completion_tokens\":1,\"prompt_tokens\":12,\"total_tokens\":13}}",
         stream_chunks: []
       }
     ]
@@ -240,8 +247,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Pick a random number\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"seed\\\":42}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Pick a random number\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"seed\":42}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -261,7 +269,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"Item 1\\\\nItem 2\\\\n\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000110,\\\"id\\\":\\\"chatcmpl-stop001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":7,\\\"prompt_tokens\\\":18,\\\"total_tokens\\\":25}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Item 1\\nItem 2\\n\",\"role\":\"assistant\"}}],\"created\":1711000110,\"id\":\"chatcmpl-stop001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":7,\"prompt_tokens\":18,\"total_tokens\":25}}",
         stream_chunks: []
       }
     ]
@@ -271,8 +279,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"List items until you see STOP\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stop\\\":[\\\"STOP\\\",\\\"END\\\"]}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"List items until you see STOP\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stop\":[\"STOP\",\"END\"]}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -292,7 +301,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"tool_calls\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":null,\\\"role\\\":\\\"assistant\\\",\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"location\\\\\\\": \\\\\\\"New York\\\\\\\"}\\\",\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_req001\\\",\\\"type\\\":\\\"function\\\"}]}}],\\\"created\\\":1711000040,\\\"id\\\":\\\"chatcmpl-required001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":15,\\\"prompt_tokens\\\":60,\\\"total_tokens\\\":75}}",
+          "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"New York\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_req001\",\"type\":\"function\"}]}}],\"created\":1711000040,\"id\":\"chatcmpl-required001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":15,\"prompt_tokens\":60,\"total_tokens\":75}}",
         stream_chunks: []
       }
     ]
@@ -302,8 +311,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"What is the weather today?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"tool_choice\\\":\\\"required\\\",\\\"tools\\\":[{\\\"function\\\":{\\\"description\\\":\\\"Get the current weather for a given location\\\",\\\"name\\\":\\\"get_weather\\\",\\\"parameters\\\":{\\\"properties\\\":{\\\"location\\\":{\\\"description\\\":\\\"The city name\\\",\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"location\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"function\\\"}]}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"What is the weather today?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"tool_choice\":\"required\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city name\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -322,7 +332,7 @@ defmodule LiterLmE2E.ChatTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"tool_calls\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":null,\\\"role\\\":\\\"assistant\\\",\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"location\\\\\\\": \\\\\\\"Paris\\\\\\\"}\\\",\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_spec001\\\",\\\"type\\\":\\\"function\\\"}]}}],\\\"created\\\":1711000050,\\\"id\\\":\\\"chatcmpl-specific001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":12,\\\"prompt_tokens\\\":75,\\\"total_tokens\\\":87}}",
+          "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"Paris\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_spec001\",\"type\":\"function\"}]}}],\"created\":1711000050,\"id\":\"chatcmpl-specific001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":12,\"prompt_tokens\":75,\"total_tokens\":87}}",
         stream_chunks: []
       }
     ]
@@ -332,8 +342,9 @@ defmodule LiterLmE2E.ChatTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"What is the weather in Paris?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"tool_choice\\\":{\\\"function\\\":{\\\"name\\\":\\\"get_weather\\\"},\\\"type\\\":\\\"function\\\"},\\\"tools\\\":[{\\\"function\\\":{\\\"description\\\":\\\"Get the current weather for a given location\\\",\\\"name\\\":\\\"get_weather\\\",\\\"parameters\\\":{\\\"properties\\\":{\\\"location\\\":{\\\"description\\\":\\\"The city name\\\",\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"location\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"function\\\"},{\\\"function\\\":{\\\"description\\\":\\\"Search the web for information\\\",\\\"name\\\":\\\"search_web\\\",\\\"parameters\\\":{\\\"properties\\\":{\\\"query\\\":{\\\"description\\\":\\\"The search query\\\",\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"query\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"function\\\"}]}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"What is the weather in Paris?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"tool_choice\":{\"function\":{\"name\":\"get_weather\"},\"type\":\"function\"},\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city name\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"},{\"function\":{\"description\":\"Search the web for information\",\"name\":\"search_web\",\"parameters\":{\"properties\":{\"query\":{\"description\":\"The search query\",\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"}},\"type\":\"function\"}]}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200

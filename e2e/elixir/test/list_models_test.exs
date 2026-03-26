@@ -11,14 +11,14 @@ defmodule LiterLmE2E.ListModelsTest do
         path: "/models",
         method: "GET",
         status: 200,
-        body: "{\\\"data\\\":[],\\\"object\\\":\\\"list\\\"}",
+        body: "{\"data\":[],\"object\":\"list\"}",
         stream_chunks: []
       }
     ]
 
     {:ok, base_url} = MockServer.start(routes)
 
-    {:ok, resp} = Req.get(base_url <> "/models")
+    {:ok, resp} = Req.get(base_url <> "/models", decode_body: false)
     assert resp.status == 200
     doc = Jason.decode!(resp.body)
 
@@ -32,14 +32,14 @@ defmodule LiterLmE2E.ListModelsTest do
         method: "GET",
         status: 401,
         body:
-          "{\\\"error\\\":{\\\"code\\\":\\\"invalid_api_key\\\",\\\"message\\\":\\\"Incorrect API key provided.\\\",\\\"param\\\":null,\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided.\",\"param\":null,\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
 
     {:ok, base_url} = MockServer.start(routes)
 
-    {:ok, resp} = Req.get(base_url <> "/models")
+    {:ok, resp} = Req.get(base_url <> "/models", decode_body: false)
     assert resp.status == 401
   end
 end

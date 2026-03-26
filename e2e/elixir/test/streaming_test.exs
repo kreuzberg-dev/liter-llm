@@ -13,11 +13,11 @@ defmodule LiterLmE2E.StreamingTest do
         status: 200,
         body: "null",
         stream_chunks: [
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\"\\\",\\\"role\\\":\\\"assistant\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-stream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\"1\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-stream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\" 2\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-stream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\" 3\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-stream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{},\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-stream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}"
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}"
         ]
       }
     ]
@@ -27,9 +27,9 @@ defmodule LiterLmE2E.StreamingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Count to 3\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stream\\\":true}",
+          "{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}",
         headers: [{"content-type", "application/json"}],
-        into: :self
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -54,9 +54,9 @@ defmodule LiterLmE2E.StreamingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Say nothing\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stream\\\":true}",
+          "{\"messages\":[{\"content\":\"Say nothing\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}",
         headers: [{"content-type", "application/json"}],
-        into: :self
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -73,9 +73,9 @@ defmodule LiterLmE2E.StreamingTest do
         status: 200,
         body: "null",
         stream_chunks: [
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\"\\\",\\\"role\\\":\\\"assistant\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000001,\\\"id\\\":\\\"chatcmpl-done001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\"Done\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000001,\\\"id\\\":\\\"chatcmpl-done001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{},\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0}],\\\"created\\\":1711000001,\\\"id\\\":\\\"chatcmpl-done001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}"
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000001,\"id\":\"chatcmpl-done001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"Done\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000001,\"id\":\"chatcmpl-done001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000001,\"id\":\"chatcmpl-done001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}"
         ]
       }
     ]
@@ -85,9 +85,9 @@ defmodule LiterLmE2E.StreamingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Say done\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stream\\\":true}",
+          "{\"messages\":[{\"content\":\"Say done\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}",
         headers: [{"content-type", "application/json"}],
-        into: :self
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -103,7 +103,7 @@ defmodule LiterLmE2E.StreamingTest do
         method: "POST",
         status: 401,
         body:
-          "{\\\"error\\\":{\\\"code\\\":\\\"invalid_api_key\\\",\\\"message\\\":\\\"Incorrect API key provided.\\\",\\\"param\\\":null,\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided.\",\"param\":null,\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
@@ -113,9 +113,9 @@ defmodule LiterLmE2E.StreamingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stream\\\":true}",
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}",
         headers: [{"content-type", "application/json"}],
-        into: :self
+        decode_body: false
       )
 
     assert resp.status == 401
@@ -129,10 +129,10 @@ defmodule LiterLmE2E.StreamingTest do
         status: 200,
         body: "null",
         stream_chunks: [
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"role\\\":\\\"assistant\\\",\\\"tool_calls\\\":[{\\\"function\\\":{\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_1\\\",\\\"index\\\":0,\\\"type\\\":\\\"function\\\"}]},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000010,\\\"id\\\":\\\"chatcmpl-toolstream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"loc\\\"},\\\"index\\\":0}]},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000010,\\\"id\\\":\\\"chatcmpl-toolstream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"ation\\\\\\\":\\\\\\\"NYC\\\\\\\"}\\\"},\\\"index\\\":0}]},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000010,\\\"id\\\":\\\"chatcmpl-toolstream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{},\\\"finish_reason\\\":\\\"tool_calls\\\",\\\"index\\\":0}],\\\"created\\\":1711000010,\\\"id\\\":\\\"chatcmpl-toolstream001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}"
+          "{\"choices\":[{\"delta\":{\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"name\":\"get_weather\"},\"id\":\"call_1\",\"index\":0,\"type\":\"function\"}]},\"finish_reason\":null,\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"loc\"},\"index\":0}]},\"finish_reason\":null,\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"tool_calls\":[{\"function\":{\"arguments\":\"ation\\\":\\\"NYC\\\"}\"},\"index\":0}]},\"finish_reason\":null,\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"tool_calls\",\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}"
         ]
       }
     ]
@@ -142,9 +142,9 @@ defmodule LiterLmE2E.StreamingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"What is the weather in NYC?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stream\\\":true,\\\"tools\\\":[{\\\"function\\\":{\\\"description\\\":\\\"Get the current weather for a given location\\\",\\\"name\\\":\\\"get_weather\\\",\\\"parameters\\\":{\\\"properties\\\":{\\\"location\\\":{\\\"description\\\":\\\"The city and state, e.g. New York, NY\\\",\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"location\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"function\\\"}]}",
+          "{\"messages\":[{\"content\":\"What is the weather in NYC?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true,\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and state, e.g. New York, NY\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}",
         headers: [{"content-type", "application/json"}],
-        into: :self
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -161,10 +161,10 @@ defmodule LiterLmE2E.StreamingTest do
         status: 200,
         body: "null",
         stream_chunks: [
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\"\\\",\\\"role\\\":\\\"assistant\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000020,\\\"id\\\":\\\"chatcmpl-usage001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\"Hi\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000020,\\\"id\\\":\\\"chatcmpl-usage001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{\\\"content\\\":\\\" there!\\\"},\\\"finish_reason\\\":null,\\\"index\\\":0}],\\\"created\\\":1711000020,\\\"id\\\":\\\"chatcmpl-usage001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\"}",
-          "{\\\"choices\\\":[{\\\"delta\\\":{},\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0}],\\\"created\\\":1711000020,\\\"id\\\":\\\"chatcmpl-usage001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion.chunk\\\",\\\"usage\\\":{\\\"completion_tokens\\\":8,\\\"prompt_tokens\\\":10,\\\"total_tokens\\\":18}}"
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"Hi\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" there!\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":8,\"prompt_tokens\":10,\"total_tokens\":18}}"
         ]
       }
     ]
@@ -174,9 +174,9 @@ defmodule LiterLmE2E.StreamingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Say hi\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"stream\\\":true,\\\"stream_options\\\":{\\\"include_usage\\\":true}}",
+          "{\"messages\":[{\"content\":\"Say hi\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true,\"stream_options\":{\"include_usage\":true}}",
         headers: [{"content-type", "application/json"}],
-        into: :self
+        decode_body: false
       )
 
     assert resp.status == 200

@@ -12,7 +12,7 @@ defmodule LiterLmE2E.ConfigurationTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"Hi there!\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000000,\\\"id\\\":\\\"chatcmpl-local-001\\\",\\\"model\\\":\\\"local-model\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":4,\\\"prompt_tokens\\\":3,\\\"total_tokens\\\":7}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hi there!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-local-001\",\"model\":\"local-model\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":4,\"prompt_tokens\":3,\"total_tokens\":7}}",
         stream_chunks: []
       }
     ]
@@ -22,8 +22,9 @@ defmodule LiterLmE2E.ConfigurationTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"local-model\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"local-model\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -43,7 +44,7 @@ defmodule LiterLmE2E.ConfigurationTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"Hello! How can I help you?\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000140,\\\"id\\\":\\\"chatcmpl-headers001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":8,\\\"prompt_tokens\\\":8,\\\"total_tokens\\\":16}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you?\",\"role\":\"assistant\"}}],\"created\":1711000140,\"id\":\"chatcmpl-headers001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":8,\"prompt_tokens\":8,\"total_tokens\":16}}",
         stream_chunks: []
       }
     ]
@@ -52,9 +53,9 @@ defmodule LiterLmE2E.ConfigurationTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200

@@ -12,7 +12,7 @@ defmodule LiterLmE2E.ToolCallingTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"tool_calls\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":null,\\\"role\\\":\\\"assistant\\\",\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"location\\\\\\\": \\\\\\\"San Francisco, CA\\\\\\\", \\\\\\\"unit\\\\\\\": \\\\\\\"fahrenheit\\\\\\\"}\\\",\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_abc123\\\",\\\"type\\\":\\\"function\\\"}]}}],\\\"created\\\":1711000002,\\\"id\\\":\\\"chatcmpl-tool001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":17,\\\"prompt_tokens\\\":82,\\\"total_tokens\\\":99}}",
+          "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"San Francisco, CA\\\", \\\"unit\\\": \\\"fahrenheit\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_abc123\",\"type\":\"function\"}]}}],\"created\":1711000002,\"id\":\"chatcmpl-tool001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":17,\"prompt_tokens\":82,\"total_tokens\":99}}",
         stream_chunks: []
       }
     ]
@@ -22,8 +22,9 @@ defmodule LiterLmE2E.ToolCallingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"What is the weather in San Francisco?\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"tool_choice\\\":\\\"auto\\\",\\\"tools\\\":[{\\\"function\\\":{\\\"description\\\":\\\"Get the current weather for a given location\\\",\\\"name\\\":\\\"get_weather\\\",\\\"parameters\\\":{\\\"properties\\\":{\\\"location\\\":{\\\"description\\\":\\\"The city and state, e.g. San Francisco, CA\\\",\\\"type\\\":\\\"string\\\"},\\\"unit\\\":{\\\"description\\\":\\\"The temperature unit to use\\\",\\\"enum\\\":[\\\"celsius\\\",\\\"fahrenheit\\\"],\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"location\\\"],\\\"type\\\":\\\"object\\\"}},\\\"type\\\":\\\"function\\\"}]}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"What is the weather in San Francisco?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"tool_choice\":\"auto\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and state, e.g. San Francisco, CA\",\"type\":\"string\"},\"unit\":{\"description\":\"The temperature unit to use\",\"enum\":[\"celsius\",\"fahrenheit\"],\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200

@@ -12,7 +12,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         method: "POST",
         status: 401,
         body:
-          "{\\\"error\\\":{\\\"code\\\":\\\"invalid_api_key\\\",\\\"message\\\":\\\"Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.\\\",\\\"param\\\":null,\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.\",\"param\":null,\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
@@ -21,9 +21,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 401
@@ -36,7 +36,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         method: "POST",
         status: 400,
         body:
-          "{\\\"error\\\":{\\\"message\\\":\\\"Invalid parameter: temperature must be between 0 and 2\\\",\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"message\":\"Invalid parameter: temperature must be between 0 and 2\",\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
@@ -46,8 +46,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\",\\\"temperature\\\":5.0}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"temperature\":5.0}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 400
@@ -60,7 +61,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         method: "POST",
         status: 400,
         body:
-          "{\\\"error\\\":{\\\"message\\\":\\\"Your request was rejected as a result of our content_policy\\\",\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"message\":\"Your request was rejected as a result of our content_policy\",\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
@@ -70,8 +71,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Generate harmful content\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Generate harmful content\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 400
@@ -84,7 +86,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         method: "POST",
         status: 400,
         body:
-          "{\\\"error\\\":{\\\"code\\\":\\\"context_length_exceeded\\\",\\\"message\\\":\\\"This model's maximum context length is 8192 tokens\\\",\\\"type\\\":\\\"invalid_request_error\\\"}}",
+          "{\"error\":{\"code\":\"context_length_exceeded\",\"message\":\"This model's maximum context length is 8192 tokens\",\"type\":\"invalid_request_error\"}}",
         stream_chunks: []
       }
     ]
@@ -94,8 +96,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Very long prompt that exceeds the context window...\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"Very long prompt that exceeds the context window...\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 400
@@ -107,8 +110,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         path: "/chat/completions",
         method: "POST",
         status: 403,
-        body:
-          "{\\\"error\\\":{\\\"message\\\":\\\"Access denied\\\",\\\"type\\\":\\\"access_denied\\\"}}",
+        body: "{\"error\":{\"message\":\"Access denied\",\"type\":\"access_denied\"}}",
         stream_chunks: []
       }
     ]
@@ -117,9 +119,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 403
@@ -131,8 +133,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         path: "/chat/completions",
         method: "POST",
         status: 504,
-        body:
-          "{\\\"error\\\":{\\\"message\\\":\\\"Gateway timeout\\\",\\\"type\\\":\\\"server_error\\\"}}",
+        body: "{\"error\":{\"message\":\"Gateway timeout\",\"type\":\"server_error\"}}",
         stream_chunks: []
       }
     ]
@@ -141,9 +142,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 504
@@ -155,8 +156,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         path: "/chat/completions",
         method: "POST",
         status: 404,
-        body:
-          "{\\\"error\\\":{\\\"message\\\":\\\"Model not found\\\",\\\"type\\\":\\\"not_found_error\\\"}}",
+        body: "{\"error\":{\"message\":\"Model not found\",\"type\":\"not_found_error\"}}",
         stream_chunks: []
       }
     ]
@@ -165,9 +165,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-99\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-99\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 404
@@ -180,7 +180,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         method: "POST",
         status: 429,
         body:
-          "{\\\"error\\\":{\\\"code\\\":\\\"rate_limit_exceeded\\\",\\\"message\\\":\\\"Rate limit reached for gpt-4 in organization org-abc123 on tokens per min. Limit: 10000, Used: 10000, Requested: 100. Please try again in 600ms.\\\",\\\"param\\\":null,\\\"type\\\":\\\"requests\\\"}}",
+          "{\"error\":{\"code\":\"rate_limit_exceeded\",\"message\":\"Rate limit reached for gpt-4 in organization org-abc123 on tokens per min. Limit: 10000, Used: 10000, Requested: 100. Please try again in 600ms.\",\"param\":null,\"type\":\"requests\"}}",
         stream_chunks: []
       }
     ]
@@ -189,9 +189,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 429
@@ -204,7 +204,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         method: "POST",
         status: 500,
         body:
-          "{\\\"error\\\":{\\\"code\\\":null,\\\"message\\\":\\\"The server had an error while processing your request. Sorry about that!\\\",\\\"param\\\":null,\\\"type\\\":\\\"server_error\\\"}}",
+          "{\"error\":{\"code\":null,\"message\":\"The server had an error while processing your request. Sorry about that!\",\"param\":null,\"type\":\"server_error\"}}",
         stream_chunks: []
       }
     ]
@@ -213,9 +213,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 500
@@ -227,8 +227,7 @@ defmodule LiterLmE2E.ErrorHandlingTest do
         path: "/chat/completions",
         method: "POST",
         status: 502,
-        body:
-          "{\\\"error\\\":{\\\"message\\\":\\\"Bad gateway\\\",\\\"type\\\":\\\"server_error\\\"}}",
+        body: "{\"error\":{\"message\":\"Bad gateway\",\"type\":\"server_error\"}}",
         stream_chunks: []
       }
     ]
@@ -237,9 +236,9 @@ defmodule LiterLmE2E.ErrorHandlingTest do
 
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
-        body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"Hello\\\",\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+        body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 502

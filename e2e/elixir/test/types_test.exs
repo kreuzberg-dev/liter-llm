@@ -12,7 +12,7 @@ defmodule LiterLmE2E.TypesTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"The weather in Paris is currently 18°C and partly cloudy.\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000003,\\\"id\\\":\\\"chatcmpl-types001\\\",\\\"model\\\":\\\"gpt-4\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":18,\\\"prompt_tokens\\\":95,\\\"total_tokens\\\":113}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"The weather in Paris is currently 18°C and partly cloudy.\",\"role\":\"assistant\"}}],\"created\":1711000003,\"id\":\"chatcmpl-types001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":18,\"prompt_tokens\":95,\"total_tokens\":113}}",
         stream_chunks: []
       }
     ]
@@ -22,8 +22,9 @@ defmodule LiterLmE2E.TypesTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"messages\\\":[{\\\"content\\\":\\\"You are a helpful assistant.\\\",\\\"role\\\":\\\"system\\\"},{\\\"content\\\":\\\"What is the weather in Paris?\\\",\\\"role\\\":\\\"user\\\"},{\\\"content\\\":null,\\\"role\\\":\\\"assistant\\\",\\\"tool_calls\\\":[{\\\"function\\\":{\\\"arguments\\\":\\\"{\\\\\\\"location\\\\\\\": \\\\\\\"Paris, France\\\\\\\"}\\\",\\\"name\\\":\\\"get_weather\\\"},\\\"id\\\":\\\"call_xyz789\\\",\\\"type\\\":\\\"function\\\"}]},{\\\"content\\\":\\\"{\\\\\\\"temperature\\\\\\\": 18, \\\\\\\"unit\\\\\\\": \\\\\\\"celsius\\\\\\\", \\\\\\\"description\\\\\\\": \\\\\\\"Partly cloudy\\\\\\\"}\\\",\\\"role\\\":\\\"tool\\\",\\\"tool_call_id\\\":\\\"call_xyz789\\\"}],\\\"model\\\":\\\"gpt-4\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"messages\":[{\"content\":\"You are a helpful assistant.\",\"role\":\"system\"},{\"content\":\"What is the weather in Paris?\",\"role\":\"user\"},{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"Paris, France\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_xyz789\",\"type\":\"function\"}]},{\"content\":\"{\\\"temperature\\\": 18, \\\"unit\\\": \\\"celsius\\\", \\\"description\\\": \\\"Partly cloudy\\\"}\",\"role\":\"tool\",\"tool_call_id\":\"call_xyz789\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
@@ -46,7 +47,7 @@ defmodule LiterLmE2E.TypesTest do
         method: "POST",
         status: 200,
         body:
-          "{\\\"choices\\\":[{\\\"finish_reason\\\":\\\"stop\\\",\\\"index\\\":0,\\\"message\\\":{\\\"content\\\":\\\"The image shows a transparent PNG demonstration with colored dice.\\\",\\\"role\\\":\\\"assistant\\\"}}],\\\"created\\\":1711000004,\\\"id\\\":\\\"chatcmpl-multi001\\\",\\\"model\\\":\\\"gpt-4o\\\",\\\"object\\\":\\\"chat.completion\\\",\\\"usage\\\":{\\\"completion_tokens\\\":14,\\\"prompt_tokens\\\":855,\\\"total_tokens\\\":869}}",
+          "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"The image shows a transparent PNG demonstration with colored dice.\",\"role\":\"assistant\"}}],\"created\":1711000004,\"id\":\"chatcmpl-multi001\",\"model\":\"gpt-4o\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":14,\"prompt_tokens\":855,\"total_tokens\":869}}",
         stream_chunks: []
       }
     ]
@@ -56,8 +57,9 @@ defmodule LiterLmE2E.TypesTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body:
-          "{\\\"max_tokens\\\":100,\\\"messages\\\":[{\\\"content\\\":[{\\\"text\\\":\\\"What is in this image?\\\",\\\"type\\\":\\\"text\\\"},{\\\"image_url\\\":{\\\"detail\\\":\\\"low\\\",\\\"url\\\":\\\"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png\\\"},\\\"type\\\":\\\"image_url\\\"}],\\\"role\\\":\\\"user\\\"}],\\\"model\\\":\\\"gpt-4o\\\"}",
-        headers: [{"content-type", "application/json"}]
+          "{\"max_tokens\":100,\"messages\":[{\"content\":[{\"text\":\"What is in this image?\",\"type\":\"text\"},{\"image_url\":{\"detail\":\"low\",\"url\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png\"},\"type\":\"image_url\"}],\"role\":\"user\"}],\"model\":\"gpt-4o\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
       )
 
     assert resp.status == 200
