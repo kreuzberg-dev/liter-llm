@@ -359,3 +359,92 @@ fn request_type_labels() {
 fn request_model_returns_none_for_list_models() {
     assert!(LlmRequest::ListModels.model().is_none());
 }
+
+// ─── Router tests ─────────────────────────────────────────────────────────────
+
+use crate::tower::router::{Router, RoutingStrategy};
+
+/// Build a `Router` over three mock `LlmService` instances and return
+/// a handle to each service's shared call counter so tests can inspect
+/// how many times each was called.
+fn make_round_robin_router() -> (Router<LlmService<MockClient>>, [Arc<MockClientInner>; 3]) {
+    let clients = [MockClient::ok(), MockClient::ok(), MockClient::ok()];
+    let counters = [
+        Arc::clone(&clients[0].inner),
+        Arc::clone(&clients[1].inner),
+        Arc::clone(&clients[2].inner),
+    ];
+    let deployments: Vec<_> = clients.into_iter().map(LlmService::new).collect();
+    (Router::new(deployments, RoutingStrategy::RoundRobin), counters)
+}
+
+#[tokio::test]
+async fn router_round_robin_distributes_across_deployments() {
+    let (mut router, counters) = make_round_robin_router();
+
+    // Fire 6 requests — each deployment should receive exactly 2.
+    for _ in 0..6 {
+        router.call(LlmRequest::Chat(chat_req("gpt-4"))).await.unwrap();
+    }
+
+    assert_eq!(
+        counters[0].call_count.load(Ordering::SeqCst),
+        2,
+        "deployment 0 should receive 2 calls"
+    );
+    assert_eq!(
+        counters[1].call_count.load(Ordering::SeqCst),
+        2,
+        "deployment 1 should receive 2 calls"
+    );
+    assert_eq!(
+        counters[2].call_count.load(Ordering::SeqCst),
+        2,
+        "deployment 2 should receive 2 calls"
+    );
+}
+
+#[tokio::test]
+async fn router_fallback_tries_next_on_transient_error_then_succeeds() {
+    // First two deployments fail with a transient error; the third succeeds.
+    let deployments: Vec<LlmService<MockClient>> = vec![
+        LlmService::new(MockClient::failing_rate_limited()),
+        LlmService::new(MockClient::failing_service_unavailable()),
+        LlmService::new(MockClient::ok()),
+    ];
+    let third_counter = Arc::clone(&deployments[2].inner().inner);
+
+    let mut router = Router::new(deployments, RoutingStrategy::Fallback);
+    let resp = router.call(LlmRequest::Chat(chat_req("gpt-4"))).await.unwrap();
+
+    assert!(
+        matches!(resp, LlmResponse::Chat(_)),
+        "expected successful Chat response from third deployment"
+    );
+    assert_eq!(
+        third_counter.call_count.load(Ordering::SeqCst),
+        1,
+        "third deployment should have been called exactly once"
+    );
+}
+
+#[tokio::test]
+async fn router_fallback_stops_on_non_transient_error() {
+    // First deployment fails with a non-transient (auth) error; the second
+    // would succeed but must NOT be reached.
+    let ok_client = MockClient::ok();
+    let ok_counter = Arc::clone(&ok_client.inner);
+
+    let deployments: Vec<LlmService<MockClient>> =
+        vec![LlmService::new(MockClient::failing_auth()), LlmService::new(ok_client)];
+
+    let mut router = Router::new(deployments, RoutingStrategy::Fallback);
+    let result = router.call(LlmRequest::Chat(chat_req("gpt-4"))).await;
+
+    assert!(result.is_err(), "expected non-transient error to propagate immediately");
+    assert_eq!(
+        ok_counter.call_count.load(Ordering::SeqCst),
+        0,
+        "second deployment must not be called after a non-transient error"
+    );
+}

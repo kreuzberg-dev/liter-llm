@@ -1,0 +1,106 @@
+{
+	"id": "vertex_stream",
+	"category": "streaming",
+	"description": "Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "vertex_ai/gemini-2.0-flash",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Count to three, one word per response."
+				}
+			],
+			"stream": true,
+			"max_tokens": 32
+		},
+		"mock_response": {
+			"status": 200,
+			"stream_chunks": [
+				{
+					"id": "chatcmpl-vertex-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000400,
+					"model": "gemini-2.0-flash",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"role": "assistant",
+								"content": ""
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-vertex-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000400,
+					"model": "gemini-2.0-flash",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": "One"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-vertex-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000400,
+					"model": "gemini-2.0-flash",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " Two"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-vertex-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000400,
+					"model": "gemini-2.0-flash",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " Three"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-vertex-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000400,
+					"model": "gemini-2.0-flash",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {},
+							"finish_reason": "stop"
+						}
+					]
+				}
+			],
+			"stream_terminator": "[DONE]"
+		}
+	},
+	"assertions": {
+		"stream_chunk_count_min": 2,
+		"stream_final_content": "One Two Three",
+		"stream_completes_cleanly": true
+	},
+	"tags": ["streaming", "vertex_ai"],
+	"skip": {}
+}

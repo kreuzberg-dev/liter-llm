@@ -1,0 +1,33 @@
+{
+	"id": "vertex_error_auth",
+	"category": "error-handling",
+	"description": "Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "vertex_ai/gemini-2.0-flash",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 401,
+			"body": {
+				"error": {
+					"code": 401,
+					"message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",
+					"status": "UNAUTHENTICATED"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"error_type": "Authentication",
+		"error_status_code": 401
+	},
+	"tags": ["error-handling", "vertex_ai"],
+	"skip": {}
+}

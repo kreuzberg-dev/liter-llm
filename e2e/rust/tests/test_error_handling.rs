@@ -145,6 +145,37 @@ async fn bad_request_400() {
     server.shutdown();
 }
 
+/// AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication
+#[tokio::test]
+async fn bedrock_error_auth() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 403,
+        body: r#"{"message":"You don't have access to the model with the specified model ID."}"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(
+        r#"{"messages":[{"content":"Hello","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0"}"#,
+    )
+    .unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    let _ = result.unwrap_err();
+
+    server.shutdown();
+}
+
 /// 400 error when a request is rejected due to content policy
 #[tokio::test]
 async fn content_policy_violation() {
@@ -404,6 +435,41 @@ async fn service_unavailable_502() {
     assert!(
         matches!(result.unwrap_err(), liter_lm::LiterLmError::ServiceUnavailable { .. }),
         "Expected ServiceUnavailable error"
+    );
+
+    server.shutdown();
+}
+
+/// Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication
+#[tokio::test]
+async fn vertex_error_auth() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 401,
+            body: r#"{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(
+        r#"{"messages":[{"content":"Hello","role":"user"}],"model":"vertex_ai/gemini-2.0-flash"}"#,
+    )
+    .unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(result.unwrap_err(), liter_lm::LiterLmError::Authentication { .. }),
+        "Expected Authentication error"
     );
 
     server.shutdown();

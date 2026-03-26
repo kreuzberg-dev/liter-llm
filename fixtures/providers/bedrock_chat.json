@@ -1,0 +1,53 @@
+{
+	"id": "bedrock_chat",
+	"category": "smoke",
+	"description": "Basic chat completion via the AWS Bedrock provider using the bedrock/ prefix for routing — verifies the prefix is stripped before dispatching and the Converse API response is normalised to the standard OpenAI chat completion shape",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Say hello in one word."
+				}
+			],
+			"temperature": 0,
+			"max_tokens": 16
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-bedrock-001",
+				"object": "chat.completion",
+				"created": 1711000300,
+				"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello!"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 12,
+					"completion_tokens": 3,
+					"total_tokens": 15
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_content": "Hello!",
+		"first_choice_finish_reason": "stop",
+		"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+		"usage_total_tokens": 15
+	},
+	"tags": ["smoke", "bedrock"],
+	"skip": {}
+}

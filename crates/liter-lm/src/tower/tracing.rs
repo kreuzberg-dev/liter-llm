@@ -99,6 +99,24 @@ where
     }
 }
 
+/// Re-export `tracing_opentelemetry` when the `otel` feature is active.
+///
+/// This lets callers compose a subscriber that exports spans to an
+/// OpenTelemetry collector without taking a direct dependency on the crate:
+///
+/// ```rust,ignore
+/// use liter_lm::tower::tracing::otel::tracing_opentelemetry::OpenTelemetryLayer;
+/// ```
+#[cfg(feature = "otel")]
+pub use tracing_opentelemetry;
+
+/// Re-export `opentelemetry` when the `otel` feature is active.
+///
+/// Provides access to tracer/provider types needed to build a full
+/// OpenTelemetry pipeline (e.g. `opentelemetry::global::tracer`).
+#[cfg(feature = "otel")]
+pub use opentelemetry;
+
 /// Record token-usage fields on the span from the response payload.
 fn record_usage(span: &tracing::Span, resp: &LlmResponse) {
     match resp {

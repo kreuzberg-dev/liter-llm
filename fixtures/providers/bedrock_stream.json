@@ -1,0 +1,106 @@
+{
+	"id": "bedrock_stream",
+	"category": "streaming",
+	"description": "Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Count to three, one word per response."
+				}
+			],
+			"stream": true,
+			"max_tokens": 32
+		},
+		"mock_response": {
+			"status": 200,
+			"stream_chunks": [
+				{
+					"id": "chatcmpl-bedrock-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"role": "assistant",
+								"content": ""
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-bedrock-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": "One"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-bedrock-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " Two"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-bedrock-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " Three"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-bedrock-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "anthropic.claude-3-sonnet-20240229-v1:0",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {},
+							"finish_reason": "stop"
+						}
+					]
+				}
+			],
+			"stream_terminator": "[DONE]"
+		}
+	},
+	"assertions": {
+		"stream_chunk_count_min": 2,
+		"stream_final_content": "One Two Three",
+		"stream_completes_cleanly": true
+	},
+	"tags": ["streaming", "bedrock"],
+	"skip": {}
+}

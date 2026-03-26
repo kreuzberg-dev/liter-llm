@@ -36,6 +36,7 @@ memchr = "2"
 napi = { version = "3", features = ["napi4", "serde-json", "async"] }
 napi-build = "2"
 napi-derive = "3"
+opentelemetry = "0.28"
 pin-project-lite = "0.2"
 pyo3 = { version = "0.28", features = ["abi3-py310"] }
 pyo3-async-runtimes = { version = "0.28", features = ["tokio-runtime"] }
@@ -58,6 +59,7 @@ tokio-stream = "0.1" # Reserved for future streaming utilities and stream combin
 tower-layer = "0.3"
 tower-service = "0.3"
 tracing = "0.1"
+tracing-opentelemetry = "0.28"
 url = "2" # Reserved for future URL parsing and validation utilities
 wasm-bindgen = "0.2"
 wasm-bindgen-test = "0.3"

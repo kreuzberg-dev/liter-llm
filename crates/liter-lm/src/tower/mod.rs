@@ -29,6 +29,7 @@
 
 pub mod cost;
 pub mod fallback;
+pub mod router;
 pub mod service;
 #[cfg(test)]
 mod tests;
@@ -37,6 +38,7 @@ pub mod types;
 
 pub use cost::{CostTrackingLayer, CostTrackingService};
 pub use fallback::{FallbackLayer, FallbackService};
+pub use router::{Router, RoutingStrategy};
 pub use service::LlmService;
 pub use tracing::{TracingLayer, TracingService};
 pub use types::{LlmRequest, LlmResponse};

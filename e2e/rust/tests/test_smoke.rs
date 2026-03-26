@@ -246,3 +246,131 @@ async fn basic_list_models() {
 
     server.shutdown();
 }
+
+/// Basic chat completion via the AWS Bedrock provider using the bedrock/ prefix for routing — verifies the prefix is stripped before dispatching and the Converse API response is normalised to the standard OpenAI chat completion shape
+#[tokio::test]
+async fn bedrock_chat() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello!","role":"assistant"}}],"created":1711000300,"id":"chatcmpl-bedrock-001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion","usage":{"completion_tokens":3,"prompt_tokens":12,"total_tokens":15}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"max_tokens":16,"messages":[{"content":"Say hello in one word.","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0","temperature":0}"#).unwrap();
+
+    let response = client.chat(req).await.expect("chat call failed");
+    assert_eq!(response.choices.len(), 1, "Choices count mismatch");
+    assert_eq!(
+        response.choices[0].finish_reason,
+        Some(liter_lm::FinishReason::Stop),
+        "finish_reason mismatch"
+    );
+    assert_eq!(
+        response.choices[0].message.content.as_deref(),
+        Some("Hello!"),
+        "message content mismatch"
+    );
+    assert!(response.usage.is_some(), "Expected usage object");
+    assert_eq!(
+        response.usage.as_ref().unwrap().total_tokens,
+        15,
+        "total_tokens mismatch"
+    );
+    assert_eq!(
+        response.model, "anthropic.claude-3-sonnet-20240229-v1:0",
+        "model mismatch"
+    );
+
+    server.shutdown();
+}
+
+/// Basic chat completion via the Google Vertex AI provider using the vertex_ai/ prefix for routing — verifies the prefix is stripped before dispatching and the Gemini response is normalised to the standard OpenAI chat completion shape
+#[tokio::test]
+async fn vertex_chat() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello!","role":"assistant"}}],"created":1711000400,"id":"chatcmpl-vertex-001","model":"gemini-2.0-flash","object":"chat.completion","usage":{"completion_tokens":3,"prompt_tokens":10,"total_tokens":13}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"max_tokens":16,"messages":[{"content":"Say hello in one word.","role":"user"}],"model":"vertex_ai/gemini-2.0-flash","temperature":0}"#).unwrap();
+
+    let response = client.chat(req).await.expect("chat call failed");
+    assert_eq!(response.choices.len(), 1, "Choices count mismatch");
+    assert_eq!(
+        response.choices[0].finish_reason,
+        Some(liter_lm::FinishReason::Stop),
+        "finish_reason mismatch"
+    );
+    assert_eq!(
+        response.choices[0].message.content.as_deref(),
+        Some("Hello!"),
+        "message content mismatch"
+    );
+    assert!(response.usage.is_some(), "Expected usage object");
+    assert_eq!(
+        response.usage.as_ref().unwrap().total_tokens,
+        13,
+        "total_tokens mismatch"
+    );
+    assert_eq!(response.model, "gemini-2.0-flash", "model mismatch");
+
+    server.shutdown();
+}
+
+/// Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape
+#[tokio::test]
+async fn vertex_embed() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/embeddings",
+            method: "POST",
+            status: 200,
+            body: r#"{"data":[{"embedding":[0.012390136,-0.004321289,0.023456781,-0.008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0.015678901,0.007654321,-0.011234567,0.003456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.012390136,-0.004321289,0.023456781,-0.008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0.015678901,0.007654321,-0.011234567,0.003456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.012390136,-0.004321289,0.023456781,-0.008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0.015678901,0.007654321,-0.011234567,0.003456789],"index":0,"object":"embedding"}],"model":"text-embedding-005","object":"list","usage":{"completion_tokens":0,"prompt_tokens":3,"total_tokens":3}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::EmbeddingRequest =
+        serde_json::from_str(r#"{"input":"Hello","model":"vertex_ai/text-embedding-005"}"#).unwrap();
+
+    let response = client.embed(req).await.expect("embed call failed");
+
+    assert!(
+        response.data.len() >= 1,
+        "Expected at least 1 embedding(s), got {}",
+        response.data.len()
+    );
+    assert_eq!(response.data.len(), 1, "Embedding count mismatch");
+    assert_eq!(response.data[0].embedding.len(), 160, "Embedding dimension mismatch");
+
+    server.shutdown();
+}

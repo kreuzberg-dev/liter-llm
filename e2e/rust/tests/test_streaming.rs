@@ -167,6 +167,58 @@ async fn basic_stream() {
     server.shutdown();
 }
 
+/// Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API
+#[tokio::test]
+async fn bedrock_stream() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"null"#.to_string(),
+            stream_chunks: vec![
+                r#"{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}"#.to_string(),
+            ],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0","stream":true}"#).unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 2,
+        "Expected to receive at least 2 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+    let content: String = ok_chunks
+        .iter()
+        .flat_map(|c| c.choices.iter())
+        .filter_map(|ch| ch.delta.content.as_deref())
+        .collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected at least 3 chunk(s), got {}",
+        ok_chunks.len()
+    );
+    assert_eq!(content, "One Two Three", "Stream content mismatch");
+
+    server.shutdown();
+}
+
 /// Streaming chat completion that produces no content chunks before the DONE signal
 #[tokio::test]
 async fn empty_stream() {
@@ -372,6 +424,58 @@ async fn stream_with_usage() {
         ok_chunks.len()
     );
     assert_eq!(content, "Hi there!", "Stream content mismatch");
+
+    server.shutdown();
+}
+
+/// Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly
+#[tokio::test]
+async fn vertex_stream() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"null"#.to_string(),
+            stream_chunks: vec![
+                r#"{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}"#.to_string(),
+            ],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"vertex_ai/gemini-2.0-flash","stream":true}"#).unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 2,
+        "Expected to receive at least 2 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+    let content: String = ok_chunks
+        .iter()
+        .flat_map(|c| c.choices.iter())
+        .filter_map(|ch| ch.delta.content.as_deref())
+        .collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected at least 3 chunk(s), got {}",
+        ok_chunks.len()
+    );
+    assert_eq!(content, "One Two Three", "Stream content mismatch");
 
     server.shutdown();
 }
