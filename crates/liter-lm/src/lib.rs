@@ -4,6 +4,8 @@ pub(crate) mod http;
 pub(crate) mod provider;
 #[cfg(test)]
 mod tests;
+#[cfg(feature = "tower")]
+pub mod tower;
 pub mod types;
 
 // Re-export key types at crate root.
