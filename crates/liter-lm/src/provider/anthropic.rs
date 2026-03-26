@@ -28,6 +28,8 @@ const BETA_COMPUTER_USE: &str = "computer-use-2025-01-24";
 const BETA_WEB_SEARCH: &str = "web-search-2025-03-05";
 const BETA_CODE_EXECUTION: &str = "code-execution-2025-05-22";
 const BETA_THINKING: &str = "thinking-2025-04-14";
+const BETA_PROMPT_CACHING: &str = "prompt-caching-2024-07-31";
+const BETA_PDFS: &str = "pdfs-2024-09-25";
 
 /// Anthropic provider (Claude model family).
 ///
@@ -95,6 +97,16 @@ impl Provider for AnthropicProvider {
                     _ => {}
                 }
             }
+        }
+
+        // Check for prompt caching: any `cache_control` field anywhere in the body.
+        if body_contains_cache_control(body) && !betas.contains(&BETA_PROMPT_CACHING) {
+            betas.push(BETA_PROMPT_CACHING);
+        }
+
+        // Check for PDF/document content blocks.
+        if body_contains_document_block(body) && !betas.contains(&BETA_PDFS) {
+            betas.push(BETA_PDFS);
         }
 
         if betas.is_empty() {
@@ -273,6 +285,14 @@ impl Provider for AnthropicProvider {
                 "type": "enabled",
                 "budget_tokens": budget_tokens
             });
+
+            // Anthropic requires max_tokens >= budget_tokens + 1 when thinking
+            // is enabled.  Auto-increase if the current value is too low.
+            let min_max_tokens = budget_tokens + 1;
+            let current_max = body.get("max_tokens").and_then(|v| v.as_u64()).unwrap_or(0);
+            if current_max < min_max_tokens {
+                body["max_tokens"] = json!(min_max_tokens);
+            }
         }
 
         // ── 7b. Response format → JSON mode ───────────────────────────────────
@@ -1008,6 +1028,40 @@ fn convert_tool_to_anthropic(tool: &Value) -> Value {
 /// Check whether a tool type string represents an Anthropic hosted tool.
 fn is_hosted_tool_type(tool_type: &str) -> bool {
     HOSTED_TOOL_TYPES.contains(&tool_type)
+}
+
+/// Return `true` if any `cache_control` key appears anywhere in the JSON body.
+///
+/// Searches messages, system blocks, and tool definitions recursively.
+fn body_contains_cache_control(body: &Value) -> bool {
+    match body {
+        Value::Object(map) => {
+            if map.contains_key("cache_control") {
+                return true;
+            }
+            map.values().any(body_contains_cache_control)
+        }
+        Value::Array(arr) => arr.iter().any(body_contains_cache_control),
+        _ => false,
+    }
+}
+
+/// Return `true` if the body contains any content block with `"type": "document"`.
+///
+/// Scans the messages array for document content parts (PDF uploads, etc.).
+fn body_contains_document_block(body: &Value) -> bool {
+    if let Some(messages) = body.get("messages").and_then(|m| m.as_array()) {
+        for msg in messages {
+            if let Some(content) = msg.get("content").and_then(|c| c.as_array()) {
+                for part in content {
+                    if part.get("type").and_then(|t| t.as_str()) == Some("document") {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    false
 }
 
 /// Map an Anthropic `stop_reason` string to an OpenAI `finish_reason` string.

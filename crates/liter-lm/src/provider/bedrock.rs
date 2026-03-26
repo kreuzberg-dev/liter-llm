@@ -83,6 +83,10 @@ pub struct BedrockProvider {
     region: String,
     /// Cached base URL: `https://bedrock-runtime.{region}.amazonaws.com`.
     base_url: String,
+    /// Cached cross-region prefix from `BEDROCK_CROSS_REGION` env var at
+    /// construction time (e.g. `Some("us.")`) so we avoid reading the
+    /// environment on every request.
+    cross_region_prefix: Option<String>,
 }
 
 impl BedrockProvider {
@@ -91,7 +95,15 @@ impl BedrockProvider {
     pub fn new(region: impl Into<String>) -> Self {
         let region = region.into();
         let base_url = format!("https://bedrock-runtime.{region}.amazonaws.com");
-        Self { region, base_url }
+        let cross_region_prefix = std::env::var("BEDROCK_CROSS_REGION")
+            .ok()
+            .filter(|v| !v.is_empty())
+            .map(|v| format!("{v}."));
+        Self {
+            region,
+            base_url,
+            cross_region_prefix,
+        }
     }
 
     /// Construct using region from the environment, falling back to `us-east-1`.
@@ -185,7 +197,7 @@ impl Provider for BedrockProvider {
     /// `us.anthropic.claude-3-sonnet-20240229-v1:0`.
     fn build_url(&self, endpoint_path: &str, model: &str) -> String {
         let base = self.base_url();
-        let effective_model = apply_cross_region_prefix(model);
+        let effective_model = self.apply_cross_region_prefix(model);
         let encoded_model = percent_encode_model(&effective_model);
         if endpoint_path.contains("chat/completions") {
             format!("{base}/model/{encoded_model}/converse")
@@ -199,7 +211,7 @@ impl Provider for BedrockProvider {
     /// Build the streaming URL: `/model/{id}/converse-stream`.
     fn build_stream_url(&self, endpoint_path: &str, model: &str) -> String {
         let base = self.base_url();
-        let effective_model = apply_cross_region_prefix(model);
+        let effective_model = self.apply_cross_region_prefix(model);
         let encoded_model = percent_encode_model(&effective_model);
         if endpoint_path.contains("chat/completions") {
             format!("{base}/model/{encoded_model}/converse-stream")
@@ -772,15 +784,35 @@ pub(crate) fn parse_bedrock_stream_event(event_type: &str, payload: &str) -> Res
     }
 }
 
-/// Apply the cross-region inference profile prefix when `BEDROCK_CROSS_REGION`
-/// is set.
+/// Apply the cross-region inference profile prefix using the value cached at
+/// construction time from the `BEDROCK_CROSS_REGION` environment variable.
 ///
-/// When the env var is set (e.g. `BEDROCK_CROSS_REGION=us`), the model ID
+/// When the prefix is set (e.g. `"us."`), the model ID
 /// `anthropic.claude-3-sonnet-20240229-v1:0` becomes
 /// `us.anthropic.claude-3-sonnet-20240229-v1:0`.
 ///
 /// If the model already starts with the cross-region prefix, it is returned
 /// unchanged to avoid double-prefixing.
+impl BedrockProvider {
+    fn apply_cross_region_prefix(&self, model: &str) -> String {
+        match &self.cross_region_prefix {
+            Some(prefix) => {
+                if model.starts_with(prefix.as_str()) {
+                    model.to_owned()
+                } else {
+                    format!("{prefix}{model}")
+                }
+            }
+            None => model.to_owned(),
+        }
+    }
+}
+
+/// Legacy free function kept for existing tests. Reads the env var directly.
+///
+/// Production code uses [`BedrockProvider::apply_cross_region_prefix`] which
+/// reads the env var once at construction time.
+#[cfg(test)]
 fn apply_cross_region_prefix(model: &str) -> String {
     match std::env::var("BEDROCK_CROSS_REGION") {
         Ok(region) if !region.is_empty() => {

@@ -45,9 +45,12 @@ impl Default for CacheConfig {
 
 // ---- Cache entry -----------------------------------------------------------
 
-/// A cached response with its insertion timestamp.
+/// A cached response with its insertion timestamp and the serialized request
+/// body used to verify lookups (guarding against 64-bit hash collisions).
 #[derive(Clone)]
 struct CacheEntry {
+    /// Serialized request body — compared on lookup to avoid collision false positives.
+    request_body: String,
     response: CachedResponse,
     inserted_at: Instant,
 }
@@ -90,17 +93,42 @@ impl InnerCache {
         }
     }
 
-    fn get(&mut self, key: u64) -> Option<CachedResponse> {
+    /// Try to read a cached entry without needing mutable access.
+    ///
+    /// Returns `Some(response)` when the entry exists, matches the serialized
+    /// request body, and has not expired.  Returns `None` on miss.
+    fn get_if_valid(&self, key: u64, request_body: &str) -> Option<CachedResponse> {
         let entry = self.map.get(&key)?;
+        if entry.request_body != request_body {
+            // Hash collision — different request mapped to the same key.
+            return None;
+        }
         if entry.inserted_at.elapsed() > self.ttl {
-            // Expired — remove from map (the order deque will be cleaned lazily).
-            self.map.remove(&key);
             return None;
         }
         Some(entry.response.clone())
     }
 
-    fn insert(&mut self, key: u64, response: CachedResponse) {
+    /// Return `true` if the entry for `key` exists and is expired.
+    fn is_expired(&self, key: u64) -> bool {
+        self.map.get(&key).is_some_and(|e| e.inserted_at.elapsed() > self.ttl)
+    }
+
+    /// Remove an expired entry (eviction under write lock).
+    fn remove_expired(&mut self, key: u64) {
+        if self.map.get(&key).is_some_and(|e| e.inserted_at.elapsed() > self.ttl) {
+            self.map.remove(&key);
+            // Lazily cleaned from `order` during eviction.
+        }
+    }
+
+    fn insert(&mut self, key: u64, request_body: String, response: CachedResponse) {
+        // Remove duplicate from the LRU deque before reinserting so entries
+        // are not counted twice toward the capacity limit.
+        if self.map.contains_key(&key) {
+            self.order.retain(|k| *k != key);
+        }
+
         // Evict oldest entries if at capacity.
         while self.map.len() >= self.max_entries {
             if let Some(oldest_key) = self.order.pop_front() {
@@ -113,6 +141,7 @@ impl InnerCache {
         self.map.insert(
             key,
             CacheEntry {
+                request_body,
                 response,
                 inserted_at: Instant::now(),
             },
@@ -166,11 +195,15 @@ impl<S: Clone> Clone for CacheService<S> {
     }
 }
 
-/// Compute a cache key from the request.
+/// Compute a cache key and serialized body from the request.
 ///
 /// Only `Chat` and `Embed` requests are cacheable.  Returns `None` for all
 /// other request variants (streaming, `ListModels`, image, audio, etc.).
-fn cache_key(req: &LlmRequest) -> Option<u64> {
+///
+/// The returned tuple contains the 64-bit hash key and the serialized request
+/// body.  The body is stored alongside the cached response so lookups can
+/// verify against hash collisions.
+fn cache_key(req: &LlmRequest) -> Option<(u64, String)> {
     let json = match req {
         LlmRequest::Chat(r) => serde_json::to_string(r).ok()?,
         LlmRequest::Embed(r) => serde_json::to_string(r).ok()?,
@@ -180,7 +213,7 @@ fn cache_key(req: &LlmRequest) -> Option<u64> {
 
     let mut hasher = DefaultHasher::new();
     json.hash(&mut hasher);
-    Some(hasher.finish())
+    Some((hasher.finish(), json))
 }
 
 impl<S> Service<LlmRequest> for CacheService<S>
@@ -197,14 +230,23 @@ where
     }
 
     fn call(&mut self, req: LlmRequest) -> Self::Future {
-        let key = cache_key(&req);
+        let key_and_body = cache_key(&req);
 
-        // Check cache on read path.
-        if let Some(k) = key
-            && let Ok(mut cache) = self.cache.write()
-            && let Some(cached) = cache.get(k)
+        // Fast path: read lock to check cache — no write lock needed for hits.
+        if let Some((k, ref body)) = key_and_body
+            && let Ok(cache) = self.cache.read()
         {
-            return Box::pin(async move { Ok(cached.into_llm_response()) });
+            if let Some(cached) = cache.get_if_valid(k, body) {
+                return Box::pin(async move { Ok(cached.into_llm_response()) });
+            }
+            // If the entry is expired, we need a write lock to evict it.
+            // We do this below after dropping the read lock.
+            if cache.is_expired(k) {
+                drop(cache);
+                if let Ok(mut cache) = self.cache.write() {
+                    cache.remove_expired(k);
+                }
+            }
         }
 
         let cache = Arc::clone(&self.cache);
@@ -214,7 +256,7 @@ where
             let resp = fut.await?;
 
             // Store cacheable responses.
-            if let Some(k) = key {
+            if let Some((k, body)) = key_and_body {
                 let cached = match &resp {
                     LlmResponse::Chat(r) => Some(CachedResponse::Chat(r.clone())),
                     LlmResponse::Embed(r) => Some(CachedResponse::Embed(r.clone())),
@@ -223,7 +265,7 @@ where
                 if let Some(cached) = cached
                     && let Ok(mut cache) = cache.write()
                 {
-                    cache.insert(k, cached);
+                    cache.insert(k, body, cached);
                 }
             }
 

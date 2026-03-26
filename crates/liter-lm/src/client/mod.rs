@@ -109,6 +109,12 @@ pub struct DefaultClient {
     /// Provider resolved at construction; shared via Arc so streaming closures
     /// can capture an owned reference without requiring `unsafe`.
     provider: Arc<dyn Provider>,
+    /// Pre-computed auth header `(name, value)` — avoids `format!("Bearer {key}")`
+    /// on every request.  `None` when the provider requires no authentication.
+    cached_auth_header: Option<(String, String)>,
+    /// Pre-computed static extra headers — avoids converting `&'static str` pairs
+    /// to `(String, String)` on every request.
+    cached_extra_headers: Vec<(String, String)>,
 }
 
 #[cfg(feature = "native-http")]
@@ -155,22 +161,38 @@ impl DefaultClient {
             .build()
             .map_err(LiterLmError::from)?;
 
-        Ok(Self { config, http, provider })
+        // Pre-compute the auth header once at construction time to avoid
+        // `format!("Bearer {key}")` on every request.
+        let cached_auth_header = provider
+            .auth_header(config.api_key.expose_secret())
+            .map(|(name, value)| (name.into_owned(), value.into_owned()));
+
+        // Pre-compute static extra headers once to avoid `&'static str` ->
+        // `String` conversion on every request.
+        let cached_extra_headers = provider
+            .extra_headers()
+            .iter()
+            .map(|&(name, value)| (name.to_owned(), value.to_owned()))
+            .collect();
+
+        Ok(Self {
+            config,
+            http,
+            provider,
+            cached_auth_header,
+            cached_extra_headers,
+        })
     }
 
-    /// Build the endpoint URL and resolve the auth header for a given path.
+    /// Build the endpoint URL and return the cached auth header for a given path.
     ///
     /// Returns `(url, optional_auth_header)`.  The auth header is `None` when
     /// the provider requires no authentication (e.g. local models or providers
     /// with `auth: none`).  Extra headers are accessed separately via
-    /// `self.provider.extra_headers()`.
+    /// `self.cached_extra_headers`.
     fn prepare_headers(&self, endpoint_path: &str) -> (String, Option<(String, String)>) {
         let url = format!("{}{}", self.provider.base_url(), endpoint_path);
-        let auth_header = self
-            .provider
-            .auth_header(self.config.api_key.expose_secret())
-            .map(|(name, value)| (name.into_owned(), value.into_owned()));
-        (url, auth_header)
+        (url, self.cached_auth_header.clone())
     }
 
     /// Shared helper: build the URL, resolve auth header strings, strip model
@@ -182,7 +204,7 @@ impl DefaultClient {
     ///
     /// Returns `(url, optional_auth_header, body_value)` where the auth header
     /// is `None` when the provider requires no authentication.
-    /// Extra headers are accessed directly from `self.provider.extra_headers()`.
+    /// Extra headers are accessed directly from `self.cached_extra_headers`.
     fn prepare_request(
         &self,
         serializable: &impl serde::Serialize,
@@ -200,10 +222,7 @@ impl DefaultClient {
         // Use build_url so providers like Azure and Bedrock can embed the model
         // name or deployment identifier into the URL.
         let url = self.provider.build_url(endpoint_path, &bare_model);
-        let auth_header = self
-            .provider
-            .auth_header(self.config.api_key.expose_secret())
-            .map(|(name, value)| (name.into_owned(), value.into_owned()));
+        let auth_header = self.cached_auth_header.clone();
 
         let mut body = serde_json::to_value(serializable)?;
         if let Some(obj) = body.as_object_mut() {
@@ -224,7 +243,7 @@ impl DefaultClient {
 
     /// Build the combined header list for a request.
     ///
-    /// Merges the provider's static [`Provider::extra_headers`], the
+    /// Merges the provider's pre-computed static [`Provider::extra_headers`], the
     /// dynamic signing headers returned by [`Provider::signing_headers`],
     /// and the per-request [`Provider::dynamic_headers`] computed from the
     /// JSON body.  Returns an owned vec of `(name, value)` pairs; callers
@@ -238,13 +257,8 @@ impl DefaultClient {
     ) -> Vec<(String, String)> {
         // Start with dynamic signing headers (e.g. SigV4 Authorization + x-amz-date).
         let mut headers = self.provider.signing_headers(method, url, body_bytes);
-        // Append static provider extra headers (e.g. anthropic-version).
-        headers.extend(
-            self.provider
-                .extra_headers()
-                .iter()
-                .map(|&(name, value)| (name.to_owned(), value.to_owned())),
-        );
+        // Append pre-computed static provider extra headers (e.g. anthropic-version).
+        headers.extend(self.cached_extra_headers.iter().cloned());
         // Append per-request dynamic headers (e.g. anthropic-beta).
         headers.extend(self.provider.dynamic_headers(body_json));
         headers
@@ -255,9 +269,9 @@ impl DefaultClient {
 /// Resolve the provider to use for all requests on this client.
 ///
 /// Priority:
-/// 1. Explicit `base_url` in config → custom OpenAI-compatible provider.
-/// 2. `model_hint` → auto-detect by model name prefix.
-/// 3. Default → OpenAI.
+/// 1. Explicit `base_url` in config -> custom OpenAI-compatible provider.
+/// 2. `model_hint` -> auto-detect by model name prefix.
+/// 3. Default -> OpenAI.
 fn build_provider(config: &ClientConfig, model_hint: Option<&str>) -> Arc<dyn Provider> {
     if let Some(ref base_url) = config.base_url {
         return Arc::new(OpenAiCompatibleProvider {

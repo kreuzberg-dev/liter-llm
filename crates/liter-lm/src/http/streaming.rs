@@ -105,6 +105,10 @@ pin_project! {
         #[pin]
         inner: S,
         buffer: String,
+        // Read cursor into `buffer`.  All bytes before `cursor` have already
+        // been processed.  We compact (drain) only when the cursor exceeds
+        // half the buffer length, amortising memmove cost to O(total_bytes).
+        cursor: usize,
         // Set to true once the inner stream is exhausted.
         done: bool,
         // Provider-supplied event parser; translates raw SSE data payloads.
@@ -122,6 +126,7 @@ where
             // Pre-allocate 4 KiB — a reasonable size for SSE lines to
             // reduce reallocations during the first few chunks.
             buffer: String::with_capacity(4096),
+            cursor: 0,
             done: false,
             parse_event,
         }
@@ -140,17 +145,19 @@ where
 
         loop {
             // --- Process any complete lines already in the buffer ---
-            // Use memchr for fast newline scanning on the hot streaming path.
-            if let Some(newline_pos) = memchr(b'\n', this.buffer.as_bytes()) {
-                // Borrow the line slice *before* draining — zero allocation on
-                // the hot path.  All decisions (empty check, prefix match, JSON
-                // parse) operate on this borrowed `&str`; we drain only after
-                // extracting everything we need.
-                let line = this.buffer[..newline_pos].trim_end_matches('\r').trim();
+            // Search for `\n` only in the unprocessed portion (from cursor onward).
+            if let Some(offset) = memchr(b'\n', &this.buffer.as_bytes()[*this.cursor..]) {
+                let newline_pos = *this.cursor + offset;
+
+                // Borrow the line slice from cursor..newline_pos — zero allocation
+                // on the hot path.  All decisions (empty check, prefix match, JSON
+                // parse) operate on this borrowed `&str`.
+                let line = this.buffer[*this.cursor..newline_pos].trim_end_matches('\r').trim();
 
                 // Skip empty lines and SSE comments.
                 if line.is_empty() || line.starts_with(':') {
-                    this.buffer.drain(..=newline_pos);
+                    *this.cursor = newline_pos + 1;
+                    compact_if_needed(this.buffer, this.cursor);
                     continue;
                 }
 
@@ -161,7 +168,8 @@ where
                     // Handle the OpenAI `[DONE]` sentinel at the SSE parser
                     // level — this terminates the stream regardless of provider.
                     if data == "[DONE]" {
-                        this.buffer.drain(..=newline_pos);
+                        *this.cursor = newline_pos + 1;
+                        compact_if_needed(this.buffer, this.cursor);
                         return Poll::Ready(None);
                     }
 
@@ -171,7 +179,8 @@ where
                     //   content_block_stop, message_stop) and continue parsing.
                     // - `Err(e)` → yield the error to the consumer.
                     let result = (this.parse_event)(data);
-                    this.buffer.drain(..=newline_pos);
+                    *this.cursor = newline_pos + 1;
+                    compact_if_needed(this.buffer, this.cursor);
                     match result {
                         Ok(None) => continue,
                         Ok(Some(chunk)) => return Poll::Ready(Some(Ok(chunk))),
@@ -180,25 +189,28 @@ where
                 }
 
                 // Ignore other SSE fields (event:, id:, retry:).
-                this.buffer.drain(..=newline_pos);
+                *this.cursor = newline_pos + 1;
+                compact_if_needed(this.buffer, this.cursor);
                 continue;
             }
 
-            // --- Buffer is empty or has only a partial line; fetch more bytes ---
+            // --- Buffer has only a partial line (or nothing unprocessed); fetch more bytes ---
 
             if *this.done {
                 // Any bytes remaining in the buffer after the stream ends were
                 // not terminated by a newline — they form an incomplete SSE
                 // line that would be silently dropped.  Emit a warning so that
                 // protocol bugs or truncated responses are visible in logs.
-                if !this.buffer.is_empty() {
+                let remaining = this.buffer.len() - *this.cursor;
+                if remaining > 0 {
                     #[cfg(feature = "tracing")]
                     tracing::warn!(
-                        leftover_bytes = this.buffer.len(),
-                        preview = &this.buffer[..this.buffer.len().min(64)],
+                        leftover_bytes = remaining,
+                        preview = &this.buffer[*this.cursor..(*this.cursor + remaining.min(64))],
                         "SSE stream ended with unterminated data in buffer; dropping partial line"
                     );
                     this.buffer.clear();
+                    *this.cursor = 0;
                 }
                 return Poll::Ready(None);
             }
@@ -238,6 +250,18 @@ where
                 }
             }
         }
+    }
+}
+
+/// Compact the buffer when the cursor has advanced past half the buffer length.
+///
+/// This amortises the O(n) memmove cost: instead of shifting bytes on every
+/// line, we only compact when at least half the buffer is consumed, giving
+/// amortised O(total_bytes) cost across the entire stream.
+fn compact_if_needed(buffer: &mut String, cursor: &mut usize) {
+    if *cursor > buffer.len() / 2 {
+        buffer.drain(..*cursor);
+        *cursor = 0;
     }
 }
 

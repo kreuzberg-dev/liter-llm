@@ -76,7 +76,7 @@ impl<S: Clone> Clone for CooldownService<S> {
 
 impl<S> Service<LlmRequest> for CooldownService<S>
 where
-    S: Service<LlmRequest, Response = LlmResponse, Error = LiterLmError> + Send + 'static,
+    S: Service<LlmRequest, Response = LlmResponse, Error = LiterLmError> + Send + Clone + 'static,
     S::Future: Send + 'static,
 {
     type Response = LlmResponse;
@@ -90,7 +90,11 @@ where
     fn call(&mut self, req: LlmRequest) -> Self::Future {
         let state = Arc::clone(&self.state);
         let duration = self.duration;
-        let fut = self.inner.call(req);
+        // IMPORTANT: do NOT call self.inner.call(req) here — the inner service
+        // must only be invoked *after* the cooldown check passes inside the
+        // async block.  Calling it eagerly would send the request even when the
+        // service is in a cooldown period.
+        let mut inner = self.inner.clone();
 
         Box::pin(async move {
             // Check whether we are in a cooldown period.
@@ -118,7 +122,8 @@ where
                 }
             }
 
-            match fut.await {
+            // Only call the inner service after cooldown check passes.
+            match inner.call(req).await {
                 Ok(resp) => Ok(resp),
                 Err(e) if e.is_transient() => {
                     // Enter cooldown.
