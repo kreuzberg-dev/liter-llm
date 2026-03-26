@@ -30,6 +30,10 @@ const MAX_BUFFER_BYTES: usize = 1024 * 1024; // 1 MiB
 ///
 /// `extra_headers` carries provider-specific mandatory headers (e.g.
 /// `anthropic-version`) beyond the single auth header.
+///
+/// `parse_event` translates a raw SSE `data:` payload string into a
+/// `ChatCompletionChunk`.  Pass the provider's `parse_stream_event` method
+/// to support non-OpenAI SSE formats.
 #[cfg_attr(
     feature = "tracing",
     tracing::instrument(
@@ -42,14 +46,18 @@ const MAX_BUFFER_BYTES: usize = 1024 * 1024; // 1 MiB
         )
     )
 )]
-pub async fn post_stream(
+pub async fn post_stream<P>(
     client: &reqwest::Client,
     url: &str,
     auth_header: Option<(&str, &str)>,
     extra_headers: &[(&str, &str)],
     body: serde_json::Value,
     max_retries: u32,
-) -> Result<Pin<Box<dyn Stream<Item = Result<ChatCompletionChunk>> + Send>>> {
+    parse_event: P,
+) -> Result<Pin<Box<dyn Stream<Item = Result<ChatCompletionChunk>> + Send>>>
+where
+    P: Fn(&str) -> Result<Option<ChatCompletionChunk>> + Send + 'static,
+{
     let mut retry_count = 0u32;
 
     let resp = with_retry(max_retries, || {
@@ -76,7 +84,7 @@ pub async fn post_stream(
     }
 
     let byte_stream = resp.bytes_stream();
-    let stream = SseParser::new(byte_stream);
+    let stream = SseParser::new(byte_stream, parse_event);
     Ok(Box::pin(stream))
 }
 
@@ -86,28 +94,41 @@ pub async fn post_stream(
 
 pin_project! {
     /// Wraps a `bytes::Bytes` stream and yields parsed `ChatCompletionChunk`s.
-    struct SseParser<S> {
+    ///
+    /// The `P` type parameter is the parse function used to translate a raw
+    /// SSE `data:` payload string into a `ChatCompletionChunk`.  This allows
+    /// non-OpenAI SSE formats (e.g. Anthropic, Vertex) to plug in their own
+    /// event parsers without duplicating the byte-buffering and line-splitting
+    /// logic.
+    struct SseParser<S, P> {
         #[pin]
         inner: S,
         buffer: String,
         // Set to true once the inner stream is exhausted.
         done: bool,
+        // Provider-supplied event parser; translates raw SSE data payloads.
+        parse_event: P,
     }
 }
 
-impl<S> SseParser<S> {
-    fn new(inner: S) -> Self {
+impl<S, P> SseParser<S, P>
+where
+    P: Fn(&str) -> Result<Option<ChatCompletionChunk>>,
+{
+    fn new(inner: S, parse_event: P) -> Self {
         Self {
             inner,
             buffer: String::new(),
             done: false,
+            parse_event,
         }
     }
 }
 
-impl<S> Stream for SseParser<S>
+impl<S, P> Stream for SseParser<S, P>
 where
     S: Stream<Item = std::result::Result<Bytes, reqwest::Error>> + Send,
+    P: Fn(&str) -> Result<Option<ChatCompletionChunk>>,
 {
     type Item = Result<ChatCompletionChunk>;
 
@@ -133,17 +154,15 @@ where
                 if let Some(raw) = line.strip_prefix("data:") {
                     // Strip exactly one optional leading space (RFC 8895 §3.3).
                     let data = raw.strip_prefix(' ').unwrap_or(raw).trim();
-                    if data == "[DONE]" {
-                        this.buffer.drain(..=newline_pos);
-                        return Poll::Ready(None);
-                    }
-                    // Parse while the borrow is still live, then drain.
-                    let result =
-                        serde_json::from_str::<ChatCompletionChunk>(data).map_err(|e| LiterLmError::Streaming {
-                            message: format!("failed to parse SSE data: {e}"),
-                        });
+                    // Delegate to the provider-supplied parser.  `Ok(None)`
+                    // means the stream sentinel was reached (e.g. `[DONE]`).
+                    let result = (this.parse_event)(data);
                     this.buffer.drain(..=newline_pos);
-                    return Poll::Ready(Some(result));
+                    return match result {
+                        Ok(None) => Poll::Ready(None),
+                        Ok(Some(chunk)) => Poll::Ready(Some(Ok(chunk))),
+                        Err(e) => Poll::Ready(Some(Err(e))),
+                    };
                 }
 
                 // Ignore other SSE fields (event:, id:, retry:).

@@ -76,6 +76,13 @@ where
 ///
 /// `extra_headers` carries provider-specific mandatory headers (e.g.
 /// `anthropic-version`) beyond the single auth header.
+///
+/// For requests that require provider-specific response transformation before
+/// deserialization, prefer [`post_json_raw`] followed by a manual
+/// [`serde_json::from_value`] call.
+// Public API for external callers; the DefaultClient now uses post_json_raw
+// internally but this remains available as a convenience function.
+#[allow(dead_code)]
 #[cfg_attr(
     feature = "tracing",
     tracing::instrument(
@@ -125,6 +132,61 @@ pub async fn post_json<T: DeserializeOwned>(
     // Use reqwest's built-in JSON deserializer — avoids buffering the entire
     // body as a String before parsing.
     resp.json::<T>().await.map_err(LiterLmError::from)
+}
+
+/// Send a POST request with a JSON body and return the raw response JSON.
+///
+/// Like [`post_json`] but returns a `serde_json::Value` instead of deserializing
+/// into a typed `T`.  This allows the caller to mutate the response (e.g. via a
+/// provider `transform_response`) before deserializing into the canonical type.
+///
+/// Retries on 429 / 5xx according to `max_retries`.
+#[cfg_attr(
+    feature = "tracing",
+    tracing::instrument(
+        skip_all,
+        fields(
+            http.method = "POST",
+            http.url = %url,
+            http.status_code = tracing::field::Empty,
+            http.retry_count = tracing::field::Empty,
+        )
+    )
+)]
+pub async fn post_json_raw(
+    client: &reqwest::Client,
+    url: &str,
+    auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
+    body: serde_json::Value,
+    max_retries: u32,
+) -> Result<serde_json::Value> {
+    let mut retry_count = 0u32;
+
+    let resp = with_retry(max_retries, || {
+        let mut builder = client
+            .post(url)
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .json(&body);
+        if let Some((name, value)) = auth_header {
+            builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
+        }
+        retry_count += 1;
+        builder.send()
+    })
+    .await?;
+
+    #[cfg(feature = "tracing")]
+    {
+        let span = tracing::Span::current();
+        span.record("http.status_code", resp.status().as_u16());
+        span.record("http.retry_count", retry_count.saturating_sub(1));
+    }
+
+    resp.json::<serde_json::Value>().await.map_err(LiterLmError::from)
 }
 
 /// Send a GET request and deserialize the JSON response.

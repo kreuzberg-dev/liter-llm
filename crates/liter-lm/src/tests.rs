@@ -787,7 +787,7 @@ mod provider_tests {
     #[test]
     fn azure_extra_headers_are_empty() {
         use crate::provider::azure::AzureProvider;
-        let p = AzureProvider;
+        let p = AzureProvider::new();
         assert!(p.extra_headers().is_empty());
     }
 
