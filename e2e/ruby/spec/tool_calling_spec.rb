@@ -4,6 +4,33 @@
 require "spec_helper"
 
 RSpec.describe "tool-calling" do
+  it "anthropic_tool_calling" do
+    # Chat request to Anthropic provider with a tool definition; assistant responds with a tool call
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 200,
+      body: "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"London, UK\\\", \\\"unit\\\": \\\"celsius\\\"}\",\"name\":\"get_weather\"},\"id\":\"toolu_01abc123\",\"type\":\"function\"}]}}],\"created\":1711000300,\"id\":\"chatcmpl-anthropic-tool001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":22,\"prompt_tokens\":95,\"total_tokens\":117}}",
+      stream_chunks: []
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"max_tokens":256,"messages":[{"content":"What is the weather in London?","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","tool_choice":"auto","tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city and country, e.g. London, UK","type":"string"},"unit":{"description":"The temperature unit to use","enum":["celsius","fahrenheit"],"type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}')
+
+    expect(response.code.to_i).to eq(200)
+
+    body = JSON.parse(response.body)
+
+    expect(body["choices"].size).to eq(1)
+    expect(body.dig("choices", 0, "finish_reason")).to eq('tool_calls')
+    expect(body["model"]).to eq('claude-3-5-sonnet-20241022')
+    expect(body["usage"]).not_to be_nil
+    expect(body.dig("usage", "total_tokens")).to eq(117)
+
+  ensure
+    server&.stop
+  end
+
   it "single_tool_call" do
     # Chat request with a tool definition; assistant responds with a tool call
     route = E2EHelpers::MockRoute.new(

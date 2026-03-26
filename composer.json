@@ -1,7 +1,7 @@
 {
 	"name": "kreuzberg/liter-lm",
-	"description": "A universal LM API client with polyglot bindings — fast, type-safe, compiled",
-	"version": "0.1.0",
+	"description": "A universal LM API client with polyglot bindings \u2014 fast, type-safe, compiled",
+	"version": "1.0.0-rc.1",
 	"type": "php-ext",
 	"license": "MIT",
 	"keywords": ["llm", "openai", "api-client", "ai", "php8", "rust", "performance"],

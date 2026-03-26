@@ -7,6 +7,57 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Chat request to Anthropic provider with a tool definition; assistant responds
+ * with a tool call */
+static void test_anthropic_tool_calling(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":"
+      "{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{"
+      "\"arguments\":\"{\\\"location\\\": \\\"London, UK\\\", \\\"unit\\\": "
+      "\\\"celsius\\\"}\",\"name\":\"get_weather\"},\"id\":\"toolu_01abc123\","
+      "\"type\":\"function\"}]}}],\"created\":1711000300,\"id\":\"chatcmpl-"
+      "anthropic-tool001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":"
+      "\"chat.completion\",\"usage\":{\"completion_tokens\":22,\"prompt_"
+      "tokens\":95,\"total_tokens\":117}}";
+
+  const char *base_url = getenv("LITER_LM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLmResponse *resp = liter_lm_http_post(
+        url,
+        "{\"max_tokens\":256,\"messages\":[{\"content\":\"What is the weather "
+        "in "
+        "London?\",\"role\":\"user\"}],\"model\":\"anthropic/"
+        "claude-3-5-sonnet-20241022\",\"tool_choice\":\"auto\",\"tools\":[{"
+        "\"function\":{\"description\":\"Get the current weather for a given "
+        "location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{"
+        "\"location\":{\"description\":\"The city and country, e.g. London, "
+        "UK\",\"type\":\"string\"},\"unit\":{\"description\":\"The temperature "
+        "unit to "
+        "use\",\"enum\":[\"celsius\",\"fahrenheit\"],\"type\":\"string\"}},"
+        "\"required\":[\"location\"],\"type\":\"object\"}},\"type\":"
+        "\"function\"}]}");
+    assert(resp != NULL);
+    liter_lm_assert_status(resp, 200L, "test_anthropic_tool_calling");
+    liter_lm_assert_json_array_len(resp->body, "choices", 1,
+                                   "test_anthropic_tool_calling");
+    liter_lm_assert_json_field(resp->body, "model",
+                               "claude-3-5-sonnet-20241022",
+                               "test_anthropic_tool_calling");
+    liter_lm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    liter_lm_assert_json_array_len(mock_body, "choices", 1,
+                                   "test_anthropic_tool_calling");
+    liter_lm_assert_json_field(mock_body, "model", "claude-3-5-sonnet-20241022",
+                               "test_anthropic_tool_calling");
+  }
+}
+
 /* Chat request with a tool definition; assistant responds with a tool call */
 static void test_single_tool_call(void) {
   /* Pre-recorded mock response body. */
@@ -56,6 +107,9 @@ static void test_single_tool_call(void) {
 }
 
 int main(void) {
+  test_anthropic_tool_calling();
+  printf("PASS: Chat request to Anthropic provider with a tool definition; "
+         "assistant responds with a tool call\n");
   test_single_tool_call();
   printf("PASS: Chat request with a tool definition; assistant responds with a "
          "tool call\n");

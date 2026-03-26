@@ -6,6 +6,113 @@ mod mock_server;
 
 use liter_lm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
+/// Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks
+#[tokio::test]
+async fn anthropic_stream() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"null"#.to_string(),
+            stream_chunks: vec![
+                r#"{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}"#.to_string(),
+            ],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","stream":true}"#).unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected to receive at least 3 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+    let content: String = ok_chunks
+        .iter()
+        .flat_map(|c| c.choices.iter())
+        .filter_map(|ch| ch.delta.content.as_deref())
+        .collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected at least 3 chunk(s), got {}",
+        ok_chunks.len()
+    );
+    assert_eq!(content, "One Two Three", "Stream content mismatch");
+
+    server.shutdown();
+}
+
+/// Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape
+#[tokio::test]
+async fn azure_stream() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"null"#.to_string(),
+            stream_chunks: vec![
+                r#"{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":"1"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" 2"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{"content":" 3"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+                r#"{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+            ],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(
+        r#"{"messages":[{"content":"Count to 3","role":"user"}],"model":"azure/gpt-4","stream":true,"temperature":0}"#,
+    )
+    .unwrap();
+
+    let stream = client.chat_stream(req).await.expect("chat_stream call failed");
+
+    use tokio_stream::StreamExt as _;
+    let chunks: Vec<_> = stream.collect::<Vec<_>>().await;
+    let ok_chunks: Vec<_> = chunks.iter().filter_map(|c| c.as_ref().ok()).collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected to receive at least 3 stream chunk(s), got {}",
+        ok_chunks.len()
+    );
+    let content: String = ok_chunks
+        .iter()
+        .flat_map(|c| c.choices.iter())
+        .filter_map(|ch| ch.delta.content.as_deref())
+        .collect();
+    assert!(
+        ok_chunks.len() >= 3,
+        "Expected at least 3 chunk(s), got {}",
+        ok_chunks.len()
+    );
+    assert_eq!(content, "1 2 3", "Stream content mismatch");
+
+    server.shutdown();
+}
+
 /// Streaming chat completion that produces content across multiple SSE chunks
 #[tokio::test]
 async fn basic_stream() {

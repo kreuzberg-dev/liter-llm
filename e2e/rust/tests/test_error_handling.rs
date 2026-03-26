@@ -6,6 +6,40 @@ mod mock_server;
 
 use liter_lm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
+/// 401 Authentication error returned by the Anthropic API when the API key is invalid
+#[tokio::test]
+async fn anthropic_error_auth() {
+    let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
+        path: "/chat/completions",
+        method: "POST",
+        status: 401,
+        body: r#"{"error":{"message":"invalid x-api-key","type":"authentication_error"},"type":"error"}"#.to_string(),
+        stream_chunks: vec![],
+    }])
+    .await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(
+        r#"{"messages":[{"content":"Hello","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022"}"#,
+    )
+    .unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(result.unwrap_err(), liter_lm::LiterLmError::Authentication { .. }),
+        "Expected Authentication error"
+    );
+
+    server.shutdown();
+}
+
 /// 401 Unauthorized error when API key is invalid or missing
 #[tokio::test]
 async fn auth_401() {
@@ -28,6 +62,39 @@ async fn auth_401() {
     // Build request from fixture JSON.
     let req: liter_lm::ChatCompletionRequest =
         serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}"#).unwrap();
+
+    let result = client.chat(req).await;
+    assert!(result.is_err(), "Expected error but got Ok");
+    assert!(
+        matches!(result.unwrap_err(), liter_lm::LiterLmError::Authentication { .. }),
+        "Expected Authentication error"
+    );
+
+    server.shutdown();
+}
+
+/// Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied
+#[tokio::test]
+async fn azure_error_auth() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 401,
+            body: r#"{"error":{"code":"401","message":"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.","param":null,"type":"invalid_request_error"}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest =
+        serde_json::from_str(r#"{"messages":[{"content":"Hello","role":"user"}],"model":"azure/gpt-4"}"#).unwrap();
 
     let result = client.chat(req).await;
     assert!(result.is_err(), "Expected error but got Ok");

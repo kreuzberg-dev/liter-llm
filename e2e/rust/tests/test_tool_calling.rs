@@ -6,6 +6,61 @@ mod mock_server;
 
 use liter_lm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
+/// Chat request to Anthropic provider with a tool definition; assistant responds with a tool call
+#[tokio::test]
+async fn anthropic_tool_calling() {
+    let server = mock_server::MockServer::start(vec![
+        mock_server::MockRoute {
+            path: "/chat/completions",
+            method: "POST",
+            status: 200,
+            body: r#"{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\"location\": \"London, UK\", \"unit\": \"celsius\"}","name":"get_weather"},"id":"toolu_01abc123","type":"function"}]}}],"created":1711000300,"id":"chatcmpl-anthropic-tool001","model":"claude-3-5-sonnet-20241022","object":"chat.completion","usage":{"completion_tokens":22,"prompt_tokens":95,"total_tokens":117}}"#.to_string(),
+            stream_chunks: vec![],
+        },
+    ]).await;
+
+    let config = ClientConfigBuilder::new("test-key")
+        .base_url(&server.url)
+        .max_retries(0)
+        .build();
+    let client = DefaultClient::new(config, None).unwrap();
+
+    // Build request from fixture JSON.
+    let req: liter_lm::ChatCompletionRequest = serde_json::from_str(r#"{"max_tokens":256,"messages":[{"content":"What is the weather in London?","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","tool_choice":"auto","tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city and country, e.g. London, UK","type":"string"},"unit":{"description":"The temperature unit to use","enum":["celsius","fahrenheit"],"type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}"#).unwrap();
+
+    let response = client.chat(req).await.expect("chat call failed");
+    assert_eq!(response.choices.len(), 1, "Choices count mismatch");
+    assert_eq!(
+        response.choices[0].finish_reason,
+        Some(liter_lm::FinishReason::ToolCalls),
+        "finish_reason mismatch"
+    );
+    assert!(
+        response.choices[0]
+            .message
+            .tool_calls
+            .as_ref()
+            .is_some_and(|tc| !tc.is_empty()),
+        "Expected tool_calls"
+    );
+    assert_eq!(
+        response.choices[0].message.tool_calls.as_ref().unwrap()[0]
+            .function
+            .name,
+        "get_weather",
+        "tool call function name mismatch"
+    );
+    assert!(response.usage.is_some(), "Expected usage object");
+    assert_eq!(
+        response.usage.as_ref().unwrap().total_tokens,
+        117,
+        "total_tokens mismatch"
+    );
+    assert_eq!(response.model, "claude-3-5-sonnet-20241022", "model mismatch");
+
+    server.shutdown();
+}
+
 /// Chat request with a tool definition; assistant responds with a tool call
 #[tokio::test]
 async fn single_tool_call() {

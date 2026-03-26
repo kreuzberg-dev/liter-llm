@@ -5,6 +5,31 @@ defmodule LiterLmE2E.ErrorHandlingTest do
   alias LiterLmE2E.MockServer
   alias LiterLmE2E.Helpers
 
+  test "401 Authentication error returned by the Anthropic API when the API key is invalid" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 401,
+        body:
+          "{\"error\":{\"message\":\"invalid x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}",
+        stream_chunks: []
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 401
+  end
+
   test "401 Unauthorized error when API key is invalid or missing" do
     routes = [
       %{
@@ -22,6 +47,31 @@ defmodule LiterLmE2E.ErrorHandlingTest do
     {:ok, resp} =
       Req.post(base_url <> "/chat/completions",
         body: "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 401
+  end
+
+  test "Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 401,
+        body:
+          "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}",
+        stream_chunks: []
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}",
         headers: [{"content-type", "application/json"}],
         decode_body: false
       )

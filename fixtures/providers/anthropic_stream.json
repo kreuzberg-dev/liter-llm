@@ -1,0 +1,106 @@
+{
+	"id": "anthropic_stream",
+	"category": "streaming",
+	"description": "Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "anthropic/claude-3-5-sonnet-20241022",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Count to three, one word per response."
+				}
+			],
+			"stream": true,
+			"max_tokens": 32
+		},
+		"mock_response": {
+			"status": 200,
+			"stream_chunks": [
+				{
+					"id": "chatcmpl-anthropic-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000200,
+					"model": "claude-3-5-sonnet-20241022",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"role": "assistant",
+								"content": ""
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-anthropic-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000200,
+					"model": "claude-3-5-sonnet-20241022",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": "One"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-anthropic-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000200,
+					"model": "claude-3-5-sonnet-20241022",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " Two"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-anthropic-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000200,
+					"model": "claude-3-5-sonnet-20241022",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " Three"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-anthropic-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000200,
+					"model": "claude-3-5-sonnet-20241022",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {},
+							"finish_reason": "stop"
+						}
+					]
+				}
+			],
+			"stream_terminator": "[DONE]"
+		}
+	},
+	"assertions": {
+		"stream_chunk_count_min": 3,
+		"stream_final_content": "One Two Three",
+		"stream_completes_cleanly": true
+	},
+	"tags": ["streaming", "anthropic"],
+	"skip": {}
+}

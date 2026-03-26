@@ -4,6 +4,26 @@
 require "spec_helper"
 
 RSpec.describe "error-handling" do
+  it "anthropic_error_auth" do
+    # 401 Authentication error returned by the Anthropic API when the API key is invalid
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 401,
+      body: '{"error":{"message":"invalid x-api-key","type":"authentication_error"},"type":"error"}',
+      stream_chunks: []
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Hello","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022"}')
+
+    expect(response.code.to_i).to eq(401)
+    expect(response.code.to_i).to be >= 400
+
+  ensure
+    server&.stop
+  end
+
   it "auth_401" do
     # 401 Unauthorized error when API key is invalid or missing
     route = E2EHelpers::MockRoute.new(
@@ -16,6 +36,26 @@ RSpec.describe "error-handling" do
     server = E2EHelpers::MockServer.new([route])
 
     response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
+
+    expect(response.code.to_i).to eq(401)
+    expect(response.code.to_i).to be >= 400
+
+  ensure
+    server&.stop
+  end
+
+  it "azure_error_auth" do
+    # Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 401,
+      body: '{"error":{"code":"401","message":"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.","param":null,"type":"invalid_request_error"}}',
+      stream_chunks: []
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Hello","role":"user"}],"model":"azure/gpt-4"}')
 
     expect(response.code.to_i).to eq(401)
     expect(response.code.to_i).to be >= 400

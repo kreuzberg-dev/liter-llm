@@ -1,0 +1,53 @@
+{
+	"id": "azure_chat",
+	"category": "smoke",
+	"description": "Chat completion via Azure OpenAI with the azure/ prefix for provider routing — verifies the prefix is stripped before dispatching and the response is normalised to the standard OpenAI chat completion shape",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "azure/gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Say hello"
+				}
+			],
+			"temperature": 0,
+			"max_tokens": 16
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-azure-001",
+				"object": "chat.completion",
+				"created": 1711000200,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello!"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 10,
+					"completion_tokens": 3,
+					"total_tokens": 13
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_content": "Hello!",
+		"first_choice_finish_reason": "stop",
+		"model": "gpt-4",
+		"usage_total_tokens": 13
+	},
+	"tags": ["smoke", "azure"],
+	"skip": {}
+}

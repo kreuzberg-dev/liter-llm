@@ -10,6 +10,42 @@ import (
 )
 
 func TestToolCalling(t *testing.T) {
+	t.Run("anthropic_tool_calling", func(t *testing.T) {
+		// Chat request to Anthropic provider with a tool definition; assistant responds with a tool call
+		server := NewMockServer([]MockRoute{
+			{
+				Path:         "/chat/completions",
+				Method:       "POST",
+				Status:       200,
+				Body:         `{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\"location\": \"London, UK\", \"unit\": \"celsius\"}","name":"get_weather"},"id":"toolu_01abc123","type":"function"}]}}],"created":1711000300,"id":"chatcmpl-anthropic-tool001","model":"claude-3-5-sonnet-20241022","object":"chat.completion","usage":{"completion_tokens":22,"prompt_tokens":95,"total_tokens":117}}`,
+				StreamChunks: nil,
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"max_tokens\":256,\"messages\":[{\"content\":\"What is the weather in London?\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"tool_choice\":\"auto\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and country, e.g. London, UK\",\"type\":\"string\"},\"unit\":{\"description\":\"The temperature unit to use\",\"enum\":[\"celsius\",\"fahrenheit\"],\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertEqual(t, "status code", 200, resp.StatusCode)
+
+		var result map[string]interface{}
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			t.Fatalf("decode response: %v", err)
+		}
+
+		choices, _ := result["choices"].([]interface{})
+		AssertEqual(t, "choices count", 1, len(choices))
+		AssertEqual(t, "model", "claude-3-5-sonnet-20241022", result["model"])
+
+		usage, _ := result["usage"].(map[string]interface{})
+		AssertTrue(t, "usage not nil", usage != nil)
+		AssertEqual(t, "total_tokens", float64(117), usage["total_tokens"])
+	})
+
 	t.Run("single_tool_call", func(t *testing.T) {
 		// Chat request with a tool definition; assistant responds with a tool call
 		server := NewMockServer([]MockRoute{

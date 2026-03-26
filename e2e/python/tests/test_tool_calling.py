@@ -10,6 +10,26 @@ from liter_lm import LlmClient  # noqa: E402
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"London, UK\\\", \\\"unit\\\": \\\"celsius\\\"}\",\"name\":\"get_weather\"},\"id\":\"toolu_01abc123\",\"type\":\"function\"}]}}],\"created\":1711000300,\"id\":\"chatcmpl-anthropic-tool001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":22,\"prompt_tokens\":95,\"total_tokens\":117}}"),
+]], indirect=True)
+async def test_anthropic_tool_calling(mock_server: MockServerInfo) -> None:
+    """Chat request to Anthropic provider with a tool definition; assistant responds with a tool call"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"max_tokens\":256,\"messages\":[{\"content\":\"What is the weather in London?\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"tool_choice\":\"auto\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and country, e.g. London, UK\",\"type\":\"string\"},\"unit\":{\"description\":\"The temperature unit to use\",\"enum\":[\"celsius\",\"fahrenheit\"],\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
+    response = await client.chat(**request)
+
+    assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
+    assert response.choices[0].finish_reason == "tool_calls", "finish_reason mismatch"
+    assert response.choices[0].message.tool_calls, "Expected tool_calls"
+    assert response.choices[0].message.tool_calls[0].function.name == "get_weather", "tool call function name mismatch"
+    assert response.usage is not None, "Expected usage object"
+    assert response.usage.total_tokens == 117, "total_tokens mismatch"
+    assert response.model == "claude-3-5-sonnet-20241022", "model mismatch"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"San Francisco, CA\\\", \\\"unit\\\": \\\"fahrenheit\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_abc123\",\"type\":\"function\"}]}}],\"created\":1711000002,\"id\":\"chatcmpl-tool001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":17,\"prompt_tokens\":82,\"total_tokens\":99}}"),
 ]], indirect=True)
 async def test_single_tool_call(mock_server: MockServerInfo) -> None:

@@ -1,0 +1,106 @@
+{
+	"id": "azure_stream",
+	"category": "streaming",
+	"description": "Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "azure/gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Count to 3"
+				}
+			],
+			"stream": true,
+			"temperature": 0
+		},
+		"mock_response": {
+			"status": 200,
+			"stream_chunks": [
+				{
+					"id": "chatcmpl-azure-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"role": "assistant",
+								"content": ""
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-azure-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": "1"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-azure-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " 2"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-azure-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {
+								"content": " 3"
+							},
+							"finish_reason": null
+						}
+					]
+				},
+				{
+					"id": "chatcmpl-azure-stream001",
+					"object": "chat.completion.chunk",
+					"created": 1711000300,
+					"model": "gpt-4",
+					"choices": [
+						{
+							"index": 0,
+							"delta": {},
+							"finish_reason": "stop"
+						}
+					]
+				}
+			],
+			"stream_terminator": "[DONE]"
+		}
+	},
+	"assertions": {
+		"stream_chunk_count_min": 3,
+		"stream_final_content": "1 2 3",
+		"stream_completes_cleanly": true
+	},
+	"tags": ["streaming", "azure"],
+	"skip": {}
+}

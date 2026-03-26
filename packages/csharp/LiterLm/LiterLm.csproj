@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
 
     <PackageId>LiterLm</PackageId>
-    <Version>0.1.0</Version>
+    <Version>1.0.0-rc.1</Version>
     <Authors>kreuzberg.dev</Authors>
     <Company>kreuzberg.dev</Company>
     <Description>High-performance LLM client for .NET powered by Rust. Unified interface for streaming completions, tool calling, and provider routing across OpenAI, Anthropic, and 50+ LLM providers.</Description>

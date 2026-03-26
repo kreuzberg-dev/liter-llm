@@ -1,0 +1,34 @@
+{
+	"id": "azure_error_auth",
+	"category": "error-handling",
+	"description": "Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "azure/gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 401,
+			"body": {
+				"error": {
+					"code": "401",
+					"message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+					"type": "invalid_request_error",
+					"param": null
+				}
+			}
+		}
+	},
+	"assertions": {
+		"error_type": "Authentication",
+		"error_status_code": 401
+	},
+	"tags": ["error-handling", "azure"],
+	"skip": {}
+}

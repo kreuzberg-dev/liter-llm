@@ -5,6 +5,37 @@ defmodule LiterLmE2E.ToolCallingTest do
   alias LiterLmE2E.MockServer
   alias LiterLmE2E.Helpers
 
+  test "Chat request to Anthropic provider with a tool definition; assistant responds with a tool call" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body:
+          "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"London, UK\\\", \\\"unit\\\": \\\"celsius\\\"}\",\"name\":\"get_weather\"},\"id\":\"toolu_01abc123\",\"type\":\"function\"}]}}],\"created\":1711000300,\"id\":\"chatcmpl-anthropic-tool001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":22,\"prompt_tokens\":95,\"total_tokens\":117}}",
+        stream_chunks: []
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"max_tokens\":256,\"messages\":[{\"content\":\"What is the weather in London?\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"tool_choice\":\"auto\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and country, e.g. London, UK\",\"type\":\"string\"},\"unit\":{\"description\":\"The temperature unit to use\",\"enum\":[\"celsius\",\"fahrenheit\"],\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 200
+    doc = Jason.decode!(resp.body)
+
+    assert length(doc["choices"]) == 1, "Expected 1 choice(s)"
+    assert get_in(doc, ["choices", Access.at(0), "finish_reason"]) == "tool_calls"
+    assert get_in(doc, ["usage", "total_tokens"]) == 117
+    assert doc["model"] == "claude-3-5-sonnet-20241022"
+  end
+
   test "Chat request with a tool definition; assistant responds with a tool call" do
     routes = [
       %{

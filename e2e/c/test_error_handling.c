@@ -7,6 +7,32 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* 401 Authentication error returned by the Anthropic API when the API key is
+ * invalid */
+static void test_anthropic_error_auth(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"error\":{\"message\":\"invalid "
+      "x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}";
+
+  const char *base_url = getenv("LITER_LM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLmResponse *resp = liter_lm_http_post(
+        url, "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],"
+             "\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}");
+    assert(resp != NULL);
+    liter_lm_assert_status(resp, 401L, "test_anthropic_error_auth");
+    liter_lm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
 /* 401 Unauthorized error when API key is invalid or missing */
 static void test_auth_401(void) {
   /* Pre-recorded mock response body. */
@@ -27,6 +53,35 @@ static void test_auth_401(void) {
                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_lm_assert_status(resp, 401L, "test_auth_401");
+    liter_lm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
+/* Azure OpenAI returns a 401 Unauthorized error when the API key is missing or
+ * invalid — uses Azure's error envelope shape with code AccessDenied */
+static void test_azure_error_auth(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid "
+      "subscription key or wrong API endpoint. Make sure to provide a valid "
+      "key for an active subscription and use a correct regional API endpoint "
+      "for your "
+      "resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}";
+
+  const char *base_url = getenv("LITER_LM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLmResponse *resp = liter_lm_http_post(
+        url, "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],"
+             "\"model\":\"azure/gpt-4\"}");
+    assert(resp != NULL);
+    liter_lm_assert_status(resp, 401L, "test_azure_error_auth");
     liter_lm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
@@ -261,8 +316,15 @@ static void test_service_unavailable_502(void) {
 }
 
 int main(void) {
+  test_anthropic_error_auth();
+  printf("PASS: 401 Authentication error returned by the Anthropic API when "
+         "the API key is invalid\n");
   test_auth_401();
   printf("PASS: 401 Unauthorized error when API key is invalid or missing\n");
+  test_azure_error_auth();
+  printf("PASS: Azure OpenAI returns a 401 Unauthorized error when the API key "
+         "is missing or invalid — uses Azure's error envelope shape with code "
+         "AccessDenied\n");
   test_bad_request_400();
   printf("PASS: 400 Bad Request error when a parameter value is invalid\n");
   test_content_policy_violation();

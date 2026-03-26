@@ -5,6 +5,84 @@ import { startMockServer, type MockServer, type MockRoute } from "./helpers";
 import { LlmClient } from "liter-lm";
 
 describe("streaming", () => {
+  // Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks
+  it("anthropic_stream", async () => {
+    const routes: MockRoute[] = [
+      {
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: `null`,
+        streamChunks: [
+          `{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}`,
+        ],
+      },
+    ];
+
+    const server = await startMockServer(routes);
+    try {
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
+
+      const stream = await client.chatStream(JSON.parse(`{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","stream":true}`));
+      const chunks: unknown[] = [];
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+
+      expect(chunks.length, "Expected at least 3 chunk(s)").toBeGreaterThanOrEqual(3);
+      const content = chunks
+        .flatMap((c: unknown) => (c as { choices?: { delta?: { content?: string } }[] }).choices ?? [])
+        .map((ch: { delta?: { content?: string } }) => ch.delta?.content ?? "")
+        .join("");
+      expect(content, "Stream content mismatch").toBe("One Two Three");
+    } finally {
+      server.close();
+    }
+  });
+
+  // Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape
+  it("azure_stream", async () => {
+    const routes: MockRoute[] = [
+      {
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: `null`,
+        streamChunks: [
+          `{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{"content":"1"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{"content":" 2"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{"content":" 3"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}`,
+          `{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}`,
+        ],
+      },
+    ];
+
+    const server = await startMockServer(routes);
+    try {
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
+
+      const stream = await client.chatStream(JSON.parse(`{"messages":[{"content":"Count to 3","role":"user"}],"model":"azure/gpt-4","stream":true,"temperature":0}`));
+      const chunks: unknown[] = [];
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+
+      expect(chunks.length, "Expected at least 3 chunk(s)").toBeGreaterThanOrEqual(3);
+      const content = chunks
+        .flatMap((c: unknown) => (c as { choices?: { delta?: { content?: string } }[] }).choices ?? [])
+        .map((ch: { delta?: { content?: string } }) => ch.delta?.content ?? "")
+        .join("");
+      expect(content, "Stream content mismatch").toBe("1 2 3");
+    } finally {
+      server.close();
+    }
+  });
+
   // Streaming chat completion that produces content across multiple SSE chunks
   it("basic_stream", async () => {
     const routes: MockRoute[] = [

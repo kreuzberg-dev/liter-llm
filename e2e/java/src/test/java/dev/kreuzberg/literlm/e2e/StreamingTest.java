@@ -11,6 +11,108 @@ import org.junit.jupiter.api.Test;
 /** E2E tests for category: streaming. */
 class StreamingTest {
 
+  /**
+   * Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding
+   * multiple SSE chunks
+   */
+  @Test
+  void anthropicStream() throws Exception {
+    try (Helpers.MockServer server =
+        new Helpers.MockServer(
+            List.of(
+                new Helpers.MockRoute(
+                    "/chat/completions",
+                    "POST",
+                    200,
+                    "null",
+                    List.of(
+                        "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}"))))) {
+
+      HttpResponse<String> resp =
+          Helpers.postJson(
+              server.url,
+              "/chat/completions",
+              "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per"
+                  + " response.\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"stream\":true}");
+
+      assertEquals(200, resp.statusCode(), "HTTP status code");
+
+      List<String> chunks = Helpers.parseSseChunks(resp.body());
+      assertTrue(chunks.size() >= 3, "expected at least 3 chunk(s)");
+
+      StringBuilder content = new StringBuilder();
+      for (String rawChunk : chunks) {
+        try {
+          JsonNode chunk = Helpers.MAPPER.readTree(rawChunk);
+          JsonNode deltaContent = chunk.at("/choices/0/delta/content");
+          if (!deltaContent.isMissingNode() && deltaContent.isTextual()) {
+            content.append(deltaContent.asText());
+          }
+        } catch (Exception ignored) {
+          // Non-JSON chunks (role-only deltas etc.) are skipped.
+        }
+      }
+      assertEquals("One Two Three", content.toString(), "stream content");
+    }
+  }
+
+  /**
+   * Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and
+   * SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape
+   */
+  @Test
+  void azureStream() throws Exception {
+    try (Helpers.MockServer server =
+        new Helpers.MockServer(
+            List.of(
+                new Helpers.MockRoute(
+                    "/chat/completions",
+                    "POST",
+                    200,
+                    "null",
+                    List.of(
+                        "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}"))))) {
+
+      HttpResponse<String> resp =
+          Helpers.postJson(
+              server.url,
+              "/chat/completions",
+              "{\"messages\":[{\"content\":\"Count to"
+                  + " 3\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\",\"stream\":true,\"temperature\":0}");
+
+      assertEquals(200, resp.statusCode(), "HTTP status code");
+
+      List<String> chunks = Helpers.parseSseChunks(resp.body());
+      assertTrue(chunks.size() >= 3, "expected at least 3 chunk(s)");
+
+      StringBuilder content = new StringBuilder();
+      for (String rawChunk : chunks) {
+        try {
+          JsonNode chunk = Helpers.MAPPER.readTree(rawChunk);
+          JsonNode deltaContent = chunk.at("/choices/0/delta/content");
+          if (!deltaContent.isMissingNode() && deltaContent.isTextual()) {
+            content.append(deltaContent.asText());
+          }
+        } catch (Exception ignored) {
+          // Non-JSON chunks (role-only deltas etc.) are skipped.
+        }
+      }
+      assertEquals("1 2 3", content.toString(), "stream content");
+    }
+  }
+
   /** Streaming chat completion that produces content across multiple SSE chunks */
   @Test
   void basicStream() throws Exception {

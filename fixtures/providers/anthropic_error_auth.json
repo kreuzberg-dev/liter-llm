@@ -1,0 +1,33 @@
+{
+	"id": "anthropic_error_auth",
+	"category": "error-handling",
+	"description": "401 Authentication error returned by the Anthropic API when the API key is invalid",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "anthropic/claude-3-5-sonnet-20241022",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 401,
+			"body": {
+				"type": "error",
+				"error": {
+					"type": "authentication_error",
+					"message": "invalid x-api-key"
+				}
+			}
+		}
+	},
+	"assertions": {
+		"error_type": "Authentication",
+		"error_status_code": 401
+	},
+	"tags": ["error-handling", "anthropic"],
+	"skip": {}
+}

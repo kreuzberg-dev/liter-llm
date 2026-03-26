@@ -23,6 +23,62 @@ from liter_lm import (  # noqa: E402
         "POST",
         200,
         stream_chunks=[
+            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+        ],
+    ),
+]], indirect=True)
+async def test_anthropic_stream(mock_server: MockServerInfo) -> None:
+    """Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"stream\":true}")
+    chunks = []
+    async for chunk in await client.chat_stream(**request):
+        chunks.append(chunk)
+    assert len(chunks) >= 3, f"Expected at least 3 chunk(s), got {len(chunks)}"
+    content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
+    assert content == "One Two Three", f"Stream content mismatch: {content!r}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute(
+        "/chat/completions",
+        "POST",
+        200,
+        stream_chunks=[
+            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+        ],
+    ),
+]], indirect=True)
+async def test_azure_stream(mock_server: MockServerInfo) -> None:
+    """Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\",\"stream\":true,\"temperature\":0}")
+    chunks = []
+    async for chunk in await client.chat_stream(**request):
+        chunks.append(chunk)
+    assert len(chunks) >= 3, f"Expected at least 3 chunk(s), got {len(chunks)}"
+    content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
+    assert content == "1 2 3", f"Stream content mismatch: {content!r}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute(
+        "/chat/completions",
+        "POST",
+        200,
+        stream_chunks=[
             "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
             "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
             "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",

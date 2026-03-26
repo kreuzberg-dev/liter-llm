@@ -12,6 +12,32 @@ require_once __DIR__ . '/Helpers.php';
 
 final class ToolCallingTest extends TestCase
 {
+    /** Chat request to Anthropic provider with a tool definition; assistant responds with a tool call */
+    public function testAnthropicToolCalling(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 200,
+                body: '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"location\\": \\"London, UK\\", \\"unit\\": \\"celsius\\"}","name":"get_weather"},"id":"toolu_01abc123","type":"function"}]}}],"created":1711000300,"id":"chatcmpl-anthropic-tool001","model":"claude-3-5-sonnet-20241022","object":"chat.completion","usage":{"completion_tokens":22,"prompt_tokens":95,"total_tokens":117}}',
+                streamChunks: [],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $result = httpRequest($server->url . '/chat/completions', 'POST', '{"max_tokens":256,"messages":[{"content":"What is the weather in London?","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","tool_choice":"auto","tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city and country, e.g. London, UK","type":"string"},"unit":{"description":"The temperature unit to use","enum":["celsius","fahrenheit"],"type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}');
+        $server->stop();
+
+        $this->assertEquals(200, $result['status']);
+        $doc = json_decode($result['body'], true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertCount(1, $doc['choices']);
+        $this->assertEquals('tool_calls', $doc['choices'][0]['finish_reason']);
+        $this->assertEquals(117, $doc['usage']['total_tokens']);
+        $this->assertEquals('claude-3-5-sonnet-20241022', $doc['model']);
+    }
+
     /** Chat request with a tool definition; assistant responds with a tool call */
     public function testSingleToolCall(): void
     {

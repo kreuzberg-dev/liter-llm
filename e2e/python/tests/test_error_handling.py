@@ -18,6 +18,19 @@ from liter_lm import (  # noqa: E402
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"message\":\"invalid x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}"),
+]], indirect=True)
+async def test_anthropic_error_auth(mock_server: MockServerInfo) -> None:
+    """401 Authentication error returned by the Anthropic API when the API key is invalid"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}")
+    with pytest.raises(AuthenticationError):
+        await client.chat(**request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
 ]], indirect=True)
 async def test_auth_401(mock_server: MockServerInfo) -> None:
@@ -25,6 +38,19 @@ async def test_auth_401(mock_server: MockServerInfo) -> None:
     import json
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    with pytest.raises(AuthenticationError):
+        await client.chat(**request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
+]], indirect=True)
+async def test_azure_error_auth(mock_server: MockServerInfo) -> None:
+    """Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}")
     with pytest.raises(AuthenticationError):
         await client.chat(**request)
 

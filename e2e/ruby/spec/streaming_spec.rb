@@ -4,6 +4,76 @@
 require "spec_helper"
 
 RSpec.describe "streaming" do
+  it "anthropic_stream" do
+    # Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 200,
+      body: 'null',
+      stream_chunks: [
+        '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+      ]
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","stream":true}')
+
+    expect(response.code.to_i).to eq(200)
+
+    chunks = parse_sse_chunks(response.body)
+    expect(chunks.size).to be >= 3
+
+    content = chunks.filter_map do |raw|
+      parsed = JSON.parse(raw) rescue nil
+      next unless parsed
+      parsed.dig("choices", 0, "delta", "content")
+    end.join
+    expect(content).to eq('One Two Three')
+
+  ensure
+    server&.stop
+  end
+
+  it "azure_stream" do
+    # Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 200,
+      body: 'null',
+      stream_chunks: [
+        '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":"1"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" 2"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" 3"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+      ]
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Count to 3","role":"user"}],"model":"azure/gpt-4","stream":true,"temperature":0}')
+
+    expect(response.code.to_i).to eq(200)
+
+    chunks = parse_sse_chunks(response.body)
+    expect(chunks.size).to be >= 3
+
+    content = chunks.filter_map do |raw|
+      parsed = JSON.parse(raw) rescue nil
+      next unless parsed
+      parsed.dig("choices", 0, "delta", "content")
+    end.join
+    expect(content).to eq('1 2 3')
+
+  ensure
+    server&.stop
+  end
+
   it "basic_stream" do
     # Streaming chat completion that produces content across multiple SSE chunks
     route = E2EHelpers::MockRoute.new(

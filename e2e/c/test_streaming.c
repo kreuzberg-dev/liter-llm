@@ -7,6 +7,72 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Streaming chat completion via the Anthropic provider
+ * (claude-3-5-sonnet-20241022) yielding multiple SSE chunks */
+static void test_anthropic_stream(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body = "null";
+
+  const char *base_url = getenv("LITER_LM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    char *chunks[256];
+    int n = liter_lm_read_sse(
+        url,
+        "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one "
+        "word per "
+        "response.\",\"role\":\"user\"}],\"model\":\"anthropic/"
+        "claude-3-5-sonnet-20241022\",\"stream\":true}",
+        chunks, 256);
+    if (n < 3) {
+      fprintf(stderr,
+              "FAIL [test_anthropic_stream]: expected >= 3 chunks, got %d\n",
+              n);
+      abort();
+    }
+    for (int i = 0; i < n; i++)
+      free(chunks[i]);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
+/* Streaming chat completion via Azure OpenAI — verifies the azure/ prefix
+ * routes correctly and SSE chunks are delivered in the standard OpenAI
+ * chat.completion.chunk shape */
+static void test_azure_stream(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body = "null";
+
+  const char *base_url = getenv("LITER_LM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    char *chunks[256];
+    int n = liter_lm_read_sse(url,
+                              "{\"messages\":[{\"content\":\"Count to "
+                              "3\",\"role\":\"user\"}],\"model\":\"azure/"
+                              "gpt-4\",\"stream\":true,\"temperature\":0}",
+                              chunks, 256);
+    if (n < 3) {
+      fprintf(stderr,
+              "FAIL [test_azure_stream]: expected >= 3 chunks, got %d\n", n);
+      abort();
+    }
+    for (int i = 0; i < n; i++)
+      free(chunks[i]);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
 /* Streaming chat completion that produces content across multiple SSE chunks */
 static void test_basic_stream(void) {
   /* Pre-recorded mock response body. */
@@ -192,6 +258,13 @@ static void test_stream_with_usage(void) {
 }
 
 int main(void) {
+  test_anthropic_stream();
+  printf("PASS: Streaming chat completion via the Anthropic provider "
+         "(claude-3-5-sonnet-20241022) yielding multiple SSE chunks\n");
+  test_azure_stream();
+  printf("PASS: Streaming chat completion via Azure OpenAI — verifies the "
+         "azure/ prefix routes correctly and SSE chunks are delivered in the "
+         "standard OpenAI chat.completion.chunk shape\n");
   test_basic_stream();
   printf("PASS: Streaming chat completion that produces content across "
          "multiple SSE chunks\n");

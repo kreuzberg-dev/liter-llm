@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = 'liter_lm'
-  spec.version = '0.1.0'
+  spec.version = '1.0.0.pre.rc.1'
   spec.authors = ["Na'aman Hirschfeld"]
   spec.email = ['naaman@kreuzberg.dev']
 

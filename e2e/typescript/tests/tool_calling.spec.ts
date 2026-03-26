@@ -5,6 +5,36 @@ import { startMockServer, type MockServer, type MockRoute } from "./helpers";
 import { LlmClient } from "liter-lm";
 
 describe("tool-calling", () => {
+  // Chat request to Anthropic provider with a tool definition; assistant responds with a tool call
+  it("anthropic_tool_calling", async () => {
+    const routes: MockRoute[] = [
+      {
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: `{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"location\\": \\"London, UK\\", \\"unit\\": \\"celsius\\"}","name":"get_weather"},"id":"toolu_01abc123","type":"function"}]}}],"created":1711000300,"id":"chatcmpl-anthropic-tool001","model":"claude-3-5-sonnet-20241022","object":"chat.completion","usage":{"completion_tokens":22,"prompt_tokens":95,"total_tokens":117}}`,
+        streamChunks: [],
+      },
+    ];
+
+    const server = await startMockServer(routes);
+    try {
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
+
+      const response = await client.chat(JSON.parse(`{"max_tokens":256,"messages":[{"content":"What is the weather in London?","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","tool_choice":"auto","tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city and country, e.g. London, UK","type":"string"},"unit":{"description":"The temperature unit to use","enum":["celsius","fahrenheit"],"type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}`));
+
+      expect(response.choices.length, "Choices count mismatch").toBe(1);
+      expect(response.choices[0].finishReason, "finish_reason mismatch").toBe("tool_calls");
+      expect(Array.isArray(response.choices[0].message.toolCalls) && response.choices[0].message.toolCalls.length > 0, "Expected tool_calls").toBe(true);
+      expect(response.choices[0].message.toolCalls[0].function.name, "tool call function name mismatch").toBe("get_weather");
+      expect(response.usage, "Expected usage object").toBeTruthy();
+      expect(response.usage.totalTokens, "total_tokens mismatch").toBe(117);
+      expect(response.model, "model mismatch").toBe("claude-3-5-sonnet-20241022");
+    } finally {
+      server.close();
+    }
+  });
+
   // Chat request with a tool definition; assistant responds with a tool call
   it("single_tool_call", async () => {
     const routes: MockRoute[] = [

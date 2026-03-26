@@ -52,7 +52,7 @@ impl StaticRetriever {
 }
 
 impl Retrieve for StaticRetriever {
-    fn retrieve(&self, uri: &Uri<&str>) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    fn retrieve(&self, uri: &Uri<String>) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         let key = uri.as_str();
         self.schemas
             .get(key)
@@ -94,10 +94,7 @@ fn build_validator(primary_schema: &str, def_name: &str) -> jsonschema::Validato
 /// Validate `instance` against the compiled `validator`, panicking with a
 /// descriptive message on failure.
 fn assert_valid(validator: &jsonschema::Validator, instance: &Value, label: &str) {
-    let errors: Vec<String> = validator
-        .iter_errors(instance)
-        .map(|e| format!("  - {e} (path: {})", e.instance_path))
-        .collect();
+    let errors: Vec<String> = validator.iter_errors(instance).map(|e| format!("  - {e}")).collect();
     assert!(
         errors.is_empty(),
         "JSON instance for '{label}' violates schema:\n{}",

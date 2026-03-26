@@ -9,6 +9,30 @@ namespace LiterLmE2E;
 public sealed class ErrorHandlingTests
 {
 
+    /// <summary>401 Authentication error returned by the Anthropic API when the API key is invalid</summary>
+    [Fact]
+    public async Task AnthropicErrorAuth()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 401,
+                Body: "{\"error\":{\"message\":\"invalid x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}",
+                StreamChunks: Array.Empty<string>()
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        Assert.Equal(401, (int)response.StatusCode);
+    }
+
     /// <summary>401 Unauthorized error when API key is invalid or missing</summary>
     [Fact]
     public async Task Auth401()
@@ -29,6 +53,30 @@ public sealed class ErrorHandlingTests
         http.BaseAddress = new Uri(server.Url);
 
         var content = new StringContent("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        Assert.Equal(401, (int)response.StatusCode);
+    }
+
+    /// <summary>Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied</summary>
+    [Fact]
+    public async Task AzureErrorAuth()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 401,
+                Body: "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}",
+                StreamChunks: Array.Empty<string>()
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}", System.Text.Encoding.UTF8, "application/json");
         var response = await http.PostAsync("/chat/completions", content);
         Assert.Equal(401, (int)response.StatusCode);
     }

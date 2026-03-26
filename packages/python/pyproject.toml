@@ -4,7 +4,7 @@ requires = [ "maturin>=1,<2" ]
 
 [project]
 name = "liter-lm"
-version = "1.0.0rc1"
+version = "1.0.0-rc.1"
 description = """\
   High-performance LLM client library for Python. Unified interface for streaming, tool calling, and provider routing \
   across OpenAI, Anthropic, and 50+ LLM providers. Powered by Rust core.\

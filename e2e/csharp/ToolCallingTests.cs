@@ -9,6 +9,37 @@ namespace LiterLmE2E;
 public sealed class ToolCallingTests
 {
 
+    /// <summary>Chat request to Anthropic provider with a tool definition; assistant responds with a tool call</summary>
+    [Fact]
+    public async Task AnthropicToolCalling()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 200,
+                Body: "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"London, UK\\\", \\\"unit\\\": \\\"celsius\\\"}\",\"name\":\"get_weather\"},\"id\":\"toolu_01abc123\",\"type\":\"function\"}]}}],\"created\":1711000300,\"id\":\"chatcmpl-anthropic-tool001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":22,\"prompt_tokens\":95,\"total_tokens\":117}}",
+                StreamChunks: Array.Empty<string>()
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"max_tokens\":256,\"messages\":[{\"content\":\"What is the weather in London?\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"tool_choice\":\"auto\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and country, e.g. London, UK\",\"type\":\"string\"},\"unit\":{\"description\":\"The temperature unit to use\",\"enum\":[\"celsius\",\"fahrenheit\"],\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        var doc = JsonDocument.Parse(body).RootElement;
+
+        Assert.Equal(1, doc.GetProperty("choices").GetArrayLength());
+        Assert.Equal("tool_calls", doc.GetProperty("choices")[0].GetProperty("finish_reason").GetString());
+        Assert.Equal(117L, doc.GetProperty("usage").GetProperty("total_tokens").GetInt64());
+        Assert.Equal("claude-3-5-sonnet-20241022", doc.GetProperty("model").GetString());
+    }
+
     /// <summary>Chat request with a tool definition; assistant responds with a tool call</summary>
     [Fact]
     public async Task SingleToolCall()

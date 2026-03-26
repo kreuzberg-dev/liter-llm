@@ -10,6 +10,31 @@ import (
 )
 
 func TestErrorHandling(t *testing.T) {
+	t.Run("anthropic_error_auth", func(t *testing.T) {
+		// 401 Authentication error returned by the Anthropic API when the API key is invalid
+		server := NewMockServer([]MockRoute{
+			{
+				Path:         "/chat/completions",
+				Method:       "POST",
+				Status:       401,
+				Body:         `{"error":{"message":"invalid x-api-key","type":"authentication_error"},"type":"error"}`,
+				StreamChunks: nil,
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 401, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
+	})
+
 	t.Run("auth_401", func(t *testing.T) {
 		// 401 Unauthorized error when API key is invalid or missing
 		server := NewMockServer([]MockRoute{
@@ -24,6 +49,31 @@ func TestErrorHandling(t *testing.T) {
 		defer server.Close()
 
 		reqBody := bytes.NewBufferString("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 401, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
+	})
+
+	t.Run("azure_error_auth", func(t *testing.T) {
+		// Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied
+		server := NewMockServer([]MockRoute{
+			{
+				Path:         "/chat/completions",
+				Method:       "POST",
+				Status:       401,
+				Body:         `{"error":{"code":"401","message":"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.","param":null,"type":"invalid_request_error"}}`,
+				StreamChunks: nil,
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}")
 		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
 		if err != nil {
 			t.Fatalf("http.Post failed: %v", err)

@@ -9,6 +9,92 @@ namespace LiterLmE2E;
 public sealed class StreamingTests
 {
 
+    /// <summary>Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks</summary>
+    [Fact]
+    public async Task AnthropicStream()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 200,
+                Body: "null",
+                StreamChunks: new[]
+                {
+                    "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+                }
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"stream\":true}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        response.EnsureSuccessStatusCode();
+
+        var stream = await response.Content.ReadAsStreamAsync();
+        using var reader = new System.IO.StreamReader(stream);
+        var chunks = new List<string>();
+        string? line;
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+            if (line.StartsWith("data: ") && !line.Contains("[DONE]"))
+                chunks.Add(line[6..]);
+        }
+
+        Assert.True(chunks.Count >= 3, $"Expected at least 3 chunk(s), got {chunks.Count}");
+    }
+
+    /// <summary>Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape</summary>
+    [Fact]
+    public async Task AzureStream()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 200,
+                Body: "null",
+                StreamChunks: new[]
+                {
+                    "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{\"content\":\" 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                    "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+                }
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\",\"stream\":true,\"temperature\":0}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        response.EnsureSuccessStatusCode();
+
+        var stream = await response.Content.ReadAsStreamAsync();
+        using var reader = new System.IO.StreamReader(stream);
+        var chunks = new List<string>();
+        string? line;
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+            if (line.StartsWith("data: ") && !line.Contains("[DONE]"))
+                chunks.Add(line[6..]);
+        }
+
+        Assert.True(chunks.Count >= 3, $"Expected at least 3 chunk(s), got {chunks.Count}");
+    }
+
     /// <summary>Streaming chat completion that produces content across multiple SSE chunks</summary>
     [Fact]
     public async Task BasicStream()

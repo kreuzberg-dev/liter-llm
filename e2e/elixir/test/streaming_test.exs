@@ -5,6 +5,72 @@ defmodule LiterLmE2E.StreamingTest do
   alias LiterLmE2E.MockServer
   alias LiterLmE2E.Helpers
 
+  test "Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: "null",
+        stream_chunks: [
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}"
+        ]
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"stream\":true}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 200
+
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
+    assert length(chunks) >= 3, "Expected at least 3 chunk(s), got #{length(chunks)}"
+  end
+
+  test "Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: "null",
+        stream_chunks: [
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}"
+        ]
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\",\"stream\":true,\"temperature\":0}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 200
+
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
+    assert length(chunks) >= 3, "Expected at least 3 chunk(s), got #{length(chunks)}"
+  end
+
   test "Streaming chat completion that produces content across multiple SSE chunks" do
     routes = [
       %{

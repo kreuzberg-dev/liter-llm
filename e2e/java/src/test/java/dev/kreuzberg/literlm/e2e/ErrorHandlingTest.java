@@ -10,6 +10,30 @@ import org.junit.jupiter.api.Test;
 /** E2E tests for category: error-handling. */
 class ErrorHandlingTest {
 
+  /** 401 Authentication error returned by the Anthropic API when the API key is invalid */
+  @Test
+  void anthropicErrorAuth() throws Exception {
+    try (Helpers.MockServer server =
+        new Helpers.MockServer(
+            List.of(
+                new Helpers.MockRoute(
+                    "/chat/completions",
+                    "POST",
+                    401,
+                    "{\"error\":{\"message\":\"invalid"
+                        + " x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}")))) {
+
+      HttpResponse<String> resp =
+          Helpers.postJson(
+              server.url,
+              "/chat/completions",
+              "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}");
+
+      assertEquals(401, resp.statusCode(), "error status code");
+      assertTrue(resp.statusCode() >= 400, "expected error status");
+    }
+  }
+
   /** 401 Unauthorized error when API key is invalid or missing */
   @Test
   void auth401() throws Exception {
@@ -29,6 +53,36 @@ class ErrorHandlingTest {
               server.url,
               "/chat/completions",
               "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+
+      assertEquals(401, resp.statusCode(), "error status code");
+      assertTrue(resp.statusCode() >= 400, "expected error status");
+    }
+  }
+
+  /**
+   * Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses
+   * Azure's error envelope shape with code AccessDenied
+   */
+  @Test
+  void azureErrorAuth() throws Exception {
+    try (Helpers.MockServer server =
+        new Helpers.MockServer(
+            List.of(
+                new Helpers.MockRoute(
+                    "/chat/completions",
+                    "POST",
+                    401,
+                    "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid"
+                        + " subscription key or wrong API endpoint. Make sure to provide a valid"
+                        + " key for an active subscription and use a correct regional API endpoint"
+                        + " for your"
+                        + " resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}")))) {
+
+      HttpResponse<String> resp =
+          Helpers.postJson(
+              server.url,
+              "/chat/completions",
+              "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}");
 
       assertEquals(401, resp.statusCode(), "error status code");
       assertTrue(resp.statusCode() >= 400, "expected error status");

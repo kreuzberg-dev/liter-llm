@@ -9,6 +9,25 @@ import type { MockServer } from "./helpers.js";
 import { LlmClient } from "liter-lm-wasm";
 
 
+describe("401 Authentication error returned by the Anthropic API when the API key is invalid", () => {
+  let server: MockServer;
+
+  beforeAll(async () => {
+    server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 401, body: "{\"error\":{\"message\":\"invalid x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}", streamChunks: [] }]);
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  it("401 Authentication error returned by the Anthropic API when the API key is invalid", async () => {
+    const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
+
+    const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}");
+    await expect(client.chat(req)).rejects.toThrow();
+  });
+});
+
 describe("401 Unauthorized error when API key is invalid or missing", () => {
   let server: MockServer;
 
@@ -24,6 +43,25 @@ describe("401 Unauthorized error when API key is invalid or missing", () => {
     const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
 
     const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+    await expect(client.chat(req)).rejects.toThrow();
+  });
+});
+
+describe("Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied", () => {
+  let server: MockServer;
+
+  beforeAll(async () => {
+    server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 401, body: "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}", streamChunks: [] }]);
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  it("Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied", async () => {
+    const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
+
+    const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}");
     await expect(client.chat(req)).rejects.toThrow();
   });
 });

@@ -12,6 +12,26 @@ require_once __DIR__ . '/Helpers.php';
 
 final class ErrorHandlingTest extends TestCase
 {
+    /** 401 Authentication error returned by the Anthropic API when the API key is invalid */
+    public function testAnthropicErrorAuth(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 401,
+                body: '{"error":{"message":"invalid x-api-key","type":"authentication_error"},"type":"error"}',
+                streamChunks: [],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $result = httpRequest($server->url . '/chat/completions', 'POST', '{"messages":[{"content":"Hello","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022"}');
+        $server->stop();
+
+        $this->assertEquals(401, $result['status']);
+    }
+
     /** 401 Unauthorized error when API key is invalid or missing */
     public function testAuth401(): void
     {
@@ -27,6 +47,26 @@ final class ErrorHandlingTest extends TestCase
 
         $server = new MockServer($routes);
         $result = httpRequest($server->url . '/chat/completions', 'POST', '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
+        $server->stop();
+
+        $this->assertEquals(401, $result['status']);
+    }
+
+    /** Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied */
+    public function testAzureErrorAuth(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 401,
+                body: '{"error":{"code":"401","message":"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.","param":null,"type":"invalid_request_error"}}',
+                streamChunks: [],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $result = httpRequest($server->url . '/chat/completions', 'POST', '{"messages":[{"content":"Hello","role":"user"}],"model":"azure/gpt-4"}');
         $server->stop();
 
         $this->assertEquals(401, $result['status']);
