@@ -229,3 +229,214 @@ pub async fn get_json<T: DeserializeOwned>(
 
     resp.json::<T>().await.map_err(LiterLmError::from)
 }
+
+/// Send a POST request with a multipart form body and return the raw response JSON.
+///
+/// Used for file uploads (Files API, audio transcription).  Multipart forms are
+/// consumed by `send()` and cannot be cheaply cloned, so this function does
+/// **not** retry on failure — file uploads are not idempotent anyway.
+///
+/// `auth_header` is `Some((name, value))` when the provider requires
+/// authentication, or `None` when no auth header should be added.
+#[allow(dead_code)] // reserved for Files API / transcription multipart uploads
+#[cfg_attr(
+    feature = "tracing",
+    tracing::instrument(
+        skip_all,
+        fields(
+            http.method = "POST",
+            http.url = %url,
+            http.status_code = tracing::field::Empty,
+        )
+    )
+)]
+pub async fn post_multipart(
+    client: &reqwest::Client,
+    url: &str,
+    auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
+    form: reqwest::multipart::Form,
+) -> Result<serde_json::Value> {
+    let mut builder = client.post(url).multipart(form);
+    if let Some((name, value)) = auth_header {
+        builder = builder.header(name, value);
+    }
+    for (name, value) in extra_headers {
+        builder = builder.header(*name, *value);
+    }
+
+    let resp = builder.send().await?;
+
+    #[cfg(feature = "tracing")]
+    {
+        let span = tracing::Span::current();
+        span.record("http.status_code", resp.status().as_u16());
+    }
+
+    let status = resp.status().as_u16();
+    if !resp.status().is_success() {
+        let server_retry_after = retry_after_from_response(&resp);
+        let text = resp
+            .text()
+            .await
+            .unwrap_or_else(|e| format!("(failed to read body: {e})"));
+        return Err(LiterLmError::from_status(status, &text, server_retry_after));
+    }
+
+    resp.json::<serde_json::Value>().await.map_err(LiterLmError::from)
+}
+
+/// Send a GET request and return the raw response JSON as `serde_json::Value`.
+///
+/// Like [`get_json`] but returns a raw `serde_json::Value` instead of
+/// deserializing into a typed `T`.  Useful for endpoints where the caller
+/// needs to inspect or transform the response before deserialization
+/// (e.g. GET /files/{id}, GET /batches/{id}).
+///
+/// Retries on 429 / 5xx according to `max_retries`.
+#[allow(dead_code)] // reserved for Files / Batches API retrieve endpoints
+#[cfg_attr(
+    feature = "tracing",
+    tracing::instrument(
+        skip_all,
+        fields(
+            http.method = "GET",
+            http.url = %url,
+            http.status_code = tracing::field::Empty,
+            http.retry_count = tracing::field::Empty,
+        )
+    )
+)]
+pub async fn get_json_raw(
+    client: &reqwest::Client,
+    url: &str,
+    auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
+    max_retries: u32,
+) -> Result<serde_json::Value> {
+    let mut retry_count = 0u32;
+
+    let resp = with_retry(max_retries, || {
+        let mut builder = client.get(url);
+        if let Some((name, value)) = auth_header {
+            builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
+        }
+        retry_count += 1;
+        builder.send()
+    })
+    .await?;
+
+    #[cfg(feature = "tracing")]
+    {
+        let span = tracing::Span::current();
+        span.record("http.status_code", resp.status().as_u16());
+        span.record("http.retry_count", retry_count.saturating_sub(1));
+    }
+
+    resp.json::<serde_json::Value>().await.map_err(LiterLmError::from)
+}
+
+/// Send a DELETE request and return the raw response JSON.
+///
+/// Same retry/auth/header pattern as [`get_json`] but uses the HTTP DELETE method.
+/// Used for resource deletion endpoints (e.g. DELETE /files/{id}).
+///
+/// Retries on 429 / 5xx according to `max_retries`.
+#[allow(dead_code)] // reserved for Files API delete endpoint
+#[cfg_attr(
+    feature = "tracing",
+    tracing::instrument(
+        skip_all,
+        fields(
+            http.method = "DELETE",
+            http.url = %url,
+            http.status_code = tracing::field::Empty,
+            http.retry_count = tracing::field::Empty,
+        )
+    )
+)]
+pub async fn delete_json(
+    client: &reqwest::Client,
+    url: &str,
+    auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
+    max_retries: u32,
+) -> Result<serde_json::Value> {
+    let mut retry_count = 0u32;
+
+    let resp = with_retry(max_retries, || {
+        let mut builder = client.delete(url);
+        if let Some((name, value)) = auth_header {
+            builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
+        }
+        retry_count += 1;
+        builder.send()
+    })
+    .await?;
+
+    #[cfg(feature = "tracing")]
+    {
+        let span = tracing::Span::current();
+        span.record("http.status_code", resp.status().as_u16());
+        span.record("http.retry_count", retry_count.saturating_sub(1));
+    }
+
+    resp.json::<serde_json::Value>().await.map_err(LiterLmError::from)
+}
+
+/// Send a GET request and return the raw response bytes.
+///
+/// Used for endpoints that return binary data (e.g. GET /files/{id}/content
+/// for downloading file contents).
+///
+/// Retries on 429 / 5xx according to `max_retries`.
+#[allow(dead_code)] // reserved for Files API content download endpoint
+#[cfg_attr(
+    feature = "tracing",
+    tracing::instrument(
+        skip_all,
+        fields(
+            http.method = "GET",
+            http.url = %url,
+            http.status_code = tracing::field::Empty,
+            http.retry_count = tracing::field::Empty,
+        )
+    )
+)]
+pub async fn get_binary(
+    client: &reqwest::Client,
+    url: &str,
+    auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
+    max_retries: u32,
+) -> Result<Bytes> {
+    let mut retry_count = 0u32;
+
+    let resp = with_retry(max_retries, || {
+        let mut builder = client.get(url);
+        if let Some((name, value)) = auth_header {
+            builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
+        }
+        retry_count += 1;
+        builder.send()
+    })
+    .await?;
+
+    #[cfg(feature = "tracing")]
+    {
+        let span = tracing::Span::current();
+        span.record("http.status_code", resp.status().as_u16());
+        span.record("http.retry_count", retry_count.saturating_sub(1));
+    }
+
+    resp.bytes().await.map_err(LiterLmError::from)
+}

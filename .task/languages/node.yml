@@ -64,6 +64,11 @@ tasks:
     cmds:
       - npx biome format .
 
+  typecheck:
+    desc: Check TypeScript types (tsc --noEmit)
+    cmds:
+      - npx tsc --noEmit
+
   clean:
     desc: Clean Node.js build artifacts
     dir: crates/liter-lm-node
