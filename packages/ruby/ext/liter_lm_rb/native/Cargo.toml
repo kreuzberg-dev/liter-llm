@@ -19,7 +19,6 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 liter-lm = { path = "../../../../../crates/liter-lm" }
 magnus = { version = "0.8", features = ["rb-sys"] }
-once_cell = "1"
 rb-sys = { version = "0.9", default-features = false, features = [
     "stable-api-compiled-fallback",
 ] }

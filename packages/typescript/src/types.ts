@@ -270,6 +270,8 @@ export interface ModelsListResponse {
 export interface LlmClientOptions {
 	apiKey: string;
 	baseUrl?: string;
+	/** Model hint for provider auto-detection (e.g. `"groq/llama3-70b"` selects the Groq provider). */
+	modelHint?: string;
 	maxRetries?: number;
 	/** Timeout in seconds. */
 	timeoutSecs?: number;

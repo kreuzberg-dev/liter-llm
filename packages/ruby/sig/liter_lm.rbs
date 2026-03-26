@@ -189,6 +189,7 @@ module LiterLm
     def initialize: (
       String api_key,
       ?base_url: String?,
+      ?model_hint: String?,
       ?max_retries: Integer,
       ?timeout_secs: Integer
     ) -> void

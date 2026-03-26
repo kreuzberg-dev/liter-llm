@@ -2,6 +2,7 @@ use std::task::{Context, Poll};
 
 use tower_layer::Layer;
 use tower_service::Service;
+use tracing::Instrument as _;
 
 use super::types::{LlmRequest, LlmResponse};
 use crate::client::BoxFuture;
@@ -74,20 +75,27 @@ where
 
         let fut = self.inner.call(req);
 
-        Box::pin(async move {
-            let _enter = span.enter();
-            match fut.await {
-                Ok(resp) => {
-                    // Record usage statistics from the response when available.
-                    record_usage(&span, &resp);
-                    Ok(resp)
-                }
-                Err(e) => {
-                    span.record("error", true);
-                    Err(e)
+        // Use `.instrument(span)` rather than `span.enter()` in the async
+        // block.  `span.enter()` in an async context is incorrect because the
+        // guard is dropped when the future suspends at an await point, causing
+        // the span to close prematurely.  `Instrument` attaches the span to
+        // the future so it is entered and exited correctly around each poll.
+        Box::pin(
+            async move {
+                match fut.await {
+                    Ok(resp) => {
+                        // Record usage statistics from the response when available.
+                        record_usage(&tracing::Span::current(), &resp);
+                        Ok(resp)
+                    }
+                    Err(e) => {
+                        tracing::Span::current().record("error", true);
+                        Err(e)
+                    }
                 }
             }
-        })
+            .instrument(span),
+        )
     }
 }
 

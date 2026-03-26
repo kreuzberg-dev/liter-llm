@@ -106,6 +106,10 @@ impl ClientConfigBuilder {
     ///
     /// Returns an error if either `key` or `value` is not a valid HTTP header
     /// name / value.
+    ///
+    /// This method is only available when the `native-http` feature is enabled
+    /// because header validation relies on `reqwest`'s header types.
+    #[cfg(feature = "native-http")]
     pub fn header(mut self, key: impl Into<String>, value: impl Into<String>) -> Result<Self> {
         let key = key.into();
         let value = value.into();

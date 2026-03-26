@@ -28,9 +28,10 @@
 //! puts response.dig('choices', 0, 'message', 'content')
 //! ```
 
+use std::sync::LazyLock;
+
 use liter_lm::{ClientConfigBuilder, DefaultClient, LlmClient};
 use magnus::{Error, Ruby, TryConvert, function, method, prelude::*};
-use once_cell::sync::Lazy;
 
 // ─── Tokio runtime ────────────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ use once_cell::sync::Lazy;
 ///
 /// Created once on first use.  If creation fails, the error message is stored
 /// and returned as a Ruby `RuntimeError` at call time rather than panicking.
-static RUNTIME: Lazy<Result<tokio::runtime::Runtime, String>> = Lazy::new(|| {
+static RUNTIME: LazyLock<Result<tokio::runtime::Runtime, String>> = LazyLock::new(|| {
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .enable_all()
@@ -63,7 +64,7 @@ pub struct RubyLlmClient {
 }
 
 impl RubyLlmClient {
-    /// `LiterLm::LlmClient.new(api_key, base_url: nil, max_retries: 3, timeout_secs: 60)`
+    /// `LiterLm::LlmClient.new(api_key, base_url: nil, model_hint: nil, max_retries: 3, timeout_secs: 60)`
     ///
     /// Takes an API key string and an optional keyword-argument hash.
     fn rb_new(api_key: String, kw: magnus::RHash) -> Result<RubyLlmClient, Error> {
@@ -71,6 +72,11 @@ impl RubyLlmClient {
 
         let base_url: Option<String> = kw
             .get(ruby.to_symbol("base_url"))
+            .and_then(|v| Option::<String>::try_convert(v).ok())
+            .flatten();
+
+        let model_hint: Option<String> = kw
+            .get(ruby.to_symbol("model_hint"))
             .and_then(|v| Option::<String>::try_convert(v).ok())
             .flatten();
 
@@ -92,7 +98,7 @@ impl RubyLlmClient {
         builder = builder.timeout(std::time::Duration::from_secs(timeout_secs));
 
         let config = builder.build();
-        let client = DefaultClient::new(config, None)
+        let client = DefaultClient::new(config, model_hint.as_deref())
             .map_err(|e| Error::new(ruby.exception_runtime_error(), e.to_string()))?;
 
         Ok(RubyLlmClient { inner: client })

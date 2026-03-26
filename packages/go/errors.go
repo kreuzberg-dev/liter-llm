@@ -76,7 +76,7 @@ func classifySentinel(statusCode int) error {
 		if statusCode >= 500 {
 			return ErrProviderError
 		}
-		return ErrProviderError
+		return ErrInvalidRequest
 	}
 }
 

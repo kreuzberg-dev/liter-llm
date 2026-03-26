@@ -246,19 +246,12 @@ impl Provider for OpenAiCompatibleProvider {
 /// (`/chat/completions`) that fails immediately at the HTTP layer.
 pub struct ConfigDrivenProvider {
     config: ProviderConfig,
-    // Resolved base_url — `None` when not configured; request will fail at
-    // send time with a clear error rather than silently sending to an empty URL.
-    resolved_base_url: Option<String>,
 }
 
 impl ConfigDrivenProvider {
     #[must_use]
     pub(crate) fn new(config: ProviderConfig) -> Self {
-        let resolved_base_url = config.base_url.clone();
-        Self {
-            config,
-            resolved_base_url,
-        }
+        Self { config }
     }
 }
 
@@ -270,7 +263,7 @@ impl Provider for ConfigDrivenProvider {
     fn base_url(&self) -> &str {
         // Return an empty string when unconfigured; `transform_request` or the
         // HTTP layer will surface a useful error before any network call goes out.
-        self.resolved_base_url.as_deref().unwrap_or("")
+        self.config.base_url.as_deref().unwrap_or("")
     }
 
     fn auth_header<'a>(&'a self, api_key: &'a str) -> Option<(Cow<'static, str>, Cow<'a, str>)> {

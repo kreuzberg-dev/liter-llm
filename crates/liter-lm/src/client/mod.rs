@@ -199,10 +199,9 @@ fn build_provider(config: &ClientConfig, model_hint: Option<&str>) -> Box<dyn Pr
 impl LlmClient for DefaultClient {
     fn chat(&self, req: ChatCompletionRequest) -> BoxFuture<'_, ChatCompletionResponse> {
         Box::pin(async move {
-            let model = req.model.clone();
             // Pass stream=false so providers can inspect the flag in transform_request.
             let (url, auth_header, extra_headers, body) =
-                self.prepare_request(&req, self.provider.chat_completions_path(), &model, Some(false))?;
+                self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(false))?;
 
             let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
             let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
@@ -212,10 +211,9 @@ impl LlmClient for DefaultClient {
 
     fn chat_stream(&self, req: ChatCompletionRequest) -> BoxFuture<'_, BoxStream<'_, ChatCompletionChunk>> {
         Box::pin(async move {
-            let model = req.model.clone();
             // Pass stream=true so providers can inspect the flag in transform_request.
             let (url, auth_header, extra_headers, body) =
-                self.prepare_request(&req, self.provider.chat_completions_path(), &model, Some(true))?;
+                self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(true))?;
 
             let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
             let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
@@ -227,10 +225,9 @@ impl LlmClient for DefaultClient {
 
     fn embed(&self, req: EmbeddingRequest) -> BoxFuture<'_, EmbeddingResponse> {
         Box::pin(async move {
-            let model = req.model.clone();
             // Embeddings have no stream flag; pass None so it is not inserted.
             let (url, auth_header, extra_headers, body) =
-                self.prepare_request(&req, self.provider.embeddings_path(), &model, None)?;
+                self.prepare_request(&req, self.provider.embeddings_path(), &req.model, None)?;
 
             let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
             let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();

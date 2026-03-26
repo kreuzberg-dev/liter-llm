@@ -1,11 +1,14 @@
+use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
 
+use futures_core::Stream;
 use tower_service::Service;
 
 use super::types::{LlmRequest, LlmResponse};
 use crate::client::{BoxFuture, LlmClient};
 use crate::error::{LiterLmError, Result};
+use crate::types::ChatCompletionChunk;
 
 /// A thin tower [`Service`] wrapper around any [`LlmClient`] implementation.
 ///
@@ -60,18 +63,16 @@ where
                     Ok(LlmResponse::Chat(resp))
                 }
                 LlmRequest::ChatStream(r) => {
+                    // Collect the stream into a Vec while the Arc-backed client is
+                    // alive.  This avoids the unsound transmute that would otherwise
+                    // be needed to extend the stream's borrow lifetime to 'static.
+                    // The cost is that streaming chunks are buffered before being
+                    // yielded; this is acceptable because tower middleware cannot
+                    // express borrowed lifetimes across the Service boundary.
                     let stream = client.chat_stream(r).await?;
-                    // SAFETY: `stream` is a `BoxStream<'_, ChatCompletionChunk>` where
-                    // `'_` is the borrow lifetime tied to `client` (via Arc).  The
-                    // stream is heap-allocated (`Pin<Box<dyn Stream + Send>>`); once
-                    // the `chat_stream` future resolves the stream is fully
-                    // self-contained on the heap.  We keep the Arc (`client`) alive
-                    // until after the transmute, ensuring any heap data the stream
-                    // might hold through the Arc remains valid for the `'static`
-                    // lifetime we assert here.
-                    let static_stream: crate::client::BoxStream<'static, crate::types::ChatCompletionChunk> =
-                        unsafe { std::mem::transmute(stream) };
-                    drop(client);
+                    let chunks = collect_stream(stream).await?;
+                    let static_stream: crate::client::BoxStream<'static, ChatCompletionChunk> =
+                        Box::pin(OwnedChunksStream { chunks, index: 0 });
                     Ok(LlmResponse::ChatStream(static_stream))
                 }
                 LlmRequest::Embed(r) => {
@@ -84,5 +85,45 @@ where
                 }
             }
         })
+    }
+}
+
+/// Collect all items from a stream into a `Vec`, stopping on the first error.
+async fn collect_stream<'a>(
+    mut stream: crate::client::BoxStream<'a, ChatCompletionChunk>,
+) -> Result<Vec<ChatCompletionChunk>> {
+    let mut chunks = Vec::new();
+    loop {
+        // Drive the stream by polling it inside a future::poll_fn.
+        let item = std::future::poll_fn(|cx| Pin::as_mut(&mut stream).poll_next(cx)).await;
+        match item {
+            Some(Ok(chunk)) => chunks.push(chunk),
+            Some(Err(e)) => return Err(e),
+            None => break,
+        }
+    }
+    Ok(chunks)
+}
+
+/// A `Stream` that yields items from an owned `Vec` in order.
+///
+/// Used to wrap collected streaming chunks so they can be returned as a
+/// `BoxStream<'static, ...>` without any lifetime dependencies.
+struct OwnedChunksStream {
+    chunks: Vec<ChatCompletionChunk>,
+    index: usize,
+}
+
+impl Stream for OwnedChunksStream {
+    type Item = Result<ChatCompletionChunk>;
+
+    fn poll_next(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        if self.index < self.chunks.len() {
+            let chunk = self.chunks[self.index].clone();
+            self.index += 1;
+            Poll::Ready(Some(Ok(chunk)))
+        } else {
+            Poll::Ready(None)
+        }
     }
 }

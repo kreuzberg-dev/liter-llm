@@ -836,8 +836,10 @@ mod error_tests {
 
     #[test]
     fn error_from_403_forbidden() {
+        // 403 Forbidden indicates invalid credentials / insufficient
+        // permissions — map to Authentication, not ServerError.
         let err = LiterLmError::from_status(403, "Forbidden", None);
-        assert!(matches!(err, LiterLmError::ServerError { .. }));
+        assert!(matches!(err, LiterLmError::Authentication { .. }));
     }
 
     #[test]

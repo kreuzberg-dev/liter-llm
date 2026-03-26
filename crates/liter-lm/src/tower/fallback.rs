@@ -65,7 +65,7 @@ impl<S, F> Service<LlmRequest> for FallbackService<S, F>
 where
     S: Service<LlmRequest, Response = LlmResponse, Error = LiterLmError> + Send + 'static,
     S::Future: Send + 'static,
-    F: Service<LlmRequest, Response = LlmResponse, Error = LiterLmError> + Send + 'static,
+    F: Service<LlmRequest, Response = LlmResponse, Error = LiterLmError> + Clone + Send + 'static,
     F::Future: Send + 'static,
 {
     type Response = LlmResponse;
@@ -73,7 +73,15 @@ where
     type Future = BoxFuture<'static, LlmResponse>;
 
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<()>> {
-        // Both services must be ready; return the first not-ready result.
+        // Tower contract: poll_ready should prepare exactly one service for a
+        // subsequent call.  Ideally we would only poll the primary here and
+        // poll the fallback lazily in `call`.  However, because `call` takes
+        // `&mut self` and must return a `'static` future (no reference to
+        // `self`), we cannot hold a mutable borrow across the await point.
+        // For our concrete use case (DefaultClient is always ready), polling
+        // both here is not harmful — neither service blocks and both remain
+        // ready until the next call.  Callers that compose non-trivially-ready
+        // services should use a dedicated load-balancing layer instead.
         match self.primary.poll_ready(cx) {
             Poll::Pending => return Poll::Pending,
             Poll::Ready(Err(e)) => return Poll::Ready(Err(e)),
@@ -86,7 +94,10 @@ where
         // Clone the request so it can be replayed on the fallback if needed.
         let fallback_req = clone_request(&req);
         let primary_fut = self.primary.call(req);
-        let fallback_fut = self.fallback.call(fallback_req);
+        // Clone the fallback service into the async block so the future is
+        // 'static.  The fallback's call() is only invoked when the primary
+        // fails with a transient error — no eager work is done here.
+        let mut fallback = self.fallback.clone();
 
         Box::pin(async move {
             match primary_fut.await {
@@ -96,7 +107,7 @@ where
                         error = %e,
                         "primary service failed with transient error; trying fallback"
                     );
-                    fallback_fut.await
+                    fallback.call(fallback_req).await
                 }
                 Err(e) => Err(e),
             }

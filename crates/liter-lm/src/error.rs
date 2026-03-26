@@ -84,7 +84,7 @@ impl LiterLmError {
             .unwrap_or_else(|_| body.to_string());
 
         match status {
-            401 => Self::Authentication { message },
+            401 | 403 => Self::Authentication { message },
             429 => Self::RateLimited { message, retry_after },
             400 => {
                 if message.contains("context_length_exceeded")
