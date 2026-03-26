@@ -61,15 +61,13 @@ impl Provider for AzureProvider {
         model.strip_prefix("azure/").unwrap_or(model)
     }
 
-    /// Validate that a `base_url` override is present before the request goes out.
+    /// Validate that a `base_url` override is present at construction time.
     ///
-    /// Azure requires a customer-specific resource URL.  If the caller forgot to
-    /// set `base_url` in [`ClientConfig`], this returns a [`LiterLmError::BadRequest`]
-    /// with a clear message rather than letting the HTTP layer fail with an
-    /// opaque connection error to an empty URL.
-    fn transform_request(&self, body: &mut serde_json::Value) -> Result<()> {
-        // `base_url()` returns an empty string when unconfigured.
-        // Detect that sentinel and emit a useful error now, before any I/O.
+    /// Azure requires a customer-specific resource URL.  Checking here
+    /// (rather than in `transform_request`) surfaces the misconfiguration
+    /// immediately on `DefaultClient::new`, before any request is attempted.
+    /// This also covers `list_models`, which does not call `transform_request`.
+    fn validate(&self) -> Result<()> {
         if self.base_url().is_empty() {
             return Err(LiterLmError::BadRequest {
                 message: "Azure OpenAI requires `base_url` to be set in ClientConfig. \
@@ -77,7 +75,6 @@ impl Provider for AzureProvider {
                     .into(),
             });
         }
-        let _ = body;
         Ok(())
     }
 }

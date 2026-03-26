@@ -40,8 +40,12 @@ use magnus::{Error, Ruby, TryConvert, function, method, prelude::*};
 /// Created once on first use.  If creation fails, the error message is stored
 /// and returned as a Ruby `RuntimeError` at call time rather than panicking.
 static RUNTIME: LazyLock<Result<tokio::runtime::Runtime, String>> = LazyLock::new(|| {
-    tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(2)
+    // current_thread keeps block_on on the Ruby thread that called the method.
+    // A multi-thread runtime would dispatch futures to worker threads where
+    // Ruby::get_unchecked() is invalid (it requires the GVL holder thread).
+    // current_thread avoids spawning extra OS threads and is sufficient for
+    // Ruby's single-threaded-per-thread concurrency model.
+    tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .thread_name("liter-lm-ruby")
         .build()

@@ -95,6 +95,9 @@ impl DefaultClient {
     /// [`ClientConfigBuilder::header`], so they are inserted directly here.
     pub fn new(config: ClientConfig, model_hint: Option<&str>) -> Result<Self> {
         let provider = build_provider(&config, model_hint);
+        // Validate configuration eagerly so callers get a clear error at
+        // construction time rather than on the first request.
+        provider.validate()?;
 
         // Build the header map from pre-validated headers stored in the config.
         // The builder already validated each header name/value, so these
@@ -123,6 +126,21 @@ impl DefaultClient {
         Ok(Self { config, http, provider })
     }
 
+    /// Build the endpoint URL and resolve the auth header for a given path.
+    ///
+    /// Returns `(url, optional_auth_header)`.  The auth header is `None` when
+    /// the provider requires no authentication (e.g. local models or providers
+    /// with `auth: none`).  Extra headers are accessed separately via
+    /// `self.provider.extra_headers()`.
+    fn prepare_headers(&self, endpoint_path: &str) -> (String, Option<(String, String)>) {
+        let url = format!("{}{}", self.provider.base_url(), endpoint_path);
+        let auth_header = self
+            .provider
+            .auth_header(self.config.api_key.expose_secret())
+            .map(|(name, value)| (name.into_owned(), value.into_owned()));
+        (url, auth_header)
+    }
+
     /// Shared helper: build the URL, resolve auth header strings, strip model
     /// prefix from the request body, set the `stream` flag, apply provider
     /// transform, and return everything needed to fire a request.
@@ -146,12 +164,7 @@ impl DefaultClient {
             });
         }
 
-        let url = format!("{}{}", self.provider.base_url(), endpoint_path);
-        let auth_header = self
-            .provider
-            .auth_header(self.config.api_key.expose_secret())
-            .map(|(name, value)| (name.into_owned(), value.into_owned()));
-
+        let (url, auth_header) = self.prepare_headers(endpoint_path);
         let bare_model = self.provider.strip_model_prefix(model).to_owned();
 
         let mut body = serde_json::to_value(serializable)?;
@@ -235,12 +248,7 @@ impl LlmClient for DefaultClient {
 
     fn list_models(&self) -> BoxFuture<'_, ModelsListResponse> {
         Box::pin(async move {
-            // Use the stored provider — no more hardcoded "gpt-4" fallback.
-            let url = format!("{}{}", self.provider.base_url(), self.provider.models_path());
-            let auth_header = self
-                .provider
-                .auth_header(self.config.api_key.expose_secret())
-                .map(|(name, value)| (name.into_owned(), value.into_owned()));
+            let (url, auth_header) = self.prepare_headers(self.provider.models_path());
             let auth = auth_header.as_ref().map(str_pair);
             let extra = self.provider.extra_headers();
 

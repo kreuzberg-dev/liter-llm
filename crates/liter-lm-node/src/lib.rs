@@ -192,12 +192,11 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "chatStream")]
     pub async fn chat_stream(&self, request: serde_json::Value) -> napi::Result<Vec<serde_json::Value>> {
-        let mut req: liter_lm::ChatCompletionRequest =
+        let req: liter_lm::ChatCompletionRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
-        // Ensure the streaming flag is set so the core client opens an SSE stream.
-        req.stream = Some(true);
-
+        // The core client's chat_stream sets stream=true internally via
+        // prepare_request; we must not set it here (the field is pub(crate)).
         let client = Arc::clone(&self.inner);
 
         // Collect all SSE chunks into a Vec before returning to JavaScript.

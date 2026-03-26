@@ -35,7 +35,7 @@ impl<C> LlmService<C> {
     }
 }
 
-impl<C: Clone> Clone for LlmService<C> {
+impl<C> Clone for LlmService<C> {
     fn clone(&self) -> Self {
         Self {
             inner: Arc::clone(&self.inner),

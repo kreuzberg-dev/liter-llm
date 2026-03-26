@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 
-use crate::error::Result;
 use crate::provider::Provider;
 
 static ANTHROPIC_EXTRA_HEADERS: &[(&str, &str)] = &[("anthropic-version", "2023-06-01")];
@@ -37,9 +36,5 @@ impl Provider for AnthropicProvider {
 
     fn strip_model_prefix<'m>(&self, model: &'m str) -> &'m str {
         model.strip_prefix("anthropic/").unwrap_or(model)
-    }
-
-    fn transform_request(&self, _body: &mut serde_json::Value) -> Result<()> {
-        Ok(())
     }
 }

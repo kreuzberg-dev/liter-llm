@@ -626,6 +626,12 @@ async fn do_fetch_get(url: &str, auth_header_value: &str) -> Result<serde_json::
 }
 
 /// Read the response body as JSON, checking the HTTP status first.
+///
+/// For error responses (status >= 400) the body is always read as text first
+/// so that the HTTP status code is preserved in the error string even when the
+/// body cannot be parsed as JSON.  The error string is always formatted as
+/// `"HTTP {status}: {message}"` so that `is_retryable_error` can parse the
+/// status code reliably.
 async fn extract_json_from_response(response: JsValue) -> Result<serde_json::Value, JsValue> {
     use js_sys::Reflect;
     use wasm_bindgen::JsCast;
@@ -635,6 +641,36 @@ async fn extract_json_from_response(response: JsValue) -> Result<serde_json::Val
         .and_then(|v| v.as_f64())
         .map(|f| f as u16)
         .unwrap_or(0);
+
+    if status >= 400 {
+        // Read the raw response body as text first, then attempt JSON parsing.
+        // This ensures the status code is always preserved in the error string
+        // even when the error body is not valid JSON (e.g. plain-text errors
+        // from proxies or load balancers).
+        let text_method: js_sys::Function = Reflect::get(&response, &"text".into())
+            .map_err(|_| js_err("response.text is missing"))?
+            .dyn_into()
+            .map_err(|_| js_err("response.text is not a function"))?;
+
+        let text_promise: Promise = text_method
+            .call0(&response)
+            .map_err(|e| js_err(format!("response.text() failed: {e:?}")))?
+            .dyn_into()
+            .map_err(|_| js_err("response.text() did not return a Promise"))?;
+
+        let raw_text: String = JsFuture::from(text_promise).await?.as_string().unwrap_or_default();
+
+        // Try to extract a structured message from the JSON body if possible.
+        let message = serde_json::from_str::<serde_json::Value>(&raw_text)
+            .ok()
+            .as_ref()
+            .and_then(|v| v.pointer("/error/message"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string)
+            .unwrap_or(raw_text);
+
+        return Err(js_err(format!("HTTP {status}: {message}")));
+    }
 
     let json_method: js_sys::Function = Reflect::get(&response, &"json".into())
         .map_err(|_| js_err("response.json is missing"))?
@@ -650,15 +686,6 @@ async fn extract_json_from_response(response: JsValue) -> Result<serde_json::Val
     let json_value = JsFuture::from(json_promise).await?;
     let parsed: serde_json::Value =
         serde_wasm_bindgen::from_value(json_value).map_err(|e| js_err(format!("JSON parse error: {e}")))?;
-
-    if status >= 400 {
-        let message = parsed
-            .pointer("/error/message")
-            .and_then(|v| v.as_str())
-            .unwrap_or("unknown error")
-            .to_string();
-        return Err(js_err(format!("HTTP {status}: {message}")));
-    }
 
     Ok(parsed)
 }

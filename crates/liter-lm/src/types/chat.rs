@@ -36,8 +36,15 @@ pub struct ChatCompletionRequest {
     pub top_p: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub n: Option<u32>,
+    /// Whether to stream the response.
+    ///
+    /// This field is managed by the client layer (`prepare_request`) and should
+    /// not be set directly by callers — use `chat` for non-streaming and
+    /// `chat_stream` for streaming.  Making it `pub(crate)` prevents callers
+    /// from setting it explicitly, which would conflict with the client's own
+    /// stream flag injection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
+    pub(crate) stream: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stop: Option<StopSequence>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -111,6 +118,8 @@ pub struct ChatCompletionChunk {
     pub choices: Vec<StreamChoice>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub usage: Option<Usage>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub system_fingerprint: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_tier: Option<String>,
 }

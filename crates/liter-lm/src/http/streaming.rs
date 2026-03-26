@@ -153,8 +153,19 @@ where
             // --- Buffer is empty or has only a partial line; fetch more bytes ---
 
             if *this.done {
-                // Drain any remaining buffered text without a newline.
-                // Real SSE streams always end cleanly, so just signal end.
+                // Any bytes remaining in the buffer after the stream ends were
+                // not terminated by a newline — they form an incomplete SSE
+                // line that would be silently dropped.  Emit a warning so that
+                // protocol bugs or truncated responses are visible in logs.
+                if !this.buffer.is_empty() {
+                    #[cfg(feature = "tower")]
+                    tracing::warn!(
+                        leftover_bytes = this.buffer.len(),
+                        preview = &this.buffer[..this.buffer.len().min(64)],
+                        "SSE stream ended with unterminated data in buffer; dropping partial line"
+                    );
+                    this.buffer.clear();
+                }
                 return Poll::Ready(None);
             }
 

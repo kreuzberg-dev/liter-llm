@@ -94,10 +94,14 @@ where
         // Clone the request so it can be replayed on the fallback if needed.
         let fallback_req = req.clone();
         let primary_fut = self.primary.call(req);
-        // Clone the fallback service into the async block so the future is
-        // 'static.  The fallback's call() is only invoked when the primary
-        // fails with a transient error — no eager work is done here.
-        let mut fallback = self.fallback.clone();
+
+        // `poll_ready` readied `self.fallback` for exactly one call.
+        // We move the readied service into the async block (so the future is
+        // 'static) and replace it with a fresh clone for the *next* call cycle.
+        // Tower's contract guarantees at most one `call` per `poll_ready`, so
+        // the fresh clone is not used until `poll_ready` runs again.
+        let fresh = self.fallback.clone();
+        let mut readied_fallback = std::mem::replace(&mut self.fallback, fresh);
 
         Box::pin(async move {
             match primary_fut.await {
@@ -107,7 +111,7 @@ where
                         error = %e,
                         "primary service failed with transient error; trying fallback"
                     );
-                    fallback.call(fallback_req).await
+                    readied_fallback.call(fallback_req).await
                 }
                 Err(e) => Err(e),
             }

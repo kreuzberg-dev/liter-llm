@@ -81,7 +81,12 @@ const _: () = {
 fn runtime() -> Result<&'static tokio::runtime::Runtime, String> {
     static RT: std::sync::OnceLock<Result<tokio::runtime::Runtime, String>> = std::sync::OnceLock::new();
     RT.get_or_init(|| {
-        tokio::runtime::Builder::new_multi_thread()
+        // Use current_thread so that block_on drives all work on the calling
+        // thread.  This guarantees that LAST_ERROR TLS writes happen on the
+        // same thread that called the public API function, which is essential
+        // for correctness: if a multi-thread runtime dispatched work to a
+        // worker thread the caller's LAST_ERROR cell would never be updated.
+        tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .map_err(|e| format!("failed to build tokio runtime: {e}"))

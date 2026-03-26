@@ -44,13 +44,6 @@ use liter_lm::{ClientConfigBuilder, DefaultClient, LlmClient};
 ///
 /// Construction errors are stored as a string and surfaced as PHP exceptions
 /// at call time rather than panicking at startup.
-///
-/// ## Guard against calling from within an existing Tokio runtime
-///
-/// `block_on` panics if called from within an async context.  Although PHP
-/// itself is synchronous, ext-php-rs could theoretically be embedded in a
-/// context where a runtime is already active.  The `runtime()` helper checks
-/// for this case and prefers `Handle::block_on` when a handle is available.
 static RUNTIME: std::sync::LazyLock<Result<tokio::runtime::Runtime, String>> = std::sync::LazyLock::new(|| {
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
@@ -59,24 +52,18 @@ static RUNTIME: std::sync::LazyLock<Result<tokio::runtime::Runtime, String>> = s
         .map_err(|e| format!("Failed to create Tokio runtime: {e}"))
 });
 
-/// Obtain a reference to the global runtime, or return a PHP exception.
+/// Drive `future` to completion on the shared current-thread runtime.
 ///
-/// If a Tokio runtime is already active on the current thread (e.g. when
-/// this code is called from within an async test harness), this helper reuses
-/// the existing runtime handle via `Handle::block_on` rather than creating a
-/// nested runtime, which would panic.
+/// `block_in_place` is intentionally omitted: `RUNTIME` is a
+/// `current_thread` runtime and `block_in_place` panics on that flavour
+/// because there are no worker threads to yield to.  If this function is
+/// somehow called from within another Tokio runtime the resulting
+/// "Cannot start a runtime from within a runtime" panic is the correct
+/// signal — nested runtimes are not supported.
 fn block_on_future<F, T>(future: F) -> PhpResult<T>
 where
     F: std::future::Future<Output = T>,
 {
-    // Fast path: if we're already inside a Tokio runtime, reuse its handle.
-    if let Ok(handle) = tokio::runtime::Handle::try_current() {
-        // `block_in_place` yields the current OS thread to Tokio while
-        // blocking on the future, avoiding a nested-runtime panic.
-        return Ok(tokio::task::block_in_place(|| handle.block_on(future)));
-    }
-
-    // Normal path: drive the future on our own runtime.
     let rt = RUNTIME.as_ref().map_err(|e| PhpException::from(e.clone()))?;
     Ok(rt.block_on(future))
 }
@@ -159,11 +146,11 @@ impl PhpLlmClient {
         use futures_core::Stream as FStream;
         use std::pin::Pin;
 
-        let mut req: liter_lm::ChatCompletionRequest = serde_json::from_str(&request_json)
+        let req: liter_lm::ChatCompletionRequest = serde_json::from_str(&request_json)
             .map_err(|e| PhpException::from(format!("invalid chat stream request JSON: {e}")))?;
 
-        // Force streaming flag.
-        req.stream = Some(true);
+        // The core client's chat_stream sets stream=true internally via
+        // prepare_request; we must not set it here (the field is pub(crate)).
 
         // Collect all SSE chunks by blocking on the async stream.
         // Returns a PhpResult<Vec<_>> so we can propagate errors and then

@@ -201,6 +201,7 @@ fn chat_completion_chunk_matches_schema() {
             finish_reason: Some(FinishReason::Stop),
         }],
         usage: None,
+        system_fingerprint: None,
         service_tier: None,
     };
 

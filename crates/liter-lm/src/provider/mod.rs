@@ -88,6 +88,18 @@ pub struct AuthConfig {
 
 /// A provider defines how to reach an LLM API endpoint.
 pub trait Provider: Send + Sync {
+    /// Validate provider configuration at construction time.
+    ///
+    /// Called by [`DefaultClient::new`] immediately after the provider is
+    /// resolved.  Returning an error here surfaces misconfiguration early
+    /// (e.g. missing Azure `base_url`) rather than on the first request.
+    ///
+    /// The default implementation is a no-op; providers with required
+    /// configuration fields (like Azure) override this.
+    fn validate(&self) -> Result<()> {
+        Ok(())
+    }
+
     /// Provider name (e.g., "openai").
     fn name(&self) -> &str;
 
