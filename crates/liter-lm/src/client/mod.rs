@@ -30,18 +30,22 @@ pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T>> + Send + 'a>>
 pub type BoxStream<'a, T> = Pin<Box<dyn Stream<Item = Result<T>> + Send + 'a>>;
 
 /// Result of [`DefaultClient::prepare_request`]:
-/// `(url, optional_auth_header, extra_headers, body)`.
+/// `(url, optional_auth_header, body)`.
 ///
 /// The auth header is `None` when the provider requires no authentication
 /// (e.g. local models or providers with `auth: none`).
-/// Extra headers carry provider-specific mandatory headers (e.g. `anthropic-version`).
+/// Extra headers are accessed directly from the provider via `extra_headers()`.
 #[cfg(feature = "native-http")]
-type PreparedRequest = (
-    String,
-    Option<(String, String)>,
-    Vec<(String, String)>,
-    serde_json::Value,
-);
+type PreparedRequest = (String, Option<(String, String)>, serde_json::Value);
+
+/// Convert an owned `(String, String)` auth header pair to `(&str, &str)` borrows.
+///
+/// Centralises the four identical `map(|(n, v)| (n.as_str(), v.as_str()))` expressions
+/// that appear wherever we hand headers to the HTTP layer.
+#[cfg(feature = "native-http")]
+fn str_pair(pair: &(String, String)) -> (&str, &str) {
+    (pair.0.as_str(), pair.1.as_str())
+}
 
 /// Core LLM client trait.
 pub trait LlmClient: Send + Sync {
@@ -128,6 +132,7 @@ impl DefaultClient {
     ///
     /// Returns `(url, optional_auth_header, body_value)` where the auth header
     /// is `None` when the provider requires no authentication.
+    /// Extra headers are accessed directly from `self.provider.extra_headers()`.
     fn prepare_request(
         &self,
         serializable: &impl serde::Serialize,
@@ -147,13 +152,6 @@ impl DefaultClient {
             .auth_header(self.config.api_key.expose_secret())
             .map(|(name, value)| (name.into_owned(), value.into_owned()));
 
-        let extra_headers: Vec<(String, String)> = self
-            .provider
-            .extra_headers()
-            .into_iter()
-            .map(|(k, v)| (k.into_owned(), v.into_owned()))
-            .collect();
-
         let bare_model = self.provider.strip_model_prefix(model).to_owned();
 
         let mut body = serde_json::to_value(serializable)?;
@@ -165,7 +163,7 @@ impl DefaultClient {
         }
         self.provider.transform_request(&mut body)?;
 
-        Ok((url, auth_header, extra_headers, body))
+        Ok((url, auth_header, body))
     }
 }
 
@@ -181,7 +179,7 @@ fn build_provider(config: &ClientConfig, model_hint: Option<&str>) -> Box<dyn Pr
         return Box::new(OpenAiCompatibleProvider {
             name: "custom".into(),
             base_url: base_url.clone(),
-            env_var: String::new(),
+            env_var: None,
             model_prefixes: vec![],
         });
     }
@@ -200,25 +198,25 @@ impl LlmClient for DefaultClient {
     fn chat(&self, req: ChatCompletionRequest) -> BoxFuture<'_, ChatCompletionResponse> {
         Box::pin(async move {
             // Pass stream=false so providers can inspect the flag in transform_request.
-            let (url, auth_header, extra_headers, body) =
+            let (url, auth_header, body) =
                 self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(false))?;
 
-            let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
-            let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            http::request::post_json(&self.http, &url, auth, &extra, body, self.config.max_retries).await
+            let auth = auth_header.as_ref().map(str_pair);
+            let extra = self.provider.extra_headers();
+            http::request::post_json(&self.http, &url, auth, extra, body, self.config.max_retries).await
         })
     }
 
     fn chat_stream(&self, req: ChatCompletionRequest) -> BoxFuture<'_, BoxStream<'_, ChatCompletionChunk>> {
         Box::pin(async move {
             // Pass stream=true so providers can inspect the flag in transform_request.
-            let (url, auth_header, extra_headers, body) =
+            let (url, auth_header, body) =
                 self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(true))?;
 
-            let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
-            let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+            let auth = auth_header.as_ref().map(str_pair);
+            let extra = self.provider.extra_headers();
             let stream =
-                http::streaming::post_stream(&self.http, &url, auth, &extra, body, self.config.max_retries).await?;
+                http::streaming::post_stream(&self.http, &url, auth, extra, body, self.config.max_retries).await?;
             Ok(stream)
         })
     }
@@ -226,12 +224,12 @@ impl LlmClient for DefaultClient {
     fn embed(&self, req: EmbeddingRequest) -> BoxFuture<'_, EmbeddingResponse> {
         Box::pin(async move {
             // Embeddings have no stream flag; pass None so it is not inserted.
-            let (url, auth_header, extra_headers, body) =
+            let (url, auth_header, body) =
                 self.prepare_request(&req, self.provider.embeddings_path(), &req.model, None)?;
 
-            let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
-            let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
-            http::request::post_json(&self.http, &url, auth, &extra, body, self.config.max_retries).await
+            let auth = auth_header.as_ref().map(str_pair);
+            let extra = self.provider.extra_headers();
+            http::request::post_json(&self.http, &url, auth, extra, body, self.config.max_retries).await
         })
     }
 
@@ -243,16 +241,10 @@ impl LlmClient for DefaultClient {
                 .provider
                 .auth_header(self.config.api_key.expose_secret())
                 .map(|(name, value)| (name.into_owned(), value.into_owned()));
-            let auth = auth_header.as_ref().map(|(n, v)| (n.as_str(), v.as_str()));
-            let extra_headers: Vec<(String, String)> = self
-                .provider
-                .extra_headers()
-                .into_iter()
-                .map(|(k, v)| (k.into_owned(), v.into_owned()))
-                .collect();
-            let extra: Vec<(&str, &str)> = extra_headers.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+            let auth = auth_header.as_ref().map(str_pair);
+            let extra = self.provider.extra_headers();
 
-            http::request::get_json(&self.http, &url, auth, &extra, self.config.max_retries).await
+            http::request::get_json(&self.http, &url, auth, extra, self.config.max_retries).await
         })
     }
 }

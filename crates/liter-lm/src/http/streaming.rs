@@ -117,16 +117,15 @@ where
             // --- Process any complete lines already in the buffer ---
             // Use memchr for fast newline scanning on the hot streaming path.
             if let Some(newline_pos) = memchr(b'\n', this.buffer.as_bytes()) {
-                // Read the line without allocating: slice up to the newline,
-                // strip optional trailing '\r' (CRLF), and trim whitespace.
-                // We allocate only the final trimmed string, then drain the
-                // buffer past the newline.
-                let line = this.buffer[..newline_pos].trim_end_matches('\r').trim().to_string();
-                // Advance the buffer past the '\n'.
-                this.buffer.drain(..=newline_pos);
+                // Borrow the line slice *before* draining — zero allocation on
+                // the hot path.  All decisions (empty check, prefix match, JSON
+                // parse) operate on this borrowed `&str`; we drain only after
+                // extracting everything we need.
+                let line = this.buffer[..newline_pos].trim_end_matches('\r').trim();
 
                 // Skip empty lines and SSE comments.
                 if line.is_empty() || line.starts_with(':') {
+                    this.buffer.drain(..=newline_pos);
                     continue;
                 }
 
@@ -134,16 +133,20 @@ where
                     // Strip exactly one optional leading space (RFC 8895 §3.3).
                     let data = raw.strip_prefix(' ').unwrap_or(raw).trim();
                     if data == "[DONE]" {
+                        this.buffer.drain(..=newline_pos);
                         return Poll::Ready(None);
                     }
-                    return Poll::Ready(Some(serde_json::from_str::<ChatCompletionChunk>(data).map_err(|e| {
-                        LiterLmError::Streaming {
+                    // Parse while the borrow is still live, then drain.
+                    let result =
+                        serde_json::from_str::<ChatCompletionChunk>(data).map_err(|e| LiterLmError::Streaming {
                             message: format!("failed to parse SSE data: {e}"),
-                        }
-                    })));
+                        });
+                    this.buffer.drain(..=newline_pos);
+                    return Poll::Ready(Some(result));
                 }
 
                 // Ignore other SSE fields (event:, id:, retry:).
+                this.buffer.drain(..=newline_pos);
                 continue;
             }
 

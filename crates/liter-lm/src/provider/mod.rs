@@ -106,10 +106,10 @@ pub trait Provider: Send + Sync {
 
     /// Additional static headers required by this provider beyond the auth header.
     ///
-    /// Most providers return an empty `Vec`.  Use this for provider-mandated
+    /// Most providers return an empty slice.  Use this for provider-mandated
     /// headers like Anthropic's `anthropic-version`.
-    fn extra_headers(&self) -> Vec<(Cow<'static, str>, Cow<'static, str>)> {
-        vec![]
+    fn extra_headers(&self) -> &'static [(&'static str, &'static str)] {
+        &[]
     }
 
     /// Whether this provider matches a given model string.
@@ -202,7 +202,7 @@ pub struct OpenAiCompatibleProvider {
     pub name: String,
     pub base_url: String,
     #[allow(dead_code)] // reserved for future env-var based key injection
-    pub env_var: String,
+    pub env_var: Option<&'static str>,
     pub model_prefixes: Vec<String>,
 }
 
@@ -245,12 +245,12 @@ impl Provider for OpenAiCompatibleProvider {
 /// constructed instance (hypothetically) would produce a clearly-broken URL
 /// (`/chat/completions`) that fails immediately at the HTTP layer.
 pub struct ConfigDrivenProvider {
-    config: ProviderConfig,
+    config: &'static ProviderConfig,
 }
 
 impl ConfigDrivenProvider {
     #[must_use]
-    pub(crate) fn new(config: ProviderConfig) -> Self {
+    pub(crate) fn new(config: &'static ProviderConfig) -> Self {
         Self { config }
     }
 }
@@ -339,9 +339,10 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         && cfg.base_url.is_some()
         && !reg.complex_providers.contains(&cfg.name)
     {
+        // cfg is &'static ProviderConfig because reg comes from LazyLock.
         // Only use the registry entry if it has a usable base_url and is not
         // a complex provider requiring dedicated auth logic.
-        return Some(Box::new(ConfigDrivenProvider::new(cfg.clone())));
+        return Some(Box::new(ConfigDrivenProvider::new(cfg)));
     }
 
     // 5. Walk registry model_prefixes for unprefixed model names.
@@ -354,7 +355,8 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
                 .iter()
                 .any(|p| model.starts_with(p.as_str()) && !p.ends_with('/'));
             if matches && cfg.base_url.is_some() {
-                return Some(Box::new(ConfigDrivenProvider::new(cfg.clone())));
+                // cfg is &'static ProviderConfig because reg comes from LazyLock.
+                return Some(Box::new(ConfigDrivenProvider::new(cfg)));
             }
         }
     }

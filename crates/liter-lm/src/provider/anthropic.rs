@@ -3,6 +3,8 @@ use std::borrow::Cow;
 use crate::error::Result;
 use crate::provider::Provider;
 
+static ANTHROPIC_EXTRA_HEADERS: &[(&str, &str)] = &[("anthropic-version", "2023-06-01")];
+
 /// Anthropic provider (Claude model family).
 ///
 /// Differences from the OpenAI-compatible baseline:
@@ -25,8 +27,8 @@ impl Provider for AnthropicProvider {
         Some((Cow::Borrowed("x-api-key"), Cow::Borrowed(api_key)))
     }
 
-    fn extra_headers(&self) -> Vec<(Cow<'static, str>, Cow<'static, str>)> {
-        vec![(Cow::Borrowed("anthropic-version"), Cow::Borrowed("2023-06-01"))]
+    fn extra_headers(&self) -> &'static [(&'static str, &'static str)] {
+        ANTHROPIC_EXTRA_HEADERS
     }
 
     fn matches_model(&self, model: &str) -> bool {

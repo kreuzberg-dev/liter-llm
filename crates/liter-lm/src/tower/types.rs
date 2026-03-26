@@ -7,7 +7,7 @@ use crate::types::{
 /// The request variant passed through the tower `Service` stack.
 ///
 /// Each variant corresponds to one method on [`crate::client::LlmClient`].
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LlmRequest {
     /// Non-streaming chat completion.
     Chat(ChatCompletionRequest),

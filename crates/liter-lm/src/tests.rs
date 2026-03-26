@@ -617,7 +617,10 @@ mod provider_tests {
     }
 
     fn make_provider(auth_type: AuthType) -> ConfigDrivenProvider {
-        ConfigDrivenProvider::new(ProviderConfig {
+        // Box::leak gives us a &'static reference, which ConfigDrivenProvider
+        // now requires.  Leaking in tests is acceptable — each test process is
+        // short-lived and the total number of leaked configs is tiny.
+        let cfg: &'static ProviderConfig = Box::leak(Box::new(ProviderConfig {
             name: "test-provider".into(),
             display_name: None,
             base_url: Some("https://api.example.com/v1".into()),
@@ -628,7 +631,8 @@ mod provider_tests {
             endpoints: None,
             model_prefixes: None,
             param_mappings: None,
-        })
+        }));
+        ConfigDrivenProvider::new(cfg)
     }
 
     #[test]

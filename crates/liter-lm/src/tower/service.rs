@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
@@ -72,7 +73,7 @@ where
                     let stream = client.chat_stream(r).await?;
                     let chunks = collect_stream(stream).await?;
                     let static_stream: crate::client::BoxStream<'static, ChatCompletionChunk> =
-                        Box::pin(OwnedChunksStream { chunks, index: 0 });
+                        Box::pin(OwnedChunksStream { chunks });
                     Ok(LlmResponse::ChatStream(static_stream))
                 }
                 LlmRequest::Embed(r) => {
@@ -88,16 +89,16 @@ where
     }
 }
 
-/// Collect all items from a stream into a `Vec`, stopping on the first error.
+/// Collect all items from a stream into a `VecDeque`, stopping on the first error.
 async fn collect_stream<'a>(
     mut stream: crate::client::BoxStream<'a, ChatCompletionChunk>,
-) -> Result<Vec<ChatCompletionChunk>> {
-    let mut chunks = Vec::new();
+) -> Result<VecDeque<ChatCompletionChunk>> {
+    let mut chunks = VecDeque::new();
     loop {
         // Drive the stream by polling it inside a future::poll_fn.
         let item = std::future::poll_fn(|cx| Pin::as_mut(&mut stream).poll_next(cx)).await;
         match item {
-            Some(Ok(chunk)) => chunks.push(chunk),
+            Some(Ok(chunk)) => chunks.push_back(chunk),
             Some(Err(e)) => return Err(e),
             None => break,
         }
@@ -105,25 +106,21 @@ async fn collect_stream<'a>(
     Ok(chunks)
 }
 
-/// A `Stream` that yields items from an owned `Vec` in order.
+/// A `Stream` that yields items from an owned `VecDeque` in order.
+///
+/// Uses `pop_front` to avoid cloning — each chunk is moved out of the deque
+/// and ownership is transferred to the caller without any copy.
 ///
 /// Used to wrap collected streaming chunks so they can be returned as a
 /// `BoxStream<'static, ...>` without any lifetime dependencies.
 struct OwnedChunksStream {
-    chunks: Vec<ChatCompletionChunk>,
-    index: usize,
+    chunks: VecDeque<ChatCompletionChunk>,
 }
 
 impl Stream for OwnedChunksStream {
     type Item = Result<ChatCompletionChunk>;
 
     fn poll_next(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        if self.index < self.chunks.len() {
-            let chunk = self.chunks[self.index].clone();
-            self.index += 1;
-            Poll::Ready(Some(Ok(chunk)))
-        } else {
-            Poll::Ready(None)
-        }
+        Poll::Ready(self.chunks.pop_front().map(Ok))
     }
 }

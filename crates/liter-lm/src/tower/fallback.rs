@@ -92,7 +92,7 @@ where
 
     fn call(&mut self, req: LlmRequest) -> Self::Future {
         // Clone the request so it can be replayed on the fallback if needed.
-        let fallback_req = clone_request(&req);
+        let fallback_req = req.clone();
         let primary_fut = self.primary.call(req);
         // Clone the fallback service into the async block so the future is
         // 'static.  The fallback's call() is only invoked when the primary
@@ -124,14 +124,4 @@ fn is_transient(e: &LiterLmError) -> bool {
             | LiterLmError::Timeout
             | LiterLmError::ServerError { .. }
     )
-}
-
-/// Produce a clone of an [`LlmRequest`] for replay on the fallback service.
-fn clone_request(req: &LlmRequest) -> LlmRequest {
-    match req {
-        LlmRequest::Chat(r) => LlmRequest::Chat(r.clone()),
-        LlmRequest::ChatStream(r) => LlmRequest::ChatStream(r.clone()),
-        LlmRequest::Embed(r) => LlmRequest::Embed(r.clone()),
-        LlmRequest::ListModels => LlmRequest::ListModels,
-    }
 }
