@@ -71,7 +71,24 @@ lint.ignore = [
   "TD",     # we allow todo and fixme comments
   "TRY",    # Try except block, rules are too strict
 ]
-lint.per-file-ignores."scripts/**/*.*" = [ "ALL" ]
+lint.per-file-ignores."scripts/**/*.*" = [
+  "B904",    # raise without from
+  "BLE001",  # broad exception catch
+  "C901",    # complexity
+  "D",       # docstrings
+  "G004",    # f-string in logging
+  "G201",    # logging .exception vs .error
+  "PERF203", # try in loop
+  "PERF401", # list comprehension
+  "PLC0415", # import not at top
+  "PLR0912", # too many branches
+  "PLR0915", # too many statements
+  "PLW2901", # loop variable overwritten
+  "PTH123",  # open() vs Path.open()
+  "S",       # security (subprocess, etc.)
+  "SIM105",  # contextlib.suppress
+  "T201",    # print
+]
 lint.isort.known-first-party = [ "scripts" ]
 lint.pydocstyle.convention = "google"
 
