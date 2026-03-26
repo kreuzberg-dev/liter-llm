@@ -51,24 +51,21 @@ pub async fn post_stream<P>(
     url: &str,
     auth_header: Option<(&str, &str)>,
     extra_headers: &[(&str, &str)],
-    body: serde_json::Value,
+    body: Bytes,
     max_retries: u32,
     parse_event: P,
 ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatCompletionChunk>> + Send>>>
 where
     P: Fn(&str) -> Result<Option<ChatCompletionChunk>> + Send + 'static,
 {
-    // Serialize the body once up front so retries reuse the same bytes
-    // instead of re-serializing on every attempt.
-    let body_bytes = serde_json::to_vec(&body)?;
-
     let mut retry_count = 0u32;
 
     let resp = with_retry(max_retries, || {
+        // Clone is a zero-copy ref-count bump on `Bytes`.
         let mut builder = client
             .post(url)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
-            .body(body_bytes.clone());
+            .body(body.clone());
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
         }
@@ -219,6 +216,9 @@ where
                     match std::str::from_utf8(&bytes) {
                         Ok(s) => this.buffer.push_str(s),
                         Err(e) => {
+                            // Mark done so the next poll does not try to read
+                            // more data from the (now-corrupt) stream.
+                            *this.done = true;
                             return Poll::Ready(Some(Err(LiterLmError::Streaming {
                                 message: format!("invalid UTF-8 in SSE stream: {e}"),
                             })));

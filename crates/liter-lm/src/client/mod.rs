@@ -31,13 +31,17 @@ pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T>> + Send + 'a>>
 pub type BoxStream<'a, T> = Pin<Box<dyn Stream<Item = Result<T>> + Send + 'a>>;
 
 /// Result of [`DefaultClient::prepare_request`]:
-/// `(url, optional_auth_header, body)`.
+/// `(url, optional_auth_header, body_bytes)`.
+///
+/// The body is pre-serialized into `bytes::Bytes` so it is serialized exactly
+/// once — the same bytes are used for signing headers and for the HTTP request
+/// body.  On retry, cloning `Bytes` is a zero-copy ref-count bump.
 ///
 /// The auth header is `None` when the provider requires no authentication
 /// (e.g. local models or providers with `auth: none`).
 /// Extra headers are accessed directly from the provider via `extra_headers()`.
 #[cfg(feature = "native-http")]
-type PreparedRequest = (String, Option<(String, String)>, serde_json::Value);
+type PreparedRequest = (String, Option<(String, String)>, bytes::Bytes);
 
 /// Convert an owned `(String, String)` auth header pair to `(&str, &str)` borrows.
 ///
@@ -187,7 +191,12 @@ impl DefaultClient {
         }
         self.provider.transform_request(&mut body)?;
 
-        Ok((url, auth_header, body))
+        // Serialize exactly once — the same bytes are used for signing and for
+        // the HTTP request body.  `Bytes` is reference-counted, so cloning on
+        // retry is a zero-copy bump.
+        let body_bytes = bytes::Bytes::from(serde_json::to_vec(&body)?);
+
+        Ok((url, auth_header, body_bytes))
     }
 
     /// Build the combined header list for a request.
@@ -242,17 +251,16 @@ impl LlmClient for DefaultClient {
     fn chat(&self, req: ChatCompletionRequest) -> BoxFuture<'_, ChatCompletionResponse> {
         Box::pin(async move {
             // Pass stream=false so providers can inspect the flag in transform_request.
-            let (url, auth_header, body) =
+            let (url, auth_header, body_bytes) =
                 self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(false))?;
 
-            // Serialise body for signing; the value is also passed to post_json_raw below.
-            let body_bytes = serde_json::to_vec(&body)?;
             let all_headers = self.all_headers("POST", &url, &body_bytes);
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
             let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body, self.config.max_retries).await?;
+                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
+                    .await?;
             self.provider.transform_response(&mut raw)?;
             serde_json::from_value::<ChatCompletionResponse>(raw).map_err(LiterLmError::from)
         })
@@ -262,7 +270,7 @@ impl LlmClient for DefaultClient {
         Box::pin(async move {
             // Use prepare_request for validation, model-prefix stripping, and
             // transform_request — then override the URL for streaming providers.
-            let (mut url, auth_header, body) =
+            let (mut url, auth_header, body_bytes) =
                 self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(true))?;
 
             // Providers with a distinct streaming endpoint (e.g. Bedrock
@@ -275,7 +283,6 @@ impl LlmClient for DefaultClient {
                     .build_stream_url(self.provider.chat_completions_path(), bare_model);
             }
 
-            let body_bytes = serde_json::to_vec(&body)?;
             let all_headers = self.all_headers("POST", &url, &body_bytes);
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
             let auth = auth_header.as_ref().map(str_pair);
@@ -289,7 +296,7 @@ impl LlmClient for DefaultClient {
                         &url,
                         auth,
                         &extra,
-                        body,
+                        body_bytes,
                         self.config.max_retries,
                         parse_event,
                     )
@@ -302,7 +309,7 @@ impl LlmClient for DefaultClient {
                         &url,
                         auth,
                         &extra,
-                        body,
+                        body_bytes,
                         self.config.max_retries,
                         provider::bedrock::parse_bedrock_stream_event,
                     )
@@ -316,16 +323,16 @@ impl LlmClient for DefaultClient {
     fn embed(&self, req: EmbeddingRequest) -> BoxFuture<'_, EmbeddingResponse> {
         Box::pin(async move {
             // Embeddings have no stream flag; pass None so it is not inserted.
-            let (url, auth_header, body) =
+            let (url, auth_header, body_bytes) =
                 self.prepare_request(&req, self.provider.embeddings_path(), &req.model, None)?;
 
-            let body_bytes = serde_json::to_vec(&body)?;
             let all_headers = self.all_headers("POST", &url, &body_bytes);
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
             let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body, self.config.max_retries).await?;
+                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
+                    .await?;
             self.provider.transform_response(&mut raw)?;
             serde_json::from_value::<EmbeddingResponse>(raw).map_err(LiterLmError::from)
         })

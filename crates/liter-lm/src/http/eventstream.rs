@@ -18,7 +18,7 @@
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
-use bytes::BytesMut;
+use bytes::{Bytes, BytesMut};
 use futures_core::Stream;
 use pin_project_lite::pin_project;
 
@@ -61,7 +61,7 @@ pub async fn post_eventstream<P>(
     url: &str,
     auth_header: Option<(&str, &str)>,
     extra_headers: &[(&str, &str)],
-    body: serde_json::Value,
+    body: Bytes,
     max_retries: u32,
     parse_event: P,
 ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatCompletionChunk>> + Send>>>
@@ -71,10 +71,11 @@ where
     let mut retry_count = 0u32;
 
     let resp = with_retry(max_retries, || {
+        // Clone is a zero-copy ref-count bump on `Bytes`.
         let mut builder = client
             .post(url)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
-            .json(&body);
+            .body(body.clone());
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
         }

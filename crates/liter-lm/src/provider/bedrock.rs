@@ -193,10 +193,14 @@ impl Provider for BedrockProvider {
     fn transform_request(&self, body: &mut serde_json::Value) -> Result<()> {
         use serde_json::json;
 
+        // Take ownership of the messages array to avoid cloning.
         let messages = body
-            .get("messages")
-            .and_then(|v| v.as_array())
-            .cloned()
+            .as_object_mut()
+            .and_then(|o| o.remove("messages"))
+            .and_then(|v| match v {
+                serde_json::Value::Array(arr) => Some(arr),
+                _ => None,
+            })
             .unwrap_or_default();
 
         let mut system_parts = vec![];
@@ -454,7 +458,7 @@ impl Provider for BedrockProvider {
         *body = json!({
             "id": response_id,
             "object": "chat.completion",
-            "created": 0u64,
+            "created": super::unix_timestamp_secs(),
             "model": "",
             "choices": [{
                 "index": 0,

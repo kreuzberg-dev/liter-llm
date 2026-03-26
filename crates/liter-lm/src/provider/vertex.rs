@@ -170,10 +170,14 @@ impl Provider for VertexAiProvider {
     fn transform_request(&self, body: &mut serde_json::Value) -> Result<()> {
         use serde_json::json;
 
+        // Take ownership of the messages array to avoid cloning.
         let messages = body
-            .get("messages")
-            .and_then(|v| v.as_array())
-            .cloned()
+            .as_object_mut()
+            .and_then(|o| o.remove("messages"))
+            .and_then(|v| match v {
+                serde_json::Value::Array(arr) => Some(arr),
+                _ => None,
+            })
             .unwrap_or_default();
 
         let mut system_parts: Vec<serde_json::Value> = vec![];
@@ -455,6 +459,19 @@ impl Provider for VertexAiProvider {
         });
 
         Ok(())
+    }
+
+    /// Build the streaming URL: appends `?alt=sse` to enable SSE streaming.
+    ///
+    /// Gemini's streaming endpoint uses the same path as the non-streaming
+    /// `generateContent` endpoint but requires `?alt=sse` to switch to
+    /// Server-Sent Events mode.
+    fn build_stream_url(&self, endpoint_path: &str, model: &str) -> String {
+        let url = self.build_url(endpoint_path, model);
+        if url.is_empty() {
+            return url;
+        }
+        format!("{url}?alt=sse")
     }
 
     /// Parse a single SSE event from Gemini's streaming endpoint.

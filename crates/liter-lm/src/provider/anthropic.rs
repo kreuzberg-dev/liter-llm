@@ -390,17 +390,20 @@ impl Provider for AnthropicProvider {
                 // For tool_use blocks, emit the tool_call header (id + name, empty arguments).
                 let block = &event["content_block"];
                 let block_type = block.get("type").and_then(|t| t.as_str()).unwrap_or("");
-                // Compute the OpenAI tool call index: count only tool_use blocks seen so far.
-                // Anthropic's block index includes text/thinking blocks; we must normalize.
+                // NOTE: We use Anthropic's block index directly, which counts ALL content blocks
+                // (text + thinking + tool_use). This differs from OpenAI's sequential tool-call
+                // indices (0, 1, 2...) but is safe because:
+                // 1. The same index is used in both content_block_start and content_block_delta,
+                //    so they are consistent with each other.
+                // 2. OpenAI clients typically correlate tool calls by `id`, not by index.
+                // 3. OpenAI's own streaming format allows index gaps in tool_calls[].
+                // Known limitation: indices may have gaps when text/thinking blocks precede tool_use.
                 let anthropic_index = event.get("index").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
 
                 if block_type == "tool_use" || block_type == "server_tool_use" {
                     let tool_id = block.get("id").and_then(|v| v.as_str()).unwrap_or("").to_owned();
                     let tool_name = block.get("name").and_then(|v| v.as_str()).unwrap_or("").to_owned();
 
-                    // Use a corrected index for OpenAI compat: we use the Anthropic block index
-                    // directly here since we can't cheaply track state in a stateless function.
-                    // Callers that need perfect sequential indexing should track state externally.
                     return Ok(Some(make_empty_chunk_with_tool_start(
                         anthropic_index,
                         tool_id,
@@ -423,14 +426,10 @@ impl Provider for AnthropicProvider {
                         Ok(Some(make_text_chunk("", "", text)))
                     }
                     "thinking_delta" => {
-                        // Extended thinking block — surface as text content so callers
-                        // receive the thinking text rather than silently dropping it.
-                        let thinking = delta.get("thinking").and_then(|t| t.as_str()).unwrap_or("");
-                        if thinking.is_empty() {
-                            Ok(None)
-                        } else {
-                            Ok(Some(make_text_chunk("", "", thinking)))
-                        }
+                        // Extended thinking blocks are Anthropic's internal chain-of-thought.
+                        // Non-streaming already filters thinking blocks from content, so
+                        // streaming must be consistent: skip them entirely.
+                        Ok(None)
                     }
                     "input_json_delta" => {
                         // Partial JSON for tool input — emit as tool_call arguments delta.
@@ -563,10 +562,10 @@ fn merge_consecutive_same_role(messages: Vec<Value>) -> Vec<Value> {
     let mut merged: Vec<Value> = Vec::new();
 
     for msg in messages {
-        let role = msg.get("role").and_then(|r| r.as_str()).unwrap_or("").to_owned();
+        let role = msg.get("role").and_then(|r| r.as_str()).unwrap_or("");
 
         if let Some(last) = merged.last_mut() {
-            let last_role = last.get("role").and_then(|r| r.as_str()).unwrap_or("").to_owned();
+            let last_role = last.get("role").and_then(|r| r.as_str()).unwrap_or("");
             if last_role == role {
                 // Merge content blocks.
                 let incoming_content = match msg.get("content") {
@@ -602,9 +601,9 @@ fn merge_consecutive_same_role(messages: Vec<Value>) -> Vec<Value> {
 
 /// Convert an OpenAI-format message JSON value to Anthropic Messages API format.
 fn convert_message_to_anthropic(msg: Value) -> Value {
-    let role = msg.get("role").and_then(|r| r.as_str()).unwrap_or("").to_owned();
+    let role = msg.get("role").and_then(|r| r.as_str()).unwrap_or("");
 
-    match role.as_str() {
+    match role {
         "user" => {
             let content = convert_user_content_to_anthropic(msg.get("content"));
             json!({"role": "user", "content": content})
@@ -1619,10 +1618,11 @@ mod tests {
     }
 
     #[test]
-    fn parse_stream_event_thinking_delta_emits_text_chunk() {
+    fn parse_stream_event_thinking_delta_returns_none() {
+        // Thinking blocks are filtered in both streaming and non-streaming for consistency.
         let event = r#"{"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"I am thinking..."}}"#;
-        let chunk = provider().parse_stream_event(event).unwrap().expect("expected chunk");
-        assert_eq!(chunk.choices[0].delta.content.as_deref(), Some("I am thinking..."));
+        let result = provider().parse_stream_event(event).unwrap();
+        assert!(result.is_none(), "thinking_delta should be filtered (return None)");
     }
 
     #[test]

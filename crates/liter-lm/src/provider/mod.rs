@@ -298,6 +298,9 @@ impl Provider for OpenAiProvider {
             || model.starts_with("o1-")
             || model.starts_with("o3-")
             || model.starts_with("o4-")
+            || model == "o1"
+            || model == "o3"
+            || model == "o4"
             || model.starts_with("dall-e-")
             || model.starts_with("whisper-")
             || model.starts_with("tts-")
