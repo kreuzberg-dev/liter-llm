@@ -36,27 +36,27 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
-        <junit.version>5.11.4</junit.version>
+        <junit.version>6.1.0-M1</junit.version>
         <maven.version>3.9.11</maven.version>
-        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>4.0.0-beta-4</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
-        <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
-        <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-        <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
-        <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
-        <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+        <maven-resources-plugin.version>4.0.0-beta-1</maven-resources-plugin.version>
+        <maven-clean-plugin.version>4.0.0-beta-2</maven-clean-plugin.version>
+        <maven-jar-plugin.version>4.0.0-beta-1</maven-jar-plugin.version>
+        <maven-install-plugin.version>4.0.0-beta-2</maven-install-plugin.version>
+        <maven-deploy-plugin.version>4.0.0-beta-2</maven-deploy-plugin.version>
         <maven-site-plugin.version>4.0.0-M16</maven-site-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
-        <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+        <maven-source-plugin.version>4.0.0-beta-1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
         <central-publishing-plugin.version>0.10.0</central-publishing-plugin.version>
         <checkstyle.version>13.3.0</checkstyle.version>
-        <pmd.version>7.19.0</pmd.version>
+        <pmd.version>7.22.0</pmd.version>
         <!-- Skip GPG signing by default, only enable for publish profile -->
         <gpg.skip>true</gpg.skip>
     </properties>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.26.3</version>
+            <version>4.0.0-M1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
