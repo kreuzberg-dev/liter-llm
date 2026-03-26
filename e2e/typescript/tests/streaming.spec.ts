@@ -124,12 +124,15 @@ describe("streaming", () => {
     try {
       const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
 
-      const stream = await client.chatStream(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","stream":true}`));
-      const chunks: unknown[] = [];
-      for await (const chunk of stream) {
-        chunks.push(chunk);
+      let threw = false;
+      try {
+        const stream = await client.chatStream(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","stream":true}`));
+        for await (const _chunk of stream) { /* drain */ }
+      } catch (e) {
+        threw = true;
+        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
       }
-
+      expect(threw, "Expected client.chatStream to throw").toBe(true);
     } finally {
       server.close();
     }

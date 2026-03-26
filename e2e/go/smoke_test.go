@@ -5,7 +5,6 @@ package literlm_e2e
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"testing"
 )
@@ -73,7 +72,7 @@ func TestSmoke(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		var result map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -103,7 +102,7 @@ func TestSmoke(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		var result map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {

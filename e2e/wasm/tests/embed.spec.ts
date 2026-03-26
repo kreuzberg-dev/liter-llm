@@ -64,7 +64,7 @@ describe("401 Unauthorized error on embedding request when API key is invalid", 
     const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
 
     const req = JSON.parse("{\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}");
-    const response = await client.embed(req);
+    await expect(client.embed(req)).rejects.toThrow();
   });
 });
 

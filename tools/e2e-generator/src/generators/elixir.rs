@@ -233,6 +233,17 @@ defmodule LiterLmE2E.Helpers do
     assert actual >= min_count, "Expected at least #{min_count} chunk(s), got #{actual}"
     :ok
   end
+
+  @doc "Parse SSE chunks from an HTTP response body."
+  @spec collect_sse_chunks(binary()) :: list()
+  def collect_sse_chunks(body) when is_binary(body) do
+    body
+    |> String.split("\n")
+    |> Enum.filter(&String.starts_with?(&1, "data: "))
+    |> Enum.map(&String.trim_leading(&1, "data: "))
+    |> Enum.reject(&(&1 == "[DONE]"))
+    |> Enum.map(&Jason.decode!/1)
+  end
 end
 "#;
     std::fs::write(dir.join("test").join("support").join("helpers.ex"), content)
@@ -309,7 +320,7 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
     writeln!(out).unwrap();
 
     match method {
-        "chat_stream" => emit_stream_test(out, fixture, endpoint),
+        "chat_stream" => emit_stream_test(out, fixture, endpoint, is_error),
         _ => emit_http_test(out, fixture, endpoint, http_method, is_error),
     }
 
@@ -352,7 +363,7 @@ fn emit_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, http_meth
     }
 }
 
-fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
+fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str, is_error: bool) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let req_elixir = elixir_string_escape(&req_json);
 
@@ -361,31 +372,42 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         "    {{:ok, resp}} = Req.post(base_url <> {:?}, body: {:?}, headers: [{{\"content-type\", \"application/json\"}}], into: :self)",
         endpoint, req_elixir
     ).unwrap();
+
+    if is_error {
+        let status = fixture.api.mock_response.status;
+        writeln!(out, "    assert resp.status == {status}").unwrap();
+        return;
+    }
+
     writeln!(out, "    assert resp.status == 200").unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "    chunks = collect_sse_chunks(resp)").unwrap();
+    writeln!(out, "    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)").unwrap();
 
-    let meaningful: usize = fixture
-        .api
-        .mock_response
-        .stream_chunks
-        .iter()
-        .filter(|c| {
-            c.get("choices")
-                .and_then(|ch| ch.as_array())
-                .and_then(|arr| arr.first())
-                .and_then(|ch| ch.get("delta"))
-                .and_then(|d| d.get("content"))
-                .and_then(|v| v.as_str())
-                .is_some_and(|s| !s.is_empty())
-        })
-        .count();
-    let min_chunks = meaningful.max(1);
+    if fixture.api.mock_response.stream_chunks.is_empty() {
+        writeln!(out, "    assert length(chunks) == 0").unwrap();
+    } else {
+        let meaningful: usize = fixture
+            .api
+            .mock_response
+            .stream_chunks
+            .iter()
+            .filter(|c| {
+                c.get("choices")
+                    .and_then(|ch| ch.as_array())
+                    .and_then(|arr| arr.first())
+                    .and_then(|ch| ch.get("delta"))
+                    .and_then(|d| d.get("content"))
+                    .and_then(|v| v.as_str())
+                    .is_some_and(|s| !s.is_empty())
+            })
+            .count();
+        let min_chunks = meaningful.max(1);
 
-    writeln!(
-        out,
-        "    assert length(chunks) >= {min_chunks}, \"Expected at least {min_chunks} chunk(s), got #{{length(chunks)}}\""
-    ).unwrap();
+        writeln!(
+            out,
+            "    assert length(chunks) >= {min_chunks}, \"Expected at least {min_chunks} chunk(s), got #{{length(chunks)}}\""
+        ).unwrap();
+    }
 }
 
 fn emit_elixir_assertions(out: &mut String, fixture: &Fixture, method: &str) {

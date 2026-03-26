@@ -37,7 +37,7 @@ func TestStreaming(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		chunks, err := ReadSSEChunks(resp.Body)
 		if err != nil {
@@ -86,14 +86,14 @@ func TestStreaming(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		chunks, err := ReadSSEChunks(resp.Body)
 		if err != nil {
 			t.Fatalf("ReadSSEChunks: %v", err)
 		}
 
-		AssertTrue(t, "expected at least 1 chunk(s)", len(chunks) >= 1)
+		AssertTrue(t, "expected 0 chunks for empty stream", len(chunks) == 0)
 	})
 
 	t.Run("stream_done_signal", func(t *testing.T) {
@@ -120,7 +120,7 @@ func TestStreaming(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		chunks, err := ReadSSEChunks(resp.Body)
 		if err != nil {
@@ -169,14 +169,9 @@ func TestStreaming(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
-
-		chunks, err := ReadSSEChunks(resp.Body)
-		if err != nil {
-			t.Fatalf("ReadSSEChunks: %v", err)
-		}
-
-		AssertTrue(t, "expected at least 1 chunk(s)", len(chunks) >= 1)
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 401, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
 	})
 
 	t.Run("stream_with_tool_calls", func(t *testing.T) {
@@ -204,7 +199,7 @@ func TestStreaming(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		chunks, err := ReadSSEChunks(resp.Body)
 		if err != nil {
@@ -239,7 +234,7 @@ func TestStreaming(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		chunks, err := ReadSSEChunks(resp.Body)
 		if err != nil {

@@ -55,11 +55,7 @@ static void test_empty_stream(void) {
         "{\"messages\":[{\"content\":\"Say "
         "nothing\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}",
         chunks, 256);
-    if (n < 1) {
-      fprintf(stderr,
-              "FAIL [test_empty_stream]: expected >= 1 chunks, got %d\n", n);
-      abort();
-    }
+    assert(n == 0);
     for (int i = 0; i < n; i++)
       free(chunks[i]);
   } else {
@@ -112,19 +108,12 @@ static void test_stream_error_401(void) {
     char url[1024];
     snprintf(url, sizeof(url), "%s/chat/completions", base_url);
 
-    char *chunks[256];
-    int n = liter_lm_read_sse(url,
-                              "{\"messages\":[{\"content\":\"Hello\",\"role\":"
-                              "\"user\"}],\"model\":\"gpt-4\",\"stream\":true}",
-                              chunks, 256);
-    if (n < 1) {
-      fprintf(stderr,
-              "FAIL [test_stream_error_401]: expected >= 1 chunks, got %d\n",
-              n);
-      abort();
-    }
-    for (int i = 0; i < n; i++)
-      free(chunks[i]);
+    LiterLmResponse *resp = liter_lm_http_post(
+        url, "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],"
+             "\"model\":\"gpt-4\",\"stream\":true}");
+    assert(resp != NULL);
+    liter_lm_assert_status(resp, 401L, "test_stream_error_401");
+    liter_lm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     (void)mock_body; /* error or stream test — skip offline assertions */

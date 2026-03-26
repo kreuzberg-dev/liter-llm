@@ -3,7 +3,6 @@
 package literlm_e2e
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -30,7 +29,7 @@ func TestListModels(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		var result map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -60,13 +59,9 @@ func TestListModels(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
-
-		var result map[string]interface{}
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("decode response: %v", err)
-		}
-
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 401, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
 	})
 
 }

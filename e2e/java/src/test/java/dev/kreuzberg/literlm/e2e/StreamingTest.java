@@ -76,7 +76,7 @@ class StreamingTest {
       assertEquals(200, resp.statusCode(), "HTTP status code");
 
       List<String> chunks = Helpers.parseSseChunks(resp.body());
-      assertTrue(chunks.size() >= 1, "expected at least 1 chunk(s)");
+      assertTrue(chunks.isEmpty(), "expected 0 chunks for empty stream");
     }
   }
 
@@ -143,10 +143,8 @@ class StreamingTest {
               "/chat/completions",
               "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}");
 
-      assertEquals(200, resp.statusCode(), "HTTP status code");
-
-      List<String> chunks = Helpers.parseSseChunks(resp.body());
-      assertTrue(chunks.size() >= 1, "expected at least 1 chunk(s)");
+      assertEquals(401, resp.statusCode(), "HTTP status code");
+      assertTrue(resp.statusCode() >= 400, "expected error status");
     }
   }
 

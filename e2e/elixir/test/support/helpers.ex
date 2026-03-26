@@ -41,4 +41,15 @@ defmodule LiterLmE2E.Helpers do
     assert actual >= min_count, "Expected at least #{min_count} chunk(s), got #{actual}"
     :ok
   end
+
+  @doc "Parse SSE chunks from an HTTP response body."
+  @spec collect_sse_chunks(binary()) :: list()
+  def collect_sse_chunks(body) when is_binary(body) do
+    body
+    |> String.split("\n")
+    |> Enum.filter(&String.starts_with?(&1, "data: "))
+    |> Enum.map(&String.trim_leading(&1, "data: "))
+    |> Enum.reject(&(&1 == "[DONE]"))
+    |> Enum.map(&Jason.decode!/1)
+  end
 end

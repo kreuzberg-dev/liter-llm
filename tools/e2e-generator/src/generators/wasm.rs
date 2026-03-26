@@ -273,39 +273,65 @@ fn write_describe_block(out: &mut String, fixture: &Fixture) {
         }
         "chat_stream" => {
             writeln!(out, "    const req = JSON.parse({req_json:?});").unwrap();
-            writeln!(out, "    const chunks: unknown[] = [];").unwrap();
-            writeln!(out, "    for await (const chunk of client.chatStream(req)) {{").unwrap();
-            writeln!(out, "      chunks.push(chunk);").unwrap();
-            writeln!(out, "    }}").unwrap();
-            writeln!(out).unwrap();
+            if is_error {
+                writeln!(out, "    let threw = false;").unwrap();
+                writeln!(out, "    try {{").unwrap();
+                writeln!(
+                    out,
+                    "      for await (const _chunk of client.chatStream(req)) {{ /* drain */ }}"
+                )
+                .unwrap();
+                writeln!(out, "    }} catch (_e) {{").unwrap();
+                writeln!(out, "      threw = true;").unwrap();
+                writeln!(out, "    }}").unwrap();
+                writeln!(out, "    expect(threw).toBe(true);").unwrap();
+            } else {
+                writeln!(out, "    const chunks: unknown[] = [];").unwrap();
+                writeln!(out, "    for await (const chunk of client.chatStream(req)) {{").unwrap();
+                writeln!(out, "      chunks.push(chunk);").unwrap();
+                writeln!(out, "    }}").unwrap();
+                writeln!(out).unwrap();
 
-            let meaningful: usize = fixture
-                .api
-                .mock_response
-                .stream_chunks
-                .iter()
-                .filter(|c| {
-                    c.get("choices")
-                        .and_then(|ch| ch.as_array())
-                        .and_then(|arr| arr.first())
-                        .and_then(|ch| ch.get("delta"))
-                        .and_then(|d| d.get("content"))
-                        .and_then(|v| v.as_str())
-                        .is_some_and(|s| !s.is_empty())
-                })
-                .count();
-            let min_chunks = meaningful.max(1);
+                if fixture.api.mock_response.stream_chunks.is_empty() {
+                    writeln!(out, "    expect(chunks.length).toBe(0);").unwrap();
+                } else {
+                    let meaningful: usize = fixture
+                        .api
+                        .mock_response
+                        .stream_chunks
+                        .iter()
+                        .filter(|c| {
+                            c.get("choices")
+                                .and_then(|ch| ch.as_array())
+                                .and_then(|arr| arr.first())
+                                .and_then(|ch| ch.get("delta"))
+                                .and_then(|d| d.get("content"))
+                                .and_then(|v| v.as_str())
+                                .is_some_and(|s| !s.is_empty())
+                        })
+                        .count();
+                    let min_chunks = meaningful.max(1);
 
-            writeln!(out, "    expect(chunks.length).toBeGreaterThanOrEqual({min_chunks});").unwrap();
+                    writeln!(out, "    expect(chunks.length).toBeGreaterThanOrEqual({min_chunks});").unwrap();
+                }
+            }
         }
         "embed" => {
             writeln!(out, "    const req = JSON.parse({req_json:?});").unwrap();
-            writeln!(out, "    const response = await client.embed(req);").unwrap();
-            emit_wasm_embed_assertions(out, fixture);
+            if is_error {
+                writeln!(out, "    await expect(client.embed(req)).rejects.toThrow();").unwrap();
+            } else {
+                writeln!(out, "    const response = await client.embed(req);").unwrap();
+                emit_wasm_embed_assertions(out, fixture);
+            }
         }
         "list_models" => {
-            writeln!(out, "    const response = await client.listModels();").unwrap();
-            emit_wasm_list_models_assertions(out, fixture);
+            if is_error {
+                writeln!(out, "    await expect(client.listModels()).rejects.toThrow();").unwrap();
+            } else {
+                writeln!(out, "    const response = await client.listModels();").unwrap();
+                emit_wasm_list_models_assertions(out, fixture);
+            }
         }
         other => {
             writeln!(out, "    // TODO: unknown method {other:?}").unwrap();

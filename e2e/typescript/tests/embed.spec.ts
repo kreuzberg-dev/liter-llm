@@ -73,8 +73,14 @@ describe("embed", () => {
     try {
       const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
 
-      const response = await client.embed(JSON.parse(`{"input":"Hello world","model":"text-embedding-3-small"}`));
-
+      let threw = false;
+      try {
+        await client.embed(JSON.parse(`{"input":"Hello world","model":"text-embedding-3-small"}`));
+      } catch (e) {
+        threw = true;
+        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+      }
+      expect(threw, "Expected client.embed to throw").toBe(true);
     } finally {
       server.close();
     }

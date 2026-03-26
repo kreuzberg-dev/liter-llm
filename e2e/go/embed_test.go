@@ -31,7 +31,7 @@ func TestEmbed(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		var result map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -62,7 +62,7 @@ func TestEmbed(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		var result map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -93,13 +93,9 @@ func TestEmbed(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
-
-		var result map[string]interface{}
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("decode response: %v", err)
-		}
-
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 401, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
 	})
 
 	t.Run("embed_with_dimensions", func(t *testing.T) {
@@ -122,7 +118,7 @@ func TestEmbed(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		AssertEqual(t, "status code", 200, resp.StatusCode)
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
 
 		var result map[string]interface{}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {

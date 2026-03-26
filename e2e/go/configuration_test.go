@@ -5,7 +5,6 @@ package literlm_e2e
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"testing"
 )

@@ -34,7 +34,7 @@ defmodule LiterLmE2E.StreamingTest do
 
     assert resp.status == 200
 
-    chunks = collect_sse_chunks(resp)
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
     assert length(chunks) >= 3, "Expected at least 3 chunk(s), got #{length(chunks)}"
   end
 
@@ -61,8 +61,8 @@ defmodule LiterLmE2E.StreamingTest do
 
     assert resp.status == 200
 
-    chunks = collect_sse_chunks(resp)
-    assert length(chunks) >= 1, "Expected at least 1 chunk(s), got #{length(chunks)}"
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
+    assert length(chunks) == 0
   end
 
   test "Verify that the [DONE] sentinel signal properly terminates the stream" do
@@ -92,7 +92,7 @@ defmodule LiterLmE2E.StreamingTest do
 
     assert resp.status == 200
 
-    chunks = collect_sse_chunks(resp)
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
     assert length(chunks) >= 1, "Expected at least 1 chunk(s), got #{length(chunks)}"
   end
 
@@ -118,10 +118,7 @@ defmodule LiterLmE2E.StreamingTest do
         into: :self
       )
 
-    assert resp.status == 200
-
-    chunks = collect_sse_chunks(resp)
-    assert length(chunks) >= 1, "Expected at least 1 chunk(s), got #{length(chunks)}"
+    assert resp.status == 401
   end
 
   test "Streaming chat completion where the assistant responds with a tool call across multiple chunks" do
@@ -152,7 +149,7 @@ defmodule LiterLmE2E.StreamingTest do
 
     assert resp.status == 200
 
-    chunks = collect_sse_chunks(resp)
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
     assert length(chunks) >= 1, "Expected at least 1 chunk(s), got #{length(chunks)}"
   end
 
@@ -184,7 +181,7 @@ defmodule LiterLmE2E.StreamingTest do
 
     assert resp.status == 200
 
-    chunks = collect_sse_chunks(resp)
+    chunks = LiterLmE2E.Helpers.collect_sse_chunks(resp.body)
     assert length(chunks) >= 2, "Expected at least 2 chunk(s), got #{length(chunks)}"
   end
 end

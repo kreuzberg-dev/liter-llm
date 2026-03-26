@@ -81,9 +81,8 @@ class EmbedTest {
               "/embeddings",
               "{\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}");
 
-      assertEquals(200, resp.statusCode(), "HTTP status code");
-
-      JsonNode body = Helpers.MAPPER.readTree(resp.body());
+      assertEquals(401, resp.statusCode(), "HTTP status code");
+      assertTrue(resp.statusCode() >= 400, "expected error status");
     }
   }
 

@@ -317,6 +317,29 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let req_escaped = req_json.replace('\\', "\\\\").replace('`', "\\`").replace("${", "\\${");
 
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
+    if is_error {
+        writeln!(out, "      let threw = false;").unwrap();
+        writeln!(out, "      try {{").unwrap();
+        writeln!(
+            out,
+            "        const stream = await client.chatStream(JSON.parse(`{req_escaped}`));"
+        )
+        .unwrap();
+        writeln!(out, "        for await (const _chunk of stream) {{ /* drain */ }}").unwrap();
+        writeln!(out, "      }} catch (e) {{").unwrap();
+        writeln!(out, "        threw = true;").unwrap();
+        emit_error_assertions(out, fixture);
+        writeln!(out, "      }}").unwrap();
+        writeln!(
+            out,
+            r#"      expect(threw, "Expected client.chatStream to throw").toBe(true);"#
+        )
+        .unwrap();
+        return;
+    }
+
     writeln!(
         out,
         "      const stream = await client.chatStream(JSON.parse(`{req_escaped}`));"
@@ -398,6 +421,24 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let req_escaped = req_json.replace('\\', "\\\\").replace('`', "\\`").replace("${", "\\${");
 
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
+    if is_error {
+        writeln!(out, "      let threw = false;").unwrap();
+        writeln!(out, "      try {{").unwrap();
+        writeln!(out, "        await client.embed(JSON.parse(`{req_escaped}`));").unwrap();
+        writeln!(out, "      }} catch (e) {{").unwrap();
+        writeln!(out, "        threw = true;").unwrap();
+        emit_error_assertions(out, fixture);
+        writeln!(out, "      }}").unwrap();
+        writeln!(
+            out,
+            r#"      expect(threw, "Expected client.embed to throw").toBe(true);"#
+        )
+        .unwrap();
+        return;
+    }
+
     writeln!(
         out,
         "      const response = await client.embed(JSON.parse(`{req_escaped}`));"
@@ -441,6 +482,24 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
+    if is_error {
+        writeln!(out, "      let threw = false;").unwrap();
+        writeln!(out, "      try {{").unwrap();
+        writeln!(out, "        await client.listModels();").unwrap();
+        writeln!(out, "      }} catch (e) {{").unwrap();
+        writeln!(out, "        threw = true;").unwrap();
+        emit_error_assertions(out, fixture);
+        writeln!(out, "      }}").unwrap();
+        writeln!(
+            out,
+            r#"      expect(threw, "Expected client.listModels to throw").toBe(true);"#
+        )
+        .unwrap();
+        return;
+    }
+
     writeln!(out, "      const response = await client.listModels();").unwrap();
     writeln!(out).unwrap();
 

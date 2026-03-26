@@ -410,6 +410,7 @@ fn emit_java_chat_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
 fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -419,7 +420,28 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     )
     .unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "      assertEquals(200, resp.statusCode(), \"HTTP status code\");").unwrap();
+
+    if is_error {
+        writeln!(
+            out,
+            "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
+            fixture.api.mock_response.status
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "      assertTrue(resp.statusCode() >= 400, \"expected error status\");"
+        )
+        .unwrap();
+        return;
+    }
+
+    writeln!(
+        out,
+        "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
+        fixture.api.mock_response.status
+    )
+    .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "      List<String> chunks = Helpers.parseSseChunks(resp.body());").unwrap();
 
@@ -439,12 +461,20 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         })
         .count();
 
-    let min_chunks = meaningful.max(1);
-    writeln!(
-        out,
-        "      assertTrue(chunks.size() >= {min_chunks}, \"expected at least {min_chunks} chunk(s)\");"
-    )
-    .unwrap();
+    if fixture.api.mock_response.stream_chunks.is_empty() {
+        writeln!(
+            out,
+            "      assertTrue(chunks.isEmpty(), \"expected 0 chunks for empty stream\");"
+        )
+        .unwrap();
+    } else {
+        let min_chunks = meaningful.max(1);
+        writeln!(
+            out,
+            "      assertTrue(chunks.size() >= {min_chunks}, \"expected at least {min_chunks} chunk(s)\");"
+        )
+        .unwrap();
+    }
 
     let expected_content: String = fixture
         .api
@@ -495,6 +525,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
 fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -504,7 +535,28 @@ fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     )
     .unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "      assertEquals(200, resp.statusCode(), \"HTTP status code\");").unwrap();
+
+    if is_error {
+        writeln!(
+            out,
+            "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
+            fixture.api.mock_response.status
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "      assertTrue(resp.statusCode() >= 400, \"expected error status\");"
+        )
+        .unwrap();
+        return;
+    }
+
+    writeln!(
+        out,
+        "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
+        fixture.api.mock_response.status
+    )
+    .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "      JsonNode body = Helpers.MAPPER.readTree(resp.body());").unwrap();
 
@@ -519,6 +571,8 @@ fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 }
 
 fn emit_java_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
+    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+
     writeln!(
         out,
         "      HttpResponse<String> resp = Helpers.getJson(server.url, {:?});",
@@ -526,7 +580,28 @@ fn emit_java_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &st
     )
     .unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "      assertEquals(200, resp.statusCode(), \"HTTP status code\");").unwrap();
+
+    if is_error {
+        writeln!(
+            out,
+            "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
+            fixture.api.mock_response.status
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "      assertTrue(resp.statusCode() >= 400, \"expected error status\");"
+        )
+        .unwrap();
+        return;
+    }
+
+    writeln!(
+        out,
+        "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
+        fixture.api.mock_response.status
+    )
+    .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "      JsonNode body = Helpers.MAPPER.readTree(resp.body());").unwrap();
 

@@ -65,7 +65,7 @@ describe("Streaming chat completion that produces no content chunks before the D
       chunks.push(chunk);
     }
 
-    expect(chunks.length).toBeGreaterThanOrEqual(1);
+    expect(chunks.length).toBe(0);
   });
 });
 
@@ -118,12 +118,13 @@ describe("401 Unauthorized error on stream initiation before any chunks are rece
     const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
 
     const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}");
-    const chunks: unknown[] = [];
-    for await (const chunk of client.chatStream(req)) {
-      chunks.push(chunk);
+    let threw = false;
+    try {
+      for await (const _chunk of client.chatStream(req)) { /* drain */ }
+    } catch (_e) {
+      threw = true;
     }
-
-    expect(chunks.length).toBeGreaterThanOrEqual(1);
+    expect(threw).toBe(true);
   });
 });
 

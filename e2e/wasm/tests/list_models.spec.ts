@@ -42,6 +42,6 @@ describe("401 Unauthorized error on list models request when API key is invalid"
   it("401 Unauthorized error on list models request when API key is invalid", async () => {
     const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
 
-    const response = await client.listModels();
+    await expect(client.listModels()).rejects.toThrow();
   });
 });

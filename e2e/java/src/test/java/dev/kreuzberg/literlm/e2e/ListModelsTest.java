@@ -44,9 +44,8 @@ class ListModelsTest {
 
       HttpResponse<String> resp = Helpers.getJson(server.url, "/models");
 
-      assertEquals(200, resp.statusCode(), "HTTP status code");
-
-      JsonNode body = Helpers.MAPPER.readTree(resp.body());
+      assertEquals(401, resp.statusCode(), "HTTP status code");
+      assertTrue(resp.statusCode() >= 400, "expected error status");
     }
   }
 }

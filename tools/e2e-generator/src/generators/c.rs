@@ -530,35 +530,55 @@ fn write_test_fn(out: &mut String, fixture: &Fixture) {
     writeln!(out).unwrap();
 
     if method == "chat_stream" {
-        writeln!(out, "        char *chunks[256];").unwrap();
-        writeln!(out, "        int n = liter_lm_read_sse(url, \"{req_c}\", chunks, 256);").unwrap();
+        if is_error {
+            // For error stream fixtures, assert the HTTP response status code instead.
+            writeln!(
+                out,
+                "        LiterLmResponse *resp = liter_lm_http_post(url, \"{req_c}\");"
+            )
+            .unwrap();
+            writeln!(out, "        assert(resp != NULL);").unwrap();
+            writeln!(
+                out,
+                "        liter_lm_assert_status(resp, {status}L, \"test_{fn_name}\");"
+            )
+            .unwrap();
+            writeln!(out, "        liter_lm_response_free(resp);").unwrap();
+        } else {
+            writeln!(out, "        char *chunks[256];").unwrap();
+            writeln!(out, "        int n = liter_lm_read_sse(url, \"{req_c}\", chunks, 256);").unwrap();
 
-        let meaningful: usize = fixture
-            .api
-            .mock_response
-            .stream_chunks
-            .iter()
-            .filter(|c| {
-                c.get("choices")
-                    .and_then(|ch| ch.as_array())
-                    .and_then(|arr| arr.first())
-                    .and_then(|ch| ch.get("delta"))
-                    .and_then(|d| d.get("content"))
-                    .and_then(|v| v.as_str())
-                    .is_some_and(|s| !s.is_empty())
-            })
-            .count();
-        let min_chunks = meaningful.max(1);
+            if fixture.api.mock_response.stream_chunks.is_empty() {
+                writeln!(out, "        assert(n == 0);").unwrap();
+            } else {
+                let meaningful: usize = fixture
+                    .api
+                    .mock_response
+                    .stream_chunks
+                    .iter()
+                    .filter(|c| {
+                        c.get("choices")
+                            .and_then(|ch| ch.as_array())
+                            .and_then(|arr| arr.first())
+                            .and_then(|ch| ch.get("delta"))
+                            .and_then(|d| d.get("content"))
+                            .and_then(|v| v.as_str())
+                            .is_some_and(|s| !s.is_empty())
+                    })
+                    .count();
+                let min_chunks = meaningful.max(1);
 
-        writeln!(out, "        if (n < {min_chunks}) {{").unwrap();
-        writeln!(
-            out,
-            "            fprintf(stderr, \"FAIL [test_{fn_name}]: expected >= {min_chunks} chunks, got %d\\n\", n);"
-        )
-        .unwrap();
-        writeln!(out, "            abort();").unwrap();
-        writeln!(out, "        }}").unwrap();
-        writeln!(out, "        for (int i = 0; i < n; i++) free(chunks[i]);").unwrap();
+                writeln!(out, "        if (n < {min_chunks}) {{").unwrap();
+                writeln!(
+                    out,
+                    "            fprintf(stderr, \"FAIL [test_{fn_name}]: expected >= {min_chunks} chunks, got %d\\n\", n);"
+                )
+                .unwrap();
+                writeln!(out, "            abort();").unwrap();
+                writeln!(out, "        }}").unwrap();
+            }
+            writeln!(out, "        for (int i = 0; i < n; i++) free(chunks[i]);").unwrap();
+        }
     } else if http_method == "GET" {
         writeln!(out, "        LiterLmResponse *resp = liter_lm_http_get(url);").unwrap();
         writeln!(out, "        assert(resp != NULL);").unwrap();

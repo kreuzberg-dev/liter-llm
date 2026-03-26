@@ -28,6 +28,7 @@ bytes = "1"
 # CLI (for tools)
 clap = { version = "4", features = ["derive"] }
 futures-core = "0.3"
+jsonschema = "0.28"
 
 # Binding frameworks
 magnus = "0.8"
