@@ -168,10 +168,32 @@ pub trait Provider: Send + Sync {
         let _ = body;
         Ok(())
     }
+
+    /// Compute dynamic signing headers for the outgoing request.
+    ///
+    /// Called by the client just before sending each request.  The default
+    /// implementation returns an empty vector (no extra signing required).
+    ///
+    /// Providers that use request-signing (e.g. AWS Bedrock with SigV4) override
+    /// this to return the computed `Authorization`, `x-amz-date`, and
+    /// `x-amz-security-token` headers.  The returned headers are merged with the
+    /// provider's static [`Provider::extra_headers`] before the request is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `method`: HTTP method string, e.g. `"POST"`.
+    /// - `url`: Full request URL including path and query string.
+    /// - `body`: Serialised request body bytes (used in the payload hash).
+    fn signing_headers(&self, method: &str, url: &str, body: &[u8]) -> Vec<(String, String)> {
+        let _ = (method, url, body);
+        vec![]
+    }
 }
 
 pub mod anthropic;
 pub mod azure;
+pub mod bedrock;
+pub mod vertex;
 
 // ── Built-in providers ───────────────────────────────────────────────────────
 
@@ -312,8 +334,12 @@ impl Provider for ConfigDrivenProvider {
 ///
 /// Strategy:
 /// 1. OpenAI hardcoded patterns (gpt-*, o1-*, text-embedding-*, …).
-/// 2. `"provider/"` prefix — look up the prefix in the registry.
-/// 3. Walk all registry entries and check their `model_prefixes`.
+/// 2. Anthropic: `claude-*` model names or `anthropic/` prefix.
+/// 3. Azure: `azure/` prefix.
+/// 4. Vertex AI: `vertex_ai/` prefix.
+/// 5. AWS Bedrock: `bedrock/` prefix.
+/// 6. `"provider/"` prefix — look up the prefix in the registry.
+/// 7. Walk all registry entries and check their `model_prefixes`.
 ///
 /// Returns `None` when no built-in provider matches.  The caller should fall
 /// back to a config-specified `base_url` or default to [`OpenAiProvider`].
@@ -339,13 +365,23 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         return Some(Box::new(azure::AzureProvider));
     }
 
+    // 4. Vertex AI: "vertex_ai/" prefix.
+    if model.starts_with("vertex_ai/") {
+        return Some(Box::new(vertex::VertexAiProvider));
+    }
+
+    // 5. AWS Bedrock: "bedrock/" prefix.
+    if model.starts_with("bedrock/") {
+        return Some(Box::new(bedrock::BedrockProvider::from_env()));
+    }
+
     // Grab the registry; if it failed to parse we cannot route.
     let reg = match REGISTRY.as_ref() {
         Ok(r) => r,
         Err(_) => return None,
     };
 
-    // 4. Slash-prefix routing (e.g. "groq/llama3-70b").
+    // 6. Slash-prefix routing (e.g. "groq/llama3-70b").
     if let Some((prefix, _)) = model.split_once('/')
         && let Some(cfg) = reg.providers.iter().find(|p| p.name == prefix)
         && cfg.base_url.is_some()
@@ -357,7 +393,7 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         return Some(Box::new(ConfigDrivenProvider::new(cfg)));
     }
 
-    // 5. Walk registry model_prefixes for unprefixed model names.
+    // 7. Walk registry model_prefixes for unprefixed model names.
     for cfg in &reg.providers {
         if reg.complex_providers.contains(&cfg.name) {
             continue;

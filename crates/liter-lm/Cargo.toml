@@ -24,11 +24,19 @@ tower = ["dep:tower-layer", "dep:tower-service", "tracing"]
 # and re-exports `tracing_opentelemetry` so callers can compose their own
 # subscriber stack without a hard dependency on the crate themselves.
 otel = ["tracing", "dep:tracing-opentelemetry", "dep:opentelemetry"]
-# Full feature set: native HTTP + tower + tracing + otel.
-full = ["native-http", "tower", "tracing", "otel"]
+# AWS Bedrock SigV4 signing support.  Enables the `aws-sigv4` dependency and
+# activates real SigV4 signing in `BedrockProvider`.  When this feature is
+# disabled, `BedrockProvider` still routes `bedrock/` prefixed model names
+# and strips the prefix, but sends requests unsigned (suitable for tests
+# using a `base_url` override pointing to a mock server).
+bedrock = ["native-http", "dep:aws-credential-types", "dep:aws-sigv4"]
+# Full feature set: native HTTP + tower + tracing + otel + bedrock.
+full = ["native-http", "tower", "tracing", "otel", "bedrock"]
 default = ["native-http"]
 
 [dependencies]
+aws-credential-types = { version = "1", optional = true }
+aws-sigv4 = { version = "1", features = ["sign-http", "http1"], optional = true }
 bytes = { workspace = true, optional = true }
 futures-core = { workspace = true }
 memchr = { workspace = true, optional = true }

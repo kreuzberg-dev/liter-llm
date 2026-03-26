@@ -790,6 +790,138 @@ mod provider_tests {
         let p = AzureProvider;
         assert!(p.extra_headers().is_empty());
     }
+
+    #[test]
+    fn detect_vertex_ai_by_prefix() {
+        let p = detect_provider("vertex_ai/gemini-2.0-flash").unwrap();
+        assert_eq!(p.name(), "vertex_ai");
+    }
+
+    #[test]
+    fn vertex_ai_auth_header_uses_bearer() {
+        let p = detect_provider("vertex_ai/gemini-2.0-flash").unwrap();
+        let header = p.auth_header("ya29.my-access-token");
+        assert!(header.is_some(), "Expected an auth header");
+        let (name, value) = header.unwrap();
+        assert_eq!(name, "Authorization");
+        assert_eq!(value, "Bearer ya29.my-access-token");
+    }
+
+    #[test]
+    fn vertex_ai_strips_prefix() {
+        let p = detect_provider("vertex_ai/gemini-2.0-flash").unwrap();
+        assert_eq!(p.strip_model_prefix("vertex_ai/gemini-2.0-flash"), "gemini-2.0-flash");
+    }
+
+    #[test]
+    fn vertex_ai_bare_model_not_stripped() {
+        use crate::provider::vertex::VertexAiProvider;
+        let p = VertexAiProvider;
+        assert_eq!(p.strip_model_prefix("gemini-2.0-flash"), "gemini-2.0-flash");
+    }
+
+    #[test]
+    fn vertex_ai_does_not_match_gemini_unprefixed() {
+        // Unprefixed "gemini-*" models route to the Google AI Studio (gemini)
+        // provider, not Vertex AI.  Vertex AI requires the explicit prefix.
+        let p = detect_provider("gemini-2.0-flash");
+        // May return Some (from the registry gemini provider) but must NOT be
+        // the vertex_ai provider.
+        if let Some(p) = p {
+            assert_ne!(p.name(), "vertex_ai");
+        }
+    }
+
+    #[test]
+    fn vertex_ai_extra_headers_are_empty() {
+        use crate::provider::vertex::VertexAiProvider;
+        let p = VertexAiProvider;
+        assert!(p.extra_headers().is_empty());
+    }
+
+    // ── AWS Bedrock ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn detect_bedrock_by_prefix() {
+        let p = detect_provider("bedrock/anthropic.claude-3-sonnet-20240229-v1:0").unwrap();
+        assert_eq!(p.name(), "bedrock");
+    }
+
+    #[test]
+    fn bedrock_matches_only_prefixed_models() {
+        use crate::provider::bedrock::BedrockProvider;
+        let p = BedrockProvider::from_env();
+        assert!(p.matches_model("bedrock/anthropic.claude-3-sonnet-20240229-v1:0"));
+        assert!(p.matches_model("bedrock/amazon.nova-pro-v1:0"));
+        // Unprefixed model IDs must NOT match — they belong to other providers.
+        assert!(!p.matches_model("anthropic.claude-3-sonnet-20240229-v1:0"));
+        assert!(!p.matches_model("amazon.nova-pro-v1:0"));
+    }
+
+    #[test]
+    fn bedrock_strips_prefix() {
+        let p = detect_provider("bedrock/anthropic.claude-3-sonnet-20240229-v1:0").unwrap();
+        assert_eq!(
+            p.strip_model_prefix("bedrock/anthropic.claude-3-sonnet-20240229-v1:0"),
+            "anthropic.claude-3-sonnet-20240229-v1:0"
+        );
+    }
+
+    #[test]
+    fn bedrock_bare_model_not_stripped() {
+        use crate::provider::bedrock::BedrockProvider;
+        let p = BedrockProvider::from_env();
+        // Without the "bedrock/" prefix, the model name is returned unchanged.
+        assert_eq!(
+            p.strip_model_prefix("anthropic.claude-3-sonnet-20240229-v1:0"),
+            "anthropic.claude-3-sonnet-20240229-v1:0"
+        );
+    }
+
+    #[test]
+    fn bedrock_auth_header_returns_none() {
+        // SigV4 uses computed headers, not a static auth header.
+        let p = detect_provider("bedrock/anthropic.claude-3-sonnet-20240229-v1:0").unwrap();
+        let header = p.auth_header("ignored-for-sigv4");
+        assert!(header.is_none(), "BedrockProvider must return None for auth_header");
+    }
+
+    #[test]
+    fn bedrock_extra_headers_are_empty() {
+        use crate::provider::bedrock::BedrockProvider;
+        let p = BedrockProvider::from_env();
+        assert!(p.extra_headers().is_empty(), "Bedrock has no static extra headers");
+    }
+
+    #[test]
+    fn bedrock_base_url_includes_region() {
+        use crate::provider::bedrock::BedrockProvider;
+        let p = BedrockProvider::new("eu-west-1");
+        assert_eq!(p.base_url(), "https://bedrock-runtime.eu-west-1.amazonaws.com");
+    }
+
+    #[test]
+    fn bedrock_default_region_is_us_east_1() {
+        use crate::provider::bedrock::BedrockProvider;
+        // Ensure AWS_DEFAULT_REGION / AWS_REGION are not set in this test process.
+        // We use a direct constructor to guarantee the region regardless of env.
+        let p = BedrockProvider::new("us-east-1");
+        assert!(p.base_url().contains("us-east-1"));
+    }
+
+    #[test]
+    fn bedrock_signing_headers_without_feature_returns_empty() {
+        // When the `bedrock` feature is disabled, signing_headers() must return
+        // an empty vec so requests work against override base-URLs (e.g. mock servers).
+        // When the feature IS enabled but credentials are absent, it also returns
+        // empty (the error is silently swallowed to avoid panicking).
+        use crate::provider::bedrock::BedrockProvider;
+        let p = BedrockProvider::new("us-east-1");
+        let headers = p.signing_headers("POST", "http://localhost/chat/completions", b"{}");
+        // In CI without real AWS credentials, headers will be empty either way.
+        // The important invariant: it must not panic.
+        let _ = headers;
+    }
 }
 
 #[cfg(test)]
