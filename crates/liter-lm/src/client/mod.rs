@@ -2,6 +2,7 @@ pub mod config;
 
 use std::future::Future;
 use std::pin::Pin;
+use std::sync::Arc;
 
 use futures_core::Stream;
 
@@ -71,12 +72,16 @@ pub trait LlmClient: Send + Sync {
 ///
 /// If you need to talk to multiple providers, create one `DefaultClient` per
 /// provider.
+///
+/// The provider is stored behind an [`Arc`] so it can be shared cheaply into
+/// async closures and streaming tasks that must be `'static`.
 #[cfg(feature = "native-http")]
 pub struct DefaultClient {
     config: ClientConfig,
     http: reqwest::Client,
-    /// Provider resolved at construction; used for all requests.
-    provider: Box<dyn Provider>,
+    /// Provider resolved at construction; shared via Arc so streaming closures
+    /// can capture an owned reference without requiring `unsafe`.
+    provider: Arc<dyn Provider>,
 }
 
 #[cfg(feature = "native-http")]
@@ -164,8 +169,14 @@ impl DefaultClient {
             });
         }
 
-        let (url, auth_header) = self.prepare_headers(endpoint_path);
         let bare_model = self.provider.strip_model_prefix(model).to_owned();
+        // Use build_url so providers like Azure and Bedrock can embed the model
+        // name or deployment identifier into the URL.
+        let url = self.provider.build_url(endpoint_path, &bare_model);
+        let auth_header = self
+            .provider
+            .auth_header(self.config.api_key.expose_secret())
+            .map(|(name, value)| (name.into_owned(), value.into_owned()));
 
         let mut body = serde_json::to_value(serializable)?;
         if let Some(obj) = body.as_object_mut() {
@@ -203,9 +214,9 @@ impl DefaultClient {
 /// 1. Explicit `base_url` in config → custom OpenAI-compatible provider.
 /// 2. `model_hint` → auto-detect by model name prefix.
 /// 3. Default → OpenAI.
-fn build_provider(config: &ClientConfig, model_hint: Option<&str>) -> Box<dyn Provider> {
+fn build_provider(config: &ClientConfig, model_hint: Option<&str>) -> Arc<dyn Provider> {
     if let Some(ref base_url) = config.base_url {
-        return Box::new(OpenAiCompatibleProvider {
+        return Arc::new(OpenAiCompatibleProvider {
             name: "custom".into(),
             base_url: base_url.clone(),
             env_var: None,
@@ -216,10 +227,11 @@ fn build_provider(config: &ClientConfig, model_hint: Option<&str>) -> Box<dyn Pr
     if let Some(model) = model_hint
         && let Some(p) = provider::detect_provider(model)
     {
-        return p;
+        // detect_provider returns Box<dyn Provider>; convert to Arc.
+        return Arc::from(p);
     }
 
-    Box::new(OpenAiProvider)
+    Arc::new(OpenAiProvider)
 }
 
 #[cfg(feature = "native-http")]
@@ -230,13 +242,16 @@ impl LlmClient for DefaultClient {
             let (url, auth_header, body) =
                 self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(false))?;
 
-            // Serialise body for signing; the value is also passed to post_json below.
+            // Serialise body for signing; the value is also passed to post_json_raw below.
             let body_bytes = serde_json::to_vec(&body).unwrap_or_default();
             let all_headers = self.all_post_headers(&url, &body_bytes);
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            http::request::post_json(&self.http, &url, auth, &extra, body, self.config.max_retries).await
+            let mut raw =
+                http::request::post_json_raw(&self.http, &url, auth, &extra, body, self.config.max_retries).await?;
+            self.provider.transform_response(&mut raw)?;
+            serde_json::from_value::<ChatCompletionResponse>(raw).map_err(LiterLmError::from)
         })
     }
 
@@ -251,8 +266,19 @@ impl LlmClient for DefaultClient {
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let stream =
-                http::streaming::post_stream(&self.http, &url, auth, &extra, body, self.config.max_retries).await?;
+            // Clone the Arc so the streaming closure is 'static (owns the provider).
+            let provider = Arc::clone(&self.provider);
+            let parse_event = move |data: &str| provider.parse_stream_event(data);
+            let stream = http::streaming::post_stream(
+                &self.http,
+                &url,
+                auth,
+                &extra,
+                body,
+                self.config.max_retries,
+                parse_event,
+            )
+            .await?;
             Ok(stream)
         })
     }
@@ -268,7 +294,10 @@ impl LlmClient for DefaultClient {
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            http::request::post_json(&self.http, &url, auth, &extra, body, self.config.max_retries).await
+            let mut raw =
+                http::request::post_json_raw(&self.http, &url, auth, &extra, body, self.config.max_retries).await?;
+            self.provider.transform_response(&mut raw)?;
+            serde_json::from_value::<EmbeddingResponse>(raw).map_err(LiterLmError::from)
         })
     }
 

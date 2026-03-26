@@ -169,6 +169,44 @@ pub trait Provider: Send + Sync {
         Ok(())
     }
 
+    /// Transform the raw response JSON before deserialization into canonical types.
+    ///
+    /// Providers returning non-OpenAI formats (Anthropic, Bedrock, Vertex) override
+    /// this to normalize their native response into OpenAI-compatible JSON.
+    /// The default implementation is a no-op (OpenAI-compatible responses pass through
+    /// unchanged).
+    fn transform_response(&self, _body: &mut serde_json::Value) -> Result<()> {
+        Ok(())
+    }
+
+    /// Build the full URL for a specific endpoint and model.
+    ///
+    /// Default: `{base_url}{endpoint_path}`.  Providers like Azure and Bedrock
+    /// override this to embed deployment names, model IDs, or query parameters
+    /// into the URL.
+    fn build_url(&self, endpoint_path: &str, _model: &str) -> String {
+        format!("{}{}", self.base_url(), endpoint_path)
+    }
+
+    /// Parse a single SSE event data string into a `ChatCompletionChunk`.
+    ///
+    /// Default: OpenAI format (JSON parse, `[DONE]` sentinel).
+    /// Anthropic and Vertex override for their native streaming event formats.
+    ///
+    /// Returns `Ok(None)` for the terminal `[DONE]` sentinel (stream complete).
+    /// Returns `Ok(Some(chunk))` for a successfully parsed event.
+    /// Returns `Err` when the event cannot be parsed.
+    fn parse_stream_event(&self, event_data: &str) -> Result<Option<crate::types::ChatCompletionChunk>> {
+        if event_data == "[DONE]" {
+            return Ok(None);
+        }
+        serde_json::from_str::<crate::types::ChatCompletionChunk>(event_data)
+            .map(Some)
+            .map_err(|e| LiterLmError::Streaming {
+                message: format!("failed to parse SSE data: {e}"),
+            })
+    }
+
     /// Compute dynamic signing headers for the outgoing request.
     ///
     /// Called by the client just before sending each request.  The default
@@ -362,7 +400,7 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
 
     // 3. Azure: "azure/" prefix.
     if model.starts_with("azure/") {
-        return Some(Box::new(azure::AzureProvider));
+        return Some(Box::new(azure::AzureProvider::new()));
     }
 
     // 4. Vertex AI: "vertex_ai/" prefix.
