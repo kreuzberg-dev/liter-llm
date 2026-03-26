@@ -29,10 +29,14 @@ pub(crate) fn retry_after_from_response(resp: &reqwest::Response) -> Option<std:
 /// `auth_header` is `Some((name, value))` when the provider requires
 /// authentication, or `None` when no auth header should be added (e.g. local
 /// models or providers with `auth: none`).
+///
+/// `extra_headers` carries provider-specific mandatory headers (e.g.
+/// `anthropic-version`) beyond the single auth header.
 pub async fn post_json<T: DeserializeOwned>(
     client: &reqwest::Client,
     url: &str,
     auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
     body: serde_json::Value,
     max_retries: u32,
 ) -> Result<T> {
@@ -45,6 +49,9 @@ pub async fn post_json<T: DeserializeOwned>(
             .json(&body);
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
         }
         let resp = builder.send().await?;
 
@@ -81,10 +88,14 @@ pub async fn post_json<T: DeserializeOwned>(
 ///
 /// `auth_header` is `Some((name, value))` when the provider requires
 /// authentication, or `None` when no auth header should be added.
+///
+/// `extra_headers` carries provider-specific mandatory headers beyond the
+/// single auth header.
 pub async fn get_json<T: DeserializeOwned>(
     client: &reqwest::Client,
     url: &str,
     auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
     max_retries: u32,
 ) -> Result<T> {
     let mut attempt = 0u32;
@@ -93,6 +104,9 @@ pub async fn get_json<T: DeserializeOwned>(
         let mut builder = client.get(url);
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
         }
         let resp = builder.send().await?;
 

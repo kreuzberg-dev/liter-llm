@@ -28,10 +28,14 @@ const MAX_BUFFER_BYTES: usize = 1024 * 1024; // 1 MiB
 ///
 /// `auth_header` is `Some((name, value))` when the provider requires
 /// authentication, or `None` when no auth header should be added.
+///
+/// `extra_headers` carries provider-specific mandatory headers (e.g.
+/// `anthropic-version`) beyond the single auth header.
 pub async fn post_stream(
     client: &reqwest::Client,
     url: &str,
     auth_header: Option<(&str, &str)>,
+    extra_headers: &[(&str, &str)],
     body: serde_json::Value,
     max_retries: u32,
 ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatCompletionChunk>> + Send>>> {
@@ -44,6 +48,9 @@ pub async fn post_stream(
             .json(&body);
         if let Some((name, value)) = auth_header {
             builder = builder.header(name, value);
+        }
+        for (name, value) in extra_headers {
+            builder = builder.header(*name, *value);
         }
         let resp = builder.send().await?;
 

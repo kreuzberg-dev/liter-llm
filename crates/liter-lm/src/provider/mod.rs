@@ -104,6 +104,14 @@ pub trait Provider: Send + Sync {
     /// to avoid allocating the header name string on every request.
     fn auth_header<'a>(&'a self, api_key: &'a str) -> Option<(Cow<'static, str>, Cow<'a, str>)>;
 
+    /// Additional static headers required by this provider beyond the auth header.
+    ///
+    /// Most providers return an empty `Vec`.  Use this for provider-mandated
+    /// headers like Anthropic's `anthropic-version`.
+    fn extra_headers(&self) -> Vec<(Cow<'static, str>, Cow<'static, str>)> {
+        vec![]
+    }
+
     /// Whether this provider matches a given model string.
     fn matches_model(&self, model: &str) -> bool;
 
@@ -149,6 +157,9 @@ pub trait Provider: Send + Sync {
         Ok(())
     }
 }
+
+pub mod anthropic;
+pub mod azure;
 
 // ── Built-in providers ───────────────────────────────────────────────────────
 
@@ -312,13 +323,24 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         return Some(Box::new(openai));
     }
 
+    // 2. Anthropic: "claude-*" model names or "anthropic/" prefix.
+    let anthropic = anthropic::AnthropicProvider;
+    if anthropic.matches_model(model) {
+        return Some(Box::new(anthropic));
+    }
+
+    // 3. Azure: "azure/" prefix.
+    if model.starts_with("azure/") {
+        return Some(Box::new(azure::AzureProvider));
+    }
+
     // Grab the registry; if it failed to parse we cannot route.
     let reg = match REGISTRY.as_ref() {
         Ok(r) => r,
         Err(_) => return None,
     };
 
-    // 2. Slash-prefix routing (e.g. "groq/llama3-70b").
+    // 4. Slash-prefix routing (e.g. "groq/llama3-70b").
     if let Some((prefix, _)) = model.split_once('/')
         && let Some(cfg) = reg.providers.iter().find(|p| p.name == prefix)
         && cfg.base_url.is_some()
@@ -329,7 +351,7 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         return Some(Box::new(ConfigDrivenProvider::new(cfg.clone())));
     }
 
-    // 3. Walk registry model_prefixes for unprefixed model names.
+    // 5. Walk registry model_prefixes for unprefixed model names.
     for cfg in &reg.providers {
         if reg.complex_providers.contains(&cfg.name) {
             continue;

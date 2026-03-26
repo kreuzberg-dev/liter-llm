@@ -705,6 +705,87 @@ mod provider_tests {
         let stripped = p.strip_model_prefix("gpt-4");
         assert_eq!(stripped, "gpt-4"); // OpenAI has no prefix
     }
+
+    #[test]
+    fn detect_anthropic_by_claude_prefix() {
+        let p = detect_provider("claude-3-5-sonnet-20241022").unwrap();
+        assert_eq!(p.name(), "anthropic");
+        assert_eq!(p.base_url(), "https://api.anthropic.com/v1");
+    }
+
+    #[test]
+    fn detect_anthropic_by_slash_prefix() {
+        let p = detect_provider("anthropic/claude-3-5-sonnet-20241022").unwrap();
+        assert_eq!(p.name(), "anthropic");
+    }
+
+    #[test]
+    fn anthropic_auth_header_uses_x_api_key() {
+        let p = detect_provider("claude-3-5-sonnet-20241022").unwrap();
+        let header = p.auth_header("sk-ant-test");
+        assert!(header.is_some());
+        let (name, value) = header.unwrap();
+        assert_eq!(name, "x-api-key");
+        assert_eq!(value, "sk-ant-test");
+    }
+
+    #[test]
+    fn anthropic_extra_headers_contain_version() {
+        use crate::provider::anthropic::AnthropicProvider;
+        let p = AnthropicProvider;
+        let extras = p.extra_headers();
+        assert_eq!(extras.len(), 1);
+        assert_eq!(extras[0].0, "anthropic-version");
+        assert_eq!(extras[0].1, "2023-06-01");
+    }
+
+    #[test]
+    fn anthropic_strips_prefix() {
+        let p = detect_provider("anthropic/claude-3-5-sonnet-20241022").unwrap();
+        assert_eq!(
+            p.strip_model_prefix("anthropic/claude-3-5-sonnet-20241022"),
+            "claude-3-5-sonnet-20241022"
+        );
+    }
+
+    #[test]
+    fn anthropic_bare_model_not_stripped() {
+        use crate::provider::anthropic::AnthropicProvider;
+        let p = AnthropicProvider;
+        assert_eq!(
+            p.strip_model_prefix("claude-3-5-sonnet-20241022"),
+            "claude-3-5-sonnet-20241022"
+        );
+    }
+
+    #[test]
+    fn detect_azure_by_prefix() {
+        let p = detect_provider("azure/gpt-4").unwrap();
+        assert_eq!(p.name(), "azure");
+    }
+
+    #[test]
+    fn azure_auth_header_uses_api_key() {
+        let p = detect_provider("azure/gpt-4").unwrap();
+        let header = p.auth_header("my-azure-key");
+        assert!(header.is_some());
+        let (name, value) = header.unwrap();
+        assert_eq!(name, "api-key");
+        assert_eq!(value, "my-azure-key");
+    }
+
+    #[test]
+    fn azure_strips_prefix() {
+        let p = detect_provider("azure/gpt-4").unwrap();
+        assert_eq!(p.strip_model_prefix("azure/gpt-4"), "gpt-4");
+    }
+
+    #[test]
+    fn azure_extra_headers_are_empty() {
+        use crate::provider::azure::AzureProvider;
+        let p = AzureProvider;
+        assert!(p.extra_headers().is_empty());
+    }
 }
 
 #[cfg(test)]
