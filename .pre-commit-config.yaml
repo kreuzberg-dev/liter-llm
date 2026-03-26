@@ -120,15 +120,29 @@ repos:
       - id: markdownlint-fix
         exclude: "^.ai-rulez/"
 
+  # Java: copy-paste detection and style checking
+  - repo: https://github.com/gherynos/pre-commit-java
+    rev: v0.6.36
+    hooks:
+      - id: cpd
+        exclude: ^(\.mvn/wrapper/|e2e/|tools/e2e-generator/e2e/)
+      - id: checkstyle
+        args:
+          [
+            "-c",
+            "packages/java/checkstyle.xml",
+          ]
+        exclude: ^(\.mvn/wrapper/|e2e/|tools/e2e-generator/e2e/)
+
   # AI Rules
   - repo: https://github.com/Goldziher/ai-rulez
-    rev: v3.10.0
+    rev: v3.11.2
     hooks:
       - id: ai-rulez-generate
 
   # JavaScript/TypeScript/JSON: biome (formatting + linting)
   - repo: https://github.com/biomejs/pre-commit
-    rev: v2.4.8
+    rev: v2.4.9
     hooks:
       - id: biome-format
       - id: biome-lint
@@ -219,12 +233,38 @@ repos:
         pass_filenames: false
         require_serial: true
 
-      # C# - dotnet format
+      # C# - dotnet format and lint
       - id: csharp-format
         name: C# formatting (dotnet format)
         entry: task csharp:format
         language: system
         files: \.cs$
+        pass_filenames: false
+        require_serial: true
+
+      - id: csharp-lint
+        name: C# linting (dotnet format)
+        entry: task csharp:lint
+        language: system
+        files: \.cs$
+        pass_filenames: false
+        require_serial: true
+
+      # PHP - formatting and linting
+      - id: php-lint
+        name: PHP linting (phpstan + php-cs-fixer)
+        entry: task php:lint
+        language: system
+        files: \.php$
+        pass_filenames: false
+        require_serial: true
+
+      # TypeScript - type checking
+      - id: typescript-typecheck
+        name: Check TypeScript types
+        entry: task node:typecheck
+        language: system
+        files: \.(ts|tsx)$
         pass_filenames: false
         require_serial: true
 

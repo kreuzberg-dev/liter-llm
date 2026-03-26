@@ -43,7 +43,7 @@ pyo3 = { version = "0.28", features = ["abi3-py310"] }
 pyo3-async-runtimes = { version = "0.28", features = ["tokio-runtime"] }
 rb-sys = "0.9"
 # Async / HTTP
-reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls", "multipart"] }
 rustler = "0.37"
 
 # Security

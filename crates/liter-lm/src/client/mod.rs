@@ -8,9 +8,12 @@ use futures_core::Stream;
 
 use crate::error::Result;
 use crate::types::audio::{CreateSpeechRequest, CreateTranscriptionRequest, TranscriptionResponse};
+use crate::types::batch::{BatchListQuery, BatchListResponse, BatchObject, CreateBatchRequest};
+use crate::types::files::{CreateFileRequest, DeleteResponse, FileListQuery, FileListResponse, FileObject};
 use crate::types::image::{CreateImageRequest, ImagesResponse};
 use crate::types::moderation::{ModerationRequest, ModerationResponse};
 use crate::types::rerank::{RerankRequest, RerankResponse};
+use crate::types::responses::{CreateResponseRequest, ResponseObject};
 use crate::types::{
     ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, EmbeddingRequest, EmbeddingResponse,
     ModelsListResponse,
@@ -90,6 +93,51 @@ pub trait LlmClient: Send + Sync {
 
     /// Rerank documents by relevance to a query.
     fn rerank(&self, req: RerankRequest) -> BoxFuture<'_, RerankResponse>;
+}
+
+/// File management operations (upload, list, retrieve, delete).
+pub trait FileClient: Send + Sync {
+    /// Upload a file.
+    fn create_file(&self, req: CreateFileRequest) -> BoxFuture<'_, FileObject>;
+
+    /// Retrieve metadata for a file.
+    fn retrieve_file(&self, file_id: &str) -> BoxFuture<'_, FileObject>;
+
+    /// Delete a file.
+    fn delete_file(&self, file_id: &str) -> BoxFuture<'_, DeleteResponse>;
+
+    /// List files, optionally filtered by query parameters.
+    fn list_files(&self, query: Option<FileListQuery>) -> BoxFuture<'_, FileListResponse>;
+
+    /// Retrieve the raw content of a file.
+    fn file_content(&self, file_id: &str) -> BoxFuture<'_, bytes::Bytes>;
+}
+
+/// Batch processing operations (create, list, retrieve, cancel).
+pub trait BatchClient: Send + Sync {
+    /// Create a new batch job.
+    fn create_batch(&self, req: CreateBatchRequest) -> BoxFuture<'_, BatchObject>;
+
+    /// Retrieve a batch by ID.
+    fn retrieve_batch(&self, batch_id: &str) -> BoxFuture<'_, BatchObject>;
+
+    /// List batches, optionally filtered by query parameters.
+    fn list_batches(&self, query: Option<BatchListQuery>) -> BoxFuture<'_, BatchListResponse>;
+
+    /// Cancel an in-progress batch.
+    fn cancel_batch(&self, batch_id: &str) -> BoxFuture<'_, BatchObject>;
+}
+
+/// Responses API operations (create, retrieve, cancel).
+pub trait ResponseClient: Send + Sync {
+    /// Create a new response.
+    fn create_response(&self, req: CreateResponseRequest) -> BoxFuture<'_, ResponseObject>;
+
+    /// Retrieve a response by ID.
+    fn retrieve_response(&self, id: &str) -> BoxFuture<'_, ResponseObject>;
+
+    /// Cancel an in-progress response.
+    fn cancel_response(&self, id: &str) -> BoxFuture<'_, ResponseObject>;
 }
 
 /// Default client implementation backed by `reqwest`.
