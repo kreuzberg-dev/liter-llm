@@ -47,6 +47,8 @@ includes:
     taskfile: .task/tools/general.yml
   test-apps:
     taskfile: .task/tools/test-apps.yml
+  docs:
+    taskfile: .task/tools/docs.yml
 
 vars:
   PROJECT_ROOT:

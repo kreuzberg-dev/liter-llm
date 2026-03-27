@@ -1,35 +1,45 @@
 # liter-llm
 
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0;">
-  <!-- Language Bindings -->  <a href="https://crates.io/crates/liter-llm">
+  <!-- Language Bindings -->
+  <a href="https://crates.io/crates/liter-llm">
     <img src="https://img.shields.io/crates/v/liter-llm?label=Rust&color=007ec6" alt="Rust">
-  </a>  <a href="https://pypi.org/project/liter-llm/">
+  </a>
+  <a href="https://pypi.org/project/liter-llm/">
     <img src="https://img.shields.io/pypi/v/liter-llm?label=Python&color=007ec6" alt="Python">
-  </a>  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm">
-    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm?label=Node.js&color=007ec6" alt="Node">
-  </a>  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm-wasm">
-    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm-wasm?label=WASM&color=007ec6" alt="Wasm">
-  </a>  <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-llm">
+  </a>
+  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm">
+    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm?label=Node.js&color=007ec6" alt="Node.js">
+  </a>
+  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm-wasm">
+    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm-wasm?label=WASM&color=007ec6" alt="WASM">
+  </a>
+  <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-llm">
     <img src="https://img.shields.io/maven-central/v/dev.kreuzberg/liter-llm?label=Java&color=007ec6" alt="Java">
-  </a>  <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/packages/go/v1">
+  </a>
+  <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/packages/go">
     <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-llm?label=Go&color=007ec6" alt="Go">
-  </a>  <a href="https://www.nuget.org/packages/LiterLlm">
-    <img src="https://img.shields.io/nuget/v/LiterLlm?label=C%23&color=007ec6" alt="Csharp">
-  </a>  <a href="https://packagist.org/packages/kreuzberg/liter-llm">
-    <img src="https://img.shields.io/packagist/v/kreuzberg/liter-llm?label=PHP&color=007ec6" alt="Php">
-  </a>  <a href="https://rubygems.org/gems/liter_llm">
+  </a>
+  <a href="https://www.nuget.org/packages/LiterLlm">
+    <img src="https://img.shields.io/nuget/v/LiterLlm?label=C%23&color=007ec6" alt="C#">
+  </a>
+  <a href="https://packagist.org/packages/kreuzberg/liter-llm">
+    <img src="https://img.shields.io/packagist/v/kreuzberg/liter-llm?label=PHP&color=007ec6" alt="PHP">
+  </a>
+  <a href="https://rubygems.org/gems/liter_llm">
     <img src="https://img.shields.io/gem/v/liter_llm?label=Ruby&color=007ec6" alt="Ruby">
-  </a>  <a href="https://hex.pm/packages/liter_llm">
+  </a>
+  <a href="https://hex.pm/packages/liter_llm">
     <img src="https://img.shields.io/hexpm/v/liter_llm?label=Elixir&color=007ec6" alt="Elixir">
-  </a>  <a href="https://github.com/kreuzberg-dev/liter-llm/pkgs/container/liter-llm">
+  </a>
+  <a href="https://github.com/kreuzberg-dev/liter-llm/pkgs/container/liter-llm">
     <img src="https://img.shields.io/badge/Docker-007ec6?logo=docker&logoColor=white" alt="Docker">
-  </a>  <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/crates/liter-llm-ffi">
-    <img src="https://img.shields.io/badge/C-FFI-007ec6" alt="Ffi">
   </a>
+  <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/crates/liter-llm-ffi">
+    <img src="https://img.shields.io/badge/C-FFI-007ec6" alt="C FFI">
+  </a>
+
   <!-- Project Info -->
-  <a href="https://github.com/kreuzberg-dev/liter-llm/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/kreuzberg-dev/liter-llm/ci-rust.yaml?branch=main&label=CI&color=007ec6" alt="CI">
-  </a>
   <a href="https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-007ec6.svg" alt="License">
   </a>
@@ -38,17 +48,69 @@
   </a>
 </div>
 
-<div align="center">
+<img width="3384" height="573" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
+
+<div align="center" style="margin-top: 20px;">
   <a href="https://discord.gg/xt9WY3GnKR">
     <img height="22" src="https://img.shields.io/badge/Discord-Join%20our%20community-7289da?logo=discord&logoColor=white" alt="Discord">
   </a>
 </div>
 
-Universal LLM API client with polyglot bindings for 100+ providers
+**A lighter, faster, safer universal LLM API client** -- one Rust core, 11 native language bindings, 142 providers.
 
-## Overview
+## Why liter-llm?
 
-**liter-llm** provides unified access to 100+ LLM providers with a single API and native bindings for multiple programming languages. Ship LLM-powered features in your application without managing provider-specific SDKs.
+We used [litellm](https://github.com/BerriAI/litellm). A lot of people did. Then in March 2025, [versions 1.82.7 and 1.82.8 shipped with a backdoor](https://www.xda-developers.com/popular-python-library-backdoor-machine/) that silently harvested SSH keys, AWS credentials, environment variables, and Kubernetes configs from every machine that installed them. One bad release in your dependency tree was all it took.
+
+That was the wake-up call. We built liter-llm to be *literally lighter* -- and fundamentally different in the ways that matter:
+
+- **Compiled, not interpreted.** A Rust binary has no `pip install` supply chain. No `.pth` auto-execution hooks. No transitive dependency tree to backdoor.
+- **Secrets stay secret.** API keys are wrapped in [`secrecy::SecretString`](https://docs.rs/secrecy/) -- zeroed on drop, redacted in logs, never serialized. Not stored as plain `str`.
+- **One core, 11 languages.** Python, TypeScript, Go, Java, Ruby, PHP, C#, Elixir, WebAssembly, C/FFI -- all thin wrappers around the same Rust core. No reimplementation drift.
+- **Observability built in.** Production-grade [OpenTelemetry](https://opentelemetry.io/) with GenAI semantic conventions (`gen_ai.usage.input_tokens`, `gen_ai.response.model`, etc.) -- not an afterthought callback system.
+- **Composable middleware.** Rate limiting, caching, cost tracking, health checks, and fallback as [Tower](https://docs.rs/tower/) layers you stack like building blocks.
+
+We give full credit to litellm for the work that came before -- our provider registry was bootstrapped from theirs. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+
+## Feature Comparison
+
+An honest look at where things stand. We're newer and leaner -- litellm has breadth we haven't matched yet, and we have depth they can't easily retrofit.
+
+| | liter-llm | litellm |
+|---|---|---|
+| **Language** | Rust (compiled, memory-safe) | Python |
+| **Bindings** | 11 native (Rust, Python, TS, Go, Java, Ruby, PHP, C#, Elixir, WASM, C) | Python (+ OpenAI-compatible proxy) |
+| **Providers** | 142 (compiled at build time) | 100+ (runtime resolution) |
+| **Streaming** | SSE + AWS EventStream binary protocol | SSE |
+| **Observability** | Built-in OpenTelemetry (GenAI semconv) | 51+ callback integrations |
+| **API key safety** | `secrecy::SecretString` (zeroed, redacted) | Plain strings |
+| **Middleware** | Composable Tower stack | Built-in, non-composable |
+| **Proxy / Gateway** | -- | Yes |
+| **Guardrails** | -- | 35+ hooks |
+| **Semantic caching** | -- | Redis + Qdrant backends |
+| **Virtual key mgmt** | -- | Yes |
+| **Management API** | -- | Multi-tenant (teams, budgets, keys) |
+| **Fine-tuning API** | -- | Yes |
+| **Load balancer** | Fallback middleware | Full router with strategies |
+| **Cost tracking** | Embedded pricing + OTEL spans | Per-key/team/model budgets |
+| **Rate limiting** | Per-model RPM/TPM (Tower layer) | Per-key/user/team/model |
+| **Caching** | In-memory LRU (Tower layer) | 16 backends (Redis, S3, disk, ...) |
+| **Tool calling** | Parallel tools, structured output, JSON schema | Full support |
+| **Embeddings** | Yes | Yes |
+| **Batch API** | Yes | Yes |
+| **Audio / Speech** | Yes | Yes |
+| **Image generation** | Yes | Yes |
+
+## Key Features
+
+- **142 providers** -- OpenAI, Anthropic, Google, AWS Bedrock, Groq, Mistral, Together AI, Fireworks, Perplexity, DeepSeek, Cohere, and [130+ more](schemas/providers.json)
+- **11 native bindings** -- Rust, Python, TypeScript/Node.js, Go, Java, Ruby, PHP, C#, Elixir, WebAssembly, C/FFI
+- **First-class streaming** -- SSE and AWS EventStream binary protocol with zero-copy buffers
+- **OpenTelemetry** -- GenAI semantic conventions, cost tracking spans, HTTP-level tracing
+- **Tower middleware** -- Rate limiting, LRU caching, cost estimation, health checks, cooldowns, fallback -- all composable
+- **Tool calling** -- Parallel tools, structured outputs, JSON schema validation
+- **Embeddings** -- Dimension selection, base64 format, multi-provider support
+- **Schema-driven** -- Provider registry and API types compiled from JSON schemas, no runtime lookups
 
 ## Architecture
 
@@ -56,179 +118,101 @@ Universal LLM API client with polyglot bindings for 100+ providers
 liter-llm/
 ├── crates/
 │   ├── liter-llm/           # Rust core library
-│   ├── liter-llm-py/        # Python (maturin/PyO3) bindings
-│   ├── liter-llm-node/      # Node.js (NAPI-RS) bindings
-│   ├── liter-llm-java/      # Java (Panama FFI) bindings
-│   ├── liter-llm-ffi/       # C-compatible FFI library
-│   ├── liter-llm-php/       # PHP (ext-php-rs) bindings
-│   └── liter-llm-wasm/      # WebAssembly (wasm-bindgen) bindings
+│   ├── liter-llm-py/        # Python (PyO3) core
+│   ├── liter-llm-node/      # Node.js (NAPI-RS) core
+│   ├── liter-llm-ffi/       # C-compatible FFI layer
+│   ├── liter-llm-php/       # PHP (ext-php-rs) core
+│   └── liter-llm-wasm/      # WebAssembly (wasm-bindgen) core
 ├── packages/
-│   ├── go/                 # Go (cgo) bindings
-│   ├── ruby/               # Ruby (Magnus) gem
-│   ├── elixir/             # Elixir (Rustler NIF) package
-│   ├── csharp/             # .NET (P/Invoke) package
-│   └── java/               # Java wrapper
-└── schemas/                # Provider registry and API schemas
+│   ├── python/               # Python package
+│   ├── typescript/           # TypeScript/Node.js package
+│   ├── go/                   # Go (cgo) module
+│   ├── java/                 # Java (Panama FFI) package
+│   ├── ruby/                 # Ruby (Magnus) gem
+│   ├── elixir/               # Elixir (Rustler NIF) package
+│   ├── csharp/               # .NET (P/Invoke) package
+│   └── php/                  # PHP (Composer) package
+└── schemas/                  # Provider registry and API schemas
 ```
 
 ## Quick Start
 
-### Rust
+Install in your language of choice:
 
-```sh
-cargo add liter-llm
+| Language | Install |
+|----------|---------|
+| Python | `pip install liter-llm` |
+| Node.js | `pnpm add @kreuzberg/liter-llm` |
+| Rust | `cargo add liter-llm` |
+| Go | `go get github.com/kreuzberg-dev/liter-llm/packages/go` |
+| Java | `dev.kreuzberg:liter-llm` (Maven/Gradle) |
+| Ruby | `gem install liter_llm` |
+| PHP | `composer require kreuzberg/liter-llm` |
+| C# | `dotnet add package LiterLlm` |
+| Elixir | `{:liter_llm, "~> 0.1"}` in mix.exs |
+| WASM | `pnpm add @kreuzberg/liter-llm-wasm` |
+| C/FFI | Build from source -- see [FFI crate](crates/liter-llm-ffi) |
+
+### Usage
+
+```python
+from liter_llm import LiterLlmClient
+
+client = LiterLlmClient()
+
+# Chat with any provider using the provider/model prefix
+response = client.chat(
+    model="openai/gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+
+# Stream responses
+for chunk in client.chat_stream(
+    model="anthropic/claude-3-5-sonnet-20241022",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+):
+    print(chunk.delta, end="", flush=True)
 ```
 
-See [Rust README](crates/liter-llm/README.md) for full documentation.
-
-### Python
-
-```sh
-pip install liter-llm
-```
-
-```sh
-uv add liter-llm
-```
-
-See [Python README](crates/liter-llm-py/README.md) for full documentation.
-
-### Node.js
-
-```sh
-npm install @kreuzberg/liter-llm
-```
-
-```sh
-pnpm add @kreuzberg/liter-llm
-```
-
-```sh
-yarn add @kreuzberg/liter-llm
-```
-
-See [Node.js README](crates/liter-llm-node/README.md) for full documentation.
-
-### Go
-
-```sh
-go get github.com/kreuzberg-dev/liter-llm/packages/go/v1
-```
-
-See [Go README](packages/go/v1/README.md) for full documentation.
-
-### Java
-
-```xml
-<dependency>
-  <groupId>dev.kreuzberg</groupId>
-  <artifactId>liter-llm</artifactId>
-  <version>0.1.0</version>
-</dependency>
-```
-
-```groovy
-implementation("dev.kreuzberg:liter-llm:0.1.0")
-```
-
-See [Java README](crates/liter-llm-java/README.md) for full documentation.
-
-### Elixir
-
-```elixir
-{:liter_llm, "~> 0.1"}
-```
-
-See [Elixir README](packages/elixir/README.md) for full documentation.
-
-### Ruby
-
-```sh
-gem install liter_llm
-```
-
-See [Ruby README](packages/ruby/README.md) for full documentation.
-
-### WebAssembly
-
-```sh
-npm install @kreuzberg/liter-llm-wasm
-```
-
-```sh
-pnpm add @kreuzberg/liter-llm-wasm
-```
-
-See [WebAssembly README](crates/liter-llm-wasm/README.md) for full documentation.
-
-### PHP
-
-```sh
-composer require kreuzberg/liter-llm
-```
-
-See [PHP README](crates/liter-llm-php/README.md) for full documentation.
-
-### .NET (C#)
-
-```sh
-dotnet add package LiterLlm
-```
-
-See [.NET (C#) README](packages/csharp/LiterLlm/README.md) for full documentation.
-
-### C/C++ (FFI)
-
-Build from source as part of this workspace.
-
-See [C/C++ (FFI) README](crates/liter-llm-ffi/README.md) for full documentation.
+The same API is available in all 11 languages -- see the language READMEs below for idiomatic examples.
 
 ## Core API
 
-All bindings expose a unified `chat()` function for sending requests to LLM providers:
+All bindings expose a unified `chat()` function:
 
-| Language | Function |
-| -------- | -------- |
-| Rust | `liter_llm::DefaultClient::new(config).chat(messages, options)` |
+| Language | Usage |
+| -------- | ----- |
+| Rust | `DefaultClient::new(config).chat(messages, options).await` |
 | Python | `LiterLlmClient(api_key=...).chat(messages, config)` |
 | Node.js | `new LiterLlmClient({ apiKey }).chat(messages, config)` |
 | Go | `client.Chat(ctx, messages, config)` |
 | Java | `client.chat(messages, configJson)` |
 | Ruby | `LiterLlm::Client.new(api_key: ...).chat(messages, config)` |
 | Elixir | `LiterLlm.chat(messages, config)` |
+| PHP | `LiterLlm\Client::new($apiKey)->chat($messages, $config)` |
+| C# | `new LiterLlmClient(apiKey).ChatAsync(messages, config)` |
 | WASM | `new LiterLlmClient({ apiKey }).chat(messages, config)` |
 | C FFI | `liter_llm_chat(client, messages_json, config_json)` |
 
-The `chat()` function returns a structured response including the message content, usage statistics, and provider metadata.
+## Language READMEs
 
-## Features
+| Language | README | Binding |
+| -------- | ------ | ------- |
+| Python | [packages/python](packages/python/README.md) | PyO3 |
+| TypeScript / Node.js | [crates/liter-llm-node](crates/liter-llm-node/README.md) | NAPI-RS |
+| Go | [packages/go](packages/go/README.md) | cgo |
+| Java | [packages/java](packages/java/README.md) | Panama FFI |
+| Ruby | [packages/ruby](packages/ruby/README.md) | Magnus |
+| Elixir | [packages/elixir](packages/elixir/README.md) | Rustler NIF |
+| PHP | [packages/php](packages/php/README.md) | ext-php-rs |
+| .NET (C#) | [packages/csharp](packages/csharp/README.md) | P/Invoke |
+| WebAssembly | [crates/liter-llm-wasm](crates/liter-llm-wasm/README.md) | wasm-bindgen |
+| C/C++ (FFI) | [crates/liter-llm-ffi](crates/liter-llm-ffi) | C ABI |
 
-| Feature | Description |
-| --- | --- |
-| **100+ Providers** | Unified access to OpenAI, Anthropic, Groq, Mistral, Cohere, and 100+ more |
-| **Streaming** | First-class streaming support via `chat_stream()` across all bindings |
-| **Embeddings** | Embedding generation with `embeddings()` for supported providers |
-| **Tool Calling** | Structured tool/function calling support |
-| **Polyglot Bindings** | Native bindings for Rust, Python, Node.js, Go, Java, Elixir, Ruby, PHP, C# |
-| **Schema-Driven** | Provider registry compiled from `schemas/providers.json` — no runtime lookups |
+## Part of kreuzberg.dev
 
-## Supported Providers
-
-100+ providers including OpenAI, Anthropic, Groq, Mistral, Cohere, Together AI, Fireworks, Perplexity, DeepSeek, Google Gemini, and many more. See `schemas/providers.json` for the full list.
-
-## Package READMEs
-
-- [Rust](crates/liter-llm/README.md) -- Rust core library with unified LLM client.
-- [Python](crates/liter-llm-py/README.md) -- Python bindings for liter-llm via PyO3.
-- [Node.js](crates/liter-llm-node/README.md) -- Node.js NAPI bindings for liter-llm.
-- [Go](packages/go/v1/README.md) -- Go bindings for liter-llm via cgo.
-- [Java](crates/liter-llm-java/README.md) -- Java bindings for liter-llm via Panama FFM (JDK 21+).
-- [Elixir](packages/elixir/README.md) -- Elixir bindings for liter-llm via Rustler NIF.
-- [Ruby](packages/ruby/README.md) -- Ruby bindings for liter-llm via Magnus.
-- [WebAssembly](crates/liter-llm-wasm/README.md) -- WebAssembly bindings for liter-llm.
-- [PHP](crates/liter-llm-php/README.md) -- PHP extension for liter-llm via ext-php-rs.
-- [.NET (C#)](packages/csharp/LiterLlm/README.md) -- .NET P/Invoke bindings for liter-llm.
-- [C/C++ (FFI)](crates/liter-llm-ffi/README.md) -- C-compatible FFI bindings for liter-llm.
+liter-llm is built by the [kreuzberg.dev](https://github.com/kreuzberg-dev) team -- the same people behind [Kreuzberg](https://github.com/kreuzberg-dev/kreuzberg) (document extraction for 91+ formats), [tree-sitter-language-pack](https://github.com/kreuzberg-dev/tree-sitter-language-pack) (multilingual parsing), and [html-to-markdown](https://github.com/kreuzberg-dev/html-to-markdown). All our libraries share the same Rust-core, polyglot-bindings architecture.
 
 ## Contributing
 

@@ -5,40 +5,58 @@
   <a href="https://crates.io/crates/liter-llm">
     <img src="https://img.shields.io/crates/v/liter-llm?label=Rust&color=007ec6" alt="Rust">
   </a>
-  <a href="https://hex.pm/packages/liter_llm">
-    <img src="https://img.shields.io/hexpm/v/liter_llm?label=Elixir&color=007ec6" alt="Elixir">
-  </a>
   <a href="https://pypi.org/project/liter-llm/">
     <img src="https://img.shields.io/pypi/v/liter-llm?label=Python&color=007ec6" alt="Python">
   </a>
-  <a href="https://www.npmjs.com/package/liter-llm">
-    <img src="https://img.shields.io/npm/v/liter-llm?label=Node.js&color=007ec6" alt="Node.js">
+  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm">
+    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm?label=Node.js&color=007ec6" alt="Node.js">
   </a>
-  <a href="https://www.npmjs.com/package/liter-llm-wasm">
-    <img src="https://img.shields.io/npm/v/liter-llm-wasm?label=WASM&color=007ec6" alt="WASM">
+  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm-wasm">
+    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm-wasm?label=WASM&color=007ec6" alt="WASM">
   </a>
   <a href="https://central.sonatype.com/artifact/dev.kreuzberg/liter-llm">
     <img src="https://img.shields.io/maven-central/v/dev.kreuzberg/liter-llm?label=Java&color=007ec6" alt="Java">
   </a>
-  <a href="https://github.com/kreuzberg-dev/liter-llm/releases">
+  <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/packages/go">
     <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-llm?label=Go&color=007ec6" alt="Go">
   </a>
-  <a href="https://www.nuget.org/packages/LiterLlm/">
+  <a href="https://www.nuget.org/packages/LiterLlm">
     <img src="https://img.shields.io/nuget/v/LiterLlm?label=C%23&color=007ec6" alt="C#">
   </a>
-  <a href="https://packagist.org/packages/kreuzberg-dev/liter-llm">
-    <img src="https://img.shields.io/packagist/v/kreuzberg-dev/liter-llm?label=PHP&color=007ec6" alt="PHP">
+  <a href="https://packagist.org/packages/kreuzberg/liter-llm">
+    <img src="https://img.shields.io/packagist/v/kreuzberg/liter-llm?label=PHP&color=007ec6" alt="PHP">
   </a>
-  <a href="https://rubygems.org/gems/liter-llm">
-    <img src="https://img.shields.io/gem/v/liter-llm?label=Ruby&color=007ec6" alt="Ruby">
+  <a href="https://rubygems.org/gems/liter_llm">
+    <img src="https://img.shields.io/gem/v/liter_llm?label=Ruby&color=007ec6" alt="Ruby">
+  </a>
+  <a href="https://hex.pm/packages/liter_llm">
+    <img src="https://img.shields.io/hexpm/v/liter_llm?label=Elixir&color=007ec6" alt="Elixir">
+  </a>
+  <a href="https://github.com/kreuzberg-dev/liter-llm/pkgs/container/liter-llm">
+    <img src="https://img.shields.io/badge/Docker-007ec6?logo=docker&logoColor=white" alt="Docker">
+  </a>
+  <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/crates/liter-llm-ffi">
+    <img src="https://img.shields.io/badge/C-FFI-007ec6" alt="C FFI">
   </a>
 
   <!-- Project Info -->
   <a href="https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-007ec6" alt="License">
   </a>
-  <a href="https://github.com/kreuzberg-dev/liter-llm">
-    <img src="https://img.shields.io/badge/docs-GitHub-007ec6" alt="Documentation">
+  <a href="https://docs.liter-llm.kreuzberg.dev">
+    <img src="https://img.shields.io/badge/docs-kreuzberg.dev-007ec6" alt="Docs">
+  </a>
+</div>
+
+<div align="center" style="margin: 20px 0;">
+  <picture>
+    <img width="100%" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
+  </picture>
+</div>
+
+<div align="center" style="margin-bottom: 20px;">
+  <a href="https://discord.gg/xt9WY3GnKR">
+    <img height="22" src="https://img.shields.io/badge/Discord-Join%20our%20community-7289da?logo=discord&logoColor=white" alt="Discord">
   </a>
 </div>
 
@@ -136,74 +154,26 @@ Route to any provider using the `provider/model` prefix convention:
 
 ### Key Capabilities
 
-- **Provider Routing** - Single client for 100+ LLM providers via `provider/model` prefix
-- **Unified API** - Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
+- **Provider Routing** -- Single client for 100+ LLM providers via `provider/model` prefix
+- **Unified API** -- Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
 
-- **Streaming** - Real-time token streaming via `chat_stream` with async iterators
+- **Streaming** -- Real-time token streaming via `chat_stream`
 
-- **Async/Await** - Non-blocking requests with full async support
+- **Tool Calling** -- Function calling and tool use across all supporting providers
 
-- **Tool Calling** - Function calling and tool use across all supporting providers
-
-- **Type Safe** - Schema-driven types from JSON schemas, language-native definitions
-- **Auth Injection** - API keys managed via environment variables, never hardcoded
-- **Error Handling** - Structured errors with provider context and retry hints
-
-### Observability (OpenTelemetry GenAI Semantic Conventions)
-
-liter-llm implements the [OpenTelemetry Semantic Conventions for Generative AI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) systems. When the `tracing` feature is enabled, every LLM call emits structured spans with:
-
-| Attribute | Description |
-|-----------|-------------|
-| `gen_ai.operation.name` | `chat`, `embeddings`, `list_models` |
-| `gen_ai.request.model` | Requested model name |
-| `gen_ai.system` | Provider name (`openai`, `anthropic`, etc.) |
-| `gen_ai.response.id` | Completion ID from the provider |
-| `gen_ai.response.model` | Actual model used (may differ from request) |
-| `gen_ai.response.finish_reasons` | Why generation stopped |
-| `gen_ai.usage.input_tokens` | Prompt token count |
-| `gen_ai.usage.output_tokens` | Completion token count |
-| `gen_ai.usage.cost` | Estimated USD cost (via `CostTrackingLayer`) |
-| `error.type` | Error variant on failure |
-
-Enable `otel` feature for OpenTelemetry export via `tracing-opentelemetry`.
+- **Type Safe** -- Schema-driven types compiled from JSON schemas
+- **Secure** -- API keys never logged or serialized, managed via environment variables
+- **Observability** -- Built-in [OpenTelemetry](https://opentelemetry.io/docs/specs/semconv/gen-ai/) with GenAI semantic conventions
+- **Error Handling** -- Structured errors with provider context and retry hints
 
 ### Performance
 
-| Characteristic | Detail |
-|----------------|--------|
-| **Provider resolution** | Once at client construction, zero per-request overhead |
-| **HTTP layer** | `reqwest` with configurable timeouts and connection pooling |
-| **Streaming** | Zero-allocation SSE parser with `memchr` |
-| **Memory** | Keys wrapped in `secrecy::SecretString`, never logged |
+Built on a compiled Rust core for speed and safety:
 
-## Streaming
-
-This binding supports real-time streaming responses:
-
-```elixir
-{:ok, stream} =
-  LiterLlm.chat_stream(
-    model: "openai/gpt-4o",
-    messages: [
-      %{"role" => "user", "content" => "Tell me a story"}
-    ]
-  )
-
-stream
-|> Stream.each(fn chunk -> IO.write(chunk["delta"]) end)
-|> Stream.run()
-
-IO.puts("")
-```
-
-## Async Support
-
-This binding provides full async/await support for non-blocking LLM calls.
-
-## Tool Calling
-
-Liter-LM supports tool calling (function calling) across all providers that offer it:
+- **Provider resolution** at client construction -- zero per-request overhead
+- **Configurable timeouts** and connection pooling
+- **Zero-copy streaming** with SSE and AWS EventStream support
+- **API keys** wrapped in secure memory, zeroed on drop
 
 ## Provider Routing
 
@@ -220,19 +190,16 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 
 ## Documentation
 
-- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)**
-- **[API Reference](https://github.com/kreuzberg-dev/liter-llm#api-reference)**
-- **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
+- **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
+- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
+- **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
 
 ## Contributing
 
-Contributions are welcome! See [Contributing Guide](https://github.com/kreuzberg-dev/liter-llm/blob/main/CONTRIBUTING.md).
+Contributions are welcome! See [CONTRIBUTING.md](https://github.com/kreuzberg-dev/liter-llm/blob/main/CONTRIBUTING.md) for guidelines.
+
+Join our [Discord community](https://discord.gg/xt9WY3GnKR) for questions and discussion.
 
 ## License
 
-MIT License - see LICENSE file for details.
-
-## Support
-
-- **GitHub Issues**: [Report bugs](https://github.com/kreuzberg-dev/liter-llm/issues)
-- **Discussions**: [Ask questions](https://github.com/kreuzberg-dev/liter-llm/discussions)
+MIT -- see [LICENSE](https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE) for details.

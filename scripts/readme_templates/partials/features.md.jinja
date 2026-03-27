@@ -18,45 +18,24 @@ Route to any provider using the `provider/model` prefix convention:
 
 ### Key Capabilities
 
-- **Provider Routing** - Single client for 100+ LLM providers via `provider/model` prefix
-- **Unified API** - Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
+- **Provider Routing** -- Single client for 100+ LLM providers via `provider/model` prefix
+- **Unified API** -- Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
 {% if features.streaming %}
-- **Streaming** - Real-time token streaming via `chat_stream` with async iterators
-{% endif %}
-{% if features.async %}
-- **Async/Await** - Non-blocking requests with full async support
+- **Streaming** -- Real-time token streaming via `chat_stream`
 {% endif %}
 {% if features.tool_calling %}
-- **Tool Calling** - Function calling and tool use across all supporting providers
+- **Tool Calling** -- Function calling and tool use across all supporting providers
 {% endif %}
-- **Type Safe** - Schema-driven types from JSON schemas, language-native definitions
-- **Auth Injection** - API keys managed via environment variables, never hardcoded
-- **Error Handling** - Structured errors with provider context and retry hints
-
-### Observability (OpenTelemetry GenAI Semantic Conventions)
-
-liter-llm implements the [OpenTelemetry Semantic Conventions for Generative AI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) systems. When the `tracing` feature is enabled, every LLM call emits structured spans with:
-
-| Attribute | Description |
-|-----------|-------------|
-| `gen_ai.operation.name` | `chat`, `embeddings`, `list_models` |
-| `gen_ai.request.model` | Requested model name |
-| `gen_ai.system` | Provider name (`openai`, `anthropic`, etc.) |
-| `gen_ai.response.id` | Completion ID from the provider |
-| `gen_ai.response.model` | Actual model used (may differ from request) |
-| `gen_ai.response.finish_reasons` | Why generation stopped |
-| `gen_ai.usage.input_tokens` | Prompt token count |
-| `gen_ai.usage.output_tokens` | Completion token count |
-| `gen_ai.usage.cost` | Estimated USD cost (via `CostTrackingLayer`) |
-| `error.type` | Error variant on failure |
-
-Enable `otel` feature for OpenTelemetry export via `tracing-opentelemetry`.
+- **Type Safe** -- Schema-driven types compiled from JSON schemas
+- **Secure** -- API keys never logged or serialized, managed via environment variables
+- **Observability** -- Built-in [OpenTelemetry](https://opentelemetry.io/docs/specs/semconv/gen-ai/) with GenAI semantic conventions
+- **Error Handling** -- Structured errors with provider context and retry hints
 
 ### Performance
 
-| Characteristic | Detail |
-|----------------|--------|
-| **Provider resolution** | Once at client construction, zero per-request overhead |
-| **HTTP layer** | `reqwest` with configurable timeouts and connection pooling |
-| **Streaming** | Zero-allocation SSE parser with `memchr` |
-| **Memory** | Keys wrapped in `secrecy::SecretString`, never logged |
+Built on a compiled Rust core for speed and safety:
+
+- **Provider resolution** at client construction -- zero per-request overhead
+- **Configurable timeouts** and connection pooling
+- **Zero-copy streaming** with SSE and AWS EventStream support
+- **API keys** wrapped in secure memory, zeroed on drop

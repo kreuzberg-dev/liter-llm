@@ -1,5 +1,5 @@
 ```typescript
-import init, { LlmClient } from "liter-llm-wasm";
+import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
 
 await init();
 

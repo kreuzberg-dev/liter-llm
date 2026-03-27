@@ -1,5 +1,5 @@
 ```typescript
-import init, { LlmClient } from "liter-llm-wasm";
+import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
 
 await init();
 
@@ -10,6 +10,6 @@ const stream = client.chatStream({
 });
 
 for await (const chunk of stream) {
-  process.stdout.write(chunk.delta);
+  console.log(chunk.delta);
 }
 ```

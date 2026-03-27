@@ -109,10 +109,6 @@ plugins:
   - tags
   - minify:
       minify_html: true
-  - git-revision-date-localized:
-      enable_creation_date: true
-      type: timeago
-      fallback_to_build_date: true
 
 extra:
   social:

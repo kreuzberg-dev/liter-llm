@@ -35,8 +35,8 @@ languages:
       - npm
       - pnpm
       - yarn
-    package_name: liter-llm
-    badge_url: https://img.shields.io/npm/v/liter-llm?label=TypeScript&color=007ec6
+    package_name: "@kreuzberg/liter-llm"
+    badge_url: https://img.shields.io/npm/v/@kreuzberg/liter-llm?label=TypeScript&color=007ec6
     docs_url: https://github.com/kreuzberg-dev/liter-llm
     description: |
       Universal LLM API client for TypeScript and Node.js. Access 100+ LLM providers through a single interface with native NAPI-RS bindings, async/await support, streaming, tool calling, and full TypeScript type definitions.
@@ -107,8 +107,8 @@ languages:
     template: language_package.md.jinja
     package_manager:
       - composer
-    package_name: kreuzberg-dev/liter-llm
-    badge_url: https://img.shields.io/packagist/v/kreuzberg-dev/liter-llm?label=PHP&color=007ec6
+    package_name: kreuzberg/liter-llm
+    badge_url: https://img.shields.io/packagist/v/kreuzberg/liter-llm?label=PHP&color=007ec6
     docs_url: https://github.com/kreuzberg-dev/liter-llm
     description: |
       Universal LLM API client for PHP. Access 100+ LLM providers through a single interface with modern PHP 8.2+ support and a type-safe API.
@@ -128,8 +128,8 @@ languages:
     package_manager:
       - rubygems
       - bundler
-    package_name: liter-llm
-    badge_url: https://img.shields.io/gem/v/liter-llm?label=Ruby&color=007ec6
+    package_name: liter_llm
+    badge_url: https://img.shields.io/gem/v/liter_llm?label=Ruby&color=007ec6
     docs_url: https://github.com/kreuzberg-dev/liter-llm
     description: |
       Universal LLM API client for Ruby. Access 100+ LLM providers through a single interface with idiomatic Ruby API and native performance.
@@ -200,8 +200,8 @@ languages:
       - npm
       - pnpm
       - yarn
-    package_name: liter-llm-wasm
-    badge_url: https://img.shields.io/npm/v/liter-llm-wasm?label=WASM&color=007ec6
+    package_name: "@kreuzberg/liter-llm-wasm"
+    badge_url: https://img.shields.io/npm/v/@kreuzberg/liter-llm-wasm?label=WASM&color=007ec6
     docs_url: https://github.com/kreuzberg-dev/liter-llm
     description: |
       Universal LLM API client for browsers and WebAssembly runtimes. Access 100+ LLM providers with portable deployment across browsers, Deno, and Cloudflare Workers.

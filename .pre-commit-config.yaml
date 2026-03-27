@@ -21,7 +21,7 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
         args: ["--maxkb=500"]
-        exclude: Cargo.lock
+        exclude: Cargo.lock|docs/assets/
       - id: detect-private-key
       - id: check-json
       - id: check-yaml
@@ -290,6 +290,6 @@ repos:
     rev: v2.4.2
     hooks:
       - id: codespell
-        exclude: ^tests|^parsers|^vendors|^target|^e2e|^\.ai-rulez|pnpm-lock\.yaml|docs/css/|sources
+        exclude: ^tests|^parsers|^vendors|^target|^e2e|^\.ai-rulez|pnpm-lock\.yaml|docs/css/|docs/assets/|sources
         additional_dependencies:
           - tomli

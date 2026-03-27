@@ -1,6 +1,8 @@
 # {{ name }}
 
 {% include 'partials/badges.html.jinja' %}
+{% include 'partials/banner.html.jinja' %}
+{% include 'partials/discord.html.jinja' %}
 
 {{ description }}
 
@@ -20,30 +22,6 @@
 
 {% include 'partials/features.md.jinja' %}
 
-{% if features.streaming %}
-## Streaming
-
-This binding supports real-time streaming responses:
-
-{{ snippets.streaming | include_snippet(language) }}
-
-{% endif %}
-{% if features.async %}
-## Async Support
-
-This binding provides full async/await support for non-blocking LLM calls.
-
-{% endif %}
-{% if features.tool_calling %}
-## Tool Calling
-
-Liter-LM supports tool calling (function calling) across all providers that offer it:
-
-{% if snippets.tool_calling %}
-{{ snippets.tool_calling | include_snippet(language) }}
-
-{% endif %}
-{% endif %}
 {% if features.provider_routing %}
 ## Provider Routing
 
@@ -62,19 +40,16 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 
 ## Documentation
 
-- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)**
-- **[API Reference](https://github.com/kreuzberg-dev/liter-llm#api-reference)**
-- **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
+- **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
+- **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
+- **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
 
 ## Contributing
 
-Contributions are welcome! See [Contributing Guide](https://github.com/kreuzberg-dev/liter-llm/blob/main/CONTRIBUTING.md).
+Contributions are welcome! See [CONTRIBUTING.md](https://github.com/kreuzberg-dev/liter-llm/blob/main/CONTRIBUTING.md) for guidelines.
+
+Join our [Discord community](https://discord.gg/xt9WY3GnKR) for questions and discussion.
 
 ## License
 
-MIT License - see LICENSE file for details.
-
-## Support
-
-- **GitHub Issues**: [Report bugs](https://github.com/kreuzberg-dev/liter-llm/issues)
-- **Discussions**: [Ask questions](https://github.com/kreuzberg-dev/liter-llm/discussions)
+MIT -- see [LICENSE](https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE) for details.

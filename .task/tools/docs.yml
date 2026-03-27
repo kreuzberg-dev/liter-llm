@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build documentation
+    cmds:
+      - uv run --group doc zensical build --clean
+
+  serve:
+    desc: Serve documentation locally
+    cmds:
+      - uv run --group doc zensical serve
