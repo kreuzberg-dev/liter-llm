@@ -942,10 +942,14 @@ jobs:
           mkdir -p go-ffi-release
           for rid in linux-x64 linux-arm64 osx-arm64 win-x64; do
             TARBALL="go-ffi-release/liter-llm-ffi-v${VERSION}-${rid}.tar.gz"
+            INCLUDE_ARG=""
+            if [ -d ffi-artifacts/include ]; then
+              INCLUDE_ARG="include"
+            fi
             tar -czf "$TARBALL" \
               -C ffi-artifacts \
               "${rid}" \
-              "$([ -d ffi-artifacts/include ] && echo "include" || true)"
+              ${INCLUDE_ARG}
             echo "Created: $TARBALL"
           done
         shell: bash

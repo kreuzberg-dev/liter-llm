@@ -49,6 +49,17 @@
 		"registry": "https://registry.npmjs.org/",
 		"access": "public"
 	},
+	"tsup": {
+		"entry": [
+			"src/index.ts"
+		],
+		"format": [
+			"cjs",
+			"esm"
+		],
+		"dts": true,
+		"clean": true
+	},
 	"scripts": {
 		"build": "tsup",
 		"typecheck": "tsc --noEmit",
