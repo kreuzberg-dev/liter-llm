@@ -1,7 +1,7 @@
 [workspace]
 
 [package]
-name = "liter-llm-rb"
+name = "liter_llm_rb"
 version = "0.1.0"
 edition = "2024"
 authors = ["Na'aman Hirschfeld <naaman@kreuzberg.dev>"]
