@@ -2,6 +2,7 @@
 //!
 //! This module provides a [`MockClient`] and helper functions used across
 //! multiple middleware test modules.
+#![allow(dead_code)]
 
 use std::pin::Pin;
 use std::sync::Arc;

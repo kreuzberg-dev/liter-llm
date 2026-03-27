@@ -331,7 +331,6 @@ mod tests {
     use crate::tower::service::LlmService;
     use crate::tower::tests_common::{MockClient, chat_req};
     use crate::tower::types::LlmRequest;
-    use tower::Service as _;
 
     #[tokio::test]
     async fn latency_based_routes_to_fastest() {
