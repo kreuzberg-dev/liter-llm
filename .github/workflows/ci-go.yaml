@@ -1,6 +1,7 @@
 name: CI Go
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -28,7 +29,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-go-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-go-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -43,10 +44,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Rust
         uses: kreuzberg-dev/actions/setup-rust@v1
@@ -57,7 +58,7 @@ jobs:
           version: 3.46.4
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
           check-latest: true

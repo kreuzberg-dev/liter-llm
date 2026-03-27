@@ -1,6 +1,7 @@
 name: CI Ruby
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -32,7 +33,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-ruby-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-ruby-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -47,7 +48,7 @@ jobs:
         ruby: ["3.2", "3.3"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Rust
         uses: kreuzberg-dev/actions/setup-rust@v1

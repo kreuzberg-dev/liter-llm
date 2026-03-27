@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-c-ffi-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-c-ffi-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -45,7 +45,7 @@ jobs:
           - macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Rust
         uses: kreuzberg-dev/actions/setup-rust@v1
@@ -83,7 +83,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Rust
         uses: kreuzberg-dev/actions/setup-rust@v1

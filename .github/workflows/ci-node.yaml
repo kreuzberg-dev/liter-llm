@@ -1,6 +1,7 @@
 name: CI Node
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -34,7 +35,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-node-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-node-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -52,7 +53,7 @@ jobs:
             runtime: bun
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Task
         uses: go-task/setup-task@v2

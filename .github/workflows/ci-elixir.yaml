@@ -1,6 +1,7 @@
 name: CI Elixir
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -26,7 +27,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-elixir-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-elixir-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -35,7 +36,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
