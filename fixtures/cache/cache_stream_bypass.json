@@ -1,0 +1,47 @@
+{
+	"id": "cache_stream_bypass",
+	"category": "cache",
+	"description": "Tests that streaming requests bypass cache entirely",
+	"api": {
+		"method": "chat_stream",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-stream-bypass-001",
+				"object": "chat.completion",
+				"created": 1711000000,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello! How can I help you today?"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 8,
+					"completion_tokens": 9,
+					"total_tokens": 17
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": true,
+		"cache_bypassed": true
+	},
+	"tags": ["cache"],
+	"skip": {}
+}

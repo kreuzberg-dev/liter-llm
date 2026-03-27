@@ -1,0 +1,53 @@
+{
+	"id": "register_provider",
+	"category": "custom_provider",
+	"description": "Tests that a custom provider can be registered and routes requests",
+	"client_config": {
+		"custom_provider": {
+			"name": "my-provider",
+			"base_url": "http://localhost",
+			"model_prefixes": ["my-"]
+		}
+	},
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "my-model-v1",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-custom-001",
+				"object": "chat.completion",
+				"created": 1711000000,
+				"model": "my-model-v1",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello from custom provider!"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 8,
+					"completion_tokens": 7,
+					"total_tokens": 15
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": true
+	},
+	"tags": ["custom_provider"],
+	"skip": {}
+}
