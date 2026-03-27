@@ -24,11 +24,13 @@ defmodule LiterLlm.Native do
   | Linux aarch64 | `aarch64-unknown-linux-gnu` |
   """
 
+  @version "1.0.0-rc.1"
+
   use RustlerPrecompiled,
     otp_app: :liter_llm,
     crate: "liter_llm_rustler",
-    base_url: "https://github.com/kreuzberg-dev/liter-llm/releases/download",
-    version: "1.0.0-rc.1",
+    base_url: "https://github.com/kreuzberg-dev/liter-llm/releases/download/v#{@version}",
+    version: @version,
     force_build: System.get_env("LITER_LLM_BUILD") in ["1", "true"],
     targets: [
       "aarch64-apple-darwin",
