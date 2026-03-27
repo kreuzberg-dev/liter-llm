@@ -199,7 +199,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────
   check-cratesio:
     name: Check crates.io
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_crates == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -215,7 +215,7 @@ jobs:
 
   check-pypi:
     name: Check PyPI
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_python == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -231,7 +231,7 @@ jobs:
 
   check-npm:
     name: Check npm (@kreuzberg/liter-llm)
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_node == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -247,7 +247,7 @@ jobs:
 
   check-npm-wasm:
     name: Check npm (@kreuzberg/liter-llm-wasm)
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_wasm == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -263,7 +263,7 @@ jobs:
 
   check-rubygems:
     name: Check RubyGems
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_ruby == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -279,7 +279,7 @@ jobs:
 
   check-maven:
     name: Check Maven Central
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_java == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -295,7 +295,7 @@ jobs:
 
   check-hex:
     name: Check Hex.pm
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_elixir == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -311,7 +311,7 @@ jobs:
 
   check-packagist:
     name: Check Packagist
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_php == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -327,7 +327,7 @@ jobs:
 
   check-nuget:
     name: Check NuGet
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_csharp == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -343,7 +343,7 @@ jobs:
 
   check-go:
     name: Check Go FFI release assets
-    needs: [prepare, validate-versions]
+    needs: [prepare]
     if: needs.prepare.outputs.release_go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -755,10 +755,11 @@ jobs:
   # ── Rust FFI (shared for Go / Java / C# / C consumers) ────────────────────
   build-ffi:
     name: Build Rust FFI (${{ matrix.label }})
-    needs: [prepare, check-go, check-maven, check-nuget]
+    needs: [prepare, validate-versions, check-go, check-maven, check-nuget]
     if: |
       always() &&
       needs.prepare.result == 'success' &&
+      needs.validate-versions.result == 'success' &&
       (
         (needs.prepare.outputs.release_go == 'true' &&
          (needs.check-go.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')) ||
@@ -914,10 +915,11 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────
   upload-go-ffi:
     name: Upload Go FFI assets
-    needs: [prepare, check-go, build-ffi]
+    needs: [prepare, validate-versions, check-go, build-ffi]
     if: |
       always() &&
       needs.prepare.outputs.release_go == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.build-ffi.result == 'success' &&
       (needs.check-go.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
@@ -1030,6 +1032,7 @@ jobs:
     if: |
       always() &&
       needs.prepare.outputs.release_python == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.build-python-wheels.result == 'success' &&
       needs.build-python-sdist.result == 'success' &&
       (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
@@ -1069,6 +1072,7 @@ jobs:
       always() &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.prepare.outputs.release_node == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.check-npm.outputs.exists != 'true' &&
       needs.build-node-native.result == 'success'
     runs-on: ubuntu-latest
@@ -1208,6 +1212,7 @@ jobs:
       always() &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.prepare.outputs.release_wasm == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.check-npm-wasm.outputs.exists != 'true' &&
       needs.build-wasm.result == 'success'
     runs-on: ubuntu-latest
@@ -1273,6 +1278,7 @@ jobs:
     if: |
       always() &&
       needs.prepare.outputs.release_ruby == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.build-ruby-gem.result == 'success' &&
       (needs.check-rubygems.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
@@ -1299,6 +1305,7 @@ jobs:
     if: |
       always() &&
       needs.prepare.outputs.release_java == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.build-java-package.result == 'success' &&
       (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
@@ -1329,6 +1336,7 @@ jobs:
     if: |
       always() &&
       needs.prepare.outputs.release_elixir == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.upload-elixir-nifs.result == 'success' &&
       (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
@@ -1370,6 +1378,7 @@ jobs:
     if: |
       always() &&
       needs.prepare.outputs.release_csharp == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.build-csharp-package.result == 'success' &&
       (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest

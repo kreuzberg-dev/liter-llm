@@ -30,15 +30,13 @@ fn snake_to_camel(s: &str) -> String {
     for ch in chars {
         if ch == '_' {
             pending_underscores += 1;
+        } else if pending_underscores > 0 {
+            // Non-leading underscores: the first one triggers capitalisation,
+            // any extras were consecutive underscores that collapse.
+            result.extend(ch.to_uppercase());
+            pending_underscores = 0;
         } else {
-            if pending_underscores > 0 {
-                // Non-leading underscores: the first one triggers capitalisation,
-                // any extras were consecutive underscores that collapse.
-                result.extend(ch.to_uppercase());
-                pending_underscores = 0;
-            } else {
-                result.push(ch);
-            }
+            result.push(ch);
         }
     }
     // Append any trailing underscores that were consumed but had no following

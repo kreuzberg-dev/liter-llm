@@ -196,6 +196,10 @@ fn write_spec_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Res
         if fixture.skip.languages.iter().any(|l| l == "wasm") {
             continue;
         }
+        // Skip chat_stream fixtures — WASM binding doesn't support streaming yet.
+        if fixture.api.method == "chat_stream" {
+            continue;
+        }
         write_describe_block(&mut out, fixture);
     }
 
