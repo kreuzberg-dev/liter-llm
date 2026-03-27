@@ -246,6 +246,7 @@ impl LlmClient {
     /// const resp = await client.chat({ model: "gpt-4", messages: [{ role: "user", content: "Hi" }] });
     /// console.log(resp.choices[0].message.content);
     /// ```
+    #[napi]
     pub async fn chat(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::ChatCompletionRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
@@ -296,6 +297,7 @@ impl LlmClient {
     /// const resp = await client.embed({ model: "text-embedding-3-small", input: "Hello" });
     /// console.log(resp.data[0].embedding);
     /// ```
+    #[napi]
     pub async fn embed(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::EmbeddingRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
@@ -350,6 +352,7 @@ impl LlmClient {
     /// const buf = await client.speech({ model: "tts-1", input: "Hello", voice: "alloy" });
     /// fs.writeFileSync("output.mp3", buf);
     /// ```
+    #[napi]
     pub async fn speech(&self, request: serde_json::Value) -> napi::Result<Buffer> {
         let req: liter_llm::CreateSpeechRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
@@ -368,6 +371,7 @@ impl LlmClient {
     /// const resp = await client.transcribe({ model: "whisper-1", file: base64Audio });
     /// console.log(resp.text);
     /// ```
+    #[napi]
     pub async fn transcribe(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::CreateTranscriptionRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
@@ -386,6 +390,7 @@ impl LlmClient {
     /// const resp = await client.moderate({ model: "text-moderation-latest", input: "some text" });
     /// console.log(resp.results[0].flagged);
     /// ```
+    #[napi]
     pub async fn moderate(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::ModerationRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
@@ -404,6 +409,7 @@ impl LlmClient {
     /// const resp = await client.rerank({ model: "rerank-v1", query: "q", documents: ["a", "b"] });
     /// console.log(resp.results);
     /// ```
+    #[napi]
     pub async fn rerank(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::RerankRequest =
             serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;

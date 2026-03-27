@@ -72,5 +72,5 @@ tasks:
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
-      - npm install
-      - npx vitest run
+      - pnpm install
+      - pnpm vitest run
