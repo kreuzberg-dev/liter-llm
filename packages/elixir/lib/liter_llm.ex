@@ -527,6 +527,24 @@ defmodule LiterLlm do
     Client.cancel_response(client, response_id, req_opts)
   end
 
+  # ─── Hooks & Custom Providers ─────────────────────────────────────────────
+
+  @doc """
+  Registers a lifecycle hook module on the default client configuration.
+
+  See `LiterLlm.Client.add_hook/2` for details.
+  """
+  @spec add_hook(Client.t(), module()) :: Client.t()
+  defdelegate add_hook(client, hook_module), to: Client
+
+  @doc """
+  Registers a custom provider configuration on a client.
+
+  See `LiterLlm.Client.register_provider/2` for details.
+  """
+  @spec register_provider(Client.t(), Types.provider_config()) :: Client.t()
+  defdelegate register_provider(client, provider), to: Client
+
   # ─── Helpers ──────────────────────────────────────────────────────────────
 
   # Known client config keys — all others are forwarded to Req.

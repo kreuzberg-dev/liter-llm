@@ -6,7 +6,58 @@
 // (e.g. "groq/llama3-70b") selects the provider and endpoint.
 package literllm
 
-import "encoding/json"
+import (
+	"context"
+	"encoding/json"
+)
+
+// ─── Cache / Budget / Hook / Provider Config ─────────────────────────────────
+
+// CacheConfig configures response caching behavior for the client.
+type CacheConfig struct {
+	// MaxEntries is the maximum number of cached responses to retain.
+	MaxEntries int `json:"max_entries"`
+	// TTLSeconds is the time-to-live for each cache entry in seconds.
+	TTLSeconds int `json:"ttl_seconds"`
+}
+
+// BudgetConfig configures cost budget enforcement for the client.
+type BudgetConfig struct {
+	// GlobalLimit is the maximum total cost allowed across all models.
+	// A nil value means no global limit.
+	GlobalLimit *float64 `json:"global_limit,omitempty"`
+	// ModelLimits maps model names to per-model cost limits.
+	ModelLimits map[string]float64 `json:"model_limits,omitempty"`
+	// Enforcement controls budget enforcement behavior: "strict" (reject
+	// requests that would exceed budget) or "warn" (log a warning).
+	Enforcement string `json:"enforcement"`
+}
+
+// ProviderConfig defines a custom LLM provider that is not in the built-in
+// registry.  Register it with [Client.RegisterProvider].
+type ProviderConfig struct {
+	// Name is the unique provider name used for model routing.
+	Name string `json:"name"`
+	// BaseURL is the provider's API base URL.
+	BaseURL string `json:"base_url"`
+	// AuthHeader is the header name used for authentication (e.g. "Authorization").
+	AuthHeader string `json:"auth_header"`
+	// ModelPrefixes lists the model name prefixes that route to this provider.
+	ModelPrefixes []string `json:"model_prefixes"`
+}
+
+// Hook is the interface for intercepting client request/response lifecycle
+// events.  Implement any subset of methods; all are called synchronously in
+// the order hooks were added.
+type Hook interface {
+	// OnRequest is called before the HTTP request is sent.  Return a non-nil
+	// error to abort the request (the error is returned to the caller).
+	OnRequest(ctx context.Context, req interface{}) error
+	// OnResponse is called after a successful response is received.
+	OnResponse(ctx context.Context, req, resp interface{})
+	// OnError is called after a request fails.
+	OnError(ctx context.Context, req interface{}, err error)
+}
 
 // mustMarshal is a helper for json.Marshal calls that cannot fail
 // (e.g. marshaling a string or a slice of known-good types).

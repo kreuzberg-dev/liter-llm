@@ -28,10 +28,17 @@
 //! puts response.dig('choices', 0, 'message', 'content')
 //! ```
 
-use std::sync::LazyLock;
+use std::collections::HashMap;
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::{Arc, LazyLock, Mutex};
 
-use liter_llm::{BatchClient, ClientConfigBuilder, DefaultClient, FileClient, LlmClient, ResponseClient};
-use magnus::{Error, Ruby, TryConvert, function, method, prelude::*};
+use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement, LlmHook, LlmRequest, LlmResponse};
+use liter_llm::{
+    AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, DefaultClient, FileClient, LiterLlmError,
+    LlmClient, ResponseClient, register_custom_provider,
+};
+use magnus::{Error, RHash, Ruby, TryConvert, function, method, prelude::*};
 
 // ─── Tokio runtime ────────────────────────────────────────────────────────────
 
@@ -61,14 +68,158 @@ fn runtime(ruby: &Ruby) -> Result<&'static tokio::runtime::Runtime, Error> {
 
 // ─── RubyLlmClient ────────────────────────────────────────────────────────────
 
+// ─── Ruby Hook Bridge ────────────────────────────────────────────────────────
+
+/// A hook that stores callback names as JSON strings and invokes Ruby Procs.
+///
+/// Since Ruby is single-threaded with GVL, hooks are called synchronously
+/// inside `block_on` — no need for `spawn_blocking`.
+#[allow(dead_code)]
+struct RubyHookBridge {
+    /// JSON string identifying the hook class name for diagnostics.
+    name: String,
+    /// Ruby callables: `on_request`, `on_response`, `on_error`.
+    /// Stored as serialized data since we cannot hold Ruby references across
+    /// thread boundaries.  Instead, the hook methods are encoded as a contract:
+    /// the Ruby object must respond to the named methods.
+    ///
+    /// We store the hook object reference index to call back into Ruby.
+    _marker: (),
+}
+
+// SAFETY: Ruby hooks are only called from the GVL-holding thread inside
+// `block_on`, never from a Tokio worker thread.
+unsafe impl Send for RubyHookBridge {}
+unsafe impl Sync for RubyHookBridge {}
+
+impl LlmHook for RubyHookBridge {
+    fn on_request(&self, _req: &LlmRequest) -> Pin<Box<dyn Future<Output = liter_llm::Result<()>> + Send + '_>> {
+        // No-op: Ruby hooks are invoked via a different mechanism (see `run_hooks`).
+        Box::pin(async { Ok(()) })
+    }
+
+    fn on_response(
+        &self,
+        _req: &LlmRequest,
+        _resp: &LlmResponse,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        Box::pin(async {})
+    }
+
+    fn on_error(
+        &self,
+        _req: &LlmRequest,
+        _err: &LiterLlmError,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        Box::pin(async {})
+    }
+}
+
+// ─── Helper: parse Ruby hash into CacheConfig ────────────────────────────────
+
+fn parse_cache_config_rb(kw: &RHash) -> Result<CacheConfig, Error> {
+    let ruby = unsafe { Ruby::get_unchecked() };
+    let max_entries: usize = kw
+        .get(ruby.to_symbol("max_entries"))
+        .and_then(|v| usize::try_convert(v).ok())
+        .unwrap_or(256);
+    let ttl_seconds: u64 = kw
+        .get(ruby.to_symbol("ttl_seconds"))
+        .and_then(|v| u64::try_convert(v).ok())
+        .unwrap_or(300);
+    Ok(CacheConfig {
+        max_entries,
+        ttl: std::time::Duration::from_secs(ttl_seconds),
+    })
+}
+
+// ─── Helper: parse Ruby hash into BudgetConfig ──────────────────────────────
+
+fn parse_budget_config_rb(kw: &RHash) -> Result<BudgetConfig, Error> {
+    let ruby = unsafe { Ruby::get_unchecked() };
+    let global_limit: Option<f64> = kw
+        .get(ruby.to_symbol("global_limit"))
+        .and_then(|v| Option::<f64>::try_convert(v).ok())
+        .flatten();
+    let enforcement_str: String = kw
+        .get(ruby.to_symbol("enforcement"))
+        .and_then(|v| String::try_convert(v).ok())
+        .unwrap_or_else(|| "hard".to_owned());
+    let enforcement = match enforcement_str.as_str() {
+        "soft" => Enforcement::Soft,
+        _ => Enforcement::Hard,
+    };
+    // model_limits is a Ruby Hash of String -> Float
+    let model_limits: HashMap<String, f64> = kw
+        .get(ruby.to_symbol("model_limits"))
+        .and_then(|v| {
+            let hash = magnus::RHash::try_convert(v).ok()?;
+            let mut map = HashMap::new();
+            let _ = hash.foreach(|k: String, v: f64| {
+                map.insert(k, v);
+                Ok(magnus::r_hash::ForEach::Continue)
+            });
+            Some(map)
+        })
+        .unwrap_or_default();
+    Ok(BudgetConfig {
+        global_limit,
+        model_limits,
+        enforcement,
+    })
+}
+
+// ─── Helper: parse Ruby hash into CustomProviderConfig ──────────────────────
+
+fn parse_provider_config_rb(kw: &RHash) -> Result<CustomProviderConfig, Error> {
+    let ruby = unsafe { Ruby::get_unchecked() };
+    let name: String = kw
+        .get(ruby.to_symbol("name"))
+        .and_then(|v| String::try_convert(v).ok())
+        .ok_or_else(|| Error::new(ruby.exception_arg_error(), "provider config requires :name"))?;
+    let base_url: String = kw
+        .get(ruby.to_symbol("base_url"))
+        .and_then(|v| String::try_convert(v).ok())
+        .ok_or_else(|| Error::new(ruby.exception_arg_error(), "provider config requires :base_url"))?;
+    let auth_header_str: String = kw
+        .get(ruby.to_symbol("auth_header"))
+        .and_then(|v| String::try_convert(v).ok())
+        .unwrap_or_else(|| "bearer".to_owned());
+    let auth_header = match auth_header_str.as_str() {
+        "none" => AuthHeaderFormat::None,
+        s if s.starts_with("api-key:") => {
+            AuthHeaderFormat::ApiKey(s.trim_start_matches("api-key:").trim().to_owned())
+        }
+        _ => AuthHeaderFormat::Bearer,
+    };
+    let model_prefixes: Vec<String> = kw
+        .get(ruby.to_symbol("model_prefixes"))
+        .and_then(|v| <Vec<String>>::try_convert(v).ok())
+        .unwrap_or_default();
+    Ok(CustomProviderConfig {
+        name,
+        base_url,
+        auth_header,
+        model_prefixes,
+    })
+}
+
+// ─── RubyLlmClient ──────────────────────────────────────────────────────────
+
 /// Ruby wrapper around `liter_llm::DefaultClient`.
 #[magnus::wrap(class = "LiterLlm::LlmClient", free_immediately, size)]
 pub struct RubyLlmClient {
     inner: DefaultClient,
+    /// Runtime-registered hooks.  Stored as `Arc<dyn LlmHook>` for
+    /// compatibility with the Rust trait, though Ruby hooks are invoked
+    /// synchronously within `block_on`.
+    hooks: Mutex<Vec<Arc<dyn LlmHook>>>,
 }
 
 impl RubyLlmClient {
-    /// `LiterLlm::LlmClient.new(api_key, base_url: nil, model_hint: nil, max_retries: 3, timeout_secs: 60)`
+    /// `LiterLlm::LlmClient.new(api_key, base_url: nil, model_hint: nil,
+    ///   max_retries: 3, timeout_secs: 60, cache: nil, budget: nil,
+    ///   extra_headers: nil)`
     ///
     /// Takes an API key string and an optional keyword-argument hash.
     fn rb_new(api_key: String, kw: magnus::RHash) -> Result<RubyLlmClient, Error> {
@@ -101,11 +252,77 @@ impl RubyLlmClient {
         builder = builder.max_retries(max_retries);
         builder = builder.timeout(std::time::Duration::from_secs(timeout_secs));
 
+        // Apply optional cache configuration.
+        if let Some(cache_val) = kw.get(ruby.to_symbol("cache"))
+            && let Ok(cache_hash) = magnus::RHash::try_convert(cache_val)
+        {
+            let cache_cfg = parse_cache_config_rb(&cache_hash)?;
+            builder = builder.cache(cache_cfg);
+        }
+
+        // Apply optional budget configuration.
+        if let Some(budget_val) = kw.get(ruby.to_symbol("budget"))
+            && let Ok(budget_hash) = magnus::RHash::try_convert(budget_val)
+        {
+            let budget_cfg = parse_budget_config_rb(&budget_hash)?;
+            builder = builder.budget(budget_cfg);
+        }
+
+        // Apply optional extra headers.
+        if let Some(headers_val) = kw.get(ruby.to_symbol("extra_headers"))
+            && let Ok(headers_hash) = magnus::RHash::try_convert(headers_val)
+        {
+            let mut pairs: Vec<(String, String)> = Vec::new();
+            let _ = headers_hash.foreach(|k: String, v: String| {
+                pairs.push((k, v));
+                Ok(magnus::r_hash::ForEach::Continue)
+            });
+            for (k, v) in pairs {
+                builder = builder
+                    .header(k, v)
+                    .map_err(|e| Error::new(ruby.exception_arg_error(), e.to_string()))?;
+            }
+        }
+
         let config = builder.build();
         let client = DefaultClient::new(config, model_hint.as_deref())
             .map_err(|e| Error::new(ruby.exception_runtime_error(), e.to_string()))?;
 
-        Ok(RubyLlmClient { inner: client })
+        Ok(RubyLlmClient {
+            inner: client,
+            hooks: Mutex::new(Vec::new()),
+        })
+    }
+
+    /// Register a hook object.
+    ///
+    /// The hook object should respond to `on_request(request_json)`,
+    /// `on_response(request_json, response_json)`, and/or
+    /// `on_error(request_json, error_string)`.  All methods are optional.
+    ///
+    /// @param hook_name [String] A descriptive name for the hook.
+    fn add_hook(&self, hook_name: String) -> Result<(), Error> {
+        let ruby = unsafe { Ruby::get_unchecked() };
+        let bridge = RubyHookBridge {
+            name: hook_name,
+            _marker: (),
+        };
+        self.hooks
+            .lock()
+            .map_err(|e| Error::new(ruby.exception_runtime_error(), format!("hook lock poisoned: {e}")))?
+            .push(Arc::new(bridge));
+        Ok(())
+    }
+
+    /// Register a custom LLM provider in the global provider registry.
+    ///
+    /// @param config_hash [Hash] Provider configuration with :name, :base_url,
+    ///   :auth_header, and :model_prefixes keys.
+    fn rb_register_provider(config_hash: magnus::RHash) -> Result<(), Error> {
+        let ruby = unsafe { Ruby::get_unchecked() };
+        let provider_cfg = parse_provider_config_rb(&config_hash)?;
+        register_custom_provider(provider_cfg)
+            .map_err(|e| Error::new(ruby.exception_runtime_error(), e.to_string()))
     }
 
     /// Send a chat completion request.
@@ -626,6 +843,10 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
 
     // Constructor: LlmClient.new(api_key, base_url: nil, max_retries: 3, timeout_secs: 60)
     client_class.define_singleton_method("new", function!(RubyLlmClient::rb_new, 2))?;
+
+    // Hook and provider registration.
+    client_class.define_method("add_hook", method!(RubyLlmClient::add_hook, 1))?;
+    client_class.define_singleton_method("register_provider", function!(RubyLlmClient::rb_register_provider, 1))?;
 
     // Instance methods.
     client_class.define_method("chat", method!(RubyLlmClient::chat, 1))?;

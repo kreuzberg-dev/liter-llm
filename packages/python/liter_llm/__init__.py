@@ -3,6 +3,7 @@ from liter_llm._internal_bindings import (
     # Exceptions — specific
     AuthenticationError,
     BadRequestError,
+    BudgetExceededError,
     ChatCompletionChunk,
     ChatCompletionResponse,
     ChatStreamIterator,
@@ -13,6 +14,7 @@ from liter_llm._internal_bindings import (
     EmbeddingResponse,
     EndpointNotSupportedError,
     FunctionCall,
+    HookRejectedError,
     InvalidHeaderError,
     # Client
     LlmClient,
@@ -69,6 +71,7 @@ __all__ = [
     "AssistantMessage",
     "AuthenticationError",
     "BadRequestError",
+    "BudgetExceededError",
     "ChatCompletionChunk",
     "ChatCompletionRequestParams",
     "ChatCompletionResponse",
@@ -86,6 +89,7 @@ __all__ = [
     "FunctionCall",
     "FunctionCallParam",
     "FunctionDefinitionParam",
+    "HookRejectedError",
     "ImageUrlParam",
     "InvalidHeaderError",
     "JsonSchemaParam",

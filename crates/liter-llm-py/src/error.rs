@@ -91,6 +91,18 @@ create_exception!(
     LlmError,
     "Failed to serialize or deserialize a request or response."
 );
+create_exception!(
+    _internal_bindings,
+    BudgetExceededError,
+    LlmError,
+    "Request rejected because the spending budget was exceeded."
+);
+create_exception!(
+    _internal_bindings,
+    HookRejectedError,
+    LlmError,
+    "Request rejected by a registered hook."
+);
 
 /// Convert a [`LiterLlmError`] into the matching Python exception.
 pub fn to_py_err(e: LiterLlmError) -> PyErr {
@@ -110,6 +122,8 @@ pub fn to_py_err(e: LiterLlmError) -> PyErr {
         LiterLlmError::InvalidHeader { .. } => PyErr::new::<InvalidHeaderError, _>(msg),
         LiterLlmError::EndpointNotSupported { .. } => PyErr::new::<EndpointNotSupportedError, _>(msg),
         LiterLlmError::Serialization(_) => PyErr::new::<SerializationError, _>(msg),
+        LiterLlmError::BudgetExceeded { .. } => PyErr::new::<BudgetExceededError, _>(msg),
+        LiterLlmError::HookRejected { .. } => PyErr::new::<HookRejectedError, _>(msg),
         _ => PyErr::new::<LlmError, _>(msg),
     }
 }
@@ -137,5 +151,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.py().get_type::<EndpointNotSupportedError>(),
     )?;
     m.add("SerializationError", m.py().get_type::<SerializationError>())?;
+    m.add("BudgetExceededError", m.py().get_type::<BudgetExceededError>())?;
+    m.add("HookRejectedError", m.py().get_type::<HookRejectedError>())?;
     Ok(())
 }

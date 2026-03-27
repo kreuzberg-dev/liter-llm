@@ -60,22 +60,93 @@ namespace LiterLlm;
  */
 class LlmClient
 {
+    /** @var list<LlmHook> */
+    private array $hooks = [];
+
+    /** @var list<ProviderConfig> */
+    private array $customProviders = [];
+
     /**
      * Create a new LlmClient.
      *
-     * @param string      $apiKey      API key for authentication.  Pass an empty string
-     *                                 for providers that do not require authentication.
-     * @param string|null $baseUrl     Override the provider base URL.  Pass `null` to use
-     *                                 the default routing based on the model-name prefix.
-     * @param int         $maxRetries  Number of retries on 429 / 5xx responses.
-     * @param int         $timeoutSecs Request timeout in seconds.
+     * @param string            $apiKey       API key for authentication.  Pass an empty string
+     *                                        for providers that do not require authentication.
+     * @param string|null       $baseUrl      Override the provider base URL.  Pass `null` to use
+     *                                        the default routing based on the model-name prefix.
+     * @param int               $maxRetries   Number of retries on 429 / 5xx responses.
+     * @param int               $timeoutSecs  Request timeout in seconds.
+     * @param CacheConfig|null  $cacheConfig  Response caching configuration, or null to disable.
+     * @param BudgetConfig|null $budgetConfig Cost budget enforcement configuration, or null to disable.
      */
     public function __construct(
         private readonly string $apiKey,
         private readonly ?string $baseUrl = null,
         private readonly int $maxRetries = 3,
         private readonly int $timeoutSecs = 60,
+        private readonly ?CacheConfig $cacheConfig = null,
+        private readonly ?BudgetConfig $budgetConfig = null,
     ) {
+    }
+
+    /**
+     * Register a lifecycle hook.
+     *
+     * Hooks are invoked in registration order, synchronously.
+     *
+     * @param LlmHook $hook The hook to register.
+     */
+    public function addHook(LlmHook $hook): void
+    {
+        $this->hooks[] = $hook;
+    }
+
+    /**
+     * Register a custom provider configuration.
+     *
+     * Requests whose model name starts with one of the provider's prefixes
+     * are routed to its base URL.
+     *
+     * @param ProviderConfig $config The provider configuration to register.
+     */
+    public function registerProvider(ProviderConfig $config): void
+    {
+        $this->customProviders[] = $config;
+    }
+
+    /**
+     * Returns the registered hooks.
+     *
+     * @return list<LlmHook>
+     */
+    public function getHooks(): array
+    {
+        return $this->hooks;
+    }
+
+    /**
+     * Returns the registered custom providers.
+     *
+     * @return list<ProviderConfig>
+     */
+    public function getCustomProviders(): array
+    {
+        return $this->customProviders;
+    }
+
+    /**
+     * Returns the configured cache settings, or null if caching is disabled.
+     */
+    public function getCacheConfig(): ?CacheConfig
+    {
+        return $this->cacheConfig;
+    }
+
+    /**
+     * Returns the configured budget settings, or null if budget enforcement is disabled.
+     */
+    public function getBudgetConfig(): ?BudgetConfig
+    {
+        return $this->budgetConfig;
     }
 
     /**

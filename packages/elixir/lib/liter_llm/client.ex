@@ -41,13 +41,21 @@ defmodule LiterLlm.Client do
           api_key: String.t(),
           base_url: String.t(),
           max_retries: non_neg_integer(),
-          receive_timeout: pos_integer()
+          receive_timeout: pos_integer(),
+          cache: Types.cache_config() | nil,
+          budget: Types.budget_config() | nil,
+          hooks: [module()],
+          custom_providers: [Types.provider_config()]
         }
 
   defstruct api_key: "",
             base_url: @default_base_url,
             max_retries: @default_max_retries,
-            receive_timeout: @default_timeout_ms
+            receive_timeout: @default_timeout_ms,
+            cache: nil,
+            budget: nil,
+            hooks: [],
+            custom_providers: []
 
   # ─── Constructor ──────────────────────────────────────────────────────────
 
@@ -242,6 +250,47 @@ defmodule LiterLlm.Client do
           {:ok, map()} | {:error, Error.t()}
   def cancel_response(%__MODULE__{} = client, response_id, _opts \\ []) do
     call_nif_id(:cancel_response, client, response_id)
+  end
+
+  # ─── Hooks & Custom Providers ─────────────────────────────────────────────
+
+  @doc """
+  Registers a lifecycle hook module.
+
+  The module must implement the `LiterLlm.Hook` behaviour.
+  Hooks are invoked in registration order.
+
+  ## Examples
+
+      client = LiterLlm.Client.new(api_key: "sk-...")
+      client = LiterLlm.Client.add_hook(client, MyApp.LoggingHook)
+
+  """
+  @spec add_hook(t(), module()) :: t()
+  def add_hook(%__MODULE__{} = client, hook_module) when is_atom(hook_module) do
+    %{client | hooks: client.hooks ++ [hook_module]}
+  end
+
+  @doc """
+  Registers a custom provider configuration.
+
+  Requests whose model name starts with one of the provider's prefixes
+  are routed to its base URL.
+
+  ## Examples
+
+      provider = %{
+        name: "my-provider",
+        base_url: "https://api.myprovider.com/v1",
+        auth_header: "Authorization",
+        model_prefixes: ["myprovider/"]
+      }
+      client = LiterLlm.Client.register_provider(client, provider)
+
+  """
+  @spec register_provider(t(), Types.provider_config()) :: t()
+  def register_provider(%__MODULE__{} = client, provider) when is_map(provider) do
+    %{client | custom_providers: client.custom_providers ++ [provider]}
   end
 
   # ─── Private helpers ──────────────────────────────────────────────────────

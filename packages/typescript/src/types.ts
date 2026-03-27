@@ -265,6 +265,49 @@ export interface ModelsListResponse {
 	data: ModelObject[];
 }
 
+// ─── Cache / Budget / Hooks / Provider ────────────────────────────────────────
+
+/** Configuration for the response cache. */
+export interface CacheOptions {
+	/** Maximum number of cached entries (default: 256). */
+	maxEntries?: number;
+	/** Time-to-live for cached entries in seconds (default: 300). */
+	ttlSeconds?: number;
+}
+
+/** Configuration for budget enforcement. */
+export interface BudgetOptions {
+	/** Maximum total spend across all models in USD. */
+	globalLimit?: number;
+	/** Per-model spending limits in USD, keyed by model name. */
+	modelLimits?: Record<string, number>;
+	/** Enforcement mode: `"soft"` (warn only) or `"hard"` (reject). Default: `"hard"`. */
+	enforcement?: "soft" | "hard";
+}
+
+/** Hook object with optional lifecycle callbacks. */
+export interface LlmHook {
+	/** Called before the request is sent. Throw to reject (guardrail). */
+	onRequest?(request: Record<string, unknown>): void | Promise<void>;
+	/** Called after a successful response. */
+	onResponse?(request: Record<string, unknown>, response: Record<string, unknown>): void | Promise<void>;
+	/** Called when the request fails with an error. */
+	onError?(request: Record<string, unknown>, error: Error): void | Promise<void>;
+}
+
+/** Configuration for registering a custom LLM provider at runtime. */
+export interface CustomProviderOptions {
+	/** Unique name for this provider. */
+	name: string;
+	/** Base URL for the provider's API. */
+	baseUrl: string;
+	/** Authentication style: `"bearer"`, `"none"`, or a custom header name
+	 *  (e.g. `"X-Api-Key"` sends the API key via that header). */
+	authHeader: string;
+	/** Model name prefixes that route to this provider. */
+	modelPrefixes: string[];
+}
+
 // ─── Client Options ───────────────────────────────────────────────────────────
 
 export interface LlmClientOptions {
@@ -275,4 +318,10 @@ export interface LlmClientOptions {
 	maxRetries?: number;
 	/** Timeout in seconds. */
 	timeoutSecs?: number;
+	/** Response cache configuration. */
+	cache?: CacheOptions;
+	/** Budget enforcement configuration. */
+	budget?: BudgetOptions;
+	/** Extra headers sent on every request. */
+	extraHeaders?: Record<string, string>;
 }

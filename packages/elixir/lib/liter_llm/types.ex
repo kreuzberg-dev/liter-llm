@@ -19,6 +19,47 @@ defmodule LiterLlm.Types do
 
   """
 
+  # ─── Cache / Budget / Provider Config ────────────────────────────────────
+
+  @typedoc """
+  Configuration for response caching.
+
+  - `:max_entries` — maximum number of cached responses to retain
+  - `:ttl_seconds` — time-to-live for each cache entry in seconds (default 300)
+  """
+  @type cache_config :: %{
+          required(:max_entries) => pos_integer(),
+          optional(:ttl_seconds) => pos_integer()
+        }
+
+  @typedoc """
+  Configuration for cost budget enforcement.
+
+  - `:global_limit` — maximum total cost allowed across all models (optional)
+  - `:model_limits` — per-model cost limits keyed by model name (optional)
+  - `:enforcement` — `"strict"` or `"warn"` (default `"strict"`)
+  """
+  @type budget_config :: %{
+          optional(:global_limit) => float() | nil,
+          optional(:model_limits) => %{String.t() => float()},
+          optional(:enforcement) => String.t()
+        }
+
+  @typedoc """
+  Configuration for a custom LLM provider not in the built-in registry.
+
+  - `:name` — unique provider name
+  - `:base_url` — provider API base URL
+  - `:auth_header` — header name for authentication
+  - `:model_prefixes` — model name prefixes that route to this provider
+  """
+  @type provider_config :: %{
+          required(:name) => String.t(),
+          required(:base_url) => String.t(),
+          required(:auth_header) => String.t(),
+          required(:model_prefixes) => [String.t()]
+        }
+
   # ─── Primitive Types ──────────────────────────────────────────────────────
 
   @type role :: String.t()

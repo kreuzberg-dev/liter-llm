@@ -40,6 +40,10 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
 
     private readonly HttpClient _httpClient;
     private readonly int _maxRetries;
+    private readonly CacheConfig? _cacheConfig;
+    private readonly BudgetConfig? _budgetConfig;
+    private readonly List<ILlmHook> _hooks = [];
+    private readonly List<ProviderConfig> _customProviders = [];
 
     /// <summary>
     /// Initializes a new <see cref="LlmClient"/> with the given API key.
@@ -61,10 +65,15 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string apiKey,
         string baseUrl = DefaultBaseUrl,
         int maxRetries = DefaultMaxRetries,
-        TimeSpan? timeout = null)
+        TimeSpan? timeout = null,
+        CacheConfig? cacheConfig = null,
+        BudgetConfig? budgetConfig = null)
     {
         ArgumentNullException.ThrowIfNull(apiKey);
         if (maxRetries < 0) throw new ArgumentOutOfRangeException(nameof(maxRetries), "must be >= 0");
+
+        _cacheConfig = cacheConfig;
+        _budgetConfig = budgetConfig;
 
         _maxRetries = maxRetries;
         var normalizedBase = baseUrl.TrimEnd('/');
@@ -396,6 +405,57 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         var responseJson = await PostAsync($"responses/{responseId}/cancel", "", cancellationToken)
             .ConfigureAwait(false);
         return Deserialize<ResponseObject>(responseJson);
+    }
+
+    // ─── Hooks & Custom Providers ─────────────────────────────────────────────
+
+    /// <summary>Registers a lifecycle hook. Hooks are invoked in registration order.</summary>
+    /// <param name="hook">The hook to register.</param>
+    public void AddHook(ILlmHook hook)
+    {
+        ArgumentNullException.ThrowIfNull(hook);
+        _hooks.Add(hook);
+    }
+
+    /// <summary>
+    /// Registers a custom provider configuration. Requests whose model name starts
+    /// with one of the provider's prefixes are routed to its base URL.
+    /// </summary>
+    /// <param name="config">The provider configuration to register.</param>
+    public void RegisterProvider(ProviderConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        _customProviders.Add(config);
+    }
+
+    /// <summary>Gets the configured cache settings, or <c>null</c> if caching is disabled.</summary>
+    public CacheConfig? CacheConfiguration => _cacheConfig;
+
+    /// <summary>Gets the configured budget settings, or <c>null</c> if budget enforcement is disabled.</summary>
+    public BudgetConfig? BudgetConfiguration => _budgetConfig;
+
+    private async Task RunOnRequestAsync(object request, CancellationToken ct)
+    {
+        foreach (var hook in _hooks)
+        {
+            await hook.OnRequestAsync(request, ct).ConfigureAwait(false);
+        }
+    }
+
+    private async Task RunOnResponseAsync(object request, object response, CancellationToken ct)
+    {
+        foreach (var hook in _hooks)
+        {
+            await hook.OnResponseAsync(request, response, ct).ConfigureAwait(false);
+        }
+    }
+
+    private async Task RunOnErrorAsync(object request, Exception error, CancellationToken ct)
+    {
+        foreach (var hook in _hooks)
+        {
+            await hook.OnErrorAsync(request, error, ct).ConfigureAwait(false);
+        }
     }
 
     // ─── HTTP Internals ───────────────────────────────────────────────────────

@@ -70,6 +70,44 @@ typedef struct LiterLlmClient LiterLlmClient;
 typedef void (*LiterLlmStreamCallback)(const char *chunk_json, void *user_data);
 
 /**
+ * Function pointer struct for lifecycle hook callbacks.
+ *
+ * All function pointers are optional (may be NULL).  When non-NULL, the
+ * corresponding callback is invoked at the appropriate lifecycle point.
+ *
+ * # Memory ownership
+ *
+ * - `request_json` passed to callbacks is a NUL-terminated JSON string owned
+ *   by the caller (liter-llm).  The hook must **not** free it; it is valid
+ *   only for the duration of the callback invocation.
+ * - `response_json` and `error_message` follow the same ownership rules.
+ * - `user_data` is forwarded as-is to each callback; the caller is
+ *   responsible for its lifetime and thread safety.
+ */
+typedef struct LiterLlmHookCallbacks {
+  /**
+   * Called before the request is sent.
+   *
+   * Return `0` to proceed, or non-zero to reject the request (guardrail).
+   * When non-zero is returned, `literllm_last_error` will contain the
+   * rejection message if set by the hook.
+   */
+  int32_t (*on_request)(const char *request_json, void *user_data);
+  /**
+   * Called after a successful response.
+   */
+  void (*on_response)(const char *request_json, const char *response_json, void *user_data);
+  /**
+   * Called when the request fails with an error.
+   */
+  void (*on_error)(const char *request_json, const char *error_message, void *user_data);
+  /**
+   * Opaque user data pointer forwarded to all callbacks.
+   */
+  void *user_data;
+} LiterLlmHookCallbacks;
+
+/**
  * Create a new liter-llm client.
  *
  * # Parameters
@@ -669,5 +707,87 @@ LITER_LLM_EXPORT int32_t literllm_register_provider(const char *config_json);
  * - `name` must be a valid, non-null, NUL-terminated UTF-8 string.
  */
 LITER_LLM_EXPORT int32_t literllm_unregister_provider(const char *name);
+
+/**
+ * Create a new liter-llm client from a full JSON configuration object.
+ *
+ * This is an extended version of [`literllm_client_new`] that accepts a
+ * single JSON string containing all configuration options, including
+ * cache, budget, extra headers, and model hint.
+ *
+ * # JSON Schema
+ *
+ * ```json
+ * {
+ *   "api_key": "sk-...",
+ *   "base_url": "https://...",          // optional
+ *   "model_hint": "groq/llama3-70b",    // optional
+ *   "max_retries": 3,                    // optional, default 3
+ *   "timeout_secs": 60,                  // optional, default 60
+ *   "extra_headers": {"X-Custom": "v"},  // optional
+ *   "cache": {                           // optional
+ *     "max_entries": 256,
+ *     "ttl_secs": 300
+ *   },
+ *   "budget": {                          // optional
+ *     "global_limit": 10.0,
+ *     "model_limits": {"gpt-4": 5.0},
+ *     "enforcement": "hard"
+ *   }
+ * }
+ * ```
+ *
+ * # Return value
+ *
+ * Returns a heap-allocated `LiterLlmClient*` on success, or `NULL` on
+ * failure.  Check [`literllm_last_error`] for the error message when
+ * `NULL` is returned.
+ *
+ * The returned pointer must be freed with [`literllm_client_free`].
+ *
+ * # Safety
+ *
+ * - `config_json` must be a valid, non-null, NUL-terminated UTF-8 JSON string.
+ * - The caller owns the returned pointer and must call `literllm_client_free`
+ *   exactly once.
+ */
+LITER_LLM_EXPORT LiterLlmClient *literllm_client_new_with_config(const char *config_json);
+
+/**
+ * Register lifecycle hook callbacks for a client.
+ *
+ * The callbacks are stored for the lifetime of the client and invoked
+ * around each API call (chat, embed, etc.).
+ *
+ * **Note:** In the current implementation, hooks are advisory metadata
+ * stored on the client handle.  Full Tower-integrated hook invocation
+ * requires the client to be wrapped in a `HooksLayer` service stack,
+ * which is an internal architecture detail.  C FFI callers should use
+ * these callbacks as a notification mechanism; the Rust core handles
+ * the actual request lifecycle.
+ *
+ * # Parameters
+ *
+ * - `client`: A valid client pointer.
+ * - `callbacks`: Pointer to a `LiterLlmHookCallbacks` struct.  The struct
+ *   is copied; the caller may free it after this call returns.
+ *
+ * # Return value
+ *
+ * Returns `0` on success, `-1` on failure.
+ *
+ * # Safety
+ *
+ * - `client` must be a valid, non-null pointer returned by
+ *   `literllm_client_new` or `literllm_client_new_with_config`.
+ * - `callbacks` must be a valid, non-null pointer to a
+ *   `LiterLlmHookCallbacks` struct.
+ * - Function pointers in `callbacks` must remain valid for the lifetime
+ *   of the client.
+ * - `user_data` must be valid for the lifetime of the client if non-NULL.
+ */
+LITER_LLM_EXPORT
+int32_t literllm_set_hooks(LiterLlmClient *client,
+                           const struct LiterLlmHookCallbacks *callbacks);
 
 #endif  /* LITER_LLM_FFI_H */

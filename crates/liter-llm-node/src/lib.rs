@@ -1,5 +1,6 @@
 #![deny(clippy::all)]
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use liter_llm::LlmClient as LlmClientTrait;
@@ -105,7 +106,42 @@ fn error_kind_label(e: &liter_llm::LiterLlmError) -> &'static str {
     }
 }
 
-// ─── JS config object ─────────────────────────────────────────────────────────
+// ─── JS config objects ────────────────────────────────────────────────────────
+
+/// Cache configuration for response caching.
+#[napi(object)]
+pub struct CacheOptions {
+    /// Maximum number of cached entries (default: 256).
+    pub max_entries: Option<u32>,
+    /// Time-to-live for cached entries in seconds (default: 300).
+    pub ttl_seconds: Option<u32>,
+}
+
+/// Budget configuration for spending limits.
+#[napi(object)]
+pub struct BudgetOptions {
+    /// Maximum total spend across all models in USD.
+    pub global_limit: Option<f64>,
+    /// Per-model spending limits in USD, keyed by model name.
+    pub model_limits: Option<HashMap<String, f64>>,
+    /// Enforcement mode: `"soft"` (warn only) or `"hard"` (reject).
+    /// Defaults to `"hard"`.
+    pub enforcement: Option<String>,
+}
+
+/// Custom provider configuration for runtime registration.
+#[napi(object)]
+pub struct CustomProviderOptions {
+    /// Unique name for this provider.
+    pub name: String,
+    /// Base URL for the provider's API.
+    pub base_url: String,
+    /// Authentication style: `"bearer"`, `"none"`, or a custom header name
+    /// (e.g. `"X-Api-Key"`).
+    pub auth_header: String,
+    /// Model name prefixes that route to this provider.
+    pub model_prefixes: Vec<String>,
+}
 
 /// Options accepted by the `LlmClient` constructor.
 #[napi(object)]
@@ -125,6 +161,12 @@ pub struct LlmClientOptions {
     /// underlying `Duration::from_secs` accepts `u64`, so there is no semantic
     /// loss for valid timeout values.
     pub timeout_secs: Option<u32>,
+    /// Response cache configuration.
+    pub cache: Option<CacheOptions>,
+    /// Budget enforcement configuration.
+    pub budget: Option<BudgetOptions>,
+    /// Extra headers sent on every request, as key-value pairs.
+    pub extra_headers: Option<HashMap<String, String>>,
 }
 
 // ─── LlmClient ────────────────────────────────────────────────────────────────
@@ -154,6 +196,38 @@ impl LlmClient {
         }
         if let Some(secs) = options.timeout_secs {
             builder = builder.timeout(std::time::Duration::from_secs(u64::from(secs)));
+        }
+
+        // Cache configuration.
+        if let Some(cache) = options.cache {
+            let cache_config = liter_llm::tower::CacheConfig {
+                max_entries: cache.max_entries.map(|n| n as usize).unwrap_or(256),
+                ttl: std::time::Duration::from_secs(u64::from(cache.ttl_seconds.unwrap_or(300))),
+            };
+            builder = builder.cache(cache_config);
+        }
+
+        // Budget configuration.
+        if let Some(budget) = options.budget {
+            let enforcement = match budget.enforcement.as_deref() {
+                Some("soft") => liter_llm::tower::Enforcement::Soft,
+                _ => liter_llm::tower::Enforcement::Hard,
+            };
+            let budget_config = liter_llm::tower::BudgetConfig {
+                global_limit: budget.global_limit,
+                model_limits: budget.model_limits.unwrap_or_default(),
+                enforcement,
+            };
+            builder = builder.budget(budget_config);
+        }
+
+        // Extra headers.
+        if let Some(headers) = options.extra_headers {
+            for (key, value) in headers {
+                builder = builder
+                    .header(key, value)
+                    .map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            }
         }
 
         let config = builder.build();
@@ -546,6 +620,53 @@ impl LlmClient {
         let client = Arc::clone(&self.inner);
         let result = client.cancel_response(&id).await.map_err(to_napi_err)?;
         to_js_value(result)
+    }
+
+    // ── Custom provider registration ────────────────────────────────────────
+
+    /// Register a custom LLM provider at runtime.
+    ///
+    /// The provider will be checked before all built-in providers during model
+    /// detection.  If a provider with the same name already exists it is
+    /// replaced.
+    ///
+    /// ```js
+    /// client.registerProvider({
+    ///   name: "my-provider",
+    ///   baseUrl: "https://api.my-provider.com/v1",
+    ///   authHeader: "bearer",
+    ///   modelPrefixes: ["my-provider/"],
+    /// });
+    /// ```
+    #[napi(js_name = "registerProvider")]
+    pub fn register_provider(config: CustomProviderOptions) -> napi::Result<()> {
+        let auth_header = match config.auth_header.to_lowercase().as_str() {
+            "bearer" => liter_llm::AuthHeaderFormat::Bearer,
+            "none" => liter_llm::AuthHeaderFormat::None,
+            custom => liter_llm::AuthHeaderFormat::ApiKey(custom.to_owned()),
+        };
+
+        let provider_config = liter_llm::CustomProviderConfig {
+            name: config.name,
+            base_url: config.base_url,
+            auth_header,
+            model_prefixes: config.model_prefixes,
+        };
+
+        liter_llm::register_custom_provider(provider_config).map_err(to_napi_err)
+    }
+
+    /// Unregister a previously registered custom provider by name.
+    ///
+    /// Returns `true` if the provider was found and removed, `false` if no
+    /// such provider existed.
+    ///
+    /// ```js
+    /// const removed = client.unregisterProvider("my-provider");
+    /// ```
+    #[napi(js_name = "unregisterProvider")]
+    pub fn unregister_provider(name: String) -> napi::Result<bool> {
+        liter_llm::unregister_custom_provider(&name).map_err(to_napi_err)
     }
 }
 

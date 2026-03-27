@@ -53,6 +53,10 @@ public final class LlmClient implements AutoCloseable {
 	private final int maxRetries;
 	private final HttpClient httpClient;
 	private final ObjectMapper objectMapper;
+	private final CacheConfig cacheConfig;
+	private final BudgetConfig budgetConfig;
+	private final java.util.List<LlmHook> hooks = new java.util.concurrent.CopyOnWriteArrayList<>();
+	private final java.util.List<ProviderConfig> customProviders = new java.util.concurrent.CopyOnWriteArrayList<>();
 
 	private LlmClient(Builder builder) {
 		this.apiKey = builder.apiKey;
@@ -62,6 +66,8 @@ public final class LlmClient implements AutoCloseable {
 		this.maxRetries = builder.maxRetries;
 		this.httpClient = HttpClient.newBuilder().connectTimeout(builder.timeout).build();
 		this.objectMapper = createObjectMapper();
+		this.cacheConfig = builder.cacheConfig;
+		this.budgetConfig = builder.budgetConfig;
 	}
 
 	// ─── Public API ───────────────────────────────────────────────────────────
@@ -76,9 +82,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ChatCompletionResponse chat(ChatCompletionRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/chat/completions", body);
-		return deserialize(responseBody, ChatCompletionResponse.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/chat/completions", body);
+			ChatCompletionResponse response = deserialize(responseBody, ChatCompletionResponse.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -389,6 +403,67 @@ public final class LlmClient implements AutoCloseable {
 		return deserialize(responseBody, ResponseObject.class);
 	}
 
+	// ─── Hooks & Custom Providers ─────────────────────────────────────────────
+
+	/**
+	 * Registers a lifecycle hook. Hooks are invoked in registration order.
+	 *
+	 * @param hook
+	 *            the hook to register
+	 */
+	public void addHook(LlmHook hook) {
+		hooks.add(hook);
+	}
+
+	/**
+	 * Registers a custom provider configuration. Requests whose model name starts
+	 * with one of the provider's prefixes are routed to its base URL.
+	 *
+	 * @param config
+	 *            the provider configuration to register
+	 */
+	public void registerProvider(ProviderConfig config) {
+		customProviders.add(config);
+	}
+
+	/**
+	 * Returns the configured cache settings, or {@code null} if caching is
+	 * disabled.
+	 *
+	 * @return the cache configuration
+	 */
+	public CacheConfig getCacheConfig() {
+		return cacheConfig;
+	}
+
+	/**
+	 * Returns the configured budget settings, or {@code null} if budget enforcement
+	 * is disabled.
+	 *
+	 * @return the budget configuration
+	 */
+	public BudgetConfig getBudgetConfig() {
+		return budgetConfig;
+	}
+
+	private void runOnRequest(Object request) throws HookRejectedException {
+		for (var hook : hooks) {
+			hook.onRequest(request);
+		}
+	}
+
+	private void runOnResponse(Object request, Object response) {
+		for (var hook : hooks) {
+			hook.onResponse(request, response);
+		}
+	}
+
+	private void runOnError(Object request, Exception error) {
+		for (var hook : hooks) {
+			hook.onError(request, error);
+		}
+	}
+
 	/**
 	 * Closes the underlying HTTP client, releasing resources.
 	 *
@@ -561,6 +636,8 @@ public final class LlmClient implements AutoCloseable {
 		private String baseUrl = DEFAULT_BASE_URL;
 		private int maxRetries = DEFAULT_MAX_RETRIES;
 		private Duration timeout = DEFAULT_TIMEOUT;
+		private CacheConfig cacheConfig;
+		private BudgetConfig budgetConfig;
 
 		private Builder() {
 		}
@@ -627,6 +704,30 @@ public final class LlmClient implements AutoCloseable {
 		 */
 		public Builder timeout(Duration timeout) {
 			this.timeout = timeout;
+			return this;
+		}
+
+		/**
+		 * Enables response caching with the given configuration.
+		 *
+		 * @param cacheConfig
+		 *            cache settings
+		 * @return this builder
+		 */
+		public Builder cache(CacheConfig cacheConfig) {
+			this.cacheConfig = cacheConfig;
+			return this;
+		}
+
+		/**
+		 * Enables cost budget enforcement with the given configuration.
+		 *
+		 * @param budgetConfig
+		 *            budget settings
+		 * @return this builder
+		 */
+		public Builder budget(BudgetConfig budgetConfig) {
+			this.budgetConfig = budgetConfig;
 			return this;
 		}
 

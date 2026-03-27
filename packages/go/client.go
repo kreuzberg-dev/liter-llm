@@ -101,6 +101,8 @@ type ClientConfig struct {
 	apiKey     string
 	baseURL    string
 	httpClient *http.Client
+	cache      *CacheConfig
+	budget     *BudgetConfig
 }
 
 // Option is a functional option for [NewClient].
@@ -141,6 +143,20 @@ func WithTimeout(d time.Duration) Option {
 	}
 }
 
+// WithCache enables response caching with the given configuration.
+func WithCache(cfg CacheConfig) Option {
+	return func(c *ClientConfig) {
+		c.cache = &cfg
+	}
+}
+
+// WithBudget enables cost budget enforcement with the given configuration.
+func WithBudget(cfg BudgetConfig) Option {
+	return func(c *ClientConfig) {
+		c.budget = &cfg
+	}
+}
+
 // ─── Client ───────────────────────────────────────────────────────────────────
 
 // Client is the default implementation of [LlmClient].  It calls the
@@ -148,7 +164,9 @@ func WithTimeout(d time.Duration) Option {
 //
 // Construct one with [NewClient].  Client is safe for concurrent use.
 type Client struct {
-	config ClientConfig
+	config    ClientConfig
+	hooks     []Hook
+	providers []ProviderConfig
 }
 
 // NewClient constructs a Client with the supplied options.
@@ -170,6 +188,45 @@ func NewClient(opts ...Option) *Client {
 		opt(&cfg)
 	}
 	return &Client{config: cfg}
+}
+
+// ─── Hooks & Custom Providers ─────────────────────────────────────────────
+
+// AddHook registers a lifecycle hook.  Hooks are invoked in registration order
+// before each request, after each successful response, and after each error.
+func (c *Client) AddHook(hook Hook) {
+	c.hooks = append(c.hooks, hook)
+}
+
+// RegisterProvider adds a custom provider configuration.  Requests whose model
+// name starts with one of the provider's prefixes are routed to its base URL.
+func (c *Client) RegisterProvider(cfg ProviderConfig) {
+	c.providers = append(c.providers, cfg)
+}
+
+// runOnRequest invokes OnRequest on every registered hook.  The first non-nil
+// error aborts and is returned wrapped with ErrHookRejected.
+func (c *Client) runOnRequest(ctx context.Context, req interface{}) error {
+	for _, h := range c.hooks {
+		if err := h.OnRequest(ctx, req); err != nil {
+			return fmt.Errorf("%w: %v", ErrHookRejected, err)
+		}
+	}
+	return nil
+}
+
+// runOnResponse invokes OnResponse on every registered hook.
+func (c *Client) runOnResponse(ctx context.Context, req, resp interface{}) {
+	for _, h := range c.hooks {
+		h.OnResponse(ctx, req, resp)
+	}
+}
+
+// runOnError invokes OnError on every registered hook.
+func (c *Client) runOnError(ctx context.Context, req interface{}, err error) {
+	for _, h := range c.hooks {
+		h.OnError(ctx, req, err)
+	}
 }
 
 // ─── HTTP helpers ─────────────────────────────────────────────────────────────
@@ -266,6 +323,11 @@ func (c *Client) Chat(ctx context.Context, req *ChatCompletionRequest) (*ChatCom
 		return nil, fmt.Errorf("%w: messages must not be empty", ErrInvalidRequest)
 	}
 
+	// Run pre-request hooks.
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	// Ensure stream is off for this path.
 	streamFalse := false
 	copy := *req
@@ -273,24 +335,31 @@ func (c *Client) Chat(ctx context.Context, req *ChatCompletionRequest) (*ChatCom
 
 	body, err := marshalBody(&copy)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/chat/completions", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ChatCompletionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode chat response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode chat response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 

@@ -35,6 +35,12 @@ public class LlmException : Exception
 
         /// <summary>JSON serialization or deserialization failed.</summary>
         public const int Serialization = 1700;
+
+        /// <summary>A request would exceed the configured cost budget.</summary>
+        public const int BudgetExceeded = 1800;
+
+        /// <summary>A hook rejected the request.</summary>
+        public const int HookRejected = 1801;
     }
 
     /// <summary>Gets the numeric error code identifying the category of this error.</summary>
@@ -158,5 +164,38 @@ public sealed class SerializationException : LlmException
     public SerializationException(string message, Exception? inner = null)
         : base(LlmException.ErrorCodes.Serialization,
                $"liter-llm: serialization error: {message}", inner)
+    { }
+}
+
+/// <summary>
+/// Thrown when a request would exceed the configured cost budget.
+/// </summary>
+/// <seealso cref="BudgetConfig"/>
+public sealed class BudgetExceededException : LlmException
+{
+    /// <summary>Error code for budget exceeded errors.</summary>
+    public const int Code = 1800;
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="BudgetExceededException"/>.
+    /// </summary>
+    public BudgetExceededException(string message)
+        : base(Code, $"liter-llm: budget exceeded: {message}")
+    { }
+}
+
+/// <summary>
+/// Thrown when an <see cref="ILlmHook.OnRequestAsync"/> rejects a request.
+/// </summary>
+public sealed class HookRejectedException : LlmException
+{
+    /// <summary>Error code for hook rejection errors.</summary>
+    public const int Code = 1801;
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="HookRejectedException"/>.
+    /// </summary>
+    public HookRejectedException(string message, Exception? inner = null)
+        : base(Code, $"liter-llm: hook rejected request: {message}", inner)
     { }
 }

@@ -40,6 +40,8 @@ defmodule LiterLlm.Error do
           | :provider_error
           | :stream_error
           | :serialization
+          | :budget_exceeded
+          | :hook_rejected
 
   @typedoc "A structured liter-llm error."
   @type t :: %__MODULE__{
@@ -155,6 +157,33 @@ defmodule LiterLlm.Error do
       kind: :serialization,
       message: "liter-llm: serialization error: #{message}",
       code: @code_serialization
+    }
+  end
+
+  @code_budget_exceeded 1800
+  @code_hook_rejected 1801
+
+  @doc """
+  Creates a `:budget_exceeded` error.
+  """
+  @spec budget_exceeded(String.t()) :: t()
+  def budget_exceeded(message) do
+    %__MODULE__{
+      kind: :budget_exceeded,
+      message: "liter-llm: budget exceeded: #{message}",
+      code: @code_budget_exceeded
+    }
+  end
+
+  @doc """
+  Creates a `:hook_rejected` error.
+  """
+  @spec hook_rejected(String.t()) :: t()
+  def hook_rejected(message) do
+    %__MODULE__{
+      kind: :hook_rejected,
+      message: "liter-llm: hook rejected request: #{message}",
+      code: @code_hook_rejected
     }
   end
 

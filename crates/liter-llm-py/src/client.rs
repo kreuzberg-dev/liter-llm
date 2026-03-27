@@ -1,13 +1,21 @@
+use std::collections::HashMap;
+use std::future::Future;
+use std::pin::Pin;
 use std::sync::{
     Arc,
     atomic::{AtomicBool, Ordering},
 };
 
-use liter_llm::{BatchClient, ClientConfigBuilder, DefaultClient, FileClient, LlmClient, ResponseClient};
+use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement};
+use liter_llm::tower::{LlmHook, LlmRequest, LlmResponse};
+use liter_llm::{
+    AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, DefaultClient, FileClient, LiterLlmError,
+    LlmClient, ResponseClient, register_custom_provider,
+};
 use pyo3::exceptions::{PyStopAsyncIteration, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
-use tokio::sync::{Mutex, mpsc};
+use tokio::sync::{Mutex, RwLock, mpsc};
 use tokio::task::JoinHandle;
 
 use crate::error::to_py_err;
@@ -15,6 +23,215 @@ use crate::types::{
     PyChatCompletionChunk, PyChatCompletionResponse, PyEmbeddingResponse, PyImagesResponse, PyModelsListResponse,
     PyModerationResponse, PyRerankResponse, PyTranscriptionResponse, to_json_value,
 };
+
+// ─── Python Hook Bridge ──────────────────────────────────────────────────────
+
+/// A bridge that implements `LlmHook` by calling back into Python objects.
+///
+/// The Python hook object may define any combination of:
+///   - `on_request(request: dict) -> None`   (may be async)
+///   - `on_response(request: dict, response: dict) -> None`  (may be async)
+///   - `on_error(request: dict, error: str) -> None`  (may be async)
+///
+/// Missing methods are silently ignored (no-op).
+struct PyHookBridge {
+    /// The Python hook object stored as an `Arc<Py<PyAny>>` so it can be
+    /// cheaply cloned without holding the GIL and shared into `spawn_blocking`
+    /// closures that require `'static`.
+    hook: Arc<Py<PyAny>>,
+}
+
+// SAFETY: `Py<PyAny>` is `Send + Sync` by design — it holds a reference-counted
+// pointer to a Python object and only accesses it while the GIL is held.
+unsafe impl Send for PyHookBridge {}
+unsafe impl Sync for PyHookBridge {}
+
+impl PyHookBridge {
+    fn new(hook: Py<PyAny>) -> Self {
+        Self { hook: Arc::new(hook) }
+    }
+
+    /// Call a named method on the Python hook object.
+    ///
+    /// Runs inside `spawn_blocking` + `Python::attach` so the GIL is acquired
+    /// on a blocking thread and the Tokio runtime is never blocked.
+    ///
+    /// If the Python method returns an awaitable the bridge uses `asyncio.run`
+    /// to drive it (safe because we are on a dedicated blocking thread).
+    fn call_method_fire_and_forget(
+        &self,
+        method_name: &'static str,
+        args: Vec<String>,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        let hook = Arc::clone(&self.hook);
+        Box::pin(async move {
+            let _ = tokio::task::spawn_blocking(move || {
+                if let Some(py) = Python::try_attach(|py| {
+                    let obj = hook.bind(py);
+                    let method = match obj.getattr(method_name) {
+                        Ok(m) => m,
+                        Err(_) => return, // method not defined — no-op
+                    };
+                    let py_args = pyo3::types::PyTuple::new(py, args.iter().map(|s| s.as_str())).expect("tuple");
+                    let result = match method.call1(py_args) {
+                        Ok(r) => r,
+                        Err(_) => return,
+                    };
+                    // Drive coroutines synchronously on this blocking thread.
+                    if result.hasattr("__await__").unwrap_or(false)
+                        && let Ok(asyncio) = py.import("asyncio")
+                    {
+                        let _ = asyncio.call_method1("run", (result,));
+                    }
+                }) {
+                    py
+                }
+            })
+            .await;
+        })
+    }
+
+    /// Like `call_method_fire_and_forget` but returns `Result` so `on_request`
+    /// can reject the request by raising a Python exception.
+    fn call_method_checked(
+        &self,
+        method_name: &'static str,
+        args: Vec<String>,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), LiterLlmError>> + Send + '_>> {
+        let hook = Arc::clone(&self.hook);
+        Box::pin(async move {
+            tokio::task::spawn_blocking(move || {
+                Python::try_attach(|py| {
+                    let obj = hook.bind(py);
+                    let method = match obj.getattr(method_name) {
+                        Ok(m) => m,
+                        Err(_) => return Ok(()), // method not defined — no-op
+                    };
+                    let py_args = pyo3::types::PyTuple::new(py, args.iter().map(|s| s.as_str())).map_err(|e| {
+                        LiterLlmError::HookRejected {
+                            message: format!("failed to build hook arguments: {e}"),
+                        }
+                    })?;
+                    let result = method.call1(py_args).map_err(|e| LiterLlmError::HookRejected {
+                        message: format!("hook {method_name} raised: {e}"),
+                    })?;
+                    // Drive coroutines synchronously on this blocking thread.
+                    if result.hasattr("__await__").unwrap_or(false) {
+                        let asyncio = py.import("asyncio").map_err(|e| LiterLlmError::HookRejected {
+                            message: format!("failed to import asyncio: {e}"),
+                        })?;
+                        asyncio
+                            .call_method1("run", (result,))
+                            .map_err(|e| LiterLlmError::HookRejected {
+                                message: format!("hook coroutine {method_name} raised: {e}"),
+                            })?;
+                    }
+                    Ok(())
+                })
+                .unwrap_or(Err(LiterLlmError::HookRejected {
+                    message: "failed to acquire Python GIL".into(),
+                }))
+            })
+            .await
+            .map_err(|e| LiterLlmError::HookRejected {
+                message: format!("hook task panicked: {e}"),
+            })?
+        })
+    }
+}
+
+impl LlmHook for PyHookBridge {
+    fn on_request(&self, req: &LlmRequest) -> Pin<Box<dyn Future<Output = liter_llm::Result<()>> + Send + '_>> {
+        let req_json = format!("{req:?}");
+        self.call_method_checked("on_request", vec![req_json])
+    }
+
+    fn on_response(&self, req: &LlmRequest, _resp: &LlmResponse) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        let req_json = format!("{req:?}");
+        self.call_method_fire_and_forget("on_response", vec![req_json, "response".to_owned()])
+    }
+
+    fn on_error(&self, req: &LlmRequest, err: &LiterLlmError) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        let req_json = format!("{req:?}");
+        let err_msg = err.to_string();
+        self.call_method_fire_and_forget("on_error", vec![req_json, err_msg])
+    }
+}
+
+/// Parse a Python dict into a `CacheConfig`.
+fn parse_cache_config(dict: &Bound<'_, PyDict>) -> PyResult<CacheConfig> {
+    let max_entries: usize = dict
+        .get_item("max_entries")?
+        .map(|v| v.extract::<usize>())
+        .transpose()?
+        .unwrap_or(256);
+    let ttl_seconds: u64 = dict
+        .get_item("ttl_seconds")?
+        .map(|v| v.extract::<u64>())
+        .transpose()?
+        .unwrap_or(300);
+    Ok(CacheConfig {
+        max_entries,
+        ttl: std::time::Duration::from_secs(ttl_seconds),
+    })
+}
+
+/// Parse a Python dict into a `BudgetConfig`.
+fn parse_budget_config(dict: &Bound<'_, PyDict>) -> PyResult<BudgetConfig> {
+    let global_limit: Option<f64> = dict.get_item("global_limit")?.map(|v| v.extract::<f64>()).transpose()?;
+    let model_limits: HashMap<String, f64> = dict
+        .get_item("model_limits")?
+        .map(|v| v.extract::<HashMap<String, f64>>())
+        .transpose()?
+        .unwrap_or_default();
+    let enforcement_str: String = dict
+        .get_item("enforcement")?
+        .map(|v| v.extract::<String>())
+        .transpose()?
+        .unwrap_or_else(|| "hard".to_owned());
+    let enforcement = match enforcement_str.as_str() {
+        "soft" => Enforcement::Soft,
+        _ => Enforcement::Hard,
+    };
+    Ok(BudgetConfig {
+        global_limit,
+        model_limits,
+        enforcement,
+    })
+}
+
+/// Parse a Python dict into a `CustomProviderConfig`.
+fn parse_provider_config(dict: &Bound<'_, PyDict>) -> PyResult<CustomProviderConfig> {
+    let name: String = dict
+        .get_item("name")?
+        .ok_or_else(|| PyValueError::new_err("provider config requires 'name'"))?
+        .extract()?;
+    let base_url: String = dict
+        .get_item("base_url")?
+        .ok_or_else(|| PyValueError::new_err("provider config requires 'base_url'"))?
+        .extract()?;
+    let auth_header_str: String = dict
+        .get_item("auth_header")?
+        .map(|v| v.extract::<String>())
+        .transpose()?
+        .unwrap_or_else(|| "bearer".to_owned());
+    let auth_header = match auth_header_str.as_str() {
+        "none" => AuthHeaderFormat::None,
+        s if s.starts_with("api-key:") => AuthHeaderFormat::ApiKey(s.trim_start_matches("api-key:").trim().to_owned()),
+        _ => AuthHeaderFormat::Bearer,
+    };
+    let model_prefixes: Vec<String> = dict
+        .get_item("model_prefixes")?
+        .map(|v| v.extract::<Vec<String>>())
+        .transpose()?
+        .unwrap_or_default();
+    Ok(CustomProviderConfig {
+        name,
+        base_url,
+        auth_header,
+        model_prefixes,
+    })
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -89,10 +306,13 @@ fn kwargs_to_json(kwargs: &Bound<'_, PyDict>) -> PyResult<serde_json::Value> {
 /// Wraps `liter_llm::DefaultClient` and exposes async methods that return Python
 /// coroutines via `pyo3-async-runtimes`.
 ///
-/// `LlmClient` is immutable after construction and safe to share across threads.
-#[pyclass(frozen, name = "LlmClient")]
+/// Hooks can be added after construction via [`add_hook`].  The client itself
+/// is otherwise immutable; the hook list is protected by an `RwLock`.
+#[pyclass(name = "LlmClient")]
 pub struct PyLlmClient {
     inner: Arc<DefaultClient>,
+    /// Runtime-registered hooks invoked around each request.
+    hooks: Arc<RwLock<Vec<Arc<dyn LlmHook>>>>,
     /// Stored for __repr__ display only.
     base_url: Option<String>,
     /// Stored for __repr__ display only.
@@ -111,14 +331,24 @@ impl PyLlmClient {
     ///         correct provider endpoint and auth style at construction time.
     ///     max_retries: Retries on 429 / 5xx.  Defaults to ``3``.
     ///     timeout: Request timeout in seconds.  Defaults to ``60``.
+    ///     cache: Optional cache configuration dict with ``max_entries`` and
+    ///         ``ttl_seconds`` keys.
+    ///     budget: Optional budget configuration dict with ``global_limit``,
+    ///         ``model_limits``, and ``enforcement`` keys.
+    ///     extra_headers: Optional dict of additional HTTP headers to include
+    ///         in every request.
     #[new]
-    #[pyo3(signature = (*, api_key, base_url = None, model_hint = None, max_retries = 3, timeout = 60))]
+    #[pyo3(signature = (*, api_key, base_url = None, model_hint = None, max_retries = 3, timeout = 60, cache = None, budget = None, extra_headers = None))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         api_key: String,
         base_url: Option<String>,
         model_hint: Option<String>,
         max_retries: u32,
         timeout: u64,
+        cache: Option<Bound<'_, PyDict>>,
+        budget: Option<Bound<'_, PyDict>>,
+        extra_headers: Option<Bound<'_, PyDict>>,
     ) -> PyResult<Self> {
         let mut builder = ClientConfigBuilder::new(api_key);
         if let Some(ref url) = base_url {
@@ -126,14 +356,77 @@ impl PyLlmClient {
         }
         builder = builder.max_retries(max_retries);
         builder = builder.timeout(std::time::Duration::from_secs(timeout));
+
+        // Apply optional cache configuration.
+        if let Some(ref cache_dict) = cache {
+            let cache_cfg = parse_cache_config(cache_dict)?;
+            builder = builder.cache(cache_cfg);
+        }
+
+        // Apply optional budget configuration.
+        if let Some(ref budget_dict) = budget {
+            let budget_cfg = parse_budget_config(budget_dict)?;
+            builder = builder.budget(budget_cfg);
+        }
+
+        // Apply optional extra headers.
+        if let Some(ref headers_dict) = extra_headers {
+            for (k, v) in headers_dict.iter() {
+                let key: String = k
+                    .extract()
+                    .map_err(|_| PyValueError::new_err("extra_headers keys must be strings"))?;
+                let value: String = v
+                    .extract()
+                    .map_err(|_| PyValueError::new_err("extra_headers values must be strings"))?;
+                builder = builder.header(key, value).map_err(to_py_err)?;
+            }
+        }
+
         let config = builder.build();
 
         let client = DefaultClient::new(config, model_hint.as_deref()).map_err(to_py_err)?;
         Ok(Self {
             inner: Arc::new(client),
+            hooks: Arc::new(RwLock::new(Vec::new())),
             base_url,
             max_retries,
         })
+    }
+
+    /// Register a hook object that will be called around each request.
+    ///
+    /// The hook object may define any combination of these methods (all optional):
+    ///
+    /// - ``on_request(request: str) -> None`` — called before each request.
+    ///   Raise an exception to reject the request.
+    /// - ``on_response(request: str, response: str) -> None`` — called after
+    ///   a successful response.
+    /// - ``on_error(request: str, error: str) -> None`` — called when the
+    ///   request fails with an error.
+    ///
+    /// Methods may be regular functions or ``async def`` coroutines.
+    fn add_hook<'py>(&self, py: Python<'py>, hook: Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+        let bridge: Arc<dyn LlmHook> = Arc::new(PyHookBridge::new(hook.unbind()));
+        let hooks = Arc::clone(&self.hooks);
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            hooks.write().await.push(bridge);
+            Ok(())
+        })
+    }
+
+    /// Register a custom LLM provider in the global provider registry.
+    ///
+    /// Args:
+    ///     config: A dict with ``name`` (str), ``base_url`` (str),
+    ///         ``auth_header`` (str — ``"bearer"``, ``"none"``, or
+    ///         ``"api-key:<header-name>"``), and ``model_prefixes`` (list[str]).
+    ///
+    /// The provider will be used for model routing when a model name matches
+    /// any of the given prefixes.
+    #[staticmethod]
+    fn register_provider(config: Bound<'_, PyDict>) -> PyResult<()> {
+        let provider_cfg = parse_provider_config(&config)?;
+        register_custom_provider(provider_cfg).map_err(to_py_err)
     }
 
     /// Send a chat completion request (async).

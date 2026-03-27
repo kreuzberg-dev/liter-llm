@@ -27,6 +27,12 @@ var ErrProviderError = errors.New("literllm: provider error")
 // ErrStream is returned when a streaming response cannot be parsed.
 var ErrStream = errors.New("literllm: stream error")
 
+// ErrBudgetExceeded is returned when a request would exceed the configured budget.
+var ErrBudgetExceeded = errors.New("literllm: budget exceeded")
+
+// ErrHookRejected is returned when a hook's OnRequest method rejects the request.
+var ErrHookRejected = errors.New("literllm: hook rejected request")
+
 // ─── Typed error ──────────────────────────────────────────────────────────────
 
 // APIError represents an HTTP error response from an LLM provider.

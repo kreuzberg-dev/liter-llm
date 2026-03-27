@@ -1,11 +1,44 @@
 /* auto-generated type stubs for @kreuzberg/liter-llm-native */
 
+export interface CacheOptions {
+	/** Maximum number of cached entries (default: 256). */
+	maxEntries?: number;
+	/** Time-to-live for cached entries in seconds (default: 300). */
+	ttlSeconds?: number;
+}
+
+export interface BudgetOptions {
+	/** Maximum total spend across all models in USD. */
+	globalLimit?: number;
+	/** Per-model spending limits in USD, keyed by model name. */
+	modelLimits?: Record<string, number>;
+	/** Enforcement mode: "soft" (warn only) or "hard" (reject). Default: "hard". */
+	enforcement?: "soft" | "hard";
+}
+
+export interface CustomProviderOptions {
+	/** Unique name for this provider. */
+	name: string;
+	/** Base URL for the provider's API. */
+	baseUrl: string;
+	/** Authentication style: "bearer", "none", or a custom header name (e.g. "X-Api-Key"). */
+	authHeader: string;
+	/** Model name prefixes that route to this provider. */
+	modelPrefixes: string[];
+}
+
 export interface LlmClientOptions {
 	apiKey: string;
 	baseUrl?: string;
 	modelHint?: string;
 	maxRetries?: number;
 	timeoutSecs?: number;
+	/** Response cache configuration. */
+	cache?: CacheOptions;
+	/** Budget enforcement configuration. */
+	budget?: BudgetOptions;
+	/** Extra headers sent on every request, as key-value pairs. */
+	extraHeaders?: Record<string, string>;
 }
 
 export class LlmClient {
@@ -31,6 +64,10 @@ export class LlmClient {
 	createResponse(request: Record<string, unknown>): Promise<Record<string, unknown>>;
 	retrieveResponse(id: string): Promise<Record<string, unknown>>;
 	cancelResponse(id: string): Promise<Record<string, unknown>>;
+	/** Register a custom LLM provider at runtime. */
+	static registerProvider(config: CustomProviderOptions): void;
+	/** Unregister a previously registered custom provider by name. */
+	static unregisterProvider(name: string): boolean;
 }
 
 export function version(): string;

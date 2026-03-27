@@ -7,9 +7,9 @@ import types
 from collections.abc import AsyncIterator
 
 if sys.version_info >= (3, 13):
-    from typing import Literal, Required, Self, TypeAlias, TypedDict, Unpack
+    from typing import Literal, Protocol, Required, Self, TypeAlias, TypedDict, Unpack, runtime_checkable
 else:
-    from typing import Literal, TypeAlias
+    from typing import Literal, Protocol, TypeAlias, runtime_checkable
 
     from typing_extensions import Required, Self, TypedDict, Unpack
 
@@ -32,6 +32,42 @@ class StreamingError(LlmError): ...
 class InvalidHeaderError(LlmError): ...
 class EndpointNotSupportedError(LlmError): ...
 class SerializationError(LlmError): ...
+class BudgetExceededError(LlmError): ...
+class HookRejectedError(LlmError): ...
+
+# ─── Configuration TypedDicts ─────────────────────────────────────────────────
+
+class CacheConfig(TypedDict, total=False):
+    max_entries: int
+    """Maximum number of cached entries. Defaults to 256."""
+    ttl_seconds: int
+    """Time-to-live for each cached entry in seconds. Defaults to 300."""
+
+class BudgetConfig(TypedDict, total=False):
+    global_limit: float | None
+    """Maximum total spend across all models, in USD. None means unlimited."""
+    model_limits: dict[str, float] | None
+    """Per-model spending limits in USD."""
+    enforcement: Literal["hard", "soft"]
+    """Whether to reject requests ('hard') or merely warn ('soft'). Defaults to 'hard'."""
+
+class ProviderConfig(TypedDict, total=False):
+    name: Required[str]
+    """Unique name for this provider."""
+    base_url: Required[str]
+    """Base URL for the provider's API."""
+    auth_header: str
+    """Auth header format: 'bearer', 'none', or 'api-key:<header-name>'. Defaults to 'bearer'."""
+    model_prefixes: list[str]
+    """Model name prefixes that route to this provider."""
+
+# ─── Hook Protocol ───────────────────────────────────────────────────────────
+
+@runtime_checkable
+class LlmHookProtocol(Protocol):
+    def on_request(self, request: str) -> None: ...
+    def on_response(self, request: str, response: str) -> None: ...
+    def on_error(self, request: str, error: str) -> None: ...
 
 # ─── Request param TypedDicts ─────────────────────────────────────────────────
 
@@ -328,7 +364,13 @@ class LlmClient:
         model_hint: str | None = None,
         max_retries: int = 3,
         timeout: int = 60,
+        cache: CacheConfig | None = None,
+        budget: BudgetConfig | None = None,
+        extra_headers: dict[str, str] | None = None,
     ) -> None: ...
+    async def add_hook(self, hook: LlmHookProtocol) -> None: ...
+    @staticmethod
+    def register_provider(config: ProviderConfig) -> None: ...
     async def chat(self, **kwargs: Unpack[ChatCompletionRequestParams]) -> ChatCompletionResponse: ...
     async def chat_stream(self, **kwargs: Unpack[ChatCompletionRequestParams]) -> ChatStreamIterator: ...
     async def embed(self, **kwargs: Unpack[EmbeddingRequestParams]) -> EmbeddingResponse: ...
