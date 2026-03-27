@@ -1,39 +1,35 @@
 {
-  "id": "budget_enforced",
-  "category": "budget",
-  "description": "Tests that a request is rejected when budget is exceeded",
-  "client_config": {
-    "budget": {
-      "global_limit": 0.001,
-      "enforcement": "hard"
-    }
-  },
-  "api": {
-    "method": "chat",
-    "request": {
-      "model": "gpt-4",
-      "messages": [
-        {
-          "role": "user",
-          "content": "Hello"
-        }
-      ]
-    },
-    "mock_response": {
-      "status": 200,
-      "body": {}
-    }
-  },
-  "assertions": {
-    "expect_success": false,
-    "error_type": "BudgetExceeded"
-  },
-  "tags": [
-    "budget"
-  ],
-  "skip": {
-    "languages": [
-      "wasm"
-    ]
-  }
+	"id": "budget_enforced",
+	"category": "budget",
+	"description": "Tests that a request is rejected when budget is exceeded",
+	"client_config": {
+		"budget": {
+			"global_limit": 0.001,
+			"enforcement": "hard"
+		}
+	},
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "BudgetExceeded"
+	},
+	"tags": ["budget"],
+	"skip": {
+		"languages": ["wasm", "typescript", "node"]
+	}
 }

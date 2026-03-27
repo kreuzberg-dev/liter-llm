@@ -1,4 +1,6 @@
 pub mod config;
+#[cfg(all(feature = "native-http", feature = "tower"))]
+pub mod managed;
 
 use std::future::Future;
 use std::pin::Pin;

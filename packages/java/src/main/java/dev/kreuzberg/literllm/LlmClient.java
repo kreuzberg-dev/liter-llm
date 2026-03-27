@@ -9,7 +9,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * HTTP client for the liter-llm unified LLM API.
@@ -58,6 +66,50 @@ public final class LlmClient implements AutoCloseable {
 	private final java.util.List<LlmHook> hooks = new java.util.concurrent.CopyOnWriteArrayList<>();
 	private final java.util.List<ProviderConfig> customProviders = new java.util.concurrent.CopyOnWriteArrayList<>();
 
+	// ─── Cache State ──────────────────────────────────────────────────────────
+
+	private static final class CacheEntry {
+
+		final String response;
+		final Instant created;
+
+		CacheEntry(String response) {
+			this.response = response;
+			this.created = Instant.now();
+		}
+
+		boolean isExpired(int ttlSeconds) {
+			return Instant.now().isAfter(created.plusSeconds(ttlSeconds));
+		}
+	}
+
+	/** LRU cache backed by insertion-ordered LinkedHashMap. */
+	private final Map<String, CacheEntry> responseCache;
+
+	// ─── Budget State ─────────────────────────────────────────────────────────
+
+	/** Global spend tracked in microcents (1 USD = 100_000_000 microcents) for precision. */
+	private final AtomicLong globalSpendMicrocents = new AtomicLong();
+
+	/** Per-model spend in microcents. */
+	private final ConcurrentHashMap<String, AtomicLong> modelSpendMicrocents = new ConcurrentHashMap<>();
+
+	/** Approximate pricing in USD per million tokens: [promptPer1M, completionPer1M]. */
+	private static final Map<String, double[]> MODEL_PRICING = Map.ofEntries(
+			Map.entry("gpt-4o", new double[] { 2.50, 10.00 }),
+			Map.entry("gpt-4o-mini", new double[] { 0.15, 0.60 }),
+			Map.entry("gpt-4-turbo", new double[] { 10.00, 30.00 }),
+			Map.entry("gpt-4", new double[] { 30.00, 60.00 }),
+			Map.entry("gpt-3.5-turbo", new double[] { 0.50, 1.50 }),
+			Map.entry("claude-3-opus", new double[] { 15.00, 75.00 }),
+			Map.entry("claude-3-sonnet", new double[] { 3.00, 15.00 }),
+			Map.entry("claude-3-haiku", new double[] { 0.25, 1.25 }));
+
+	private static final double[] FALLBACK_PRICING = { 1.00, 2.00 };
+
+	/** Microcents per USD. */
+	private static final long MICROCENTS_PER_USD = 100_000_000L;
+
 	private LlmClient(Builder builder) {
 		this.apiKey = builder.apiKey;
 		this.baseUrl = builder.baseUrl.endsWith("/")
@@ -68,6 +120,19 @@ public final class LlmClient implements AutoCloseable {
 		this.objectMapper = createObjectMapper();
 		this.cacheConfig = builder.cacheConfig;
 		this.budgetConfig = builder.budgetConfig;
+
+		// Initialize LRU cache if caching is enabled.
+		if (cacheConfig != null) {
+			final int maxEntries = cacheConfig.maxEntries();
+			this.responseCache = java.util.Collections.synchronizedMap(new LinkedHashMap<>(maxEntries, 0.75f, true) {
+				@Override
+				protected boolean removeEldestEntry(Map.Entry<String, CacheEntry> eldest) {
+					return size() > maxEntries;
+				}
+			});
+		} else {
+			this.responseCache = null;
+		}
 	}
 
 	// ─── Public API ───────────────────────────────────────────────────────────
@@ -82,11 +147,30 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ChatCompletionResponse chat(ChatCompletionRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
+
+			// Check cache before HTTP call.
+			String cached = checkCache(body);
+			if (cached != null) {
+				ChatCompletionResponse response = deserialize(cached, ChatCompletionResponse.class);
+				runOnResponse(request, response);
+				return response;
+			}
+
 			String responseBody = post("/chat/completions", body);
 			ChatCompletionResponse response = deserialize(responseBody, ChatCompletionResponse.class);
+
+			// Store in cache.
+			storeInCache(body, responseBody);
+
+			// Record cost for budget tracking.
+			if (response.usage() != null) {
+				recordCost(request.model(), response.usage());
+			}
+
 			runOnResponse(request, response);
 			return response;
 		} catch (LlmException e) {
@@ -105,11 +189,30 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public EmbeddingResponse embed(EmbeddingRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
+
+			// Check cache before HTTP call.
+			String cached = checkCache(body);
+			if (cached != null) {
+				EmbeddingResponse response = deserialize(cached, EmbeddingResponse.class);
+				runOnResponse(request, response);
+				return response;
+			}
+
 			String responseBody = post("/embeddings", body);
 			EmbeddingResponse response = deserialize(responseBody, EmbeddingResponse.class);
+
+			// Store in cache.
+			storeInCache(body, responseBody);
+
+			// Record cost for budget tracking.
+			if (response.usage() != null) {
+				recordCost(request.model(), response.usage());
+			}
+
 			runOnResponse(request, response);
 			return response;
 		} catch (LlmException e) {
@@ -126,6 +229,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ModelsListResponse listModels() throws LlmException {
+		checkBudget(null);
 		runOnRequest(null);
 		try {
 			String responseBody = get("/models");
@@ -150,6 +254,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ImagesResponse imageGenerate(CreateImageRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -173,6 +278,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public byte[] speech(CreateSpeechRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -195,6 +301,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public TranscriptionResponse transcribe(CreateTranscriptionRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -218,6 +325,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ModerationResponse moderate(ModerationRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -241,6 +349,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public RerankResponse rerank(RerankRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -266,6 +375,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public FileObject createFile(CreateFileRequest request) throws LlmException {
+		checkBudget(null);
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -289,6 +399,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public FileObject retrieveFile(String fileId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(fileId);
 		try {
 			String responseBody = get("/files/" + fileId);
@@ -311,6 +422,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public DeleteResponse deleteFile(String fileId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(fileId);
 		try {
 			String responseBody = delete("/files/" + fileId);
@@ -333,6 +445,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public FileListResponse listFiles(FileListQuery query) throws LlmException {
+		checkBudget(null);
 		runOnRequest(query);
 		try {
 			String path = "/files";
@@ -371,6 +484,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public byte[] fileContent(String fileId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(fileId);
 		try {
 			byte[] response = getForBytes("/files/" + fileId + "/content");
@@ -394,6 +508,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchObject createBatch(CreateBatchRequest request) throws LlmException {
+		checkBudget(null);
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -417,6 +532,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchObject retrieveBatch(String batchId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(batchId);
 		try {
 			String responseBody = get("/batches/" + batchId);
@@ -439,6 +555,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchListResponse listBatches(BatchListQuery query) throws LlmException {
+		checkBudget(null);
 		runOnRequest(query);
 		try {
 			String path = "/batches";
@@ -474,6 +591,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchObject cancelBatch(String batchId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(batchId);
 		try {
 			String responseBody = post("/batches/" + batchId + "/cancel", "");
@@ -498,6 +616,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ResponseObject createResponse(CreateResponseRequest request) throws LlmException {
+		checkBudget(request.model());
 		runOnRequest(request);
 		try {
 			String body = serialize(request);
@@ -521,6 +640,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ResponseObject retrieveResponse(String responseId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(responseId);
 		try {
 			String responseBody = get("/responses/" + responseId);
@@ -543,6 +663,7 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ResponseObject cancelResponse(String responseId) throws LlmException {
+		checkBudget(null);
 		runOnRequest(responseId);
 		try {
 			String responseBody = post("/responses/" + responseId + "/cancel", "");
@@ -613,6 +734,133 @@ public final class LlmClient implements AutoCloseable {
 	private void runOnError(Object request, Exception error) {
 		for (var hook : hooks) {
 			hook.onError(request, error);
+		}
+	}
+
+	// ─── Cache Helpers ────────────────────────────────────────────────────────
+
+	/**
+	 * Returns the cached response for the given request JSON, or {@code null} if
+	 * not found or expired.
+	 */
+	private String checkCache(String requestJson) {
+		if (responseCache == null || cacheConfig == null) {
+			return null;
+		}
+		String key = sha256Hex(requestJson);
+		CacheEntry entry = responseCache.get(key);
+		if (entry == null) {
+			return null;
+		}
+		if (entry.isExpired(cacheConfig.ttlSeconds())) {
+			responseCache.remove(key);
+			return null;
+		}
+		return entry.response;
+	}
+
+	/** Stores a response in the cache keyed by the request JSON hash. */
+	private void storeInCache(String requestJson, String response) {
+		if (responseCache == null) {
+			return;
+		}
+		responseCache.put(sha256Hex(requestJson), new CacheEntry(response));
+	}
+
+	// ─── Budget Helpers ──────────────────────────────────────────────────────
+
+	/**
+	 * Checks whether the given model has exceeded its budget. Throws
+	 * {@link BudgetExceededException} in strict mode when budget is exceeded.
+	 */
+	private void checkBudget(String model) throws BudgetExceededException {
+		if (budgetConfig == null || !"strict".equals(budgetConfig.enforcement())) {
+			return;
+		}
+		if (budgetConfig.globalLimit() != null) {
+			double globalSpendUsd = globalSpendMicrocents.get() / (double) MICROCENTS_PER_USD;
+			if (globalSpendUsd >= budgetConfig.globalLimit()) {
+				throw new BudgetExceededException(
+						String.format("global spend $%.6f >= limit $%.6f", globalSpendUsd, budgetConfig.globalLimit()));
+			}
+		}
+		if (budgetConfig.modelLimits() != null && model != null) {
+			Double modelLimit = budgetConfig.modelLimits().get(model);
+			if (modelLimit != null) {
+				AtomicLong modelMicrocents = modelSpendMicrocents.get(model);
+				if (modelMicrocents != null) {
+					double modelSpendUsd = modelMicrocents.get() / (double) MICROCENTS_PER_USD;
+					if (modelSpendUsd >= modelLimit) {
+						throw new BudgetExceededException(String.format("model \"%s\" spend $%.6f >= limit $%.6f", model,
+								modelSpendUsd, modelLimit));
+					}
+				}
+			}
+		}
+	}
+
+	/** Records cost for the given model based on token usage. */
+	private void recordCost(String model, Usage usage) {
+		if (budgetConfig == null || usage == null) {
+			return;
+		}
+		double cost = estimateCost(model, usage);
+		if (cost <= 0) {
+			return;
+		}
+		long costMicrocents = Math.round(cost * MICROCENTS_PER_USD);
+		globalSpendMicrocents.addAndGet(costMicrocents);
+		if (model != null) {
+			modelSpendMicrocents.computeIfAbsent(model, k -> new AtomicLong()).addAndGet(costMicrocents);
+		}
+	}
+
+	private static double estimateCost(String model, Usage usage) {
+		double[] pricing = lookupPricing(model);
+		double promptCost = usage.promptTokens() * pricing[0] / 1_000_000.0;
+		double completionCost = usage.completionTokens() * pricing[1] / 1_000_000.0;
+		return promptCost + completionCost;
+	}
+
+	private static double[] lookupPricing(String model) {
+		if (model == null) {
+			return FALLBACK_PRICING;
+		}
+		// Exact match.
+		double[] pricing = MODEL_PRICING.get(model);
+		if (pricing != null) {
+			return pricing;
+		}
+		// Strip provider prefix (e.g. "openai/gpt-4o" -> "gpt-4o").
+		int slash = model.indexOf('/');
+		if (slash >= 0) {
+			pricing = MODEL_PRICING.get(model.substring(slash + 1));
+			if (pricing != null) {
+				return pricing;
+			}
+		}
+		// Prefix match for versioned models.
+		String stripped = slash >= 0 ? model.substring(slash + 1) : model;
+		for (var entry : MODEL_PRICING.entrySet()) {
+			if (stripped.startsWith(entry.getKey())) {
+				return entry.getValue();
+			}
+		}
+		return FALLBACK_PRICING;
+	}
+
+	private static String sha256Hex(String input) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+			StringBuilder sb = new StringBuilder(hash.length * 2);
+			for (byte b : hash) {
+				sb.append(String.format("%02x", b));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			// SHA-256 is required by the JLS; this should never happen.
+			throw new AssertionError("SHA-256 not available", e);
 		}
 	}
 

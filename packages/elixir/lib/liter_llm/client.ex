@@ -28,6 +28,8 @@ defmodule LiterLlm.Client do
 
   """
 
+  alias LiterLlm.Budget
+  alias LiterLlm.Cache
   alias LiterLlm.Error
   alias LiterLlm.Native
   alias LiterLlm.Types
@@ -77,7 +79,12 @@ defmodule LiterLlm.Client do
   """
   @spec new(keyword()) :: t()
   def new(opts \\ []) do
-    struct!(__MODULE__, opts)
+    client = struct!(__MODULE__, opts)
+
+    if client.cache, do: Cache.init(client.cache)
+    if client.budget, do: Budget.init(client.budget)
+
+    client
   end
 
   # ─── Public API ───────────────────────────────────────────────────────────
@@ -100,16 +107,26 @@ defmodule LiterLlm.Client do
   @spec chat(t(), Types.chat_request(), keyword()) ::
           {:ok, Types.chat_response()} | {:error, Error.t()}
   def chat(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case check_cache(client, request) do
+        {:ok, _cached} = hit ->
+          run_hooks(client, :on_response, {request, hit})
+          hit
 
-    case call_nif(:chat, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
+        :miss ->
+          case call_nif(:chat, client, request) do
+            {:ok, response} = ok ->
+              store_cache(client, request, response)
+              record_usage(client, request[:model], response)
+              run_hooks(client, :on_response, {request, response})
+              ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+            {:error, _} = err ->
+              run_hooks(client, :on_error, {request, err})
+              err
+          end
+      end
     end
   end
 
@@ -117,16 +134,26 @@ defmodule LiterLlm.Client do
   @spec embed(t(), Types.embedding_request(), keyword()) ::
           {:ok, Types.embedding_response()} | {:error, Error.t()}
   def embed(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case check_cache(client, request) do
+        {:ok, _cached} = hit ->
+          run_hooks(client, :on_response, {request, hit})
+          hit
 
-    case call_nif(:embed, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
+        :miss ->
+          case call_nif(:embed, client, request) do
+            {:ok, response} = ok ->
+              store_cache(client, request, response)
+              record_usage(client, request[:model], response)
+              run_hooks(client, :on_response, {request, response})
+              ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+            {:error, _} = err ->
+              run_hooks(client, :on_error, {request, err})
+              err
+          end
+      end
     end
   end
 
@@ -134,24 +161,24 @@ defmodule LiterLlm.Client do
   @spec list_models(t(), keyword()) ::
           {:ok, Types.models_list_response()} | {:error, Error.t()}
   def list_models(%__MODULE__{} = client, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :list_models})
+    with :ok <- run_hooks(client, :on_request, %{action: :list_models}) do
+      result =
+        with {:ok, config_json} <- encode(client_to_config_map(client)),
+             {:ok, resp_json} <- Native.list_models(config_json) do
+          decode(resp_json)
+        else
+          {:error, reason} -> wrap_error(reason)
+        end
 
-    result =
-      with {:ok, config_json} <- encode(client_to_config_map(client)),
-           {:ok, resp_json} <- Native.list_models(config_json) do
-        decode(resp_json)
-      else
-        {:error, reason} -> wrap_error(reason)
+      case result do
+        {:ok, response} ->
+          run_hooks(client, :on_response, {%{action: :list_models}, response})
+          result
+
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {%{action: :list_models}, err})
+          err
       end
-
-    case result do
-      {:ok, response} ->
-        run_hooks(client, :on_response, {%{action: :list_models}, response})
-        result
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :list_models}, err})
-        err
     end
   end
 
@@ -159,16 +186,18 @@ defmodule LiterLlm.Client do
   @spec image_generate(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def image_generate(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case call_nif(:image_generate, client, request) do
+        {:ok, response} = ok ->
+          record_usage(client, request[:model], response)
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:image_generate, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -176,16 +205,17 @@ defmodule LiterLlm.Client do
   @spec speech(t(), map(), keyword()) ::
           {:ok, binary()} | {:error, Error.t()}
   def speech(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case call_nif_raw(:speech, client, request) do
+        {:ok, _} = ok ->
+          run_hooks(client, :on_response, {request, ok})
+          ok
 
-    case call_nif_raw(:speech, client, request) do
-      {:ok, _} = ok ->
-        run_hooks(client, :on_response, {request, ok})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -193,16 +223,18 @@ defmodule LiterLlm.Client do
   @spec transcribe(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def transcribe(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case call_nif(:transcribe, client, request) do
+        {:ok, response} = ok ->
+          record_usage(client, request[:model], response)
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:transcribe, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -210,16 +242,17 @@ defmodule LiterLlm.Client do
   @spec moderate(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def moderate(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case call_nif(:moderate, client, request) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:moderate, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -227,16 +260,18 @@ defmodule LiterLlm.Client do
   @spec rerank(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def rerank(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case call_nif(:rerank, client, request) do
+        {:ok, response} = ok ->
+          record_usage(client, request[:model], response)
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:rerank, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -246,16 +281,16 @@ defmodule LiterLlm.Client do
   @spec create_file(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def create_file(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request) do
+      case call_nif(:create_file, client, request) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:create_file, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -263,16 +298,18 @@ defmodule LiterLlm.Client do
   @spec retrieve_file(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def retrieve_file(%__MODULE__{} = client, file_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :retrieve_file, file_id: file_id})
+    req = %{action: :retrieve_file, file_id: file_id}
 
-    case call_nif_id(:retrieve_file, client, file_id) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {%{action: :retrieve_file, file_id: file_id}, response})
-        ok
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_id(:retrieve_file, client, file_id) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :retrieve_file, file_id: file_id}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -280,16 +317,18 @@ defmodule LiterLlm.Client do
   @spec delete_file(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def delete_file(%__MODULE__{} = client, file_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :delete_file, file_id: file_id})
+    req = %{action: :delete_file, file_id: file_id}
 
-    case call_nif_id(:delete_file, client, file_id) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {%{action: :delete_file, file_id: file_id}, response})
-        ok
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_id(:delete_file, client, file_id) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :delete_file, file_id: file_id}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -297,16 +336,18 @@ defmodule LiterLlm.Client do
   @spec list_files(t(), map() | nil, keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def list_files(%__MODULE__{} = client, query \\ nil, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :list_files, query: query})
+    req = %{action: :list_files, query: query}
 
-    case call_nif_query(:list_files, client, query) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {%{action: :list_files, query: query}, response})
-        ok
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_query(:list_files, client, query) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :list_files, query: query}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -314,24 +355,26 @@ defmodule LiterLlm.Client do
   @spec file_content(t(), String.t(), keyword()) ::
           {:ok, binary()} | {:error, Error.t()}
   def file_content(%__MODULE__{} = client, file_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :file_content, file_id: file_id})
+    req = %{action: :file_content, file_id: file_id}
 
-    result =
-      with {:ok, config_json} <- encode(client_to_config_map(client)),
-           {:ok, bytes} <- Native.file_content(config_json, file_id) do
-        {:ok, bytes}
-      else
-        {:error, reason} -> wrap_error(reason)
+    with :ok <- run_hooks(client, :on_request, req) do
+      result =
+        with {:ok, config_json} <- encode(client_to_config_map(client)),
+             {:ok, bytes} <- Native.file_content(config_json, file_id) do
+          {:ok, bytes}
+        else
+          {:error, reason} -> wrap_error(reason)
+        end
+
+      case result do
+        {:ok, _} ->
+          run_hooks(client, :on_response, {req, result})
+          result
+
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
       end
-
-    case result do
-      {:ok, _} ->
-        run_hooks(client, :on_response, {%{action: :file_content, file_id: file_id}, result})
-        result
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :file_content, file_id: file_id}, err})
-        err
     end
   end
 
@@ -341,16 +384,16 @@ defmodule LiterLlm.Client do
   @spec create_batch(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def create_batch(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request) do
+      case call_nif(:create_batch, client, request) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:create_batch, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -358,21 +401,18 @@ defmodule LiterLlm.Client do
   @spec retrieve_batch(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def retrieve_batch(%__MODULE__{} = client, batch_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :retrieve_batch, batch_id: batch_id})
+    req = %{action: :retrieve_batch, batch_id: batch_id}
 
-    case call_nif_id(:retrieve_batch, client, batch_id) do
-      {:ok, response} = ok ->
-        run_hooks(
-          client,
-          :on_response,
-          {%{action: :retrieve_batch, batch_id: batch_id}, response}
-        )
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_id(:retrieve_batch, client, batch_id) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :retrieve_batch, batch_id: batch_id}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -380,16 +420,18 @@ defmodule LiterLlm.Client do
   @spec list_batches(t(), map() | nil, keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def list_batches(%__MODULE__{} = client, query \\ nil, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :list_batches, query: query})
+    req = %{action: :list_batches, query: query}
 
-    case call_nif_query(:list_batches, client, query) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {%{action: :list_batches, query: query}, response})
-        ok
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_query(:list_batches, client, query) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :list_batches, query: query}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -397,16 +439,18 @@ defmodule LiterLlm.Client do
   @spec cancel_batch(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def cancel_batch(%__MODULE__{} = client, batch_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :cancel_batch, batch_id: batch_id})
+    req = %{action: :cancel_batch, batch_id: batch_id}
 
-    case call_nif_id(:cancel_batch, client, batch_id) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {%{action: :cancel_batch, batch_id: batch_id}, response})
-        ok
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_id(:cancel_batch, client, batch_id) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :cancel_batch, batch_id: batch_id}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -416,16 +460,16 @@ defmodule LiterLlm.Client do
   @spec create_response(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def create_response(%__MODULE__{} = client, request, _opts \\ []) do
-    run_hooks(client, :on_request, request)
+    with :ok <- run_hooks(client, :on_request, request) do
+      case call_nif(:create_response, client, request) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {request, response})
+          ok
 
-    case call_nif(:create_response, client, request) do
-      {:ok, response} = ok ->
-        run_hooks(client, :on_response, {request, response})
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {request, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
     end
   end
 
@@ -433,26 +477,18 @@ defmodule LiterLlm.Client do
   @spec retrieve_response(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def retrieve_response(%__MODULE__{} = client, response_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :retrieve_response, response_id: response_id})
+    req = %{action: :retrieve_response, response_id: response_id}
 
-    case call_nif_id(:retrieve_response, client, response_id) do
-      {:ok, response} = ok ->
-        run_hooks(
-          client,
-          :on_response,
-          {%{action: :retrieve_response, response_id: response_id}, response}
-        )
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_id(:retrieve_response, client, response_id) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-        ok
-
-      {:error, _} = err ->
-        run_hooks(
-          client,
-          :on_error,
-          {%{action: :retrieve_response, response_id: response_id}, err}
-        )
-
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -460,21 +496,18 @@ defmodule LiterLlm.Client do
   @spec cancel_response(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
   def cancel_response(%__MODULE__{} = client, response_id, _opts \\ []) do
-    run_hooks(client, :on_request, %{action: :cancel_response, response_id: response_id})
+    req = %{action: :cancel_response, response_id: response_id}
 
-    case call_nif_id(:cancel_response, client, response_id) do
-      {:ok, response} = ok ->
-        run_hooks(
-          client,
-          :on_response,
-          {%{action: :cancel_response, response_id: response_id}, response}
-        )
+    with :ok <- run_hooks(client, :on_request, req) do
+      case call_nif_id(:cancel_response, client, response_id) do
+        {:ok, response} = ok ->
+          run_hooks(client, :on_response, {req, response})
+          ok
 
-        ok
-
-      {:error, _} = err ->
-        run_hooks(client, :on_error, {%{action: :cancel_response, response_id: response_id}, err})
-        err
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {req, err})
+          err
+      end
     end
   end
 
@@ -525,18 +558,53 @@ defmodule LiterLlm.Client do
   #
   # Each hook module is expected to implement the `LiterLlm.Hook` behaviour.
   # If a hook module does not export the requested callback, it is silently
-  # skipped.  Hooks are invoked in registration order and their return values
-  # are ignored — they are purely advisory (logging, metrics, etc.).
-  defp run_hooks(%__MODULE__{hooks: hooks}, event, payload) do
+  # skipped.
+  #
+  # For `:on_request`, a hook may return `{:error, reason}` to reject the
+  # request -- this causes the entire pipeline to short-circuit with a
+  # `:hook_rejected` error.  For `:on_response` and `:on_error`, return
+  # values are ignored (advisory only).
+  defp run_hooks(%__MODULE__{hooks: hooks}, :on_request, payload) do
+    Enum.reduce_while(hooks, :ok, fn hook_module, :ok ->
+      arity = if function_exported?(hook_module, :on_request, 1), do: 1, else: nil
+
+      case arity do
+        nil ->
+          {:cont, :ok}
+
+        1 ->
+          try do
+            case apply(hook_module, :on_request, [payload]) do
+              :ok -> {:cont, :ok}
+              {:error, reason} -> {:halt, {:error, Error.hook_rejected(inspect(reason))}}
+              _other -> {:cont, :ok}
+            end
+          rescue
+            e -> {:halt, {:error, Error.hook_rejected(Exception.message(e))}}
+          end
+      end
+    end)
+  end
+
+  defp run_hooks(%__MODULE__{hooks: hooks}, event, payload) when event in [:on_response, :on_error] do
+    arity =
+      case event do
+        :on_response -> 2
+        :on_error -> 2
+      end
+
     Enum.each(hooks, fn hook_module ->
-      if function_exported?(hook_module, event, 1) do
+      if function_exported?(hook_module, event, arity) do
         try do
-          apply(hook_module, event, [payload])
+          {req, resp_or_err} = payload
+          apply(hook_module, event, [req, resp_or_err])
         rescue
           _ -> :ok
         end
       end
     end)
+
+    :ok
   end
 
   defp client_to_config_map(%__MODULE__{} = client) do
@@ -613,4 +681,46 @@ defmodule LiterLlm.Client do
       {:error, reason} -> wrap_error(reason)
     end
   end
+
+  # ─── Cache helpers ───────────────────────────────────────────────────────
+
+  defp check_cache(%__MODULE__{cache: nil}, _request), do: :miss
+
+  defp check_cache(%__MODULE__{cache: config}, request) do
+    ttl = Map.get(config, :ttl_seconds, 300)
+    key = Cache.cache_key(request)
+    Cache.get(key, ttl)
+  end
+
+  defp store_cache(%__MODULE__{cache: nil}, _request, _response), do: :ok
+
+  defp store_cache(%__MODULE__{cache: config}, request, response) do
+    max_entries = Map.get(config, :max_entries, 256)
+    key = Cache.cache_key(request)
+    Cache.put(key, response, max_entries)
+  end
+
+  # ─── Budget helpers ──────────────────────────────────────────────────────
+
+  defp check_budget(%__MODULE__{budget: nil}, _model), do: :ok
+  defp check_budget(%__MODULE__{budget: config}, model), do: Budget.check(config, model)
+
+  # Extract usage-based cost from a response and record it.
+  # Uses total_tokens as a rough cost proxy ($0.001 per 1K tokens).
+  defp record_usage(%__MODULE__{budget: nil}, _model, _response), do: :ok
+
+  defp record_usage(%__MODULE__{budget: _config}, model, response) when is_map(response) do
+    usage = response["usage"] || response[:usage]
+
+    if usage do
+      total_tokens = usage["total_tokens"] || usage[:total_tokens] || 0
+      # Approximate cost: $0.001 per 1K tokens (configurable in a future iteration)
+      cost = total_tokens / 1_000.0 * 0.001
+      Budget.record(model, cost)
+    else
+      :ok
+    end
+  end
+
+  defp record_usage(_client, _model, _response), do: :ok
 end

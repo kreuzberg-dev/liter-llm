@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -45,6 +47,45 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
     private readonly List<ILlmHook> _hooks = [];
     private readonly List<ProviderConfig> _customProviders = [];
 
+    // ─── Cache State ──────────────────────────────────────────────────────────
+
+    private sealed class CacheEntry(string response)
+    {
+        public string Response { get; } = response;
+        public long CreatedTicks { get; } = Environment.TickCount64;
+
+        public bool IsExpired(int ttlSeconds) =>
+            (Environment.TickCount64 - CreatedTicks) > (long)ttlSeconds * 1000;
+    }
+
+    /// <summary>Thread-safe LRU-ish cache backed by ConcurrentDictionary.</summary>
+    private readonly ConcurrentDictionary<string, CacheEntry>? _responseCache;
+
+    // ─── Budget State ─────────────────────────────────────────────────────────
+
+    /// <summary>Global spend in microcents (1 USD = 100,000,000 microcents) for lock-free precision.</summary>
+    private long _globalSpendMicrocents;
+
+    /// <summary>Per-model spend in microcents.</summary>
+    private readonly ConcurrentDictionary<string, long> _modelSpendMicrocents = new();
+
+    private const long MicrocentsPerUsd = 100_000_000L;
+
+    /// <summary>Approximate pricing: [promptPer1M, completionPer1M] in USD.</summary>
+    private static readonly Dictionary<string, (double Prompt, double Completion)> ModelPricing = new()
+    {
+        ["gpt-4o"] = (2.50, 10.00),
+        ["gpt-4o-mini"] = (0.15, 0.60),
+        ["gpt-4-turbo"] = (10.00, 30.00),
+        ["gpt-4"] = (30.00, 60.00),
+        ["gpt-3.5-turbo"] = (0.50, 1.50),
+        ["claude-3-opus"] = (15.00, 75.00),
+        ["claude-3-sonnet"] = (3.00, 15.00),
+        ["claude-3-haiku"] = (0.25, 1.25),
+    };
+
+    private static readonly (double Prompt, double Completion) FallbackPricing = (1.00, 2.00);
+
     /// <summary>
     /// Initializes a new <see cref="LlmClient"/> with the given API key.
     /// </summary>
@@ -74,6 +115,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
 
         _cacheConfig = cacheConfig;
         _budgetConfig = budgetConfig;
+        _responseCache = cacheConfig is not null ? new ConcurrentDictionary<string, CacheEntry>() : null;
 
         _maxRetries = maxRetries;
         var normalizedBase = baseUrl.TrimEnd('/');
@@ -102,13 +144,31 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         ChatCompletionRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
             var body = Serialize(request);
+
+            // Check cache before HTTP call.
+            var cached = CheckCache(body);
+            if (cached is not null)
+            {
+                var cachedResponse = Deserialize<ChatCompletionResponse>(cached);
+                await RunOnResponseAsync(request, cachedResponse, cancellationToken).ConfigureAwait(false);
+                return cachedResponse;
+            }
+
             var responseJson = await PostAsync("chat/completions", body, cancellationToken)
                 .ConfigureAwait(false);
             var response = Deserialize<ChatCompletionResponse>(responseJson);
+
+            // Store in cache.
+            StoreInCache(body, responseJson);
+
+            // Record cost for budget tracking.
+            RecordCost(request.Model, response.Usage);
+
             await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
             return response;
         }
@@ -130,13 +190,31 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         EmbeddingRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
             var body = Serialize(request);
+
+            // Check cache before HTTP call.
+            var cached = CheckCache(body);
+            if (cached is not null)
+            {
+                var cachedResponse = Deserialize<EmbeddingResponse>(cached);
+                await RunOnResponseAsync(request, cachedResponse, cancellationToken).ConfigureAwait(false);
+                return cachedResponse;
+            }
+
             var responseJson = await PostAsync("embeddings", body, cancellationToken)
                 .ConfigureAwait(false);
             var response = Deserialize<EmbeddingResponse>(responseJson);
+
+            // Store in cache.
+            StoreInCache(body, responseJson);
+
+            // Record cost for budget tracking.
+            RecordCost(request.Model, response.Usage);
+
             await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
             return response;
         }
@@ -156,6 +234,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
     public async Task<ModelsListResponse> ListModelsAsync(
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         object request = "list_models";
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
@@ -183,6 +262,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateImageRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -209,6 +289,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateSpeechRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -234,6 +315,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateTranscriptionRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -260,6 +342,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         ModerationRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -286,6 +369,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         RerankRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -314,6 +398,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateFileRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -340,6 +425,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string fileId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(fileId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -365,6 +451,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string fileId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(fileId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -390,6 +477,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         FileListQuery? query = null,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         object request = query ?? (object)"list_files";
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
@@ -425,6 +513,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string fileId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(fileId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -451,6 +540,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateBatchRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -477,6 +567,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string batchId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(batchId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -502,6 +593,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         BatchListQuery? query = null,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         object request = query ?? (object)"list_batches";
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
@@ -536,6 +628,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string batchId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(batchId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -563,6 +656,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateResponseRequest request,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(request.Model);
         await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -589,6 +683,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string responseId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(responseId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -614,6 +709,7 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string responseId,
         CancellationToken cancellationToken = default)
     {
+        CheckBudget(null);
         await RunOnRequestAsync(responseId, cancellationToken).ConfigureAwait(false);
         try
         {
@@ -679,6 +775,132 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         {
             await hook.OnErrorAsync(request, error, ct).ConfigureAwait(false);
         }
+    }
+
+    // ─── Cache Helpers ─────────────────────────────────────────────────────────
+
+    /// <summary>Returns the cached response for the given request JSON, or null if not found or expired.</summary>
+    private string? CheckCache(string requestJson)
+    {
+        if (_responseCache is null || _cacheConfig is null) return null;
+
+        var key = Sha256Hex(requestJson);
+        if (!_responseCache.TryGetValue(key, out var entry)) return null;
+
+        if (entry.IsExpired(_cacheConfig.TtlSeconds))
+        {
+            _responseCache.TryRemove(key, out _);
+            return null;
+        }
+
+        return entry.Response;
+    }
+
+    /// <summary>Stores a response in the cache keyed by the request JSON hash.</summary>
+    private void StoreInCache(string requestJson, string response)
+    {
+        if (_responseCache is null || _cacheConfig is null) return;
+
+        var key = Sha256Hex(requestJson);
+        _responseCache[key] = new CacheEntry(response);
+
+        // Simple eviction: if over capacity, remove an arbitrary entry.
+        while (_responseCache.Count > _cacheConfig.MaxEntries)
+        {
+            // Remove first key (arbitrary but deterministic enough for LRU approximation).
+            using var enumerator = _responseCache.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                _responseCache.TryRemove(enumerator.Current.Key, out _);
+            }
+        }
+    }
+
+    // ─── Budget Helpers ──────────────────────────────────────────────────────
+
+    /// <summary>Checks if the budget has been exceeded. Throws BudgetExceededException in strict mode.</summary>
+    private void CheckBudget(string? model)
+    {
+        if (_budgetConfig is null || _budgetConfig.Enforcement != "strict") return;
+
+        if (_budgetConfig.GlobalLimit is not null)
+        {
+            var globalSpendUsd = Interlocked.Read(ref _globalSpendMicrocents) / (double)MicrocentsPerUsd;
+            if (globalSpendUsd >= _budgetConfig.GlobalLimit.Value)
+            {
+                throw new BudgetExceededException(
+                    $"global spend ${globalSpendUsd:F6} >= limit ${_budgetConfig.GlobalLimit.Value:F6}");
+            }
+        }
+
+        if (_budgetConfig.ModelLimits is not null && model is not null
+            && _budgetConfig.ModelLimits.TryGetValue(model, out var modelLimit))
+        {
+            if (_modelSpendMicrocents.TryGetValue(model, out var modelMicrocents))
+            {
+                var modelSpendUsd = Interlocked.Read(ref modelMicrocents) / (double)MicrocentsPerUsd;
+                if (modelSpendUsd >= modelLimit)
+                {
+                    throw new BudgetExceededException(
+                        $"model \"{model}\" spend ${modelSpendUsd:F6} >= limit ${modelLimit:F6}");
+                }
+            }
+        }
+    }
+
+    /// <summary>Records cost for the given model based on token usage.</summary>
+    private void RecordCost(string? model, Usage? usage)
+    {
+        if (_budgetConfig is null || usage is null) return;
+
+        var cost = EstimateCost(model, usage);
+        if (cost <= 0) return;
+
+        var costMicrocents = (long)Math.Round(cost * MicrocentsPerUsd);
+        Interlocked.Add(ref _globalSpendMicrocents, costMicrocents);
+        if (model is not null)
+        {
+            _modelSpendMicrocents.AddOrUpdate(model, costMicrocents, (_, existing) => existing + costMicrocents);
+        }
+    }
+
+    private static double EstimateCost(string? model, Usage usage)
+    {
+        var pricing = LookupPricing(model);
+        var promptCost = usage.PromptTokens * pricing.Prompt / 1_000_000.0;
+        var completionCost = usage.CompletionTokens * pricing.Completion / 1_000_000.0;
+        return promptCost + completionCost;
+    }
+
+    private static (double Prompt, double Completion) LookupPricing(string? model)
+    {
+        if (model is null) return FallbackPricing;
+
+        // Exact match.
+        if (ModelPricing.TryGetValue(model, out var pricing)) return pricing;
+
+        // Strip provider prefix (e.g. "openai/gpt-4o" -> "gpt-4o").
+        var slashIdx = model.IndexOf('/');
+        if (slashIdx >= 0)
+        {
+            var stripped = model[(slashIdx + 1)..];
+            if (ModelPricing.TryGetValue(stripped, out pricing)) return pricing;
+        }
+
+        // Prefix match for versioned models.
+        var name = slashIdx >= 0 ? model[(slashIdx + 1)..] : model;
+        foreach (var kvp in ModelPricing)
+        {
+            if (name.StartsWith(kvp.Key, StringComparison.Ordinal)) return kvp.Value;
+        }
+
+        return FallbackPricing;
+    }
+
+    private static string Sha256Hex(string input)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        return Convert.ToHexStringLower(hash);
     }
 
     // ─── HTTP Internals ───────────────────────────────────────────────────────

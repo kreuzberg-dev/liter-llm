@@ -42,6 +42,16 @@ impl<C> LlmService<C> {
         }
     }
 
+    /// Wrap a client that is already behind an `Arc`.
+    ///
+    /// This avoids a redundant `Arc` layer when the caller (e.g.
+    /// [`ManagedClient`](crate::client::managed::ManagedClient)) already
+    /// owns an `Arc<C>`.
+    #[must_use]
+    pub fn new_from_arc(client: Arc<C>) -> Self {
+        Self { inner: client }
+    }
+
     /// Return a reference to the inner client.
     pub fn inner(&self) -> &C {
         &self.inner

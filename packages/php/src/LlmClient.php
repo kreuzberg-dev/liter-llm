@@ -66,6 +66,22 @@ class LlmClient
     /** @var list<ProviderConfig> */
     private array $customProviders = [];
 
+    // ── Cache state ─────────────────────────────────────────────────────
+
+    /** @var array<string, array{response: string, time: float}> */
+    private array $cacheEntries = [];
+
+    /** @var list<string> Insertion-ordered keys for LRU eviction. */
+    private array $cacheOrder = [];
+
+    // ── Budget state ────────────────────────────────────────────────────
+
+    /** Cumulative spend across all models. */
+    private float $globalSpend = 0.0;
+
+    /** @var array<string, float> Per-model cumulative spend. */
+    private array $modelSpend = [];
+
     /**
      * Create a new LlmClient.
      *
@@ -87,6 +103,8 @@ class LlmClient
         private readonly ?BudgetConfig $budgetConfig = null,
     ) {
     }
+
+    // ── Hook & provider registration ────────────────────────────────────
 
     /**
      * Register a lifecycle hook.
@@ -112,6 +130,8 @@ class LlmClient
     {
         $this->customProviders[] = $config;
     }
+
+    // ── Accessors ───────────────────────────────────────────────────────
 
     /**
      * Returns the registered hooks.
@@ -150,6 +170,26 @@ class LlmClient
     }
 
     /**
+     * Returns the current global spend tracked by the budget system.
+     */
+    public function getGlobalSpend(): float
+    {
+        return $this->globalSpend;
+    }
+
+    /**
+     * Returns per-model spend tracked by the budget system.
+     *
+     * @return array<string, float>
+     */
+    public function getModelSpend(): array
+    {
+        return $this->modelSpend;
+    }
+
+    // ── Public API ──────────────────────────────────────────────────────
+
+    /**
      * Send a chat completion request.
      *
      * @param string $requestJson JSON-encoded {@see ChatCompletionRequest} object.
@@ -158,13 +198,35 @@ class LlmClient
      *
      * @throws \RuntimeException When the request is malformed, the network fails,
      *                           or the API returns an error.
+     * @throws BudgetExceededException When the cost budget is exceeded (strict mode).
+     * @throws HookRejectedException When a hook rejects the request.
      *
      * @phpstan-param string $requestJson
      * @phpstan-return string
      */
     public function chat(string $requestJson): string
     {
-        throw new \RuntimeException('Native extension not loaded');
+        $model = $this->extractModel($requestJson);
+        $this->runOnRequest($requestJson);
+        $this->checkBudget($model);
+
+        $cached = $this->checkCache($requestJson);
+        if ($cached !== null) {
+            $this->runOnResponse($requestJson, $cached);
+            return $cached;
+        }
+
+        try {
+            $response = $this->nativeChat($requestJson);
+        } catch (\Throwable $e) {
+            $this->runOnError($requestJson, $e);
+            throw $e;
+        }
+
+        $this->storeCache($requestJson, $response);
+        $this->recordCost($model, $response);
+        $this->runOnResponse($requestJson, $response);
+        return $response;
     }
 
     /**
@@ -183,13 +245,28 @@ class LlmClient
      * @return string JSON-encoded `list<ChatCompletionChunk>`.
      *
      * @throws \RuntimeException On network or API errors.
+     * @throws BudgetExceededException When the cost budget is exceeded (strict mode).
+     * @throws HookRejectedException When a hook rejects the request.
      *
      * @phpstan-param string $requestJson
      * @phpstan-return string
      */
     public function chatStream(string $requestJson): string
     {
-        throw new \RuntimeException('Native extension not loaded');
+        $model = $this->extractModel($requestJson);
+        $this->runOnRequest($requestJson);
+        $this->checkBudget($model);
+
+        try {
+            $response = $this->nativeChatStream($requestJson);
+        } catch (\Throwable $e) {
+            $this->runOnError($requestJson, $e);
+            throw $e;
+        }
+
+        $this->recordCost($model, $response);
+        $this->runOnResponse($requestJson, $response);
+        return $response;
     }
 
     /**
@@ -200,13 +277,35 @@ class LlmClient
      * @return string JSON-encoded {@see EmbeddingResponse}.
      *
      * @throws \RuntimeException On network or API errors.
+     * @throws BudgetExceededException When the cost budget is exceeded (strict mode).
+     * @throws HookRejectedException When a hook rejects the request.
      *
      * @phpstan-param string $requestJson
      * @phpstan-return string
      */
     public function embed(string $requestJson): string
     {
-        throw new \RuntimeException('Native extension not loaded');
+        $model = $this->extractModel($requestJson);
+        $this->runOnRequest($requestJson);
+        $this->checkBudget($model);
+
+        $cached = $this->checkCache($requestJson);
+        if ($cached !== null) {
+            $this->runOnResponse($requestJson, $cached);
+            return $cached;
+        }
+
+        try {
+            $response = $this->nativeEmbed($requestJson);
+        } catch (\Throwable $e) {
+            $this->runOnError($requestJson, $e);
+            throw $e;
+        }
+
+        $this->storeCache($requestJson, $response);
+        $this->recordCost($model, $response);
+        $this->runOnResponse($requestJson, $response);
+        return $response;
     }
 
     /**
@@ -215,10 +314,288 @@ class LlmClient
      * @return string JSON-encoded {@see ModelsListResponse}.
      *
      * @throws \RuntimeException On network or API errors.
+     * @throws HookRejectedException When a hook rejects the request.
      *
      * @phpstan-return string
      */
     public function listModels(): string
+    {
+        $this->runOnRequest('{"action":"list_models"}');
+
+        try {
+            $response = $this->nativeListModels();
+        } catch (\Throwable $e) {
+            $this->runOnError('{"action":"list_models"}', $e);
+            throw $e;
+        }
+
+        $this->runOnResponse('{"action":"list_models"}', $response);
+        return $response;
+    }
+
+    // ── Cache implementation ────────────────────────────────────────────
+
+    /**
+     * Look up a cached response for the given request JSON.
+     *
+     * Returns the cached response string if found and not expired, or null.
+     */
+    private function checkCache(string $requestJson): ?string
+    {
+        if ($this->cacheConfig === null) {
+            return null;
+        }
+
+        $key = $this->cacheKey($requestJson);
+        if (!isset($this->cacheEntries[$key])) {
+            return null;
+        }
+
+        $entry = $this->cacheEntries[$key];
+        $elapsed = microtime(true) - $entry['time'];
+
+        if ($elapsed > $this->cacheConfig->ttlSeconds) {
+            unset($this->cacheEntries[$key]);
+            $this->cacheOrder = array_values(array_filter(
+                $this->cacheOrder,
+                static fn (string $k): bool => $k !== $key,
+            ));
+            return null;
+        }
+
+        return $entry['response'];
+    }
+
+    /**
+     * Store a response in the cache, evicting the oldest entry if necessary.
+     */
+    private function storeCache(string $requestJson, string $response): void
+    {
+        if ($this->cacheConfig === null) {
+            return;
+        }
+
+        $key = $this->cacheKey($requestJson);
+
+        // Evict oldest if at capacity
+        while (count($this->cacheEntries) >= $this->cacheConfig->maxEntries) {
+            $oldest = array_shift($this->cacheOrder);
+            if ($oldest !== null) {
+                unset($this->cacheEntries[$oldest]);
+            }
+        }
+
+        $this->cacheEntries[$key] = [
+            'response' => $response,
+            'time' => microtime(true),
+        ];
+        $this->cacheOrder[] = $key;
+    }
+
+    /**
+     * Compute a cache key from the request JSON string.
+     */
+    private function cacheKey(string $requestJson): string
+    {
+        return hash('sha256', $requestJson);
+    }
+
+    // ── Budget implementation ───────────────────────────────────────────
+
+    /**
+     * Check whether the next request for the given model is within budget.
+     *
+     * @throws BudgetExceededException In strict mode when the budget is exceeded.
+     */
+    private function checkBudget(?string $model): void
+    {
+        if ($this->budgetConfig === null) {
+            return;
+        }
+
+        $globalLimit = $this->budgetConfig->globalLimit;
+        if ($globalLimit !== null && $this->globalSpend >= $globalLimit) {
+            $msg = sprintf(
+                'global budget exceeded: $%.4f >= $%.4f',
+                $this->globalSpend,
+                $globalLimit,
+            );
+            $this->handleBudgetExceeded($msg);
+        }
+
+        if ($model !== null) {
+            $modelLimits = $this->budgetConfig->modelLimits;
+            if (isset($modelLimits[$model])) {
+                $limit = $modelLimits[$model];
+                $spent = $this->modelSpend[$model] ?? 0.0;
+                if ($spent >= $limit) {
+                    $msg = sprintf(
+                        "model '%s' budget exceeded: \$%.4f >= \$%.4f",
+                        $model,
+                        $spent,
+                        $limit,
+                    );
+                    $this->handleBudgetExceeded($msg);
+                }
+            }
+        }
+    }
+
+    /**
+     * Record usage-based cost from a response.
+     *
+     * Uses total_tokens as a rough cost proxy ($0.001 per 1K tokens).
+     */
+    private function recordCost(?string $model, string $responseJson): void
+    {
+        if ($this->budgetConfig === null) {
+            return;
+        }
+
+        $decoded = json_decode($responseJson, true);
+        if (!is_array($decoded)) {
+            return;
+        }
+
+        $totalTokens = $decoded['usage']['total_tokens'] ?? null;
+        if (!is_int($totalTokens)) {
+            return;
+        }
+
+        // Approximate cost: $0.001 per 1K tokens
+        $cost = ($totalTokens / 1000.0) * 0.001;
+
+        $this->globalSpend += $cost;
+        if ($model !== null) {
+            $this->modelSpend[$model] = ($this->modelSpend[$model] ?? 0.0) + $cost;
+        }
+    }
+
+    /**
+     * Handle a budget exceeded condition based on enforcement mode.
+     *
+     * @throws BudgetExceededException In strict mode.
+     */
+    private function handleBudgetExceeded(string $message): void
+    {
+        if ($this->budgetConfig !== null && $this->budgetConfig->enforcement === 'warn') {
+            // In warn mode, log via error_log but do not throw.
+            error_log('liter-llm: ' . $message);
+            return;
+        }
+
+        throw new BudgetExceededException($message);
+    }
+
+    // ── Hook invocation ─────────────────────────────────────────────────
+
+    /**
+     * Invoke all registered hooks' onRequest callback.
+     *
+     * @param mixed $request The request data about to be sent.
+     *
+     * @throws HookRejectedException If a hook rejects the request.
+     */
+    private function runOnRequest(mixed $request): void
+    {
+        foreach ($this->hooks as $hook) {
+            $hook->onRequest($request);
+        }
+    }
+
+    /**
+     * Invoke all registered hooks' onResponse callback.
+     *
+     * @param mixed $request  The original request.
+     * @param mixed $response The response received from the provider.
+     */
+    private function runOnResponse(mixed $request, mixed $response): void
+    {
+        foreach ($this->hooks as $hook) {
+            try {
+                $hook->onResponse($request, $response);
+            } catch (\Throwable) {
+                // Advisory hooks must not break the response flow.
+            }
+        }
+    }
+
+    /**
+     * Invoke all registered hooks' onError callback.
+     *
+     * @param mixed      $request The original request.
+     * @param \Throwable $error   The exception that caused the failure.
+     */
+    private function runOnError(mixed $request, \Throwable $error): void
+    {
+        foreach ($this->hooks as $hook) {
+            try {
+                $hook->onError($request, $error);
+            } catch (\Throwable) {
+                // Advisory hooks must not mask the original error.
+            }
+        }
+    }
+
+    // ── Helpers ─────────────────────────────────────────────────────────
+
+    /**
+     * Extract the model name from a JSON-encoded request, or null if absent.
+     */
+    private function extractModel(string $requestJson): ?string
+    {
+        $decoded = json_decode($requestJson, true);
+        if (is_array($decoded) && isset($decoded['model']) && is_string($decoded['model'])) {
+            return $decoded['model'];
+        }
+        return null;
+    }
+
+    // ── Native extension stubs ──────────────────────────────────────────
+    //
+    // These methods are overridden by the Rust native extension at load
+    // time.  The PHP stubs exist so that static analysis, IDE autocompletion,
+    // and unit tests work even without the compiled extension.
+
+    /**
+     * Native chat completion call (overridden by extension).
+     *
+     * @phpstan-param string $requestJson
+     * @phpstan-return string
+     */
+    protected function nativeChat(string $requestJson): string
+    {
+        throw new \RuntimeException('Native extension not loaded');
+    }
+
+    /**
+     * Native streaming chat completion call (overridden by extension).
+     *
+     * @phpstan-param string $requestJson
+     * @phpstan-return string
+     */
+    protected function nativeChatStream(string $requestJson): string
+    {
+        throw new \RuntimeException('Native extension not loaded');
+    }
+
+    /**
+     * Native embedding call (overridden by extension).
+     *
+     * @phpstan-param string $requestJson
+     * @phpstan-return string
+     */
+    protected function nativeEmbed(string $requestJson): string
+    {
+        throw new \RuntimeException('Native extension not loaded');
+    }
+
+    /**
+     * Native list models call (overridden by extension).
+     *
+     * @phpstan-return string
+     */
+    protected function nativeListModels(): string
     {
         throw new \RuntimeException('Native extension not loaded');
     }

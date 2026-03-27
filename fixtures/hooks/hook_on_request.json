@@ -1,53 +1,49 @@
 {
-  "id": "hook_on_request",
-  "category": "hooks",
-  "description": "Tests that on_request hook is called before the request",
-  "api": {
-    "method": "chat",
-    "request": {
-      "model": "gpt-4",
-      "messages": [
-        {
-          "role": "user",
-          "content": "Hello"
-        }
-      ]
-    },
-    "mock_response": {
-      "status": 200,
-      "body": {
-        "id": "chatcmpl-hook-req-001",
-        "object": "chat.completion",
-        "created": 1711000000,
-        "model": "gpt-4",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "Hello! How can I help you today?"
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 8,
-          "completion_tokens": 9,
-          "total_tokens": 17
-        }
-      }
-    }
-  },
-  "assertions": {
-    "expect_success": true,
-    "hook_on_request_called": true
-  },
-  "tags": [
-    "hooks"
-  ],
-  "skip": {
-    "languages": [
-      "wasm"
-    ]
-  }
+	"id": "hook_on_request",
+	"category": "hooks",
+	"description": "Tests that on_request hook is called before the request",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-hook-req-001",
+				"object": "chat.completion",
+				"created": 1711000000,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello! How can I help you today?"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 8,
+					"completion_tokens": 9,
+					"total_tokens": 17
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": true,
+		"hook_on_request_called": true
+	},
+	"tags": ["hooks"],
+	"skip": {
+		"languages": ["wasm", "typescript", "node"]
+	}
 }

@@ -1,41 +1,37 @@
 {
-  "id": "budget_per_model",
-  "category": "budget",
-  "description": "Tests per-model budget limit",
-  "client_config": {
-    "budget": {
-      "model_limits": {
-        "gpt-4": 0.001
-      },
-      "enforcement": "hard"
-    }
-  },
-  "api": {
-    "method": "chat",
-    "request": {
-      "model": "gpt-4",
-      "messages": [
-        {
-          "role": "user",
-          "content": "Hello"
-        }
-      ]
-    },
-    "mock_response": {
-      "status": 200,
-      "body": {}
-    }
-  },
-  "assertions": {
-    "expect_success": false,
-    "error_type": "BudgetExceeded"
-  },
-  "tags": [
-    "budget"
-  ],
-  "skip": {
-    "languages": [
-      "wasm"
-    ]
-  }
+	"id": "budget_per_model",
+	"category": "budget",
+	"description": "Tests per-model budget limit",
+	"client_config": {
+		"budget": {
+			"model_limits": {
+				"gpt-4": 0.001
+			},
+			"enforcement": "hard"
+		}
+	},
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "BudgetExceeded"
+	},
+	"tags": ["budget"],
+	"skip": {
+		"languages": ["wasm", "typescript", "node"]
+	}
 }

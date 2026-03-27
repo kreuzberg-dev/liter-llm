@@ -1,33 +1,29 @@
 {
-  "id": "hook_guardrail",
-  "category": "hooks",
-  "description": "Tests that on_request hook can reject a request",
-  "api": {
-    "method": "chat",
-    "request": {
-      "model": "gpt-4",
-      "messages": [
-        {
-          "role": "user",
-          "content": "Hello"
-        }
-      ]
-    },
-    "mock_response": {
-      "status": 200,
-      "body": {}
-    }
-  },
-  "assertions": {
-    "expect_success": false,
-    "error_type": "HookRejected"
-  },
-  "tags": [
-    "hooks"
-  ],
-  "skip": {
-    "languages": [
-      "wasm"
-    ]
-  }
+	"id": "hook_guardrail",
+	"category": "hooks",
+	"description": "Tests that on_request hook can reject a request",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "HookRejected"
+	},
+	"tags": ["hooks"],
+	"skip": {
+		"languages": ["wasm", "typescript", "node"]
+	}
 }

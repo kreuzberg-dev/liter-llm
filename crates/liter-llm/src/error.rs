@@ -81,6 +81,13 @@ pub enum LiterLlmError {
 
     #[error("hook rejected: {message}")]
     HookRejected { message: String },
+
+    /// An internal logic error (e.g. unexpected Tower response variant).
+    ///
+    /// This should never surface in normal operation — if it does, it
+    /// indicates a bug in the library.
+    #[error("internal error: {message}")]
+    InternalError { message: String },
 }
 
 impl LiterLlmError {
@@ -126,6 +133,7 @@ impl LiterLlmError {
             Self::Serialization(_) => "Serialization",
             Self::BudgetExceeded { .. } => "BudgetExceeded",
             Self::HookRejected { .. } => "HookRejected",
+            Self::InternalError { .. } => "InternalError",
         }
     }
 

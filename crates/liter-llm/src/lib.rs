@@ -24,6 +24,9 @@ pub use client::{
 // DefaultClient requires the native HTTP stack (reqwest + tokio).
 #[cfg(feature = "native-http")]
 pub use client::DefaultClient;
+// ManagedClient requires both the native HTTP stack and Tower middleware.
+#[cfg(all(feature = "native-http", feature = "tower"))]
+pub use client::managed::ManagedClient;
 pub use error::{LiterLlmError, Result};
 // Re-export the public provider helper functions that are part of the crate's
 // public API even though the `provider` module itself is pub(crate).
