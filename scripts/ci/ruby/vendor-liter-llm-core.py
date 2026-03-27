@@ -236,6 +236,10 @@ def main() -> None:
         crate_path = vendor_base / name
         if crate_path.exists():
             shutil.rmtree(crate_path)
+    # Clean vendored schemas directory (will be re-copied)
+    vendor_schemas = vendor_base / "schemas"
+    if vendor_schemas.exists():
+        shutil.rmtree(vendor_schemas)
     # Also clean the vendor Cargo.toml (will be regenerated)
     vendor_cargo = vendor_base / "Cargo.toml"
     if vendor_cargo.exists():
@@ -279,6 +283,17 @@ def main() -> None:
                     f.unlink()
 
     print("Cleaned build artifacts")
+
+    # Copy schemas/ directory into vendor tree so that include_str! paths resolve correctly.
+    # Rust source uses paths like include_str!("../../../schemas/pricing.json") from
+    # crates/liter-llm/src/cost.rs, which resolve to vendor/schemas/ when vendored.
+    schemas_src: Path = repo_root / "schemas"
+    schemas_dest: Path = vendor_base / "schemas"
+    if schemas_src.exists():
+        shutil.copytree(schemas_src, schemas_dest)
+        print("Copied schemas/ directory into vendor tree")
+    else:
+        print("Warning: schemas/ directory not found at repo root", file=sys.stderr)
 
     # Update workspace inheritance in Cargo.toml files
     for crate_dir in copied_crates:

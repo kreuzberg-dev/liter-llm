@@ -470,7 +470,7 @@ jobs:
         run: napi build --release --platform --target ${{ matrix.napi_target }}
         working-directory: crates/liter-llm-node
         shell: bash
-      - uses: actions/upload-artifact@v8
+      - uses: actions/upload-artifact@v7
         with:
           name: node-native-${{ matrix.label }}
           path: crates/liter-llm-node/*.node
@@ -522,7 +522,7 @@ jobs:
       - name: Pack WASM tarball
         run: cd crates/liter-llm-wasm && mkdir -p dist && npm pack pkg/ --pack-destination dist/
         shell: bash
-      - uses: actions/upload-artifact@v8
+      - uses: actions/upload-artifact@v7
         with:
           name: wasm-pkg
           path: crates/liter-llm-wasm/dist/*.tgz
@@ -657,7 +657,8 @@ jobs:
           LIB_SRC="target/${TARGET}/release/libliter_llm_rustler.${LIB_EXT}"
           mkdir -p nif-tarballs
           for NIF_VER in 2.16 2.17; do
-            TARBALL="nif-tarballs/liter_llm_rustler-v${VERSION}-nif-${NIF_VER}-${TARGET}.tar.gz"
+            # RustlerPrecompiled expects: lib{crate}-v{version}-nif-{nif_ver}-{target}.so.tar.gz
+            TARBALL="nif-tarballs/libliter_llm_rustler-v${VERSION}-nif-${NIF_VER}-${TARGET}.so.tar.gz"
             # Rustler loads the NIF as liter_llm_rustler.so on all platforms
             cp "$LIB_SRC" "liter_llm_rustler.so"
             tar -czf "$TARBALL" "liter_llm_rustler.so"
@@ -1096,7 +1097,7 @@ jobs:
           package_json_file: package.json
 
       - name: Download Node artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           pattern: node-native-*
           path: crates/liter-llm-node/artifacts
@@ -1226,7 +1227,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Download WASM artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           name: wasm-pkg
           path: dist
