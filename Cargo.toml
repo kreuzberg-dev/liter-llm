@@ -6,6 +6,7 @@ members = [
     "crates/liter-llm-php",
     "crates/liter-llm-py",
     "crates/liter-llm-wasm",
+    "packages/elixir/native/liter_llm_rustler",
     "tools/e2e-generator",
     "tools/snippet-runner",
 ]

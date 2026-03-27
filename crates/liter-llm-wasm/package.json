@@ -1,0 +1,40 @@
+{
+	"name": "@kreuzberg/liter-llm-wasm",
+	"version": "1.0.0-rc.1",
+	"description": "WebAssembly bindings for liter-llm — high-performance LLM client powered by Rust",
+	"type": "module",
+	"main": "pkg/liter_llm_wasm.js",
+	"types": "pkg/liter_llm_wasm.d.ts",
+	"files": [
+		"pkg/"
+	],
+	"keywords": [
+		"wasm",
+		"webassembly",
+		"llm",
+		"api-client",
+		"rust"
+	],
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kreuzberg-dev/liter-llm.git"
+	},
+	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
+	"bugs": {
+		"url": "https://github.com/kreuzberg-dev/liter-llm/issues"
+	},
+	"author": {
+		"name": "Na'aman Hirschfeld",
+		"email": "naaman@kreuzberg.dev",
+		"url": "https://github.com/kreuzberg-dev/liter-llm"
+	},
+	"scripts": {
+		"build": "wasm-pack build --target web --release",
+		"build:nodejs": "wasm-pack build --target nodejs --release"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	}
+}

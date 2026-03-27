@@ -1,0 +1,100 @@
+name: CI Node
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/typescript/**
+      - crates/liter-llm-node/**
+      - crates/liter-llm/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-node.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/typescript/**
+      - crates/liter-llm-node/**
+      - crates/liter-llm/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-node.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-node-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-bindings:
+    name: Test ${{ matrix.runtime }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        runtime: [node, bun]
+        exclude:
+          - os: windows-latest
+            runtime: bun
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Setup Node Workspace
+        if: matrix.runtime == 'node'
+        uses: kreuzberg-dev/actions/setup-node-workspace@v1
+
+      - name: Setup Bun
+        if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build NAPI-RS Bindings (Node.js)
+        if: matrix.runtime == 'node'
+        uses: kreuzberg-dev/actions/build-node-napi@v1
+        with:
+          crate-dir: crates/liter-llm-node
+
+      - name: Install Workspace Dependencies (Bun)
+        if: matrix.runtime == 'bun'
+        run: bun install
+        shell: bash
+
+      - name: Build NAPI-RS Bindings (Bun)
+        if: matrix.runtime == 'bun'
+        working-directory: crates/liter-llm-node
+        run: bun run build
+        shell: bash
+
+      - name: Test NAPI-RS Module (Node.js)
+        if: matrix.runtime == 'node'
+        run: task node:test
+        shell: bash
+
+      - name: Run E2E Tests (Node.js)
+        if: matrix.runtime == 'node'
+        run: task node:e2e:test
+        shell: bash

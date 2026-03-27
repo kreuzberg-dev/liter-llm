@@ -1,0 +1,87 @@
+name: CI Elixir
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/elixir/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-elixir.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/elixir/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-elixir.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-elixir-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  elixir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.17"
+          otp-version: "27"
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Install Hex and Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+        shell: bash
+
+      - name: Install Elixir Dependencies
+        run: task elixir:deps
+        shell: bash
+
+      - name: Compile Elixir + Rustler NIF
+        env:
+          PROJECT_ROOT: ${{ github.workspace }}
+          LITER_LLM_BUILD: "1"
+        run: task elixir:build
+        shell: bash
+
+      - name: Run Elixir Tests
+        env:
+          MIX_ENV: test
+          PROJECT_ROOT: ${{ github.workspace }}
+          LITER_LLM_BUILD: "1"
+        run: task elixir:test
+        shell: bash
+
+      - name: Check Elixir Formatting
+        run: task elixir:format:check
+        shell: bash
+
+      - name: Run Credo Lint
+        env:
+          PROJECT_ROOT: ${{ github.workspace }}
+        run: task elixir:lint:check
+        shell: bash

@@ -12,6 +12,7 @@ tasks:
     dir: packages/elixir
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      LITER_LLM_BUILD: "1"
     cmds:
       - mix compile
 
@@ -21,6 +22,7 @@ tasks:
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
       MIX_ENV: test
+      LITER_LLM_BUILD: "1"
     cmds:
       - mix test
 

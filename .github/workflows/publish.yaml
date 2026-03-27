@@ -1,0 +1,1219 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to publish (e.g. v1.0.0-rc.1)"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run — build everything but skip registry publishes"
+        required: false
+        default: "false"
+        type: boolean
+      force_republish:
+        description: "Force publish even if the version already exists in registries"
+        required: false
+        default: "false"
+        type: boolean
+      targets:
+        description: "Comma-separated targets to publish (empty = all). Values: crates python node wasm ruby go java elixir csharp php"
+        required: false
+        default: ""
+        type: string
+  release:
+    types: [published]
+
+concurrency:
+  group: publish-${{ github.workflow }}-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # upload release assets, create tags
+  id-token: write   # OIDC for crates.io and PyPI
+  packages: write   # GitHub Packages (npm)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 1 — Prepare
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tag:              ${{ steps.info.outputs.tag }}
+      version:          ${{ steps.info.outputs.version }}
+      npm_tag:          ${{ steps.info.outputs.npm_tag }}
+      dry_run:          ${{ steps.info.outputs.dry_run }}
+      force_republish:  ${{ steps.info.outputs.force_republish }}
+      release_crates:   ${{ steps.targets.outputs.crates }}
+      release_python:   ${{ steps.targets.outputs.python }}
+      release_node:     ${{ steps.targets.outputs.node }}
+      release_wasm:     ${{ steps.targets.outputs.wasm }}
+      release_ruby:     ${{ steps.targets.outputs.ruby }}
+      release_go:       ${{ steps.targets.outputs.go }}
+      release_java:     ${{ steps.targets.outputs.java }}
+      release_elixir:   ${{ steps.targets.outputs.elixir }}
+      release_csharp:   ${{ steps.targets.outputs.csharp }}
+      release_php:      ${{ steps.targets.outputs.php }}
+    steps:
+      - name: Extract tag and version
+        id: info
+        run: |
+          TAG="${{ github.event_name == 'release' && github.ref_name || inputs.tag }}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          # Determine npm dist-tag: pre-releases → next, stable → latest
+          if echo "$VERSION" | grep -qE '(alpha|beta|rc)'; then
+            echo "npm_tag=next" >> "$GITHUB_OUTPUT"
+          else
+            echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Passthrough flags
+          DRY_RUN="${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}"
+          FORCE="${{ github.event_name == 'workflow_dispatch' && inputs.force_republish || 'false' }}"
+          echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "force_republish=$FORCE" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Resolve target list
+        id: targets
+        run: |
+          REQUESTED="${{ inputs.targets }}"
+          ALL="crates python node wasm ruby go java elixir csharp php"
+          emit() {
+            local name="$1"
+            if [ -z "$REQUESTED" ] || echo ",$REQUESTED," | grep -q ",$name,"; then
+              echo "${name}=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "${name}=false" >> "$GITHUB_OUTPUT"
+            fi
+          }
+          for t in $ALL; do emit "$t"; done
+        shell: bash
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 2 — Validate version consistency
+  # ─────────────────────────────────────────────────────────────────────────
+  validate-versions:
+    name: Validate versions
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Check version consistency
+        env:
+          EXPECTED: ${{ needs.prepare.outputs.version }}
+        run: |
+          fail=0
+          check() {
+            local label="$1" actual="$2"
+            if [ "$actual" != "$EXPECTED" ]; then
+              echo "::error::$label: expected $EXPECTED, got $actual"
+              fail=1
+            else
+              echo "✓ $label: $actual"
+            fi
+          }
+          # Cargo workspace (reads [workspace.package] version)
+          check "Cargo.toml" "$(grep -m1 '^version = "' Cargo.toml | grep -oP '"\K[^"]+')"
+          # Python
+          check "pyproject.toml" "$(grep -m1 '^version' packages/python/pyproject.toml | grep -oP '"\K[^"]+')"
+          # Node
+          check "package.json (node)" "$(python3 -c "import json; print(json.load(open('packages/typescript/package.json'))['version'])")"
+          # Ruby gemspec (gem format "1.0.0.pre.rc.1" → semver "1.0.0-rc.1")
+          GEM_VER=$(grep 'spec.version' packages/ruby/liter_llm.gemspec | grep -oP '"\K[^"]+' | sed 's/\.pre\./-/')
+          check "liter_llm.gemspec" "$GEM_VER"
+          # Java
+          check "pom.xml" "$(grep -m1 '<version>' packages/java/pom.xml | grep -oP '>\K[^<]+')"
+          # Elixir
+          check "mix.exs" "$(grep '@version' packages/elixir/mix.exs | grep -oP '"\K[^"]+')"
+          # C#
+          check "LiterLlm.csproj" "$(grep '<Version>' packages/csharp/LiterLlm/LiterLlm.csproj | grep -oP '>\K[^<]+')"
+          # PHP
+          check "composer.json" "$(python3 -c "import json; print(json.load(open('composer.json')).get('version',''))")"
+          exit $fail
+        shell: bash
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 3 — Idempotency checks (all parallel)
+  # ─────────────────────────────────────────────────────────────────────────
+  check-cratesio:
+    name: Check crates.io
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_crates == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: cratesio
+          package: liter-llm
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-pypi:
+    name: Check PyPI
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_python == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: pypi
+          package: liter-llm
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-npm:
+    name: Check npm (@kreuzberg/liter-llm)
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_node == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: npm
+          package: "@kreuzberg/liter-llm"
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-npm-wasm:
+    name: Check npm (@kreuzberg/liter-llm-wasm)
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_wasm == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: npm
+          package: "@kreuzberg/liter-llm-wasm"
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-rubygems:
+    name: Check RubyGems
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_ruby == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: rubygems
+          package: liter_llm
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-maven:
+    name: Check Maven Central
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_java == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: maven
+          package: "dev.kreuzberg:liter-llm"
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-hex:
+    name: Check Hex.pm
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_elixir == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: hex
+          package: liter_llm
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-packagist:
+    name: Check Packagist
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_php == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: packagist
+          package: kreuzberg/liter-llm
+          version: ${{ needs.prepare.outputs.version }}
+
+  check-nuget:
+    name: Check NuGet
+    needs: [prepare, validate-versions]
+    if: needs.prepare.outputs.release_csharp == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - uses: kreuzberg-dev/actions/check-registry@v1
+        id: check
+        with:
+          registry: nuget
+          package: LiterLlm
+          version: ${{ needs.prepare.outputs.version }}
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 4 — Build jobs
+  # ─────────────────────────────────────────────────────────────────────────
+
+  # ── Python wheels ──────────────────────────────────────────────────────────
+  build-python-wheels:
+    name: Build Python wheels (${{ matrix.label }})
+    needs: [prepare, check-pypi]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_python == 'true' &&
+      (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-x86_64
+            runner: ubuntu-latest
+          - label: linux-aarch64
+            runner: ubuntu-24.04-arm
+          - label: macos-arm64
+            runner: macos-latest
+          - label: windows-x86_64
+            runner: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/build-python-wheels@v1
+        with:
+          package-dir: packages/python
+          cibw-build: "cp310-* cp311-* cp312-* cp313-*"
+          artifact-name: python-wheel-${{ matrix.label }}
+
+  build-python-sdist:
+    name: Build Python sdist
+    needs: [prepare, check-pypi]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_python == 'true' &&
+      (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/setup-rust@v1
+      - run: pip install maturin
+        shell: bash
+      - name: Build sdist
+        run: maturin sdist --manifest-path crates/liter-llm-py/Cargo.toml --out dist
+        working-directory: packages/python
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-sdist
+          path: packages/python/dist/*.tar.gz
+          retention-days: 14
+
+  # ── Node.js NAPI native ────────────────────────────────────────────────────
+  build-node-native:
+    name: Build Node native (${{ matrix.label }})
+    needs: [prepare, check-npm]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_node == 'true' &&
+      (needs.check-npm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-x64-gnu
+            runner: ubuntu-latest
+            napi_target: x86_64-unknown-linux-gnu
+          - label: linux-arm64-gnu
+            runner: ubuntu-24.04-arm
+            napi_target: aarch64-unknown-linux-gnu
+          - label: darwin-arm64
+            runner: macos-latest
+            napi_target: aarch64-apple-darwin
+          - label: win32-x64-msvc
+            runner: windows-latest
+            napi_target: x86_64-pc-windows-msvc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          target: ${{ matrix.napi_target }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install -g @napi-rs/cli
+        shell: bash
+      - name: Build NAPI binding
+        run: napi build --release --platform --target ${{ matrix.napi_target }}
+        working-directory: crates/liter-llm-node
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-native-${{ matrix.label }}
+          path: crates/liter-llm-node/*.node
+          retention-days: 14
+
+  # ── WebAssembly ────────────────────────────────────────────────────────────
+  build-wasm:
+    name: Build WASM
+    needs: [prepare, check-npm-wasm]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_wasm == 'true' &&
+      (needs.check-npm-wasm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          target: wasm32-unknown-unknown
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        shell: bash
+      - name: Build WASM package
+        env:
+          CARGO_PROFILE_RELEASE_LTO: "false"
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: "16"
+        run: wasm-pack build --target web --release
+        working-directory: crates/liter-llm-wasm
+        shell: bash
+      - name: Patch pkg/package.json
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          path = "crates/liter-llm-wasm/pkg/package.json"
+          with open(path) as f:
+            pkg = json.load(f)
+          pkg["name"] = "@kreuzberg/liter-llm-wasm"
+          pkg["version"] = os.environ["VERSION"]
+          pkg["publishConfig"] = {"registry": "https://registry.npmjs.org/", "access": "public"}
+          with open(path, "w") as f:
+            json.dump(pkg, f, indent=2)
+          EOF
+        shell: bash
+      - name: Pack WASM tarball
+        run: cd crates/liter-llm-wasm && npm pack pkg/ --pack-destination dist/
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasm-pkg
+          path: crates/liter-llm-wasm/dist/*.tgz
+          retention-days: 14
+
+  # ── Ruby gems ──────────────────────────────────────────────────────────────
+  build-ruby-gem:
+    name: Build Ruby gem (${{ matrix.label }})
+    needs: [prepare, check-rubygems]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_ruby == 'true' &&
+      (needs.check-rubygems.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-x86_64
+            runner: ubuntu-latest
+          - label: linux-aarch64
+            runner: ubuntu-24.04-arm
+          - label: macos-arm64
+            runner: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/build-ruby-gem@v1
+        with:
+          package-dir: packages/ruby
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rubygems-${{ matrix.label }}
+          path: packages/ruby/*.gem
+          retention-days: 14
+          compression-level: 0
+
+  # ── Elixir NIFs ────────────────────────────────────────────────────────────
+  build-elixir-nifs:
+    name: Build Elixir NIFs (${{ matrix.label }})
+    needs: [prepare, check-hex]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_elixir == 'true' &&
+      (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-x86_64
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            lib_ext: so
+          - label: linux-aarch64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            lib_ext: so
+          - label: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            lib_ext: dylib
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          target: ${{ matrix.target }}
+      - name: Build Rustler NIF
+        run: >
+          cargo build --release
+          --target ${{ matrix.target }}
+          --manifest-path packages/elixir/native/liter_llm_rustler/Cargo.toml
+        shell: bash
+      - name: Create NIF tarballs (nif-2.16 and nif-2.17)
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+          TARGET: ${{ matrix.target }}
+          LIB_EXT: ${{ matrix.lib_ext }}
+        run: |
+          LIB_SRC="target/${TARGET}/release/libliter_llm_rustler.${LIB_EXT}"
+          mkdir -p nif-tarballs
+          for NIF_VER in 2.16 2.17; do
+            TARBALL="nif-tarballs/liter_llm_rustler-v${VERSION}-nif-${NIF_VER}-${TARGET}.tar.gz"
+            # Rustler loads the NIF as liter_llm_rustler.so on all platforms
+            cp "$LIB_SRC" "liter_llm_rustler.so"
+            tar -czf "$TARBALL" "liter_llm_rustler.so"
+            rm "liter_llm_rustler.so"
+            echo "Created: $TARBALL"
+          done
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: elixir-nifs-${{ matrix.label }}
+          path: nif-tarballs/*.tar.gz
+          retention-days: 14
+
+  # ── PHP extension ──────────────────────────────────────────────────────────
+  build-php:
+    name: Build PHP extension (${{ matrix.label }})
+    needs: [prepare, check-packagist]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_php == 'true' &&
+      (needs.check-packagist.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-x86_64
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            os: linux
+            arch: x86_64
+          - label: linux-aarch64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            os: linux
+            arch: aarch64
+          - label: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            os: macos
+            arch: arm64
+          - label: windows-x86_64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            os: windows
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          target: ${{ matrix.target }}
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+      - name: Build PHP extension
+        env:
+          # ext-php-rs on macOS requires dynamic_lookup to resolve PHP symbols at runtime
+          RUSTFLAGS: ${{ matrix.os == 'macos' && '-C link-arg=-undefined -C link-arg=dynamic_lookup' || '' }}
+        run: >
+          cargo build --release
+          --target ${{ matrix.target }}
+          --manifest-path crates/liter-llm-php/Cargo.toml
+        shell: bash
+      - name: Package PHP extension
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+          TARGET: ${{ matrix.target }}
+          OS: ${{ matrix.os }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          mkdir -p php-pkg
+          if [ "$OS" = "windows" ]; then
+            cp "target/${TARGET}/release/liter_llm_php.dll" php-pkg/
+          elif [ "$OS" = "macos" ]; then
+            # PHP loads extensions as .so on all platforms
+            cp "target/${TARGET}/release/libliter_llm_php.dylib" "php-pkg/liter_llm_php.so"
+          else
+            cp "target/${TARGET}/release/libliter_llm_php.so" "php-pkg/liter_llm_php.so"
+          fi
+          TARBALL="liter_llm_php-v${VERSION}-php82-nts-${OS}-${ARCH}.tar.gz"
+          tar -czf "$TARBALL" -C php-pkg .
+          echo "Created: $TARBALL"
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: php-ext-${{ matrix.label }}
+          path: liter_llm_php-*.tar.gz
+          retention-days: 14
+
+  # ── Rust FFI (shared for Go / Java / C# / C consumers) ────────────────────
+  build-ffi:
+    name: Build Rust FFI (${{ matrix.label }})
+    needs: prepare
+    if: |
+      needs.prepare.outputs.release_go == 'true' ||
+      needs.prepare.outputs.release_java == 'true' ||
+      needs.prepare.outputs.release_csharp == 'true'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-x86_64
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rid: linux-x64
+          - label: linux-aarch64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            rid: linux-arm64
+          - label: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            rid: osx-arm64
+          - label: windows-x86_64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            rid: win-x64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/build-rust-ffi@v1
+        id: ffi
+        with:
+          crate-name: liter-llm-ffi
+          target: ${{ matrix.target }}
+      - name: Stage FFI artifacts
+        env:
+          LIB_PATH: ${{ steps.ffi.outputs.library-path }}
+          RID: ${{ matrix.rid }}
+        run: |
+          mkdir -p "ffi-staging/${RID}"
+          cp "$LIB_PATH" "ffi-staging/${RID}/"
+          # Copy cbindgen-generated header if present
+          if [ -f crates/liter-llm-ffi/include/liter_llm_ffi.h ]; then
+            mkdir -p ffi-staging/include
+            cp crates/liter-llm-ffi/include/liter_llm_ffi.h ffi-staging/include/
+          fi
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffi-${{ matrix.label }}
+          path: ffi-staging/
+          retention-days: 14
+
+  # ── Java package assembly ──────────────────────────────────────────────────
+  build-java-package:
+    name: Build Java package
+    needs: [prepare, check-maven, build-ffi]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_java == 'true' &&
+      needs.build-ffi.result == 'success' &&
+      (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ffi-*
+          path: ffi-artifacts
+          merge-multiple: true
+      - name: Stage native libs for Java
+        run: |
+          for rid in linux-x64 linux-arm64 osx-arm64 win-x64; do
+            dest="packages/java/src/main/resources/natives/${rid}"
+            mkdir -p "$dest"
+            find "ffi-artifacts/${rid}" -type f -print0 | xargs -0 -I{} cp {} "$dest/"
+          done
+        shell: bash
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: temurin
+      - name: Build Maven package
+        run: mvn clean package -DskipTests -q
+        working-directory: packages/java
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: maven-packages
+          path: packages/java/target/*.jar
+          retention-days: 14
+
+  # ── C# NuGet assembly ──────────────────────────────────────────────────────
+  build-csharp-package:
+    name: Build C# NuGet package
+    needs: [prepare, check-nuget, build-ffi]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_csharp == 'true' &&
+      needs.build-ffi.result == 'success' &&
+      (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ffi-*
+          path: ffi-artifacts
+          merge-multiple: true
+      - name: Stage native libs for C#
+        run: |
+          for rid in linux-x64 linux-arm64 osx-arm64 win-x64; do
+            dest="packages/csharp/LiterLlm/runtimes/${rid}/native"
+            mkdir -p "$dest"
+            find "ffi-artifacts/${rid}" -type f -print0 | xargs -0 -I{} cp {} "$dest/"
+          done
+        shell: bash
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.x"
+      - name: Pack NuGet package
+        run: dotnet pack packages/csharp/LiterLlm/LiterLlm.csproj -c Release -o nuget-output
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: nuget-output/*.nupkg
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 5 — Upload release assets (Go FFI, C FFI, Elixir NIFs)
+  # ─────────────────────────────────────────────────────────────────────────
+  upload-go-ffi:
+    name: Upload Go FFI assets
+    needs: [prepare, build-ffi]
+    if: always() && needs.prepare.outputs.release_go == 'true' && needs.build-ffi.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ffi-*
+          path: ffi-artifacts
+          merge-multiple: true
+      - name: Create Go FFI tarballs
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          mkdir -p go-ffi-release
+          for rid in linux-x64 linux-arm64 osx-arm64 win-x64; do
+            TARBALL="go-ffi-release/liter-llm-ffi-v${VERSION}-${rid}.tar.gz"
+            tar -czf "$TARBALL" \
+              -C ffi-artifacts \
+              "${rid}" \
+              "$([ -d ffi-artifacts/include ] && echo "include" || true)"
+            echo "Created: $TARBALL"
+          done
+        shell: bash
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release upload "$TAG" go-ffi-release/*.tar.gz --clobber
+        shell: bash
+
+  upload-elixir-nifs:
+    name: Upload Elixir NIF assets
+    needs: [prepare, build-elixir-nifs]
+    if: always() && needs.prepare.outputs.release_elixir == 'true' && needs.build-elixir-nifs.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: elixir-nifs-*
+          path: elixir-nifs
+          merge-multiple: true
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release upload "$TAG" elixir-nifs/*.tar.gz --clobber
+        shell: bash
+
+  upload-php-extensions:
+    name: Upload PHP extension assets
+    needs: [prepare, build-php]
+    if: always() && needs.prepare.outputs.release_php == 'true' && needs.build-php.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: php-ext-*
+          path: php-ext-artifacts
+          merge-multiple: true
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release upload "$TAG" php-ext-artifacts/*.tar.gz --clobber
+        shell: bash
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 6 — Publish jobs (conditional on check + build results)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  publish-crates:
+    name: Publish crates.io
+    needs: [prepare, validate-versions, check-cratesio]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_crates == 'true' &&
+      needs.validate-versions.result == 'success' &&
+      (needs.check-cratesio.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: kreuzberg-dev/actions/setup-rust@v1
+      - uses: kreuzberg-dev/actions/publish-crates@v1
+        with:
+          crates: liter-llm liter-llm-ffi
+          version: ${{ needs.prepare.outputs.version }}
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+
+  publish-pypi:
+    name: Publish PyPI
+    needs: [prepare, validate-versions, check-pypi, build-python-wheels, build-python-sdist]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_python == 'true' &&
+      needs.build-python-wheels.result == 'success' &&
+      needs.build-python-sdist.result == 'success' &&
+      (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: pypi
+      url: https://pypi.org/p/liter-llm
+    steps:
+      - name: Re-check PyPI before publishing
+        uses: kreuzberg-dev/actions/check-registry@v1
+        id: recheck
+        with:
+          registry: pypi
+          package: liter-llm
+          version: ${{ needs.prepare.outputs.version }}
+      - name: Download all wheel + sdist artifacts
+        if: needs.prepare.outputs.dry_run != 'true' && (steps.recheck.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-*
+          path: dist
+          merge-multiple: true
+      - name: Publish to PyPI
+        if: needs.prepare.outputs.dry_run != 'true' && (steps.recheck.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
+  publish-node:
+    name: Publish npm (Node native + TypeScript)
+    needs: [prepare, validate-versions, check-npm, build-node-native]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_node == 'true' &&
+      needs.build-node-native.result == 'success' &&
+      (needs.check-npm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm install -g @napi-rs/cli pnpm
+        shell: bash
+      - name: Download all .node artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: node-native-*
+          path: crates/liter-llm-node/artifacts
+          merge-multiple: true
+      - name: Assemble NAPI platform packages
+        run: |
+          napi artifacts --dir artifacts --dist npm
+          napi prepublish -t npm --skip-optional-publish
+        working-directory: crates/liter-llm-node
+        shell: bash
+      - name: Re-check npm before publishing
+        uses: kreuzberg-dev/actions/check-registry@v1
+        id: recheck
+        with:
+          registry: npm
+          package: "@kreuzberg/liter-llm"
+          version: ${{ needs.prepare.outputs.version }}
+      - name: Publish platform packages
+        if: needs.prepare.outputs.dry_run != 'true' && (steps.recheck.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TAG: ${{ needs.prepare.outputs.npm_tag }}
+        run: |
+          for pkg_dir in crates/liter-llm-node/npm/*/; do
+            echo "Publishing $pkg_dir..."
+            npm publish "$pkg_dir" --tag "$NPM_TAG" --access public
+          done
+        shell: bash
+      - name: Publish @kreuzberg/liter-llm-native
+        if: needs.prepare.outputs.dry_run != 'true' && (steps.recheck.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TAG: ${{ needs.prepare.outputs.npm_tag }}
+        run: npm publish --tag "$NPM_TAG" --access public
+        working-directory: crates/liter-llm-node
+        shell: bash
+      - name: Wait for @kreuzberg/liter-llm-native to be available
+        if: needs.prepare.outputs.dry_run != 'true'
+        uses: kreuzberg-dev/actions/wait-for-package@v1
+        with:
+          registry: npm
+          package: "@kreuzberg/liter-llm-native"
+          version: ${{ needs.prepare.outputs.version }}
+      - name: Build and publish @kreuzberg/liter-llm (TypeScript)
+        if: needs.prepare.outputs.dry_run != 'true' && (steps.recheck.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TAG: ${{ needs.prepare.outputs.npm_tag }}
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @kreuzberg/liter-llm build
+          npm publish --tag "$NPM_TAG" --access public
+        working-directory: packages/typescript
+        shell: bash
+
+  publish-wasm:
+    name: Publish npm (WASM)
+    needs: [prepare, validate-versions, check-npm-wasm, build-wasm]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_wasm == 'true' &&
+      needs.build-wasm.result == 'success' &&
+      (needs.check-npm-wasm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: dist
+      - uses: kreuzberg-dev/actions/publish-npm@v1
+        with:
+          packages-dir: dist
+          npm-tag: ${{ needs.prepare.outputs.npm_tag }}
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-rubygems:
+    name: Publish RubyGems
+    needs: [prepare, validate-versions, check-rubygems, build-ruby-gem]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_ruby == 'true' &&
+      needs.build-ruby-gem.result == 'success' &&
+      (needs.check-rubygems.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: rubygems-*
+          path: gems
+          merge-multiple: true
+      - uses: kreuzberg-dev/actions/publish-rubygems@v1
+        with:
+          gems-dir: gems
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+
+  publish-maven:
+    name: Publish Maven Central
+    needs: [prepare, validate-versions, check-maven, build-java-package]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_java == 'true' &&
+      needs.build-java-package.result == 'success' &&
+      (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: maven-packages
+          path: packages/java/target
+      - uses: kreuzberg-dev/actions/publish-maven@v1
+        with:
+          pom-file: packages/java/pom.xml
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+  publish-hex:
+    name: Publish Hex.pm
+    needs: [prepare, validate-versions, check-hex, build-elixir-nifs, upload-elixir-nifs]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_elixir == 'true' &&
+      needs.upload-elixir-nifs.result == 'success' &&
+      (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.17"
+          otp-version: "27"
+      - name: Install Mix dependencies
+        run: mix local.hex --force && mix local.rebar --force && mix deps.get
+        working-directory: packages/elixir
+        shell: bash
+      - name: Generate NIF checksums from GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mix rustler_precompiled.download LiterLlm.Native --all --ignore-unavailable
+        working-directory: packages/elixir
+        shell: bash
+      - uses: kreuzberg-dev/actions/publish-hex@v1
+        with:
+          package-dir: packages/elixir
+          skip-docs: "true"
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  publish-nuget:
+    name: Publish NuGet
+    needs: [prepare, validate-versions, check-nuget, build-csharp-package]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_csharp == 'true' &&
+      needs.build-csharp-package.result == 'success' &&
+      (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: nuget-output
+      - uses: kreuzberg-dev/actions/publish-nuget@v1
+        with:
+          packages-dir: nuget-output
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  publish-packagist:
+    name: Publish Packagist
+    needs: [prepare, validate-versions, check-packagist, upload-php-extensions]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_php == 'true' &&
+      needs.upload-php-extensions.result == 'success' &&
+      needs.validate-versions.result == 'success' &&
+      (needs.check-packagist.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: kreuzberg-dev/actions/publish-packagist@v1
+        with:
+          packagist-username: kreuzberg
+          package-name: kreuzberg/liter-llm
+          version: ${{ needs.prepare.outputs.version }}
+          repository-url: https://github.com/kreuzberg-dev/liter-llm
+          dry-run: ${{ needs.prepare.outputs.dry_run }}
+        env:
+          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 7 — Finalize
+  # ─────────────────────────────────────────────────────────────────────────
+  release-finalize:
+    name: Finalize release
+    needs:
+      - prepare
+      - upload-go-ffi
+      - upload-php-extensions
+      - publish-crates
+      - publish-pypi
+      - publish-node
+      - publish-wasm
+      - publish-rubygems
+      - publish-maven
+      - publish-hex
+      - publish-nuget
+      - publish-packagist
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Create Go module tag
+        if: needs.prepare.outputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          GO_TAG="packages/go/v${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$GO_TAG" || echo "Tag $GO_TAG already exists, skipping"
+          git push origin "$GO_TAG" || echo "Tag push skipped"
+        shell: bash
+
+      - name: Undraft GitHub Release
+        if: needs.prepare.outputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release edit "$TAG" --draft=false
+        shell: bash
+
+      - name: Publish summary
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          {
+            echo "## Release v${VERSION}"
+            echo ""
+            echo "| Registry | Status |"
+            echo "|----------|--------|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          report() {
+            local name="$1" result="$2"
+            case "$result" in
+              success)  echo "| $name | ✅ Published |" ;;
+              skipped)  echo "| $name | ⏭️ Skipped |" ;;
+              *)        echo "| $name | ❌ $result |" ;;
+            esac
+          }
+          {
+            report "crates.io"   "${{ needs.publish-crates.result }}"
+            report "PyPI"        "${{ needs.publish-pypi.result }}"
+            report "npm"         "${{ needs.publish-node.result }}"
+            report "npm (WASM)"  "${{ needs.publish-wasm.result }}"
+            report "RubyGems"    "${{ needs.publish-rubygems.result }}"
+            report "Maven"       "${{ needs.publish-maven.result }}"
+            report "Hex.pm"      "${{ needs.publish-hex.result }}"
+            report "NuGet"       "${{ needs.publish-nuget.result }}"
+            report "Packagist"   "${{ needs.publish-packagist.result }}"
+            report "Go FFI"      "${{ needs.upload-go-ffi.result }}"
+            report "PHP ext"     "${{ needs.upload-php-extensions.result }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash

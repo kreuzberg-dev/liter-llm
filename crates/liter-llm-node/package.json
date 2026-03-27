@@ -1,0 +1,56 @@
+{
+	"name": "@kreuzberg/liter-llm-native",
+	"version": "1.0.0-rc.1",
+	"description": "Native NAPI-RS bindings for liter-llm — high-performance LLM client powered by Rust",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"files": [
+		"index.js",
+		"index.d.ts",
+		"*.node"
+	],
+	"napi": {
+		"binaryName": "liter-llm-node",
+		"targets": [
+			"aarch64-apple-darwin",
+			"x86_64-unknown-linux-gnu",
+			"aarch64-unknown-linux-gnu",
+			"x86_64-pc-windows-msvc"
+		]
+	},
+	"engines": {
+		"node": ">= 22"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kreuzberg-dev/liter-llm.git"
+	},
+	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
+	"bugs": {
+		"url": "https://github.com/kreuzberg-dev/liter-llm/issues"
+	},
+	"license": "MIT",
+	"keywords": [
+		"llm",
+		"llm-client",
+		"openai",
+		"anthropic",
+		"streaming",
+		"tool-calling",
+		"napi",
+		"rust",
+		"native"
+	],
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"scripts": {
+		"artifacts": "napi artifacts",
+		"build": "napi build --platform --release",
+		"prepublishOnly": "napi prepublish -t npm --skip-optional-publish"
+	},
+	"devDependencies": {
+		"@napi-rs/cli": "^3.5.1"
+	}
+}

@@ -1,5 +1,7 @@
 // liter-llm TypeScript bindings
-// Re-exports from native NAPI-RS module will be added here once the crate is built.
+// Runtime class re-exported from the native NAPI-RS module.
+export { LlmClient } from "@kreuzberg/liter-llm-native";
+
 export type {
 	// Messages
 	SystemMessage,

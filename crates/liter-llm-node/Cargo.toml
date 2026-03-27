@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 futures-core = { workspace = true }
-liter-llm = { path = "../liter-llm" }
+liter-llm = { path = "../liter-llm", features = ["full"] }
 napi = { workspace = true }
 napi-derive = { workspace = true }
 serde = { workspace = true }

@@ -57,6 +57,9 @@
 		"lint": "biome check src",
 		"lint:fix": "biome check --write src"
 	},
+	"dependencies": {
+		"@kreuzberg/liter-llm-native": "workspace:*"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.8",
 		"@types/node": "^25.5.0",

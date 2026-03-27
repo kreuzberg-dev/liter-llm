@@ -21,6 +21,6 @@ default = []
 [dependencies]
 ext-php-rs = "0.15"
 futures-core = { workspace = true }
-liter-llm = { path = "../liter-llm" }
+liter-llm = { path = "../liter-llm", features = ["full"] }
 serde_json = { workspace = true }
 tokio = { workspace = true }

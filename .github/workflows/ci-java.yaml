@@ -1,0 +1,55 @@
+name: CI Java
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/java/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-java.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/java/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-java.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-java-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java-bindings:
+    name: Java on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Test Java Panama FFI Bindings
+        uses: kreuzberg-dev/actions/test-java-ffi@v1
+        with:
+          ffi-crate-name: liter-llm-ffi
+          ffi-lib-name: liter_llm_ffi
+          java-version: "25.0.2+10"

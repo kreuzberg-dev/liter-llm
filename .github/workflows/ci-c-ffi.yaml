@@ -1,0 +1,102 @@
+name: CI C FFI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/ci-c-ffi.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/ci-c-ffi.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-c-ffi-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: short
+
+jobs:
+  c-ffi-tests:
+    name: C FFI Tests (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          cache-key-prefix: c-ffi
+          use-sccache: false
+
+      - name: Build liter-llm-ffi
+        run: cargo build -p liter-llm-ffi --release
+        shell: bash
+
+      - name: Verify Header Generated
+        run: |
+          test -f crates/liter-llm-ffi/liter_llm.h
+          grep 'LITER_LLM_VERSION_MAJOR' crates/liter-llm-ffi/liter_llm.h || \
+            echo "Warning: version constants not yet defined in header"
+        shell: bash
+
+      - name: Build C E2E Tests
+        working-directory: e2e/c
+        run: make all LIB_DIR=${{ github.workspace }}/target/release
+        shell: bash
+
+      - name: Run C E2E Tests
+        working-directory: e2e/c
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/target/release
+          DYLD_LIBRARY_PATH: ${{ github.workspace }}/target/release
+        run: make run LIB_DIR=${{ github.workspace }}/target/release
+        shell: bash
+
+  c-ffi-tests-windows:
+    name: C FFI Tests (windows-latest)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          cache-key-prefix: c-ffi-windows
+          use-sccache: false
+
+      - name: Build liter-llm-ffi
+        run: cargo build -p liter-llm-ffi --release
+        shell: bash
+
+      - name: Verify Header Generated
+        run: |
+          test -f crates/liter-llm-ffi/liter_llm.h
+          echo "Header verified on Windows."
+        shell: bash

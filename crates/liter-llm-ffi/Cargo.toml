@@ -20,7 +20,7 @@ default = []
 base64.workspace = true
 bytes.workspace = true
 futures-core.workspace = true
-liter-llm = { path = "../liter-llm" }
+liter-llm = { path = "../liter-llm", features = ["full"] }
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true

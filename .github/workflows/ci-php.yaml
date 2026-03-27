@@ -1,0 +1,92 @@
+name: CI PHP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/php/**
+      - crates/liter-llm-php/**
+      - crates/liter-llm/**
+      - composer.json
+      - composer.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-php.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/php/**
+      - crates/liter-llm-php/**
+      - crates/liter-llm/**
+      - composer.json
+      - composer.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-php.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-php-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-bindings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:2.9.1
+          coverage: none
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Install Root Composer Dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: locked
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
+
+      - name: Install PHP Package Composer Dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: locked
+          working-directory: packages/php
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
+
+      - name: Build PHP Extension
+        id: build-php-extension
+        uses: kreuzberg-dev/actions/build-php-extension@v1
+        with:
+          crate-name: liter-llm-php
+          lib-name: liter_llm_php
+
+      - name: Run PHP Static Analysis
+        run: task php:lint:check
+        shell: bash
+
+      - name: Run PHP E2E Tests
+        env:
+          EXTENSION_PATH: ${{ steps.build-php-extension.outputs.extension-path }}
+          PROJECT_ROOT: ${{ github.workspace }}
+        run: task php:e2e:test
+        shell: bash

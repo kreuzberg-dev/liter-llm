@@ -1,0 +1,93 @@
+name: CI Python
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/python/**
+      - crates/liter-llm-py/**
+      - crates/liter-llm/**
+      - pyproject.toml
+      - uv.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-python.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/python/**
+      - crates/liter-llm-py/**
+      - crates/liter-llm/**
+      - pyproject.toml
+      - uv.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-python.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-python-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-bindings:
+    name: Python ${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.12", "3.14"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Install Dependencies
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            if [[ "${{ runner.os }}" == "Windows" ]] && [[ -d ".venv" ]]; then
+              echo "Removing existing .venv directory on Windows"
+              rm -rf .venv
+            fi
+            uv sync --all-extras --no-install-workspace
+          shell: bash
+
+      - name: Build Python Bindings
+        run: |
+          uv pip install maturin
+          cd packages/python && uv run maturin develop --release
+        shell: bash
+
+      - name: Smoke Test Python Bindings
+        run: |
+          uv run python -c "import liter_llm; print('liter_llm imported successfully:', dir(liter_llm))"
+        shell: bash

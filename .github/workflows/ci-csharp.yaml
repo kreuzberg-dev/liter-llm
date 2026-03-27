@@ -1,0 +1,96 @@
+name: CI C#
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/csharp/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-csharp.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/csharp/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-csharp.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-csharp-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  csharp-bindings:
+    name: C# on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Build FFI Library
+        run: cargo build -p liter-llm-ffi --release
+        shell: bash
+
+      - name: Restore C# Dependencies
+        run: task csharp:install
+        shell: bash
+
+      - name: Build C# Bindings
+        run: task csharp:build:ci
+        shell: bash
+
+      - name: Check C# Formatting
+        if: matrix.os == 'ubuntu-latest'
+        run: task csharp:format:check
+        shell: bash
+
+      - name: Run C# Tests (Unix)
+        if: runner.os != 'Windows'
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+          LD_LIBRARY_PATH: ${{ github.workspace }}/target/release
+          DYLD_LIBRARY_PATH: ${{ github.workspace }}/target/release
+        run: |
+          cd packages/csharp
+          dotnet test LiterLlm.slnx -c Release
+        shell: bash
+
+      - name: Run C# Tests (Windows)
+        if: runner.os == 'Windows'
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+        run: |
+          $env:PATH = "${{ github.workspace }}\target\release;$env:PATH"
+          cd packages/csharp
+          dotnet test LiterLlm.slnx -c Release
+        shell: pwsh

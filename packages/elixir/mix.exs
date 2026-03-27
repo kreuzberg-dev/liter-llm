@@ -16,8 +16,7 @@ defmodule LiterLlm.MixProject do
         "High-performance LLM client with streaming, tool calling, and provider routing",
       package: package(),
       docs: docs(),
-      source_url: @source_url,
-      rustler_crates: [liter_llm: [mode: :release]]
+      source_url: @source_url
     ]
   end
 
@@ -46,7 +45,7 @@ defmodule LiterLlm.MixProject do
         lib
         native/liter_llm_rustler/src
         native/liter_llm_rustler/Cargo.toml
-        native/liter_llm_rustler/Cargo.lock
+        checksum-Elixir.LiterLlm.Native.exs
         mix.exs
         README.md
         .formatter.exs

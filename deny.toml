@@ -9,7 +9,10 @@ no-default-features = false
 feature-depth = 1
 
 [advisories]
-ignore = []
+ignore = [
+    "RUSTSEC-2025-0119", # number_prefix unmaintained; transitive via tokenizers -> indicatif
+    "RUSTSEC-2024-0436", # paste unmaintained; transitive via tokenizers
+]
 
 [licenses]
 allow = [
@@ -52,7 +55,6 @@ deny = []
 skip = []
 skip-tree = [
     { crate = "ext-php-rs@0.15", reason = "PHP binding framework, brings own dep versions" },
-    { crate = "rb-sys@0.9", reason = "Ruby binding framework, brings own dep versions" },
     { crate = "cbindgen@0.29", reason = "FFI header generator, brings older toml/winnow" },
 ]
 

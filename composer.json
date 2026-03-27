@@ -1,10 +1,21 @@
 {
 	"name": "kreuzberg/liter-llm",
-	"description": "A universal LM API client with polyglot bindings \u2014 fast, type-safe, compiled",
+	"description": "High-performance LLM client for PHP. Unified interface for streaming, tool calling, and provider routing across OpenAI, Anthropic, and 50+ providers. Powered by Rust core.",
 	"version": "1.0.0-rc.1",
 	"type": "php-ext",
 	"license": "MIT",
-	"keywords": ["llm", "openai", "api-client", "ai", "php8", "rust", "performance"],
+	"keywords": [
+		"llm",
+		"llm-client",
+		"openai",
+		"anthropic",
+		"streaming",
+		"tool-calling",
+		"provider-routing",
+		"rust",
+		"performance",
+		"php8"
+	],
 	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
 	"support": {
 		"issues": "https://github.com/kreuzberg-dev/liter-llm/issues",
@@ -13,39 +24,55 @@
 	"authors": [
 		{
 			"name": "Na'aman Hirschfeld",
-			"email": "nhirschfeld@gmail.com",
+			"email": "naaman@kreuzberg.dev",
 			"role": "creator"
 		}
 	],
 	"require": {
-		"php": "^8.4"
+		"php": "^8.2"
 	},
 	"replace": {
 		"ext-liter_llm_php": "*"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^11.0",
-		"phpstan/phpstan": "^2.0"
+		"friendsofphp/php-cs-fixer": "^3.94",
+		"phpstan/phpstan": "^2.1",
+		"phpunit/phpunit": "^11.0"
 	},
 	"autoload": {
 		"psr-4": {
 			"LiterLlm\\": "packages/php/src/"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"LiterLlm\\Tests\\": "packages/php/tests/"
+		}
+	},
 	"scripts": {
-		"test": "vendor/bin/phpunit"
+		"test": "vendor/bin/phpunit",
+		"phpstan": "vendor/bin/phpstan analyse packages/php/src --level=max --memory-limit=512M",
+		"lint": "@phpstan",
+		"format": "vendor/bin/php-cs-fixer fix packages/php/src",
+		"format:check": "vendor/bin/php-cs-fixer fix packages/php/src --dry-run"
+	},
+	"php-ext": {
+		"extension-name": "liter_llm_php",
+		"priority": 50,
+		"configure-options": [
+			{
+				"name": "enable-liter-llm",
+				"description": "Enable liter-llm PHP extension"
+			}
+		],
+		"support": {
+			"source-url": "https://github.com/kreuzberg-dev/liter-llm",
+			"download-url": "https://github.com/kreuzberg-dev/liter-llm/releases"
+		}
 	},
 	"config": {
 		"sort-packages": true
 	},
 	"minimum-stability": "stable",
-	"prefer-stable": true,
-	"php-ext": {
-		"extension-name": "liter_llm_php",
-		"priority": 50,
-		"support": {
-			"source-url": "https://github.com/kreuzberg-dev/liter-llm",
-			"download-url": "https://github.com/kreuzberg-dev/liter-llm/releases"
-		}
-	}
+	"prefer-stable": true
 }

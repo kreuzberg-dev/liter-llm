@@ -1,0 +1,106 @@
+name: CI Ruby
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/ruby/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Gemfile
+      - Gemfile.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-ruby.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/ruby/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Gemfile
+      - Gemfile.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-ruby.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-ruby-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruby-bindings:
+    name: Ruby ${{ matrix.ruby }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        ruby: ["3.2", "3.3"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Setup Ruby (Unix)
+        if: runner.os != 'Windows'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler: "2.7.2"
+          bundler-cache: false
+          working-directory: packages/ruby
+
+      - name: Setup Ruby (Windows)
+        if: runner.os == 'Windows'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler: "2.7.2"
+          bundler-cache: false
+          working-directory: packages/ruby
+          windows-toolchain: UCRT64
+
+      - name: Build Ruby Extension
+        uses: kreuzberg-dev/actions/build-ruby-gem@v1
+
+      - name: Run Rubocop (Ubuntu, Ruby 3.3 only)
+        if: matrix.os == 'ubuntu-latest' && matrix.ruby == '3.3'
+        run: task ruby:lint:check
+        shell: bash
+
+      - name: Validate RBS Signatures (Ubuntu, Ruby 3.3 only)
+        if: matrix.os == 'ubuntu-latest' && matrix.ruby == '3.3'
+        run: task ruby:rbs-validate
+        shell: bash
+
+      - name: Run Steep Type Checking (Ubuntu, Ruby 3.3 only)
+        if: matrix.os == 'ubuntu-latest' && matrix.ruby == '3.3'
+        run: task ruby:typecheck
+        shell: bash
+
+      - name: Run Ruby Tests (Unix)
+        if: runner.os != 'Windows'
+        run: task ruby:test
+        shell: bash
+
+      - name: Run Ruby Tests (Windows)
+        if: runner.os == 'Windows'
+        working-directory: packages/ruby
+        shell: pwsh
+        run: bundle exec rspec

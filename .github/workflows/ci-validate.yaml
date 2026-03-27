@@ -1,0 +1,187 @@
+name: CI Validate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**"
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-validate.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - "**"
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-validate.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-validate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.23.0"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          components: rustfmt, clippy, llvm-tools-preview
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.17"
+          otp-version: "27"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: false
+
+      - name: Setup Node Workspace
+        uses: kreuzberg-dev/actions/setup-node-workspace@v1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:2.9.1
+          coverage: none
+
+      - name: Install Python Dependencies
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: uv sync --all-extras --no-install-workspace
+          shell: bash
+
+      - name: Install Go Tools
+        run: task go:install
+        shell: bash
+
+      - name: Install Elixir Dependencies
+        working-directory: packages/elixir
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+        shell: bash
+
+      - name: Install Ruby Dependencies
+        run: task ruby:install
+        shell: bash
+
+      - name: Install PHP Dependencies
+        working-directory: packages/php
+        run: composer install --no-progress --prefer-dist
+        shell: bash
+
+      - name: Restore C# Dependencies
+        run: task csharp:install
+        shell: bash
+
+      - name: Install Prek
+        run: pip install prek
+        shell: bash
+
+      - name: Load Cached Prek Dependencies
+        id: cached-prek-dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/prek/
+          key: prek|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run Rust Lint Check
+        run: task rust:lint:check
+        shell: bash
+
+      - name: Run Python Lint Check
+        run: task python:lint:check
+        shell: bash
+
+      - name: Run Node Lint Check
+        run: task node:lint:check
+        shell: bash
+
+      - name: Run Go Lint Check
+        run: task go:lint:check
+        shell: bash
+
+      - name: Run Java Lint Check
+        run: task java:lint:check
+        shell: bash
+
+      - name: Run Elixir Format Check
+        run: task elixir:format:check
+        shell: bash
+
+      - name: Run Ruby Lint Check
+        run: task ruby:lint:check
+        shell: bash
+
+      - name: Run PHP Lint Check
+        run: task php:lint:check
+        shell: bash
+
+      - name: Run C# Format Check
+        run: task csharp:format:check
+        shell: bash
+
+      - name: Run Pre-commit Hooks
+        run: prek run --all-files
+        shell: bash
+
+      - name: Validate READMEs
+        run: task generate:readme:check
+        shell: bash
+
+      - name: Validate Providers Doc
+        run: task generate:providers-doc:check
+        shell: bash

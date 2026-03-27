@@ -1,0 +1,88 @@
+name: CI Go
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/go/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-go.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - packages/go/**
+      - crates/liter-llm-ffi/**
+      - crates/liter-llm/**
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-go.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-go-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.23.0"
+  GOLANGCI_LINT_VERSION: "v2.7.2"
+
+jobs:
+  go-bindings:
+    name: Go on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+
+      - name: Build FFI Library
+        run: cargo build -p liter-llm-ffi --release
+        shell: bash
+
+      - name: Setup Go CGO Environment
+        uses: kreuzberg-dev/actions/setup-go-cgo-env@v1
+        with:
+          ffi-crate-dir: crates/liter-llm-ffi
+          ffi-lib-name: liter_llm_ffi
+
+      - name: Install Go Tools
+        run: task go:install
+        shell: bash
+
+      - name: Run Go Tests
+        env:
+          RUST_BACKTRACE: full
+          CGO_ENABLED: "1"
+        run: task go:test:ci
+        shell: bash
+
+      - name: Run Go Lint
+        run: task go:lint:check
+        shell: bash

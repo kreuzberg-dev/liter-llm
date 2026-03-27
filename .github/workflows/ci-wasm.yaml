@@ -1,0 +1,83 @@
+name: CI WASM
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - crates/liter-llm-wasm/**
+      - crates/liter-llm/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-wasm.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - crates/liter-llm-wasm/**
+      - crates/liter-llm/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Cargo.toml
+      - Cargo.lock
+      - .task/**
+      - Taskfile.yml
+      - .github/workflows/ci-wasm.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-wasm-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wasm-bindings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.46.4
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
+        with:
+          target: wasm32-unknown-unknown
+          use-sccache: false
+
+      - name: Ensure WASM Target Installed
+        run: rustup target add wasm32-unknown-unknown
+        shell: bash
+
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+        shell: bash
+
+      - name: Setup Node Workspace
+        uses: kreuzberg-dev/actions/setup-node-workspace@v1
+
+      - name: Build WASM Package
+        uses: kreuzberg-dev/actions/build-wasm-package@v1
+        with:
+          crate-dir: crates/liter-llm-wasm
+          build-command: "pnpm run build"
+
+      - name: Run WASM Rust Tests
+        working-directory: crates/liter-llm-wasm
+        run: wasm-pack test --headless --firefox
+        shell: bash
+
+      - name: Run WASM E2E Tests
+        env:
+          PROJECT_ROOT: ${{ github.workspace }}
+        run: task wasm:e2e:test
+        shell: bash

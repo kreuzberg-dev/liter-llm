@@ -18,7 +18,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 base64 = "0.22"
-liter-llm = { path = "../../../../../crates/liter-llm" }
+liter-llm = { path = "../../../../../crates/liter-llm", features = ["full"] }
 magnus = { version = "0.8", features = ["rb-sys"] }
 rb-sys = { version = "0.9", default-features = false, features = [
     "stable-api-compiled-fallback",

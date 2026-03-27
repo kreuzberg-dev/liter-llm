@@ -1,0 +1,70 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    ignore:
+      # Pin artifact actions to v4 until GitHub Actions runners support v6/v7
+      # v6 and v7 require Actions Runner 2.327.1+ (released Dec 12, 2025)
+      - dependency-name: "actions/upload-artifact"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "actions/download-artifact"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "cargo"
+    directories:
+      - "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "pip"
+    directories:
+      - "/"
+      - "/packages/python"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/packages/typescript"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directories:
+      - "/packages/go"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "bundler"
+    directories:
+      - "/packages/ruby"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "composer"
+    directories:
+      - "/"
+      - "/packages/php"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directories:
+      - "/packages/java"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "nuget"
+    directories:
+      - "/packages/csharp"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "mix"
+    directories:
+      - "/packages/elixir"
+    schedule:
+      interval: "weekly"

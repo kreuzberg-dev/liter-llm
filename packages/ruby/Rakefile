@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+require 'rake/extensiontask'
+require 'rb_sys/extensiontask'
+require 'rspec/core/rake_task'
+
+GEMSPEC = Gem::Specification.load('liter_llm.gemspec')
+
+RbSys::ExtensionTask.new('liter_llm_rb', GEMSPEC) do |ext|
+  ext.lib_dir = 'lib/liter_llm'
+end
+
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.rspec_opts = '--format documentation'
+end
+
+task spec: :compile
+task default: :spec

@@ -1,9 +1,9 @@
 defmodule LiterLlm.Client do
   @moduledoc """
-  HTTP client implementation for the liter-llm unified LLM API.
+  LLM client implementation backed by the Rust NIF (`LiterLlm.Native`).
 
-  Speaks the OpenAI-compatible wire protocol using `Req`. The model-name prefix
-  selects the provider and endpoint (e.g. `"groq/llama3-70b"` routes to Groq).
+  The client serializes Elixir maps to JSON, delegates to the Rust core via
+  `LiterLlm.Native`, and deserializes the JSON response back to Elixir maps.
 
   Use this module directly for advanced configuration, or use the top-level
   `LiterLlm` module for the standard interface.
@@ -14,7 +14,7 @@ defmodule LiterLlm.Client do
   |--------|---------|-------------|
   | `:api_key` | `""` | API key for `Authorization: Bearer` header |
   | `:base_url` | `"https://api.openai.com/v1"` | Provider base URL |
-  | `:max_retries` | `2` | Retry count for 429 and 5xx errors |
+  | `:max_retries` | `3` | Retry count for 429/5xx errors |
   | `:receive_timeout` | `60_000` | Request timeout in milliseconds |
 
   ## Example
@@ -29,10 +29,11 @@ defmodule LiterLlm.Client do
   """
 
   alias LiterLlm.Error
+  alias LiterLlm.Native
   alias LiterLlm.Types
 
   @default_base_url "https://api.openai.com/v1"
-  @default_max_retries 2
+  @default_max_retries 3
   @default_timeout_ms 60_000
 
   @typedoc "An opaque client configuration map."
@@ -80,616 +81,243 @@ defmodule LiterLlm.Client do
 
   - `client` — client configuration from `new/1`
   - `request` — a `LiterLlm.Types.chat_request()` map
-  - `opts` — additional `Req` options (e.g. `plug:` for testing)
+  - `opts` — reserved for future use
 
   ## Returns
 
-  - `{:ok, LiterLlm.Types.chat_response()}` on success
+  - `{:ok, map()}` on success
   - `{:error, LiterLlm.Error.t()}` on failure
-
-  ## Examples
-
-      {:ok, response} = LiterLlm.Client.chat(client, %{
-        model: "gpt-4o-mini",
-        messages: [LiterLlm.Types.user_message("Hello!")],
-        max_tokens: 256
-      })
-      hd(response.choices).message.content
 
   """
   @spec chat(t(), Types.chat_request(), keyword()) ::
           {:ok, Types.chat_response()} | {:error, Error.t()}
-  def chat(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/chat/completions", request, opts)
+  def chat(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:chat, client, request)
   end
 
-  @doc """
-  Sends an embedding request and returns the embedding response.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a `LiterLlm.Types.embedding_request()` map
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, LiterLlm.Types.embedding_response()}` on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Sends an embedding request."
   @spec embed(t(), Types.embedding_request(), keyword()) ::
           {:ok, Types.embedding_response()} | {:error, Error.t()}
-  def embed(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/embeddings", request, opts)
+  def embed(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:embed, client, request)
   end
 
-  @doc """
-  Lists available models for the configured provider.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, LiterLlm.Types.models_list_response()}` on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Lists available models for the configured provider."
   @spec list_models(t(), keyword()) ::
           {:ok, Types.models_list_response()} | {:error, Error.t()}
-  def list_models(%__MODULE__{} = client, opts \\ []) do
-    get(client, "/models", opts)
+  def list_models(%__MODULE__{} = client, _opts \\ []) do
+    with {:ok, config_json} <- encode(client_to_config_map(client)),
+         {:ok, resp_json} <- Native.list_models(config_json) do
+      decode(resp_json)
+    else
+      {:error, reason} -> wrap_error(reason)
+    end
   end
 
-  # ── Additional inference methods ─────────────────────────────────────────
-
-  @doc """
-  Generates an image from a text prompt.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:prompt`, `:model`, and optional params
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Generates an image from a text prompt."
   @spec image_generate(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def image_generate(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/images/generations", request, opts)
+  def image_generate(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:image_generate, client, request)
   end
 
-  @doc """
-  Generates speech audio from text.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:model`, `:input`, `:voice`, and optional params
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, binary()}` containing the raw audio bytes on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Generates speech audio from text. Returns raw audio bytes."
   @spec speech(t(), map(), keyword()) ::
           {:ok, binary()} | {:error, Error.t()}
-  def speech(%__MODULE__{} = client, request, opts \\ []) do
-    post_raw(client, "/audio/speech", request, opts)
+  def speech(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif_raw(:speech, client, request)
   end
 
-  @doc """
-  Transcribes audio to text.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:model`, `:file`, and optional params
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Transcribes audio to text."
   @spec transcribe(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def transcribe(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/audio/transcriptions", request, opts)
+  def transcribe(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:transcribe, client, request)
   end
 
-  @doc """
-  Checks content against moderation policies.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:input` and optional `:model`
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Checks content against moderation policies."
   @spec moderate(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def moderate(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/moderations", request, opts)
+  def moderate(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:moderate, client, request)
   end
 
-  @doc """
-  Reranks documents by relevance to a query.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:model`, `:query`, `:documents`
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Reranks documents by relevance to a query."
   @spec rerank(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def rerank(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/rerank", request, opts)
+  def rerank(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:rerank, client, request)
   end
 
   # ── File management methods ──────────────────────────────────────────────
 
-  @doc """
-  Uploads a file.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:file`, `:purpose`, and optional `:filename`
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with file object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Uploads a file."
   @spec create_file(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def create_file(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/files", request, opts)
+  def create_file(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:create_file, client, request)
   end
 
-  @doc """
-  Retrieves metadata for a file by ID.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `file_id` — the file ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with file object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Retrieves metadata for a file."
   @spec retrieve_file(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def retrieve_file(%__MODULE__{} = client, file_id, opts \\ []) do
-    get(client, "/files/#{file_id}", opts)
+  def retrieve_file(%__MODULE__{} = client, file_id, _opts \\ []) do
+    call_nif_id(:retrieve_file, client, file_id)
   end
 
-  @doc """
-  Deletes a file by ID.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `file_id` — the file ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with deletion status on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Deletes a file."
   @spec delete_file(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def delete_file(%__MODULE__{} = client, file_id, opts \\ []) do
-    delete(client, "/files/#{file_id}", opts)
+  def delete_file(%__MODULE__{} = client, file_id, _opts \\ []) do
+    call_nif_id(:delete_file, client, file_id)
   end
 
-  @doc """
-  Lists files, optionally filtered by query parameters.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `query` — optional map of query parameters (`:purpose`, `:limit`, `:after`)
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with a `"data"` list on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Lists files, optionally filtered by query parameters."
   @spec list_files(t(), map() | nil, keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def list_files(%__MODULE__{} = client, query \\ nil, opts \\ []) do
-    path = build_query_path("/files", query)
-    get(client, path, opts)
+  def list_files(%__MODULE__{} = client, query \\ nil, _opts \\ []) do
+    call_nif_query(:list_files, client, query)
   end
 
-  @doc """
-  Retrieves the raw content of a file.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `file_id` — the file ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, binary()}` containing the raw file bytes on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Retrieves the raw content of a file."
   @spec file_content(t(), String.t(), keyword()) ::
           {:ok, binary()} | {:error, Error.t()}
-  def file_content(%__MODULE__{} = client, file_id, opts \\ []) do
-    get_raw(client, "/files/#{file_id}/content", opts)
+  def file_content(%__MODULE__{} = client, file_id, _opts \\ []) do
+    with {:ok, config_json} <- encode(client_to_config_map(client)),
+         {:ok, bytes} <- Native.file_content(config_json, file_id) do
+      {:ok, bytes}
+    else
+      {:error, reason} -> wrap_error(reason)
+    end
   end
 
   # ── Batch management methods ─────────────────────────────────────────────
 
-  @doc """
-  Creates a new batch job.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:input_file_id`, `:endpoint`, `:completion_window`
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with batch object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Creates a new batch job."
   @spec create_batch(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def create_batch(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/batches", request, opts)
+  def create_batch(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:create_batch, client, request)
   end
 
-  @doc """
-  Retrieves a batch by ID.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `batch_id` — the batch ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with batch object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Retrieves a batch by ID."
   @spec retrieve_batch(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def retrieve_batch(%__MODULE__{} = client, batch_id, opts \\ []) do
-    get(client, "/batches/#{batch_id}", opts)
+  def retrieve_batch(%__MODULE__{} = client, batch_id, _opts \\ []) do
+    call_nif_id(:retrieve_batch, client, batch_id)
   end
 
-  @doc """
-  Lists batches, optionally filtered by query parameters.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `query` — optional map of query parameters (`:limit`, `:after`)
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with a `"data"` list on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Lists batches, optionally filtered by query parameters."
   @spec list_batches(t(), map() | nil, keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def list_batches(%__MODULE__{} = client, query \\ nil, opts \\ []) do
-    path = build_query_path("/batches", query)
-    get(client, path, opts)
+  def list_batches(%__MODULE__{} = client, query \\ nil, _opts \\ []) do
+    call_nif_query(:list_batches, client, query)
   end
 
-  @doc """
-  Cancels an in-progress batch.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `batch_id` — the batch ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with batch object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Cancels an in-progress batch."
   @spec cancel_batch(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def cancel_batch(%__MODULE__{} = client, batch_id, opts \\ []) do
-    post(client, "/batches/#{batch_id}/cancel", %{}, opts)
+  def cancel_batch(%__MODULE__{} = client, batch_id, _opts \\ []) do
+    call_nif_id(:cancel_batch, client, batch_id)
   end
 
   # ── Response management methods ──────────────────────────────────────────
 
-  @doc """
-  Creates a new response.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `request` — a map with `:model`, `:input`, and optional params
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with response object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Creates a new response."
   @spec create_response(t(), map(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def create_response(%__MODULE__{} = client, request, opts \\ []) do
-    post(client, "/responses", request, opts)
+  def create_response(%__MODULE__{} = client, request, _opts \\ []) do
+    call_nif(:create_response, client, request)
   end
 
-  @doc """
-  Retrieves a response by ID.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `response_id` — the response ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with response object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Retrieves a response by ID."
   @spec retrieve_response(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def retrieve_response(%__MODULE__{} = client, response_id, opts \\ []) do
-    get(client, "/responses/#{response_id}", opts)
+  def retrieve_response(%__MODULE__{} = client, response_id, _opts \\ []) do
+    call_nif_id(:retrieve_response, client, response_id)
   end
 
-  @doc """
-  Cancels an in-progress response.
-
-  ## Parameters
-
-  - `client` — client configuration from `new/1`
-  - `response_id` — the response ID string
-  - `opts` — additional `Req` options
-
-  ## Returns
-
-  - `{:ok, map()}` with response object fields on success
-  - `{:error, LiterLlm.Error.t()}` on failure
-
-  """
+  @doc "Cancels an in-progress response."
   @spec cancel_response(t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, Error.t()}
-  def cancel_response(%__MODULE__{} = client, response_id, opts \\ []) do
-    post(client, "/responses/#{response_id}/cancel", %{}, opts)
+  def cancel_response(%__MODULE__{} = client, response_id, _opts \\ []) do
+    call_nif_id(:cancel_response, client, response_id)
   end
 
-  # ─── HTTP Internals ───────────────────────────────────────────────────────
+  # ─── Private helpers ──────────────────────────────────────────────────────
 
-  defp post(%__MODULE__{} = client, path, body, extra_opts) do
-    json_body =
-      case Jason.encode(body) do
-        {:ok, encoded} ->
-          encoded
-
-        {:error, reason} ->
-          return = {:error, Error.serialization("failed to encode request: #{inspect(reason)}")}
-          throw(return)
-      end
-
-    req = build_req(client, extra_opts)
-
-    do_with_retry(client.max_retries, fn ->
-      case Req.post(req, url: path, body: json_body) do
-        {:ok, %{status: status, body: resp_body}} when status in 200..299 ->
-          decode_response(resp_body)
-
-        {:ok, %{status: status, body: resp_body}} ->
-          message = Error.extract_message(resp_body)
-          {:error, Error.from_http_status(status, message)}
-
-        {:error, exception} ->
-          {:error, Error.unknown("HTTP request failed: #{Exception.message(exception)}")}
-      end
-    end)
-  catch
-    {:error, _} = err -> err
+  defp client_to_config_map(%__MODULE__{} = client) do
+    %{
+      api_key: client.api_key,
+      base_url: client.base_url,
+      max_retries: client.max_retries,
+      timeout_secs: div(client.receive_timeout, 1_000)
+    }
   end
 
-  defp get(%__MODULE__{} = client, path, extra_opts) do
-    req = build_req(client, extra_opts)
-
-    do_with_retry(client.max_retries, fn ->
-      case Req.get(req, url: path) do
-        {:ok, %{status: status, body: resp_body}} when status in 200..299 ->
-          decode_response(resp_body)
-
-        {:ok, %{status: status, body: resp_body}} ->
-          message = Error.extract_message(resp_body)
-          {:error, Error.from_http_status(status, message)}
-
-        {:error, exception} ->
-          {:error, Error.unknown("HTTP request failed: #{Exception.message(exception)}")}
-      end
-    end)
+  # Encode a value to a JSON string; returns {:error, Error.t()} on failure.
+  defp encode(value) do
+    case Jason.encode(value) do
+      {:ok, json} -> {:ok, json}
+      {:error, reason} -> {:error, Error.serialization("failed to encode: #{inspect(reason)}")}
+    end
   end
 
-  defp build_req(%__MODULE__{} = client, extra_opts) do
-    base_url = String.trim_trailing(client.base_url, "/")
-
-    req_opts =
-      [
-        base_url: base_url,
-        headers: [
-          {"authorization", "Bearer #{client.api_key}"},
-          {"content-type", "application/json"},
-          {"accept", "application/json"}
-        ],
-        receive_timeout: client.receive_timeout,
-        decode_body: false
-      ] ++ extra_opts
-
-    Req.new(req_opts)
-  end
-
-  defp decode_response(body) when is_binary(body) do
-    case Jason.decode(body) do
-      {:ok, decoded} ->
-        {:ok, decoded}
+  # Decode a JSON string; returns {:error, Error.t()} on failure.
+  defp decode(json) when is_binary(json) do
+    case Jason.decode(json) do
+      {:ok, value} ->
+        {:ok, value}
 
       {:error, reason} ->
         {:error, Error.serialization("failed to decode response: #{inspect(reason)}")}
     end
   end
 
-  defp decode_response(body) when is_map(body) do
-    # Req already decoded the JSON (shouldn't happen with decode_body: false, but be safe)
-    {:ok, body}
-  end
+  # Wrap a NIF error string into a structured LiterLlm.Error.
+  defp wrap_error(reason) when is_binary(reason), do: {:error, Error.unknown(reason)}
+  defp wrap_error(reason), do: {:error, Error.unknown(inspect(reason))}
 
-  defp delete(%__MODULE__{} = client, path, extra_opts) do
-    req = build_req(client, extra_opts)
-
-    do_with_retry(client.max_retries, fn ->
-      case Req.delete(req, url: path) do
-        {:ok, %{status: status, body: resp_body}} when status in 200..299 ->
-          decode_response(resp_body)
-
-        {:ok, %{status: status, body: resp_body}} ->
-          message = Error.extract_message(resp_body)
-          {:error, Error.from_http_status(status, message)}
-
-        {:error, exception} ->
-          {:error, Error.unknown("HTTP request failed: #{Exception.message(exception)}")}
-      end
-    end)
-  end
-
-  defp post_raw(%__MODULE__{} = client, path, body, extra_opts) do
-    json_body =
-      case Jason.encode(body) do
-        {:ok, encoded} ->
-          encoded
-
-        {:error, reason} ->
-          return = {:error, Error.serialization("failed to encode request: #{inspect(reason)}")}
-          throw(return)
-      end
-
-    req = build_req(client, extra_opts)
-
-    do_with_retry(client.max_retries, fn ->
-      case Req.post(req, url: path, body: json_body) do
-        {:ok, %{status: status, body: resp_body}} when status in 200..299 ->
-          {:ok, resp_body}
-
-        {:ok, %{status: status, body: resp_body}} ->
-          message = Error.extract_message(resp_body)
-          {:error, Error.from_http_status(status, message)}
-
-        {:error, exception} ->
-          {:error, Error.unknown("HTTP request failed: #{Exception.message(exception)}")}
-      end
-    end)
-  catch
-    {:error, _} = err -> err
-  end
-
-  defp get_raw(%__MODULE__{} = client, path, extra_opts) do
-    req = build_req(client, extra_opts)
-
-    do_with_retry(client.max_retries, fn ->
-      case Req.get(req, url: path) do
-        {:ok, %{status: status, body: resp_body}} when status in 200..299 ->
-          {:ok, resp_body}
-
-        {:ok, %{status: status, body: resp_body}} ->
-          message = Error.extract_message(resp_body)
-          {:error, Error.from_http_status(status, message)}
-
-        {:error, exception} ->
-          {:error, Error.unknown("HTTP request failed: #{Exception.message(exception)}")}
-      end
-    end)
-  end
-
-  defp build_query_path(base_path, nil), do: base_path
-
-  defp build_query_path(base_path, query) when is_map(query) do
-    params =
-      query
-      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
-      |> Enum.map(fn {k, v} -> "#{k}=#{URI.encode_www_form(to_string(v))}" end)
-      |> Enum.join("&")
-
-    if params == "" do
-      base_path
+  # Call a NIF function that takes (config_json, request_json) and returns a JSON response.
+  defp call_nif(fun, client, request) do
+    with {:ok, config_json} <- encode(client_to_config_map(client)),
+         {:ok, request_json} <- encode(request),
+         {:ok, resp_json} <- apply(Native, fun, [config_json, request_json]) do
+      decode(resp_json)
     else
-      "#{base_path}?#{params}"
+      {:error, reason} -> wrap_error(reason)
     end
   end
 
-  # Retries on rate_limit and provider_error kinds.
-  defp do_with_retry(0, fun), do: fun.()
+  # Call a NIF that returns raw bytes (no JSON decode on the response).
+  defp call_nif_raw(fun, client, request) do
+    with {:ok, config_json} <- encode(client_to_config_map(client)),
+         {:ok, request_json} <- encode(request),
+         {:ok, bytes} <- apply(Native, fun, [config_json, request_json]) do
+      {:ok, bytes}
+    else
+      {:error, reason} -> wrap_error(reason)
+    end
+  end
 
-  defp do_with_retry(retries_left, fun) do
-    case fun.() do
-      {:error, %Error{kind: kind}} = err when kind in [:rate_limit, :provider_error] ->
-        if retries_left > 0 do
-          do_with_retry(retries_left - 1, fun)
-        else
-          err
-        end
+  # Call a NIF that takes (config_json, id_string) and returns a JSON response.
+  defp call_nif_id(fun, client, id) do
+    with {:ok, config_json} <- encode(client_to_config_map(client)),
+         {:ok, resp_json} <- apply(Native, fun, [config_json, id]) do
+      decode(resp_json)
+    else
+      {:error, reason} -> wrap_error(reason)
+    end
+  end
 
-      other ->
-        other
+  # Call a NIF that takes (config_json, query_json) where query may be nil.
+  defp call_nif_query(fun, client, query) do
+    with {:ok, config_json} <- encode(client_to_config_map(client)),
+         query_json = if(is_nil(query), do: "null", else: Jason.encode!(query)),
+         {:ok, resp_json} <- apply(Native, fun, [config_json, query_json]) do
+      decode(resp_json)
+    else
+      {:error, reason} -> wrap_error(reason)
     end
   end
 end
