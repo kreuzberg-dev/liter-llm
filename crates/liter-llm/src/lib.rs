@@ -1,3 +1,8 @@
+// Provider, HTTP, and retry infrastructure are only active with native-http.
+// Suppress dead_code lints on the wasm / no-native-http target so that the
+// type-only surface compiles cleanly.
+#![cfg_attr(not(feature = "native-http"), allow(dead_code, unused_imports))]
+
 pub mod auth;
 pub mod client;
 pub mod cost;

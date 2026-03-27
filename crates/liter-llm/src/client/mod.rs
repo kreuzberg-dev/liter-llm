@@ -2,6 +2,7 @@ pub mod config;
 
 use std::future::Future;
 use std::pin::Pin;
+#[cfg(feature = "native-http")]
 use std::sync::Arc;
 
 use futures_core::Stream;
