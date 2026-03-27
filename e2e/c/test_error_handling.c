@@ -50,7 +50,7 @@ static void test_auth_401(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 401L, "test_auth_401");
     liter_llm_response_free(resp);
@@ -107,6 +107,32 @@ static void test_bad_request_400(void) {
              "\"model\":\"gpt-4\",\"temperature\":5.0}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 400L, "test_bad_request_400");
+    liter_llm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
+/* AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing,
+ * expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the
+ * error is mapped to Authentication */
+static void test_bedrock_error_auth(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body = "{\"message\":\"You don't have access to the model "
+                          "with the specified model ID.\"}";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLlmResponse *resp = liter_llm_http_post(
+        url, "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],"
+             "\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\"}");
+    assert(resp != NULL);
+    liter_llm_assert_status(resp, 403L, "test_bedrock_error_auth");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
@@ -180,7 +206,7 @@ static void test_forbidden_403(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 403L, "test_forbidden_403");
     liter_llm_response_free(resp);
@@ -204,7 +230,7 @@ static void test_gateway_timeout_504(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 504L, "test_gateway_timeout_504");
     liter_llm_response_free(resp);
@@ -228,7 +254,7 @@ static void test_not_found_404(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-99\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-99\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 404L, "test_not_found_404");
     liter_llm_response_free(resp);
@@ -255,7 +281,7 @@ static void test_rate_limit_429(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 429L, "test_rate_limit_429");
     liter_llm_response_free(resp);
@@ -281,7 +307,7 @@ static void test_server_error_500(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 500L, "test_server_error_500");
     liter_llm_response_free(resp);
@@ -305,9 +331,39 @@ static void test_service_unavailable_502(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 502L, "test_service_unavailable_502");
+    liter_llm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
+/* Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing,
+ * expired, or the service account lacks aiplatform.endpoints.predict permission
+ * — verifies the error is mapped to Authentication */
+static void test_vertex_error_auth(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"error\":{\"code\":401,\"message\":\"Request had invalid "
+      "authentication credentials. Expected OAuth 2 access token, login cookie "
+      "or other valid authentication credential. See "
+      "https://developers.google.com/identity/sign-in/web/"
+      "devconsole-project.\",\"status\":\"UNAUTHENTICATED\"}}";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLlmResponse *resp = liter_llm_http_post(
+        url, "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],"
+             "\"model\":\"vertex_ai/gemini-2.0-flash\"}");
+    assert(resp != NULL);
+    liter_llm_assert_status(resp, 401L, "test_vertex_error_auth");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
@@ -327,6 +383,10 @@ int main(void) {
          "AccessDenied\n");
   test_bad_request_400();
   printf("PASS: 400 Bad Request error when a parameter value is invalid\n");
+  test_bedrock_error_auth();
+  printf("PASS: AWS Bedrock returns 403 Forbidden (not 401) when credentials "
+         "are missing, expired, or the IAM role lacks bedrock:InvokeModel "
+         "permission — verifies the error is mapped to Authentication\n");
   test_content_policy_violation();
   printf("PASS: 400 error when a request is rejected due to content policy\n");
   test_context_window_exceeded();
@@ -348,6 +408,11 @@ int main(void) {
   test_service_unavailable_502();
   printf(
       "PASS: 502 Bad Gateway error when the upstream service is unavailable\n");
+  test_vertex_error_auth();
+  printf("PASS: Google Vertex AI returns 401 Unauthorized when the OAuth2 "
+         "token is missing, expired, or the service account lacks "
+         "aiplatform.endpoints.predict permission — verifies the error is "
+         "mapped to Authentication\n");
   printf("All error_handling tests passed.\n");
   return 0;
 }

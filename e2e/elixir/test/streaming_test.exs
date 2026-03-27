@@ -104,6 +104,39 @@ defmodule LiterLlmE2E.StreamingTest do
     assert length(chunks) >= 3, "Expected at least 3 chunk(s), got #{length(chunks)}"
   end
 
+  test "Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: "null",
+        stream_chunks: [
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}"
+        ]
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\",\"stream\":true}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 200
+
+    chunks = LiterLlmE2E.Helpers.collect_sse_chunks(resp.body)
+    assert length(chunks) >= 3, "Expected at least 3 chunk(s), got #{length(chunks)}"
+  end
+
   test "Streaming chat completion that produces no content chunks before the DONE signal" do
     routes = [
       %{
@@ -249,5 +282,38 @@ defmodule LiterLlmE2E.StreamingTest do
 
     chunks = LiterLlmE2E.Helpers.collect_sse_chunks(resp.body)
     assert length(chunks) >= 2, "Expected at least 2 chunk(s), got #{length(chunks)}"
+  end
+
+  test "Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 200,
+        body: "null",
+        stream_chunks: [
+          "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+          "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}"
+        ]
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\",\"stream\":true}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 200
+
+    chunks = LiterLlmE2E.Helpers.collect_sse_chunks(resp.body)
+    assert length(chunks) >= 3, "Expected at least 3 chunk(s), got #{length(chunks)}"
   end
 end

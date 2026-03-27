@@ -23,12 +23,12 @@ static void test_empty_model_list(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_empty_model_list");
     liter_llm_assert_json_array_len(resp->body, "data", 0,
-                                   "test_empty_model_list");
+                                    "test_empty_model_list");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "data", 0,
-                                   "test_empty_model_list");
+                                    "test_empty_model_list");
   }
 }
 

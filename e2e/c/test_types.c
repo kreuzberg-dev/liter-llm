@@ -41,24 +41,24 @@ static void test_all_message_types(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_all_message_types");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_all_message_types");
+                                    "test_all_message_types");
     liter_llm_assert_json_field(
         resp->body, "content",
         "The weather in Paris is currently 18°C and partly cloudy.",
         "test_all_message_types");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_all_message_types");
+                                "test_all_message_types");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_all_message_types");
+                                    "test_all_message_types");
     liter_llm_assert_json_field(
         mock_body, "content",
         "The weather in Paris is currently 18°C and partly cloudy.",
         "test_all_message_types");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_all_message_types");
+                                "test_all_message_types");
   }
 }
 
@@ -92,24 +92,24 @@ static void test_multimodal_content(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_multimodal_content");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_multimodal_content");
+                                    "test_multimodal_content");
     liter_llm_assert_json_field(
         resp->body, "content",
         "The image shows a transparent PNG demonstration with colored dice.",
         "test_multimodal_content");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4o",
-                               "test_multimodal_content");
+                                "test_multimodal_content");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_multimodal_content");
+                                    "test_multimodal_content");
     liter_llm_assert_json_field(
         mock_body, "content",
         "The image shows a transparent PNG demonstration with colored dice.",
         "test_multimodal_content");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4o",
-                               "test_multimodal_content");
+                                "test_multimodal_content");
   }
 }
 

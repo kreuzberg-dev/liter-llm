@@ -161,6 +161,57 @@ class StreamingTest {
     }
   }
 
+  /**
+   * Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE
+   * chunks are yielded and assembled correctly from the Converse streaming API
+   */
+  @Test
+  void bedrockStream() throws Exception {
+    try (Helpers.MockServer server =
+        new Helpers.MockServer(
+            List.of(
+                new Helpers.MockRoute(
+                    "/chat/completions",
+                    "POST",
+                    200,
+                    "null",
+                    List.of(
+                        "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}"))))) {
+
+      HttpResponse<String> resp =
+          Helpers.postJson(
+              server.url,
+              "/chat/completions",
+              "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per"
+                  + " response.\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\",\"stream\":true}");
+
+      assertEquals(200, resp.statusCode(), "HTTP status code");
+
+      List<String> chunks = Helpers.parseSseChunks(resp.body());
+      assertTrue(chunks.size() >= 3, "expected at least 3 chunk(s)");
+
+      StringBuilder content = new StringBuilder();
+      for (String rawChunk : chunks) {
+        try {
+          JsonNode chunk = Helpers.MAPPER.readTree(rawChunk);
+          JsonNode deltaContent = chunk.at("/choices/0/delta/content");
+          if (!deltaContent.isMissingNode() && deltaContent.isTextual()) {
+            content.append(deltaContent.asText());
+          }
+        } catch (Exception ignored) {
+          // Non-JSON chunks (role-only deltas etc.) are skipped.
+        }
+      }
+      assertEquals("One Two Three", content.toString(), "stream content");
+    }
+  }
+
   /** Streaming chat completion that produces no content chunks before the DONE signal */
   @Test
   void emptyStream() throws Exception {
@@ -330,6 +381,57 @@ class StreamingTest {
         }
       }
       assertEquals("Hi there!", content.toString(), "stream content");
+    }
+  }
+
+  /**
+   * Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix —
+   * verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly
+   */
+  @Test
+  void vertexStream() throws Exception {
+    try (Helpers.MockServer server =
+        new Helpers.MockServer(
+            List.of(
+                new Helpers.MockRoute(
+                    "/chat/completions",
+                    "POST",
+                    200,
+                    "null",
+                    List.of(
+                        "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{\"content\":\""
+                            + " Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+                        "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}"))))) {
+
+      HttpResponse<String> resp =
+          Helpers.postJson(
+              server.url,
+              "/chat/completions",
+              "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per"
+                  + " response.\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\",\"stream\":true}");
+
+      assertEquals(200, resp.statusCode(), "HTTP status code");
+
+      List<String> chunks = Helpers.parseSseChunks(resp.body());
+      assertTrue(chunks.size() >= 3, "expected at least 3 chunk(s)");
+
+      StringBuilder content = new StringBuilder();
+      for (String rawChunk : chunks) {
+        try {
+          JsonNode chunk = Helpers.MAPPER.readTree(rawChunk);
+          JsonNode deltaContent = chunk.at("/choices/0/delta/content");
+          if (!deltaContent.isMissingNode() && deltaContent.isTextual()) {
+            content.append(deltaContent.asText());
+          }
+        } catch (Exception ignored) {
+          // Non-JSON chunks (role-only deltas etc.) are skipped.
+        }
+      }
+      assertEquals("One Two Three", content.toString(), "stream content");
     }
   }
 }

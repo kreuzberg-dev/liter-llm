@@ -92,6 +92,26 @@ final class ErrorHandlingTest extends TestCase
         $this->assertEquals(400, $result['status']);
     }
 
+    /** AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication */
+    public function testBedrockErrorAuth(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 403,
+                body: '{"message":"You don\'t have access to the model with the specified model ID."}',
+                streamChunks: [],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $result = httpRequest($server->url . '/chat/completions', 'POST', '{"messages":[{"content":"Hello","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0"}');
+        $server->stop();
+
+        $this->assertEquals(403, $result['status']);
+    }
+
     /** 400 error when a request is rejected due to content policy */
     public function testContentPolicyViolation(): void
     {
@@ -250,5 +270,25 @@ final class ErrorHandlingTest extends TestCase
         $server->stop();
 
         $this->assertEquals(502, $result['status']);
+    }
+
+    /** Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication */
+    public function testVertexErrorAuth(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 401,
+                body: '{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}',
+                streamChunks: [],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $result = httpRequest($server->url . '/chat/completions', 'POST', '{"messages":[{"content":"Hello","role":"user"}],"model":"vertex_ai/gemini-2.0-flash"}');
+        $server->stop();
+
+        $this->assertEquals(401, $result['status']);
     }
 }

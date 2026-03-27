@@ -105,6 +105,30 @@ public sealed class ErrorHandlingTests
         Assert.Equal(400, (int)response.StatusCode);
     }
 
+    /// <summary>AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication</summary>
+    [Fact]
+    public async Task BedrockErrorAuth()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 403,
+                Body: "{\"message\":\"You don't have access to the model with the specified model ID.\"}",
+                StreamChunks: Array.Empty<string>()
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\"}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        Assert.Equal(403, (int)response.StatusCode);
+    }
+
     /// <summary>400 error when a request is rejected due to content policy</summary>
     [Fact]
     public async Task ContentPolicyViolation()
@@ -295,5 +319,29 @@ public sealed class ErrorHandlingTests
         var content = new StringContent("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}", System.Text.Encoding.UTF8, "application/json");
         var response = await http.PostAsync("/chat/completions", content);
         Assert.Equal(502, (int)response.StatusCode);
+    }
+
+    /// <summary>Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication</summary>
+    [Fact]
+    public async Task VertexErrorAuth()
+    {
+        var routes = new[]
+        {
+            new MockRoute(
+                Path: "/chat/completions",
+                Method: "POST",
+                Status: 401,
+                Body: "{\"error\":{\"code\":401,\"message\":\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\"status\":\"UNAUTHENTICATED\"}}",
+                StreamChunks: Array.Empty<string>()
+            ),
+        };
+
+        using var server = new MockServer(routes);
+        using var http = new HttpClient();
+        http.BaseAddress = new Uri(server.Url);
+
+        var content = new StringContent("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\"}", System.Text.Encoding.UTF8, "application/json");
+        var response = await http.PostAsync("/chat/completions", content);
+        Assert.Equal(401, (int)response.StatusCode);
     }
 }

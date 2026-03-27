@@ -104,6 +104,30 @@ defmodule LiterLlmE2E.ErrorHandlingTest do
     assert resp.status == 400
   end
 
+  test "AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 403,
+        body: "{\"message\":\"You don't have access to the model with the specified model ID.\"}",
+        stream_chunks: []
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 403
+  end
+
   test "400 error when a request is rejected due to content policy" do
     routes = [
       %{
@@ -292,5 +316,30 @@ defmodule LiterLlmE2E.ErrorHandlingTest do
       )
 
     assert resp.status == 502
+  end
+
+  test "Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication" do
+    routes = [
+      %{
+        path: "/chat/completions",
+        method: "POST",
+        status: 401,
+        body:
+          "{\"error\":{\"code\":401,\"message\":\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\"status\":\"UNAUTHENTICATED\"}}",
+        stream_chunks: []
+      }
+    ]
+
+    {:ok, base_url} = MockServer.start(routes)
+
+    {:ok, resp} =
+      Req.post(base_url <> "/chat/completions",
+        body:
+          "{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\"}",
+        headers: [{"content-type", "application/json"}],
+        decode_body: false
+      )
+
+    assert resp.status == 401
   end
 end

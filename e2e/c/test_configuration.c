@@ -31,20 +31,20 @@ static void test_custom_base_url(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_custom_base_url");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_custom_base_url");
+                                    "test_custom_base_url");
     liter_llm_assert_json_field(resp->body, "content", "Hi there!",
-                               "test_custom_base_url");
+                                "test_custom_base_url");
     liter_llm_assert_json_field(resp->body, "model", "local-model",
-                               "test_custom_base_url");
+                                "test_custom_base_url");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_custom_base_url");
+                                    "test_custom_base_url");
     liter_llm_assert_json_field(mock_body, "content", "Hi there!",
-                               "test_custom_base_url");
+                                "test_custom_base_url");
     liter_llm_assert_json_field(mock_body, "model", "local-model",
-                               "test_custom_base_url");
+                                "test_custom_base_url");
   }
 }
 
@@ -68,26 +68,26 @@ static void test_extra_headers(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"messages\":[{\"content\":\"Hello\","
-                                "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+                                 "\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_extra_headers");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_extra_headers");
+                                    "test_extra_headers");
     liter_llm_assert_json_field(resp->body, "content",
-                               "Hello! How can I help you?",
-                               "test_extra_headers");
+                                "Hello! How can I help you?",
+                                "test_extra_headers");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_extra_headers");
+                                "test_extra_headers");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_extra_headers");
+                                    "test_extra_headers");
     liter_llm_assert_json_field(mock_body, "content",
-                               "Hello! How can I help you?",
-                               "test_extra_headers");
+                                "Hello! How can I help you?",
+                                "test_extra_headers");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_extra_headers");
+                                "test_extra_headers");
   }
 }
 

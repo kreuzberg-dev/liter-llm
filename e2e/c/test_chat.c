@@ -33,20 +33,20 @@ static void test_developer_message(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_developer_message");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_developer_message");
+                                    "test_developer_message");
     liter_llm_assert_json_field(resp->body, "content", "s[::-1]",
-                               "test_developer_message");
+                                "test_developer_message");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_developer_message");
+                                "test_developer_message");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_developer_message");
+                                    "test_developer_message");
     liter_llm_assert_json_field(mock_body, "content", "s[::-1]",
-                               "test_developer_message");
+                                "test_developer_message");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_developer_message");
+                                "test_developer_message");
   }
 }
 
@@ -73,16 +73,16 @@ static void test_finish_reason_content_filter(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_finish_reason_content_filter");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_finish_reason_content_filter");
+                                    "test_finish_reason_content_filter");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_finish_reason_content_filter");
+                                "test_finish_reason_content_filter");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_finish_reason_content_filter");
+                                    "test_finish_reason_content_filter");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_finish_reason_content_filter");
+                                "test_finish_reason_content_filter");
   }
 }
 
@@ -110,20 +110,20 @@ static void test_finish_reason_length(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_finish_reason_length");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_finish_reason_length");
+                                    "test_finish_reason_length");
     liter_llm_assert_json_field(resp->body, "content", "Once upon a time",
-                               "test_finish_reason_length");
+                                "test_finish_reason_length");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_finish_reason_length");
+                                "test_finish_reason_length");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_finish_reason_length");
+                                    "test_finish_reason_length");
     liter_llm_assert_json_field(mock_body, "content", "Once upon a time",
-                               "test_finish_reason_length");
+                                "test_finish_reason_length");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_finish_reason_length");
+                                "test_finish_reason_length");
   }
 }
 
@@ -153,20 +153,20 @@ static void test_multi_turn_conversation(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_multi_turn_conversation");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_multi_turn_conversation");
+                                    "test_multi_turn_conversation");
     liter_llm_assert_json_field(resp->body, "content", "4 + 4 equals 8.",
-                               "test_multi_turn_conversation");
+                                "test_multi_turn_conversation");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_multi_turn_conversation");
+                                "test_multi_turn_conversation");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_multi_turn_conversation");
+                                    "test_multi_turn_conversation");
     liter_llm_assert_json_field(mock_body, "content", "4 + 4 equals 8.",
-                               "test_multi_turn_conversation");
+                                "test_multi_turn_conversation");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_multi_turn_conversation");
+                                "test_multi_turn_conversation");
   }
 }
 
@@ -203,16 +203,16 @@ static void test_parallel_tool_calls(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_parallel_tool_calls");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_parallel_tool_calls");
+                                    "test_parallel_tool_calls");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_parallel_tool_calls");
+                                "test_parallel_tool_calls");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_parallel_tool_calls");
+                                    "test_parallel_tool_calls");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_parallel_tool_calls");
+                                "test_parallel_tool_calls");
   }
 }
 
@@ -243,22 +243,22 @@ static void test_response_format_json_object(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_response_format_json_object");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_response_format_json_object");
+                                    "test_response_format_json_object");
     liter_llm_assert_json_field(resp->body, "content",
-                               "{\"name\": \"Alice\", \"age\": 30}",
-                               "test_response_format_json_object");
+                                "{\"name\": \"Alice\", \"age\": 30}",
+                                "test_response_format_json_object");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_response_format_json_object");
+                                "test_response_format_json_object");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_response_format_json_object");
+                                    "test_response_format_json_object");
     liter_llm_assert_json_field(mock_body, "content",
-                               "{\"name\": \"Alice\", \"age\": 30}",
-                               "test_response_format_json_object");
+                                "{\"name\": \"Alice\", \"age\": 30}",
+                                "test_response_format_json_object");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_response_format_json_object");
+                                "test_response_format_json_object");
   }
 }
 
@@ -289,20 +289,20 @@ static void test_response_format_json_schema(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_response_format_json_schema");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_response_format_json_schema");
+                                    "test_response_format_json_schema");
     liter_llm_assert_json_field(resp->body, "content", "{\"temp\": 18.5}",
-                               "test_response_format_json_schema");
+                                "test_response_format_json_schema");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_response_format_json_schema");
+                                "test_response_format_json_schema");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_response_format_json_schema");
+                                    "test_response_format_json_schema");
     liter_llm_assert_json_field(mock_body, "content", "{\"temp\": 18.5}",
-                               "test_response_format_json_schema");
+                                "test_response_format_json_schema");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_response_format_json_schema");
+                                "test_response_format_json_schema");
   }
 }
 
@@ -329,20 +329,20 @@ static void test_seed_parameter(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_seed_parameter");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_seed_parameter");
+                                    "test_seed_parameter");
     liter_llm_assert_json_field(resp->body, "content", "7",
-                               "test_seed_parameter");
+                                "test_seed_parameter");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_seed_parameter");
+                                "test_seed_parameter");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_seed_parameter");
+                                    "test_seed_parameter");
     liter_llm_assert_json_field(mock_body, "content", "7",
-                               "test_seed_parameter");
+                                "test_seed_parameter");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_seed_parameter");
+                                "test_seed_parameter");
   }
 }
 
@@ -371,20 +371,20 @@ static void test_stop_sequences(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_stop_sequences");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_stop_sequences");
+                                    "test_stop_sequences");
     liter_llm_assert_json_field(resp->body, "content", "Item 1\nItem 2\n",
-                               "test_stop_sequences");
+                                "test_stop_sequences");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_stop_sequences");
+                                "test_stop_sequences");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_stop_sequences");
+                                    "test_stop_sequences");
     liter_llm_assert_json_field(mock_body, "content", "Item 1\nItem 2\n",
-                               "test_stop_sequences");
+                                "test_stop_sequences");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_stop_sequences");
+                                "test_stop_sequences");
   }
 }
 
@@ -420,16 +420,16 @@ static void test_tool_choice_required(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_tool_choice_required");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_tool_choice_required");
+                                    "test_tool_choice_required");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_tool_choice_required");
+                                "test_tool_choice_required");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_tool_choice_required");
+                                    "test_tool_choice_required");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_tool_choice_required");
+                                "test_tool_choice_required");
   }
 }
 
@@ -470,16 +470,16 @@ static void test_tool_choice_specific(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_tool_choice_specific");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_tool_choice_specific");
+                                    "test_tool_choice_specific");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_tool_choice_specific");
+                                "test_tool_choice_specific");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_tool_choice_specific");
+                                    "test_tool_choice_specific");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_tool_choice_specific");
+                                "test_tool_choice_specific");
   }
 }
 

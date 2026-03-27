@@ -56,10 +56,10 @@ static void test_azure_stream(void) {
 
     char *chunks[256];
     int n = liter_llm_read_sse(url,
-                              "{\"messages\":[{\"content\":\"Count to "
-                              "3\",\"role\":\"user\"}],\"model\":\"azure/"
-                              "gpt-4\",\"stream\":true,\"temperature\":0}",
-                              chunks, 256);
+                               "{\"messages\":[{\"content\":\"Count to "
+                               "3\",\"role\":\"user\"}],\"model\":\"azure/"
+                               "gpt-4\",\"stream\":true,\"temperature\":0}",
+                               chunks, 256);
     if (n < 3) {
       fprintf(stderr,
               "FAIL [test_azure_stream]: expected >= 3 chunks, got %d\n", n);
@@ -93,6 +93,40 @@ static void test_basic_stream(void) {
     if (n < 3) {
       fprintf(stderr,
               "FAIL [test_basic_stream]: expected >= 3 chunks, got %d\n", n);
+      abort();
+    }
+    for (int i = 0; i < n; i++)
+      free(chunks[i]);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
+/* Streaming chat completion via the AWS Bedrock provider using the bedrock/
+ * prefix — verifies SSE chunks are yielded and assembled correctly from the
+ * Converse streaming API */
+static void test_bedrock_stream(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body = "null";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    char *chunks[256];
+    int n = liter_llm_read_sse(
+        url,
+        "{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one "
+        "word per "
+        "response.\",\"role\":\"user\"}],\"model\":\"bedrock/"
+        "anthropic.claude-3-sonnet-20240229-v1:0\",\"stream\":true}",
+        chunks, 256);
+    if (n < 3) {
+      fprintf(stderr,
+              "FAIL [test_bedrock_stream]: expected >= 3 chunks, got %d\n", n);
       abort();
     }
     for (int i = 0; i < n; i++)
@@ -257,6 +291,40 @@ static void test_stream_with_usage(void) {
   }
 }
 
+/* Streaming chat completion via the Google Vertex AI provider using the
+ * vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint
+ * are yielded and assembled correctly */
+static void test_vertex_stream(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body = "null";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    char *chunks[256];
+    int n =
+        liter_llm_read_sse(url,
+                           "{\"max_tokens\":32,\"messages\":[{\"content\":"
+                           "\"Count to three, one word per "
+                           "response.\",\"role\":\"user\"}],\"model\":\"vertex_"
+                           "ai/gemini-2.0-flash\",\"stream\":true}",
+                           chunks, 256);
+    if (n < 3) {
+      fprintf(stderr,
+              "FAIL [test_vertex_stream]: expected >= 3 chunks, got %d\n", n);
+      abort();
+    }
+    for (int i = 0; i < n; i++)
+      free(chunks[i]);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    (void)mock_body; /* error or stream test — skip offline assertions */
+  }
+}
+
 int main(void) {
   test_anthropic_stream();
   printf("PASS: Streaming chat completion via the Anthropic provider "
@@ -268,6 +336,10 @@ int main(void) {
   test_basic_stream();
   printf("PASS: Streaming chat completion that produces content across "
          "multiple SSE chunks\n");
+  test_bedrock_stream();
+  printf("PASS: Streaming chat completion via the AWS Bedrock provider using "
+         "the bedrock/ prefix — verifies SSE chunks are yielded and assembled "
+         "correctly from the Converse streaming API\n");
   test_empty_stream();
   printf("PASS: Streaming chat completion that produces no content chunks "
          "before the DONE signal\n");
@@ -283,6 +355,10 @@ int main(void) {
   test_stream_with_usage();
   printf("PASS: Streaming chat completion that includes a usage summary in the "
          "final chunk\n");
+  test_vertex_stream();
+  printf("PASS: Streaming chat completion via the Google Vertex AI provider "
+         "using the vertex_ai/ prefix — verifies SSE chunks from the Gemini "
+         "streaming endpoint are yielded and assembled correctly\n");
   printf("All streaming tests passed.\n");
   return 0;
 }

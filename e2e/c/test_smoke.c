@@ -33,21 +33,22 @@ static void test_anthropic_chat(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_anthropic_chat");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_anthropic_chat");
+                                    "test_anthropic_chat");
     liter_llm_assert_json_field(resp->body, "content", "Hello!",
-                               "test_anthropic_chat");
+                                "test_anthropic_chat");
     liter_llm_assert_json_field(resp->body, "model",
-                               "claude-3-5-sonnet-20241022",
-                               "test_anthropic_chat");
+                                "claude-3-5-sonnet-20241022",
+                                "test_anthropic_chat");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_anthropic_chat");
+                                    "test_anthropic_chat");
     liter_llm_assert_json_field(mock_body, "content", "Hello!",
-                               "test_anthropic_chat");
-    liter_llm_assert_json_field(mock_body, "model", "claude-3-5-sonnet-20241022",
-                               "test_anthropic_chat");
+                                "test_anthropic_chat");
+    liter_llm_assert_json_field(mock_body, "model",
+                                "claude-3-5-sonnet-20241022",
+                                "test_anthropic_chat");
   }
 }
 
@@ -75,16 +76,18 @@ static void test_azure_chat(void) {
              "gpt-4\",\"temperature\":0}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_azure_chat");
-    liter_llm_assert_json_array_len(resp->body, "choices", 1, "test_azure_chat");
+    liter_llm_assert_json_array_len(resp->body, "choices", 1,
+                                    "test_azure_chat");
     liter_llm_assert_json_field(resp->body, "content", "Hello!",
-                               "test_azure_chat");
-    liter_llm_assert_json_field(resp->body, "model", "gpt-4", "test_azure_chat");
+                                "test_azure_chat");
+    liter_llm_assert_json_field(resp->body, "model", "gpt-4",
+                                "test_azure_chat");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1, "test_azure_chat");
     liter_llm_assert_json_field(mock_body, "content", "Hello!",
-                               "test_azure_chat");
+                                "test_azure_chat");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4", "test_azure_chat");
   }
 }
@@ -390,7 +393,8 @@ static void test_azure_embed(void) {
       "001982929,-0.00056486816,-0.006697949,0.007588861,0.003575645,-0."
       "0018699051,-0.0069046023,-0.005898288],\"index\":0,\"object\":"
       "\"embedding\"}],\"model\":\"text-embedding-ada-002\",\"object\":"
-      "\"list\",\"usage\":{\"prompt_tokens\":2,\"total_tokens\":2}}";
+      "\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_"
+      "tokens\":2}}";
 
   const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
   if (base_url != NULL) {
@@ -433,16 +437,18 @@ static void test_basic_chat(void) {
         "hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"temperature\":0}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_basic_chat");
-    liter_llm_assert_json_array_len(resp->body, "choices", 1, "test_basic_chat");
+    liter_llm_assert_json_array_len(resp->body, "choices", 1,
+                                    "test_basic_chat");
     liter_llm_assert_json_field(resp->body, "content", "Hello!",
-                               "test_basic_chat");
-    liter_llm_assert_json_field(resp->body, "model", "gpt-4", "test_basic_chat");
+                                "test_basic_chat");
+    liter_llm_assert_json_field(resp->body, "model", "gpt-4",
+                                "test_basic_chat");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1, "test_basic_chat");
     liter_llm_assert_json_field(mock_body, "content", "Hello!",
-                               "test_basic_chat");
+                                "test_basic_chat");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4", "test_basic_chat");
   }
 }
@@ -495,12 +501,159 @@ static void test_basic_list_models(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_basic_list_models");
     liter_llm_assert_json_array_len(resp->body, "data", 3,
-                                   "test_basic_list_models");
+                                    "test_basic_list_models");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "data", 3,
-                                   "test_basic_list_models");
+                                    "test_basic_list_models");
+  }
+}
+
+/* Basic chat completion via the AWS Bedrock provider using the bedrock/ prefix
+ * for routing — verifies the prefix is stripped before dispatching and the
+ * Converse API response is normalised to the standard OpenAI chat completion
+ * shape */
+static void test_bedrock_chat(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{"
+      "\"content\":\"Hello!\",\"role\":\"assistant\"}}],\"created\":1711000300,"
+      "\"id\":\"chatcmpl-bedrock-001\",\"model\":\"anthropic.claude-3-sonnet-"
+      "20240229-v1:0\",\"object\":\"chat.completion\",\"usage\":{\"completion_"
+      "tokens\":3,\"prompt_tokens\":12,\"total_tokens\":15}}";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLlmResponse *resp = liter_llm_http_post(
+        url, "{\"max_tokens\":16,\"messages\":[{\"content\":\"Say hello in one "
+             "word.\",\"role\":\"user\"}],\"model\":\"bedrock/"
+             "anthropic.claude-3-sonnet-20240229-v1:0\",\"temperature\":0}");
+    assert(resp != NULL);
+    liter_llm_assert_status(resp, 200L, "test_bedrock_chat");
+    liter_llm_assert_json_array_len(resp->body, "choices", 1,
+                                    "test_bedrock_chat");
+    liter_llm_assert_json_field(resp->body, "content", "Hello!",
+                                "test_bedrock_chat");
+    liter_llm_assert_json_field(resp->body, "model",
+                                "anthropic.claude-3-sonnet-20240229-v1:0",
+                                "test_bedrock_chat");
+    liter_llm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    liter_llm_assert_json_array_len(mock_body, "choices", 1,
+                                    "test_bedrock_chat");
+    liter_llm_assert_json_field(mock_body, "content", "Hello!",
+                                "test_bedrock_chat");
+    liter_llm_assert_json_field(mock_body, "model",
+                                "anthropic.claude-3-sonnet-20240229-v1:0",
+                                "test_bedrock_chat");
+  }
+}
+
+/* Basic chat completion via the Google Vertex AI provider using the vertex_ai/
+ * prefix for routing — verifies the prefix is stripped before dispatching and
+ * the Gemini response is normalised to the standard OpenAI chat completion
+ * shape */
+static void test_vertex_chat(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{"
+      "\"content\":\"Hello!\",\"role\":\"assistant\"}}],\"created\":1711000400,"
+      "\"id\":\"chatcmpl-vertex-001\",\"model\":\"gemini-2.0-flash\","
+      "\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":3,"
+      "\"prompt_tokens\":10,\"total_tokens\":13}}";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/chat/completions", base_url);
+
+    LiterLlmResponse *resp = liter_llm_http_post(
+        url, "{\"max_tokens\":16,\"messages\":[{\"content\":\"Say hello in one "
+             "word.\",\"role\":\"user\"}],\"model\":\"vertex_ai/"
+             "gemini-2.0-flash\",\"temperature\":0}");
+    assert(resp != NULL);
+    liter_llm_assert_status(resp, 200L, "test_vertex_chat");
+    liter_llm_assert_json_array_len(resp->body, "choices", 1,
+                                    "test_vertex_chat");
+    liter_llm_assert_json_field(resp->body, "content", "Hello!",
+                                "test_vertex_chat");
+    liter_llm_assert_json_field(resp->body, "model", "gemini-2.0-flash",
+                                "test_vertex_chat");
+    liter_llm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    liter_llm_assert_json_array_len(mock_body, "choices", 1,
+                                    "test_vertex_chat");
+    liter_llm_assert_json_field(mock_body, "content", "Hello!",
+                                "test_vertex_chat");
+    liter_llm_assert_json_field(mock_body, "model", "gemini-2.0-flash",
+                                "test_vertex_chat");
+  }
+}
+
+/* Embedding request via Google Vertex AI using the vertex_ai/ provider prefix
+ * and the text-embedding-005 model — response follows the standard OpenAI
+ * embeddings shape */
+static void test_vertex_embed(void) {
+  /* Pre-recorded mock response body. */
+  const char *mock_body =
+      "{\"data\":[{\"embedding\":[0.012390136,-0.004321289,0.023456781,-0."
+      "008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,"
+      "0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0."
+      "021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,"
+      "0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0."
+      "005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-"
+      "0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0."
+      "015678901,0.007654321,-0.011234567,0.003456789,0.021234567,-0.00654321,"
+      "0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0."
+      "007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,"
+      "0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0."
+      "014234567,-0.001234567,0.012390136,-0.004321289,0.023456781,-0."
+      "008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,"
+      "0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0."
+      "021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,"
+      "0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0."
+      "005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-"
+      "0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0."
+      "015678901,0.007654321,-0.011234567,0.003456789,0.021234567,-0.00654321,"
+      "0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0."
+      "007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,"
+      "0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0."
+      "014234567,-0.001234567,0.012390136,-0.004321289,0.023456781,-0."
+      "008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,"
+      "0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0."
+      "021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,"
+      "0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0."
+      "005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-"
+      "0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0."
+      "015678901,0.007654321,-0.011234567,0.003456789],\"index\":0,\"object\":"
+      "\"embedding\"}],\"model\":\"text-embedding-005\",\"object\":\"list\","
+      "\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":3,\"total_tokens\":"
+      "3}}";
+
+  const char *base_url = getenv("LITER_LLM_TEST_BASE_URL");
+  if (base_url != NULL) {
+    /* Live HTTP test against a real server. */
+    char url[1024];
+    snprintf(url, sizeof(url), "%s/embeddings", base_url);
+
+    LiterLlmResponse *resp = liter_llm_http_post(
+        url,
+        "{\"input\":\"Hello\",\"model\":\"vertex_ai/text-embedding-005\"}");
+    assert(resp != NULL);
+    liter_llm_assert_status(resp, 200L, "test_vertex_embed");
+    liter_llm_assert_json_array_len(resp->body, "data", 1, "test_vertex_embed");
+    liter_llm_response_free(resp);
+  } else {
+    /* Offline: assert against pre-recorded mock body. */
+    liter_llm_assert_json_array_len(mock_body, "data", 1, "test_vertex_embed");
   }
 }
 
@@ -523,6 +676,20 @@ int main(void) {
   printf("PASS: Basic embedding request for a single input string\n");
   test_basic_list_models();
   printf("PASS: List available models from the API\n");
+  test_bedrock_chat();
+  printf("PASS: Basic chat completion via the AWS Bedrock provider using the "
+         "bedrock/ prefix for routing — verifies the prefix is stripped before "
+         "dispatching and the Converse API response is normalised to the "
+         "standard OpenAI chat completion shape\n");
+  test_vertex_chat();
+  printf("PASS: Basic chat completion via the Google Vertex AI provider using "
+         "the vertex_ai/ prefix for routing — verifies the prefix is stripped "
+         "before dispatching and the Gemini response is normalised to the "
+         "standard OpenAI chat completion shape\n");
+  test_vertex_embed();
+  printf("PASS: Embedding request via Google Vertex AI using the vertex_ai/ "
+         "provider prefix and the text-embedding-005 model — response follows "
+         "the standard OpenAI embeddings shape\n");
   printf("All smoke tests passed.\n");
   return 0;
 }

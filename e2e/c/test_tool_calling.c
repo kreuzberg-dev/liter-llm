@@ -44,17 +44,18 @@ static void test_anthropic_tool_calling(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_anthropic_tool_calling");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_anthropic_tool_calling");
+                                    "test_anthropic_tool_calling");
     liter_llm_assert_json_field(resp->body, "model",
-                               "claude-3-5-sonnet-20241022",
-                               "test_anthropic_tool_calling");
+                                "claude-3-5-sonnet-20241022",
+                                "test_anthropic_tool_calling");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_anthropic_tool_calling");
-    liter_llm_assert_json_field(mock_body, "model", "claude-3-5-sonnet-20241022",
-                               "test_anthropic_tool_calling");
+                                    "test_anthropic_tool_calling");
+    liter_llm_assert_json_field(mock_body, "model",
+                                "claude-3-5-sonnet-20241022",
+                                "test_anthropic_tool_calling");
   }
 }
 
@@ -93,16 +94,16 @@ static void test_single_tool_call(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_single_tool_call");
     liter_llm_assert_json_array_len(resp->body, "choices", 1,
-                                   "test_single_tool_call");
+                                    "test_single_tool_call");
     liter_llm_assert_json_field(resp->body, "model", "gpt-4",
-                               "test_single_tool_call");
+                                "test_single_tool_call");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "choices", 1,
-                                   "test_single_tool_call");
+                                    "test_single_tool_call");
     liter_llm_assert_json_field(mock_body, "model", "gpt-4",
-                               "test_single_tool_call");
+                                "test_single_tool_call");
   }
 }
 

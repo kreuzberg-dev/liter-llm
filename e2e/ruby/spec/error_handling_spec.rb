@@ -84,6 +84,26 @@ RSpec.describe "error-handling" do
     server&.stop
   end
 
+  it "bedrock_error_auth" do
+    # AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 403,
+      body: "{\"message\":\"You don't have access to the model with the specified model ID.\"}",
+      stream_chunks: []
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Hello","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0"}')
+
+    expect(response.code.to_i).to eq(403)
+    expect(response.code.to_i).to be >= 400
+
+  ensure
+    server&.stop
+  end
+
   it "content_policy_violation" do
     # 400 error when a request is rejected due to content policy
     route = E2EHelpers::MockRoute.new(
@@ -238,6 +258,26 @@ RSpec.describe "error-handling" do
     response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
 
     expect(response.code.to_i).to eq(502)
+    expect(response.code.to_i).to be >= 400
+
+  ensure
+    server&.stop
+  end
+
+  it "vertex_error_auth" do
+    # Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 401,
+      body: '{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}',
+      stream_chunks: []
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"messages":[{"content":"Hello","role":"user"}],"model":"vertex_ai/gemini-2.0-flash"}')
+
+    expect(response.code.to_i).to eq(401)
     expect(response.code.to_i).to be >= 400
 
   ensure

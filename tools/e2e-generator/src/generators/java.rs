@@ -270,6 +270,12 @@ public final class Helpers {
 // ─── Test class generation ────────────────────────────────────────────────────
 
 fn write_test_class(pkg_dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Result<()> {
+    // Skip the parity category entirely — it defines the canonical API surface
+    // for cross-binding verification and does not produce runnable tests.
+    if category == "parity" {
+        return Ok(());
+    }
+
     let class_name = format!("{}Test", pascal_case(category));
     let mut out = String::new();
 
@@ -290,7 +296,11 @@ fn write_test_class(pkg_dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -
         if fixture.skip.languages.iter().any(|l| l == "java") {
             continue;
         }
-        write_test_method(&mut out, fixture);
+        if is_new_category(category) {
+            write_new_category_test_method(&mut out, fixture, category);
+        } else {
+            write_test_method(&mut out, fixture);
+        }
     }
 
     writeln!(out, "}}").unwrap();
@@ -735,4 +745,307 @@ fn camel_case(s: &str) -> String {
         None => String::new(),
         Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
     }
+}
+
+/// Returns true for the new TDD fixture categories (cache, budget, hooks, custom_provider).
+fn is_new_category(category: &str) -> bool {
+    matches!(category, "cache" | "budget" | "hooks" | "custom_provider")
+}
+
+/// Emit a TDD test method for the new categories (cache, budget, hooks, custom_provider).
+/// These tests use the native client API and will fail until the features are implemented.
+fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category: &str) {
+    let method_name = camel_case(&fixture.id);
+    let is_error = !fixture.assertions.expect_success;
+
+    writeln!(out).unwrap();
+    writeln!(out, "  /** {} */", fixture.description).unwrap();
+    writeln!(out, "  @Test").unwrap();
+    writeln!(out, "  void {method_name}() throws Exception {{").unwrap();
+
+    // Build mock server for fixtures that have a real mock response body.
+    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let endpoint = endpoint_for_method(fixture.api.method.as_str());
+    let status = fixture.api.mock_response.status;
+    let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
+
+    writeln!(
+        out,
+        "    try (Helpers.MockServer server = new Helpers.MockServer(List.of("
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "        new Helpers.MockRoute({:?}, \"POST\", {status}, {})",
+        endpoint,
+        java_string(&body_json)
+    )
+    .unwrap();
+    writeln!(out, "    ))) {{").unwrap();
+    writeln!(out, "      String mockUrl = server.url;").unwrap();
+    writeln!(out).unwrap();
+
+    match category {
+        "cache" => {
+            writeln!(
+                out,
+                "      // TDD: Cache tests — will fail until cache feature is implemented."
+            )
+            .unwrap();
+            writeln!(out, "      var config = new LlmClientConfig.Builder()").unwrap();
+            writeln!(out, "          .apiKey(\"test-key\")").unwrap();
+            writeln!(out, "          .baseUrl(mockUrl)").unwrap();
+            writeln!(out, "          .cache(new CacheConfig(10, 60))").unwrap();
+            writeln!(out, "          .build();").unwrap();
+            writeln!(out, "      var client = new LlmClient(config);").unwrap();
+            writeln!(out).unwrap();
+
+            if fixture.assertions.cache_hit == Some(true) {
+                writeln!(
+                    out,
+                    "      // First call populates cache, second call should hit cache."
+                )
+                .unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      var resp1 = client.chat(request);").unwrap();
+                writeln!(out, "      var resp2 = client.chat(request);").unwrap();
+                writeln!(
+                    out,
+                    "      assertTrue(resp2.isCacheHit(), \"Expected cache hit on second call\");"
+                )
+                .unwrap();
+            } else if fixture.assertions.cache_bypassed == Some(true) {
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      var resp = client.chatStream(request);").unwrap();
+                writeln!(
+                    out,
+                    "      assertFalse(resp.isCacheHit(), \"Streaming requests should bypass cache\");"
+                )
+                .unwrap();
+            } else {
+                // cache_miss_ttl or similar
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      var resp1 = client.chat(request);").unwrap();
+                writeln!(out, "      // Simulate TTL expiry — second call should miss cache.").unwrap();
+                writeln!(out, "      Thread.sleep(100);").unwrap();
+                writeln!(out, "      var resp2 = client.chat(request);").unwrap();
+                writeln!(
+                    out,
+                    "      assertFalse(resp2.isCacheHit(), \"Expected cache miss after TTL expiry\");"
+                )
+                .unwrap();
+            }
+        }
+        "budget" => {
+            writeln!(
+                out,
+                "      // TDD: Budget tests — will fail until budget feature is implemented."
+            )
+            .unwrap();
+
+            if let Some(budget_cfg) = &fixture.client_config.budget {
+                let budget_json = serde_json::to_string(budget_cfg).unwrap_or_default();
+                writeln!(out, "      // Budget config: {}", java_string(&budget_json)).unwrap();
+            }
+
+            if is_error {
+                writeln!(out, "      var config = new LlmClientConfig.Builder()").unwrap();
+                writeln!(out, "          .apiKey(\"test-key\")").unwrap();
+                writeln!(out, "          .baseUrl(mockUrl)").unwrap();
+                writeln!(out, "          .budget(new BudgetConfig(0.001, \"hard\"))").unwrap();
+                writeln!(out, "          .build();").unwrap();
+                writeln!(out, "      var client = new LlmClient(config);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(
+                    out,
+                    "      assertThrows(BudgetExceededException.class, () -> client.chat(request),"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "          \"Expected BudgetExceededException when budget is exceeded\");"
+                )
+                .unwrap();
+            } else {
+                writeln!(out, "      var config = new LlmClientConfig.Builder()").unwrap();
+                writeln!(out, "          .apiKey(\"test-key\")").unwrap();
+                writeln!(out, "          .baseUrl(mockUrl)").unwrap();
+                writeln!(out, "          .budget(new BudgetConfig(10.0, \"soft\"))").unwrap();
+                writeln!(out, "          .build();").unwrap();
+                writeln!(out, "      var client = new LlmClient(config);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      var resp = client.chat(request);").unwrap();
+                writeln!(out, "      assertNotNull(resp, \"Expected successful response\");").unwrap();
+                if fixture.assertions.cost_tracked == Some(true) {
+                    writeln!(
+                        out,
+                        "      assertTrue(client.getBudgetUsage() > 0, \"Expected cost to be tracked\");"
+                    )
+                    .unwrap();
+                }
+            }
+        }
+        "hooks" => {
+            writeln!(
+                out,
+                "      // TDD: Hook tests — will fail until hooks feature is implemented."
+            )
+            .unwrap();
+            writeln!(out, "      var config = new LlmClientConfig.Builder()").unwrap();
+            writeln!(out, "          .apiKey(\"test-key\")").unwrap();
+            writeln!(out, "          .baseUrl(mockUrl)").unwrap();
+            writeln!(out, "          .build();").unwrap();
+            writeln!(out, "      var client = new LlmClient(config);").unwrap();
+            writeln!(out).unwrap();
+
+            if fixture.assertions.hook_on_request_called == Some(true) {
+                writeln!(
+                    out,
+                    "      var hookCalled = new java.util.concurrent.atomic.AtomicBoolean(false);"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "      client.addHook(\"on_request\", (req) -> hookCalled.set(true));"
+                )
+                .unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      client.chat(request);").unwrap();
+                writeln!(
+                    out,
+                    "      assertTrue(hookCalled.get(), \"Expected on_request hook to be called\");"
+                )
+                .unwrap();
+            } else if fixture.assertions.hook_on_response_called == Some(true) {
+                writeln!(
+                    out,
+                    "      var hookCalled = new java.util.concurrent.atomic.AtomicBoolean(false);"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "      client.addHook(\"on_response\", (resp) -> hookCalled.set(true));"
+                )
+                .unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      client.chat(request);").unwrap();
+                writeln!(
+                    out,
+                    "      assertTrue(hookCalled.get(), \"Expected on_response hook to be called\");"
+                )
+                .unwrap();
+            } else if fixture.assertions.hook_on_error_called == Some(true) {
+                writeln!(
+                    out,
+                    "      var hookCalled = new java.util.concurrent.atomic.AtomicBoolean(false);"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "      client.addHook(\"on_error\", (err) -> hookCalled.set(true));"
+                )
+                .unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(
+                    out,
+                    "      try {{ client.chat(request); }} catch (Exception ignored) {{ }}"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "      assertTrue(hookCalled.get(), \"Expected on_error hook to be called\");"
+                )
+                .unwrap();
+            } else if is_error {
+                // hook_guardrail — hook rejects the request
+                writeln!(out, "      client.addHook(\"on_request\", (req) -> {{ throw new HookRejectedException(\"Blocked by guardrail\"); }});").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(
+                    out,
+                    "      assertThrows(HookRejectedException.class, () -> client.chat(request),"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "          \"Expected HookRejectedException from guardrail hook\");"
+                )
+                .unwrap();
+            }
+        }
+        "custom_provider" => {
+            writeln!(
+                out,
+                "      // TDD: Custom provider tests — will fail until custom provider registration is implemented."
+            )
+            .unwrap();
+
+            if let Some(provider_cfg) = &fixture.client_config.custom_provider {
+                let name = provider_cfg
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("my-provider");
+                let base_url_cfg = provider_cfg
+                    .get("base_url")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("http://localhost");
+                let _ = base_url_cfg; // Use mockUrl at runtime instead.
+
+                writeln!(out, "      var config = new LlmClientConfig.Builder()").unwrap();
+                writeln!(out, "          .apiKey(\"test-key\")").unwrap();
+                writeln!(out, "          .build();").unwrap();
+                writeln!(out, "      var client = new LlmClient(config);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      client.registerProvider(new ProviderConfig(").unwrap();
+                writeln!(out, "          {:?},", name).unwrap();
+                writeln!(out, "          mockUrl,").unwrap();
+
+                if let Some(prefixes) = provider_cfg.get("model_prefixes").and_then(|v| v.as_array()) {
+                    let prefix_strs: Vec<String> = prefixes
+                        .iter()
+                        .filter_map(|p| p.as_str().map(|s| format!("{:?}", s)))
+                        .collect();
+                    writeln!(out, "          List.of({})", prefix_strs.join(", ")).unwrap();
+                } else {
+                    writeln!(out, "          List.of()").unwrap();
+                }
+
+                writeln!(out, "      ));").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "      var request = {};", java_string(&req_json)).unwrap();
+                writeln!(out, "      var resp = client.chat(request);").unwrap();
+                writeln!(
+                    out,
+                    "      assertNotNull(resp, \"Expected response from custom provider\");"
+                )
+                .unwrap();
+
+                if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array())
+                    && let Some(content) = choices_arr
+                        .first()
+                        .and_then(|c| c.get("message"))
+                        .and_then(|m| m.get("content"))
+                        .and_then(|c| c.as_str())
+                {
+                    writeln!(
+                        out,
+                        "      assertEquals({}, resp.firstChoiceContent(), \"response content\");",
+                        java_string(content)
+                    )
+                    .unwrap();
+                }
+            }
+        }
+        _ => {
+            writeln!(out, "      // Unknown new category: {category}").unwrap();
+        }
+    }
+
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "  }}").unwrap();
 }

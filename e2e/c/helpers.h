@@ -24,15 +24,15 @@ typedef struct {
 
 /*
  * Perform an HTTP POST to url with the given JSON body.
- * Returns a heap-allocated LiterLlmResponse; call liter_llm_response_free() when
- * done.
+ * Returns a heap-allocated LiterLlmResponse; call liter_llm_response_free()
+ * when done.
  */
 LiterLlmResponse *liter_llm_http_post(const char *url, const char *json_body);
 
 /*
  * Perform an HTTP GET to url.
- * Returns a heap-allocated LiterLlmResponse; call liter_llm_response_free() when
- * done.
+ * Returns a heap-allocated LiterLlmResponse; call liter_llm_response_free()
+ * when done.
  */
 LiterLlmResponse *liter_llm_http_get(const char *url);
 
@@ -42,8 +42,8 @@ LiterLlmResponse *liter_llm_http_get(const char *url);
  * char* pointers. Returns the number of chunks collected.  Each chunk is
  * heap-allocated; the caller must free each chunk and the array itself.
  */
-int liter_llm_read_sse(const char *url, const char *json_body, char **chunks_out,
-                      int max_chunks);
+int liter_llm_read_sse(const char *url, const char *json_body,
+                       char **chunks_out, int max_chunks);
 
 /* Free a response returned by liter_llm_http_post / liter_llm_http_get. */
 void liter_llm_response_free(LiterLlmResponse *resp);
@@ -53,12 +53,12 @@ void liter_llm_response_free(LiterLlmResponse *resp);
  * These print an error and abort if the condition is not met.
  */
 void liter_llm_assert_status(const LiterLlmResponse *resp, long expected,
-                            const char *test_name);
+                             const char *test_name);
 void liter_llm_assert_json_field(const char *json, const char *key,
-                                const char *expected_value,
-                                const char *test_name);
+                                 const char *expected_value,
+                                 const char *test_name);
 void liter_llm_assert_json_array_len(const char *json, const char *key,
-                                    int expected_len, const char *test_name);
+                                     int expected_len, const char *test_name);
 
 #ifdef __cplusplus
 }

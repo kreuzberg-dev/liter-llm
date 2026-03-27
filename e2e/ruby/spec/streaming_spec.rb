@@ -109,6 +109,41 @@ RSpec.describe "streaming" do
     server&.stop
   end
 
+  it "bedrock_stream" do
+    # Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 200,
+      body: 'null',
+      stream_chunks: [
+        '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+      ]
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0","stream":true}')
+
+    expect(response.code.to_i).to eq(200)
+
+    chunks = parse_sse_chunks(response.body)
+    expect(chunks.size).to be >= 3
+
+    content = chunks.filter_map do |raw|
+      parsed = JSON.parse(raw) rescue nil
+      next unless parsed
+      parsed.dig("choices", 0, "delta", "content")
+    end.join
+    expect(content).to eq('One Two Three')
+
+  ensure
+    server&.stop
+  end
+
   it "empty_stream" do
     # Streaming chat completion that produces no content chunks before the DONE signal
     route = E2EHelpers::MockRoute.new(
@@ -240,6 +275,41 @@ RSpec.describe "streaming" do
       parsed.dig("choices", 0, "delta", "content")
     end.join
     expect(content).to eq('Hi there!')
+
+  ensure
+    server&.stop
+  end
+
+  it "vertex_stream" do
+    # Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly
+    route = E2EHelpers::MockRoute.new(
+      path: "/chat/completions",
+      method: "POST",
+      status: 200,
+      body: 'null',
+      stream_chunks: [
+        '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+        '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+      ]
+    )
+    server = E2EHelpers::MockServer.new([route])
+
+    response = post_json(server.url, "/chat/completions", '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"vertex_ai/gemini-2.0-flash","stream":true}')
+
+    expect(response.code.to_i).to eq(200)
+
+    chunks = parse_sse_chunks(response.body)
+    expect(chunks.size).to be >= 3
+
+    content = chunks.filter_map do |raw|
+      parsed = JSON.parse(raw) rescue nil
+      next unless parsed
+      parsed.dig("choices", 0, "delta", "content")
+    end.join
+    expect(content).to eq('One Two Three')
 
   ensure
     server&.stop
