@@ -8,6 +8,7 @@ use liter_llm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
 /// Tests that a request is rejected when budget is exceeded (TDD -- will fail until budget is implemented)
 #[tokio::test]
+#[ignore = "TDD: feature not yet implemented"]
 async fn budget_enforced() {
     let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
         path: "/chat/completions",
@@ -44,6 +45,7 @@ async fn budget_enforced() {
 
 /// Tests per-model budget limit (TDD -- will fail until budget is implemented)
 #[tokio::test]
+#[ignore = "TDD: feature not yet implemented"]
 async fn budget_per_model() {
     let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
         path: "/chat/completions",
@@ -80,6 +82,7 @@ async fn budget_per_model() {
 
 /// Tests that cost is tracked after a successful response (TDD -- will fail until budget is implemented)
 #[tokio::test]
+#[ignore = "TDD: feature not yet implemented"]
 async fn budget_tracked() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {

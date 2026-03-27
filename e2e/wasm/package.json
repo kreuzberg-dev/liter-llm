@@ -9,6 +9,6 @@
     "vitest": "^4.1.2"
   },
   "dependencies": {
-    "liter-llm-wasm": "../../crates/liter-llm-wasm"
+    "liter-llm-wasm": "link:../../crates/liter-llm-wasm"
   }
 }

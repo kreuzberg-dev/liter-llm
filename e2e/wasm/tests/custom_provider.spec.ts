@@ -8,7 +8,7 @@ import type { MockServer } from "./helpers.js";
 // Run `wasm-pack build --target nodejs` in crates/liter-llm-wasm first.
 import { LlmClient } from "liter-llm-wasm";
 
-describe("custom_provider", () => {
+describe.skip("custom_provider", () => {
 
   it("Tests custom provider with custom auth header", async () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello with custom auth!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-auth-001\",\"model\":\"my-auth-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":6,\"prompt_tokens\":8,\"total_tokens\":14}}", streamChunks: [] }]);

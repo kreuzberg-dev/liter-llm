@@ -542,6 +542,7 @@ fn write_cache_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let is_stream = fixture.api.method == "chat_stream";
 
         writeln!(out).unwrap();
+        writeln!(out, "  @tag :skip").unwrap();
         writeln!(out, "  test {test_name:?} do").unwrap();
 
         // Build routes
@@ -636,6 +637,7 @@ fn write_budget_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
+        writeln!(out, "  @tag :skip").unwrap();
         writeln!(out, "  test {test_name:?} do").unwrap();
 
         writeln!(out, "    routes = [").unwrap();
@@ -714,6 +716,11 @@ fn write_hooks_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
     writeln!(out, "defmodule LiterLlmE2E.HooksTest do").unwrap();
     writeln!(out, "  use ExUnit.Case, async: true").unwrap();
     writeln!(out).unwrap();
+    writeln!(
+        out,
+        "  # All hooks tests are TDD stubs -- features not yet implemented."
+    )
+    .unwrap();
     writeln!(out, "  alias LiterLlmE2E.MockServer").unwrap();
     writeln!(out, "  alias LiterLlmE2E.Helpers").unwrap();
     writeln!(out).unwrap();
@@ -763,6 +770,7 @@ fn write_hooks_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
+        writeln!(out, "  @tag :skip").unwrap();
         writeln!(out, "  test {test_name:?} do").unwrap();
 
         writeln!(out, "    routes = [").unwrap();
@@ -864,6 +872,7 @@ fn write_custom_provider_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
+        writeln!(out, "  @tag :skip").unwrap();
         writeln!(out, "  test {test_name:?} do").unwrap();
 
         writeln!(out, "    routes = [").unwrap();

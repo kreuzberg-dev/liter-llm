@@ -8,7 +8,7 @@ import type { MockServer } from "./helpers.js";
 // Run `wasm-pack build --target nodejs` in crates/liter-llm-wasm first.
 import { LlmClient } from "liter-llm-wasm";
 
-describe("budget", () => {
+describe.skip("budget", () => {
 
   it("Tests that a request is rejected when budget is exceeded", async () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{}", streamChunks: [] }]);

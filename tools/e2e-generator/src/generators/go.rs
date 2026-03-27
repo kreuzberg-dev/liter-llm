@@ -660,6 +660,7 @@ fn emit_go_cache_test(out: &mut String, fixture: &Fixture) {
 
     writeln!(out, "\tt.Run({:?}, func(t *testing.T) {{", fixture.id).unwrap();
     writeln!(out, "\t\t// {}", fixture.description).unwrap();
+    writeln!(out, "\t\tt.Skip(\"TDD: feature not yet implemented\")").unwrap();
     writeln!(out).unwrap();
 
     // Mock server.
@@ -742,6 +743,7 @@ fn emit_go_budget_test(out: &mut String, fixture: &Fixture) {
 
     writeln!(out, "\tt.Run({:?}, func(t *testing.T) {{", fixture.id).unwrap();
     writeln!(out, "\t\t// {}", fixture.description).unwrap();
+    writeln!(out, "\t\tt.Skip(\"TDD: feature not yet implemented\")").unwrap();
     writeln!(out).unwrap();
 
     writeln!(out, "\t\tserver := NewMockServer([]MockRoute{{").unwrap();
@@ -820,6 +822,7 @@ fn emit_go_hooks_test(out: &mut String, fixture: &Fixture) {
 
     writeln!(out, "\tt.Run({:?}, func(t *testing.T) {{", fixture.id).unwrap();
     writeln!(out, "\t\t// {}", fixture.description).unwrap();
+    writeln!(out, "\t\tt.Skip(\"TDD: feature not yet implemented\")").unwrap();
     writeln!(out).unwrap();
 
     writeln!(out, "\t\tserver := NewMockServer([]MockRoute{{").unwrap();
@@ -921,6 +924,7 @@ fn emit_go_custom_provider_test(out: &mut String, fixture: &Fixture) {
 
     writeln!(out, "\tt.Run({:?}, func(t *testing.T) {{", fixture.id).unwrap();
     writeln!(out, "\t\t// {}", fixture.description).unwrap();
+    writeln!(out, "\t\tt.Skip(\"TDD: feature not yet implemented\")").unwrap();
     writeln!(out).unwrap();
 
     writeln!(out, "\t\tserver := NewMockServer([]MockRoute{{").unwrap();

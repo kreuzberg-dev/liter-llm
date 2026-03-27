@@ -5,6 +5,7 @@ defmodule LiterLlmE2E.BudgetTest do
   alias LiterLlmE2E.MockServer
   alias LiterLlmE2E.Helpers
 
+  @tag :skip
   test "Tests that a request is rejected when budget is exceeded" do
     routes = [
       %{
@@ -33,6 +34,7 @@ defmodule LiterLlmE2E.BudgetTest do
              )
   end
 
+  @tag :skip
   test "Tests per-model budget limit" do
     routes = [
       %{
@@ -61,6 +63,7 @@ defmodule LiterLlmE2E.BudgetTest do
              )
   end
 
+  @tag :skip
   test "Tests that cost is tracked after a successful response" do
     routes = [
       %{

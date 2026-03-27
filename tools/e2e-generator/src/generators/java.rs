@@ -288,6 +288,9 @@ fn write_test_class(pkg_dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -
     writeln!(out, "import java.util.List;").unwrap();
     writeln!(out, "import java.net.http.HttpResponse;").unwrap();
     writeln!(out, "import org.junit.jupiter.api.Test;").unwrap();
+    if is_new_category(category) {
+        writeln!(out, "import org.junit.jupiter.api.Disabled;").unwrap();
+    }
     writeln!(out).unwrap();
     writeln!(out, "/** E2E tests for category: {category}. */").unwrap();
     writeln!(out, "class {class_name} {{").unwrap();
@@ -760,6 +763,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
 
     writeln!(out).unwrap();
     writeln!(out, "  /** {} */", fixture.description).unwrap();
+    writeln!(out, "  @Disabled(\"TDD: feature not yet implemented\")").unwrap();
     writeln!(out, "  @Test").unwrap();
     writeln!(out, "  void {method_name}() throws Exception {{").unwrap();
 

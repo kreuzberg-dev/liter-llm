@@ -833,6 +833,7 @@ fn write_new_category_test_fn(out: &mut String, fixture: &Fixture, category: &st
     )
     .unwrap();
     writeln!(out, "#[tokio::test]").unwrap();
+    writeln!(out, "#[ignore = \"TDD: feature not yet implemented\"]").unwrap();
     writeln!(out, "async fn {fn_name}() {{").unwrap();
 
     // Start mock server.

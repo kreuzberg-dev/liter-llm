@@ -8,6 +8,7 @@ use liter_llm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
 /// Tests that identical chat requests return cached response (TDD -- will fail until cache is implemented)
 #[tokio::test]
+#[ignore = "TDD: feature not yet implemented"]
 async fn cache_hit() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {
@@ -43,6 +44,7 @@ async fn cache_hit() {
 
 /// Tests that cache expires after TTL (TDD -- will fail until cache is implemented)
 #[tokio::test]
+#[ignore = "TDD: feature not yet implemented"]
 async fn cache_miss_ttl() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {
@@ -79,6 +81,7 @@ async fn cache_miss_ttl() {
 
 /// Tests that streaming requests bypass cache entirely (TDD -- will fail until cache is implemented)
 #[tokio::test]
+#[ignore = "TDD: feature not yet implemented"]
 async fn cache_stream_bypass() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {

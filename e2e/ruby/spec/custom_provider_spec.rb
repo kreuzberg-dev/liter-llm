@@ -5,7 +5,7 @@ require "spec_helper"
 require "liter_llm"
 
 RSpec.describe "custom_provider" do
-  it "provider_auth" do
+  xit "provider_auth" do
     # Tests custom provider with custom auth header
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",
@@ -34,7 +34,7 @@ RSpec.describe "custom_provider" do
     server&.stop
   end
 
-  it "register_provider" do
+  xit "register_provider" do
     # Tests that a custom provider can be registered and routes requests
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",

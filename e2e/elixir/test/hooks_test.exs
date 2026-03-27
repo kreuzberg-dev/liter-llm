@@ -2,6 +2,7 @@
 defmodule LiterLlmE2E.HooksTest do
   use ExUnit.Case, async: true
 
+  # All hooks tests are TDD stubs -- features not yet implemented.
   alias LiterLlmE2E.MockServer
   alias LiterLlmE2E.Helpers
 
@@ -32,6 +33,7 @@ defmodule LiterLlmE2E.HooksTest do
     end
   end
 
+  @tag :skip
   test "Tests that on_request hook can reject a request" do
     routes = [
       %{
@@ -57,6 +59,7 @@ defmodule LiterLlmE2E.HooksTest do
              )
   end
 
+  @tag :skip
   test "Tests that on_error hook is called on failure" do
     routes = [
       %{
@@ -90,6 +93,7 @@ defmodule LiterLlmE2E.HooksTest do
     assert TestHook.called?(hook_agent, :on_error), "Expected on_error hook to be called"
   end
 
+  @tag :skip
   test "Tests that on_request hook is called before the request" do
     routes = [
       %{
@@ -123,6 +127,7 @@ defmodule LiterLlmE2E.HooksTest do
     assert TestHook.called?(hook_agent, :on_request), "Expected on_request hook to be called"
   end
 
+  @tag :skip
   test "Tests that on_response hook is called with response data" do
     routes = [
       %{

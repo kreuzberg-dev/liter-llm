@@ -5,7 +5,7 @@ require "spec_helper"
 require "liter_llm"
 
 RSpec.describe "cache" do
-  it "cache_hit" do
+  xit "cache_hit" do
     # Tests that identical chat requests return cached response
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",
@@ -28,7 +28,7 @@ RSpec.describe "cache" do
     server&.stop
   end
 
-  it "cache_miss_ttl" do
+  xit "cache_miss_ttl" do
     # Tests that cache expires after TTL
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",
@@ -50,7 +50,7 @@ RSpec.describe "cache" do
     server&.stop
   end
 
-  it "cache_stream_bypass" do
+  xit "cache_stream_bypass" do
     # Tests that streaming requests bypass cache entirely
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",

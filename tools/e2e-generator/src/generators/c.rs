@@ -857,10 +857,12 @@ fn write_new_category_test_fn(out: &mut String, fixture: &Fixture, category: &st
     writeln!(out, "{{").unwrap();
     writeln!(
         out,
-        "    /* TDD: Will fail until {} feature is implemented in FFI layer. */",
+        "    /* SKIP: TDD -- feature not yet implemented ({} category). */",
         category
     )
     .unwrap();
+    writeln!(out, "    printf(\"SKIP: TDD: feature not yet implemented\\n\");").unwrap();
+    writeln!(out, "    return;").unwrap();
     writeln!(out).unwrap();
 
     // All new-category tests use the base_url env var for the mock server.

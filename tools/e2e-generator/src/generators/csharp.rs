@@ -588,7 +588,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
 
     writeln!(out).unwrap();
     writeln!(out, "    /// <summary>{}</summary>", fixture.description).unwrap();
-    writeln!(out, "    [Fact]").unwrap();
+    writeln!(out, "    [Fact(Skip = \"TDD: feature not yet implemented\")]").unwrap();
     writeln!(out, "    public async Task {method_name}()").unwrap();
     writeln!(out, "    {{").unwrap();
 

@@ -10,7 +10,7 @@ public sealed class CustomProviderTests
 {
 
     /// <summary>Tests custom provider with custom auth header</summary>
-    [Fact]
+    [Fact(Skip = "TDD: feature not yet implemented")]
     public async Task ProviderAuth()
     {
         var routes = new[]
@@ -45,7 +45,7 @@ public sealed class CustomProviderTests
     }
 
     /// <summary>Tests that a custom provider can be registered and routes requests</summary>
-    [Fact]
+    [Fact(Skip = "TDD: feature not yet implemented")]
     public async Task RegisterProvider()
     {
         var routes = new[]

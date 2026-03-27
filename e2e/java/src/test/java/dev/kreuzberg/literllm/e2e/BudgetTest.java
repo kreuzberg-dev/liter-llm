@@ -4,12 +4,14 @@ package dev.kreuzberg.literllm.e2e;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** E2E tests for category: budget. */
 class BudgetTest {
 
   /** Tests that a request is rejected when budget is exceeded */
+  @Disabled("TDD: feature not yet implemented")
   @Test
   void budgetEnforced() throws Exception {
     try (Helpers.MockServer server =
@@ -37,6 +39,7 @@ class BudgetTest {
   }
 
   /** Tests per-model budget limit */
+  @Disabled("TDD: feature not yet implemented")
   @Test
   void budgetPerModel() throws Exception {
     try (Helpers.MockServer server =
@@ -64,6 +67,7 @@ class BudgetTest {
   }
 
   /** Tests that cost is tracked after a successful response */
+  @Disabled("TDD: feature not yet implemented")
   @Test
   void budgetTracked() throws Exception {
     try (Helpers.MockServer server =

@@ -29,7 +29,7 @@ importers:
   e2e/wasm:
     dependencies:
       liter-llm-wasm:
-        specifier: ../../crates/liter-llm-wasm
+        specifier: link:../../crates/liter-llm-wasm
         version: link:../../crates/liter-llm-wasm
     devDependencies:
       vitest:
