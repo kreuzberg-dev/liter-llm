@@ -15,8 +15,13 @@ on:
       force_republish:
         description: "Force publish even if the version already exists in registries"
         required: false
-        default: "false"
         type: boolean
+        default: false
+      republish:
+        description: "Delete and re-create the tag on current HEAD before publishing (retag + full republish)"
+        required: false
+        type: boolean
+        default: false
       targets:
         description: "Comma-separated targets to publish (empty = all). Values: crates python node wasm ruby go java elixir csharp php"
         required: false
@@ -24,15 +29,18 @@ on:
         type: string
   release:
     types: [published]
+  repository_dispatch:
+    types: [publish-release]
 
 concurrency:
-  group: publish-${{ github.workflow }}-${{ inputs.tag || github.ref }}
+  group: ${{ github.workflow }}-${{ (github.event_name == 'workflow_dispatch' && (github.event.inputs.tag)) || github.ref || github.run_id }}
   cancel-in-progress: false
 
 permissions:
-  contents: write   # upload release assets, create tags
-  id-token: write   # OIDC for crates.io and PyPI
-  packages: write   # GitHub Packages (npm)
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Phase 1 — Prepare
@@ -42,6 +50,8 @@ jobs:
     name: Prepare
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write
     outputs:
       tag:              ${{ steps.info.outputs.tag }}
       version:          ${{ steps.info.outputs.version }}
@@ -59,10 +69,48 @@ jobs:
       release_csharp:   ${{ steps.targets.outputs.csharp }}
       release_php:      ${{ steps.targets.outputs.php }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Retag for republish
+        if: ${{ inputs.republish == true || github.event.client_payload.republish == true }}
+        env:
+          TAG: ${{ inputs.tag || github.event.client_payload.tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -z "${TAG}" ]]; then
+            echo "::error::republish requires a tag input"
+            exit 1
+          fi
+          sha="$(git rev-parse HEAD)"
+          echo "::notice::Republish requested — deleting and re-creating tag ${TAG} on ${sha:0:8}"
+          gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" -X DELETE 2>/dev/null || true
+          gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f "ref=refs/tags/${TAG}" \
+            -f "sha=${sha}" --silent
+          git tag -d "${TAG}" 2>/dev/null || true
+          git tag "${TAG}" "${sha}"
+        shell: bash
+
       - name: Extract tag and version
         id: info
         run: |
-          TAG="${{ github.event_name == 'release' && github.ref_name || inputs.tag }}"
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            TAG="${{ github.event.client_payload.tag }}"
+            DRY_RUN="${{ github.event.client_payload.dry_run || 'false' }}"
+            FORCE="${{ github.event.client_payload.force_republish || 'false' }}"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG="${{ github.ref_name }}"
+            DRY_RUN="false"
+            FORCE="false"
+          else
+            TAG="${{ inputs.tag }}"
+            DRY_RUN="${{ inputs.dry_run }}"
+            FORCE="${{ inputs.force_republish }}"
+          fi
+
           VERSION="${TAG#v}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -74,9 +122,6 @@ jobs:
             echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
           fi
 
-          # Passthrough flags
-          DRY_RUN="${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}"
-          FORCE="${{ github.event_name == 'workflow_dispatch' && inputs.force_republish || 'false' }}"
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
           echo "force_republish=$FORCE" >> "$GITHUB_OUTPUT"
         shell: bash
@@ -84,7 +129,7 @@ jobs:
       - name: Resolve target list
         id: targets
         run: |
-          REQUESTED="${{ inputs.targets }}"
+          REQUESTED="${{ inputs.targets || github.event.client_payload.targets }}"
           ALL="crates python node wasm ruby go java elixir csharp php"
           emit() {
             local name="$1"
@@ -106,7 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
 
@@ -348,7 +393,7 @@ jobs:
           - label: windows-x86_64
             runner: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/build-python-wheels@v1
@@ -367,7 +412,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -377,7 +422,7 @@ jobs:
         run: maturin sdist --manifest-path crates/liter-llm-py/Cargo.toml --out dist
         working-directory: packages/python
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: python-sdist
           path: packages/python/dist/*.tar.gz
@@ -410,13 +455,13 @@ jobs:
             runner: windows-latest
             napi_target: x86_64-pc-windows-msvc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
         with:
           target: ${{ matrix.napi_target }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
       - run: npm install -g @napi-rs/cli
@@ -425,7 +470,7 @@ jobs:
         run: napi build --release --platform --target ${{ matrix.napi_target }}
         working-directory: crates/liter-llm-node
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: node-native-${{ matrix.label }}
           path: crates/liter-llm-node/*.node
@@ -442,7 +487,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -477,7 +522,7 @@ jobs:
       - name: Pack WASM tarball
         run: cd crates/liter-llm-wasm && mkdir -p dist && npm pack pkg/ --pack-destination dist/
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wasm-pkg
           path: crates/liter-llm-wasm/dist/*.tgz
@@ -504,13 +549,13 @@ jobs:
           - label: macos-arm64
             runner: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/build-ruby-gem@v1
         with:
           package-dir: packages/ruby
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: rubygems-${{ matrix.label }}
           path: packages/ruby/*.gem
@@ -544,7 +589,7 @@ jobs:
             target: aarch64-apple-darwin
             lib_ext: dylib
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -573,7 +618,7 @@ jobs:
             echo "Created: $TARBALL"
           done
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: elixir-nifs-${{ matrix.label }}
           path: nif-tarballs/*.tar.gz
@@ -615,7 +660,7 @@ jobs:
           #   os: windows
           #   arch: x86_64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -654,7 +699,7 @@ jobs:
           tar -czf "$TARBALL" -C php-pkg .
           echo "Created: $TARBALL"
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: php-ext-${{ matrix.label }}
           path: liter_llm_php-*.tar.gz
@@ -698,7 +743,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             rid: win-x64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/build-rust-ffi@v1
@@ -719,7 +764,7 @@ jobs:
             cp crates/liter-llm-ffi/include/liter_llm_ffi.h ffi-staging/include/
           fi
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ffi-${{ matrix.label }}
           path: ffi-staging/
@@ -737,10 +782,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: ffi-*
           path: ffi-artifacts
@@ -761,7 +806,7 @@ jobs:
         run: mvn clean package -DskipTests -q
         working-directory: packages/java
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: maven-packages
           path: packages/java/target/*.jar
@@ -779,10 +824,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: ffi-*
           path: ffi-artifacts
@@ -795,13 +840,13 @@ jobs:
             find "ffi-artifacts/${rid}" -type f -print0 | xargs -0 -I{} cp {} "$dest/"
           done
         shell: bash
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.x"
       - name: Pack NuGet package
         run: dotnet pack packages/csharp/LiterLlm/LiterLlm.csproj -c Release -o nuget-output
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nuget-packages
           path: nuget-output/*.nupkg
@@ -819,12 +864,14 @@ jobs:
       needs.build-ffi.result == 'success' &&
       (needs.check-go.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: ffi-*
           path: ffi-artifacts
@@ -855,9 +902,11 @@ jobs:
     needs: [prepare, build-elixir-nifs]
     if: always() && needs.prepare.outputs.release_elixir == 'true' && needs.build-elixir-nifs.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: elixir-nifs-*
           path: elixir-nifs
@@ -874,9 +923,11 @@ jobs:
     needs: [prepare, build-php]
     if: always() && needs.prepare.outputs.release_php == 'true' && needs.build-php.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: php-ext-*
           path: php-ext-artifacts
@@ -901,9 +952,12 @@ jobs:
       needs.validate-versions.result == 'success' &&
       (needs.check-cratesio.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -923,6 +977,9 @@ jobs:
       needs.build-python-sdist.result == 'success' &&
       (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 15
     environment:
       name: pypi
@@ -937,7 +994,7 @@ jobs:
           version: ${{ needs.prepare.outputs.version }}
       - name: Download all wheel + sdist artifacts
         if: needs.prepare.outputs.dry_run != 'true' && (steps.recheck.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: python-*
           path: dist
@@ -957,19 +1014,22 @@ jobs:
       needs.build-node-native.result == 'success' &&
       (needs.check-npm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
       - run: npm install -g @napi-rs/cli pnpm
         shell: bash
       - name: Download all .node artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: node-native-*
           path: crates/liter-llm-node/artifacts
@@ -1034,9 +1094,12 @@ jobs:
       needs.build-wasm.result == 'success' &&
       (needs.check-npm-wasm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: wasm-pkg
           path: dist
@@ -1057,9 +1120,12 @@ jobs:
       needs.build-ruby-gem.result == 'success' &&
       (needs.check-rubygems.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: rubygems-*
           path: gems
@@ -1080,12 +1146,14 @@ jobs:
       needs.build-java-package.result == 'success' &&
       (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: maven-packages
           path: packages/java/target
@@ -1108,9 +1176,13 @@ jobs:
       needs.upload-elixir-nifs.result == 'success' &&
       (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    environment: hex
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: erlef/setup-beam@v1
@@ -1145,9 +1217,12 @@ jobs:
       needs.build-csharp-package.result == 'success' &&
       (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: nuget-packages
           path: nuget-output
@@ -1168,6 +1243,9 @@ jobs:
       needs.validate-versions.result == 'success' &&
       (needs.check-packagist.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     timeout-minutes: 15
     steps:
       - uses: kreuzberg-dev/actions/publish-packagist@v1
@@ -1200,9 +1278,11 @@ jobs:
       - publish-packagist
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
 
