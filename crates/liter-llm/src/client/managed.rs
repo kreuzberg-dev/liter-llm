@@ -26,14 +26,17 @@ use std::sync::{Arc, Mutex};
 use tower::{Layer, Service};
 
 use super::config::ClientConfig;
-use super::{BoxFuture, BoxStream, DefaultClient, LlmClient};
+use super::{BatchClient, BoxFuture, BoxStream, DefaultClient, FileClient, LlmClient, ResponseClient};
 use crate::error::{LiterLlmError, Result};
 use crate::tower::types::{LlmRequest, LlmResponse};
 use crate::tower::{BudgetLayer, BudgetState, CacheLayer, HooksLayer, LlmService};
 use crate::types::audio::{CreateSpeechRequest, CreateTranscriptionRequest, TranscriptionResponse};
+use crate::types::batch::{BatchListQuery, BatchListResponse, BatchObject, CreateBatchRequest};
+use crate::types::files::{CreateFileRequest, DeleteResponse, FileListQuery, FileListResponse, FileObject};
 use crate::types::image::{CreateImageRequest, ImagesResponse};
 use crate::types::moderation::{ModerationRequest, ModerationResponse};
 use crate::types::rerank::{RerankRequest, RerankResponse};
+use crate::types::responses::{CreateResponseRequest, ResponseObject};
 use crate::types::{
     ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, EmbeddingRequest, EmbeddingResponse,
     ModelsListResponse,
@@ -364,6 +367,74 @@ impl LlmClient for ManagedClient {
                 }),
             }
         })
+    }
+}
+
+// ---------------------------------------------------------------------------
+// FileClient implementation — delegates directly to the inner DefaultClient.
+// File operations are not routed through the Tower middleware stack because
+// they are administrative and should not be subject to cache/budget/hooks.
+// ---------------------------------------------------------------------------
+
+impl FileClient for ManagedClient {
+    fn create_file(&self, req: CreateFileRequest) -> BoxFuture<'_, FileObject> {
+        self.inner.create_file(req)
+    }
+
+    fn retrieve_file(&self, file_id: &str) -> BoxFuture<'_, FileObject> {
+        self.inner.retrieve_file(file_id)
+    }
+
+    fn delete_file(&self, file_id: &str) -> BoxFuture<'_, DeleteResponse> {
+        self.inner.delete_file(file_id)
+    }
+
+    fn list_files(&self, query: Option<FileListQuery>) -> BoxFuture<'_, FileListResponse> {
+        self.inner.list_files(query)
+    }
+
+    fn file_content(&self, file_id: &str) -> BoxFuture<'_, bytes::Bytes> {
+        self.inner.file_content(file_id)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// BatchClient implementation — delegates directly to the inner DefaultClient.
+// ---------------------------------------------------------------------------
+
+impl BatchClient for ManagedClient {
+    fn create_batch(&self, req: CreateBatchRequest) -> BoxFuture<'_, BatchObject> {
+        self.inner.create_batch(req)
+    }
+
+    fn retrieve_batch(&self, batch_id: &str) -> BoxFuture<'_, BatchObject> {
+        self.inner.retrieve_batch(batch_id)
+    }
+
+    fn list_batches(&self, query: Option<BatchListQuery>) -> BoxFuture<'_, BatchListResponse> {
+        self.inner.list_batches(query)
+    }
+
+    fn cancel_batch(&self, batch_id: &str) -> BoxFuture<'_, BatchObject> {
+        self.inner.cancel_batch(batch_id)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// ResponseClient implementation — delegates directly to the inner DefaultClient.
+// ---------------------------------------------------------------------------
+
+impl ResponseClient for ManagedClient {
+    fn create_response(&self, req: CreateResponseRequest) -> BoxFuture<'_, ResponseObject> {
+        self.inner.create_response(req)
+    }
+
+    fn retrieve_response(&self, id: &str) -> BoxFuture<'_, ResponseObject> {
+        self.inner.retrieve_response(id)
+    }
+
+    fn cancel_response(&self, id: &str) -> BoxFuture<'_, ResponseObject> {
+        self.inner.cancel_response(id)
     }
 }
 

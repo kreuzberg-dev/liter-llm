@@ -9,8 +9,8 @@ use std::sync::{
 use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement};
 use liter_llm::tower::{LlmHook, LlmRequest, LlmResponse};
 use liter_llm::{
-    AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, DefaultClient, FileClient, LiterLlmError,
-    LlmClient, ResponseClient, register_custom_provider,
+    AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, FileClient, LiterLlmError, LlmClient,
+    ManagedClient, ResponseClient, register_custom_provider,
 };
 use pyo3::exceptions::{PyStopAsyncIteration, PyValueError};
 use pyo3::prelude::*;
@@ -303,14 +303,14 @@ fn kwargs_to_json(kwargs: &Bound<'_, PyDict>) -> PyResult<serde_json::Value> {
 
 /// Python-accessible LLM client.
 ///
-/// Wraps `liter_llm::DefaultClient` and exposes async methods that return Python
+/// Wraps `liter_llm::ManagedClient` and exposes async methods that return Python
 /// coroutines via `pyo3-async-runtimes`.
 ///
 /// Hooks can be added after construction via [`add_hook`].  The client itself
 /// is otherwise immutable; the hook list is protected by an `RwLock`.
 #[pyclass(name = "LlmClient")]
 pub struct PyLlmClient {
-    inner: Arc<DefaultClient>,
+    inner: Arc<ManagedClient>,
     /// Runtime-registered hooks invoked around each request.
     hooks: Arc<RwLock<Vec<Arc<dyn LlmHook>>>>,
     /// Stored for __repr__ display only.
@@ -384,7 +384,7 @@ impl PyLlmClient {
 
         let config = builder.build();
 
-        let client = DefaultClient::new(config, model_hint.as_deref()).map_err(to_py_err)?;
+        let client = ManagedClient::new(config, model_hint.as_deref()).map_err(to_py_err)?;
         Ok(Self {
             inner: Arc::new(client),
             hooks: Arc::new(RwLock::new(Vec::new())),

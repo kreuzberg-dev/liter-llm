@@ -35,8 +35,8 @@ use std::sync::{Arc, LazyLock, Mutex};
 
 use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement, LlmHook, LlmRequest, LlmResponse};
 use liter_llm::{
-    AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, DefaultClient, FileClient, LiterLlmError,
-    LlmClient, ResponseClient, register_custom_provider,
+    AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, FileClient, LiterLlmError,
+    LlmClient, ManagedClient, ResponseClient, register_custom_provider,
 };
 use magnus::{Error, RHash, Ruby, TryConvert, function, method, prelude::*};
 
@@ -206,10 +206,10 @@ fn parse_provider_config_rb(kw: &RHash) -> Result<CustomProviderConfig, Error> {
 
 // ─── RubyLlmClient ──────────────────────────────────────────────────────────
 
-/// Ruby wrapper around `liter_llm::DefaultClient`.
+/// Ruby wrapper around `liter_llm::ManagedClient`.
 #[magnus::wrap(class = "LiterLlm::LlmClient", free_immediately, size)]
 pub struct RubyLlmClient {
-    inner: DefaultClient,
+    inner: ManagedClient,
     /// Runtime-registered hooks.  Stored as `Arc<dyn LlmHook>` for
     /// compatibility with the Rust trait, though Ruby hooks are invoked
     /// synchronously within `block_on`.
@@ -285,7 +285,7 @@ impl RubyLlmClient {
         }
 
         let config = builder.build();
-        let client = DefaultClient::new(config, model_hint.as_deref())
+        let client = ManagedClient::new(config, model_hint.as_deref())
             .map_err(|e| Error::new(ruby.exception_runtime_error(), e.to_string()))?;
 
         Ok(RubyLlmClient {

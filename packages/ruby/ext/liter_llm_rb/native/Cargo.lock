@@ -1301,7 +1301,7 @@ checksum = "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77"
 
 [[package]]
 name = "liter-llm"
-version = "1.0.0-rc.2"
+version = "1.0.0-rc.3"
 dependencies = [
  "aws-credential-types",
  "aws-sigv4",
@@ -1329,7 +1329,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-rb"
-version = "1.0.0-rc.2"
+version = "1.0.0-rc.3"
 dependencies = [
  "base64 0.22.1",
  "liter-llm",

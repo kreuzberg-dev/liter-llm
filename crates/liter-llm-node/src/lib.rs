@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use liter_llm::LlmClient as LlmClientTrait;
-use liter_llm::{BatchClient, ClientConfigBuilder, DefaultClient, FileClient, ResponseClient};
+use liter_llm::{BatchClient, ClientConfigBuilder, FileClient, ManagedClient, ResponseClient};
 use napi::bindgen_prelude::*;
 // Hook invocation is handled at the TypeScript wrapper layer (packages/typescript),
 // not in the NAPI Rust layer, because NAPI v3 ThreadsafeFunction API doesn't support
@@ -175,7 +175,7 @@ pub struct LlmClientOptions {
 
 // ─── LlmClient ────────────────────────────────────────────────────────────────
 
-/// Node.js-accessible LLM client wrapping `liter_llm::DefaultClient`.
+/// Node.js-accessible LLM client wrapping `liter_llm::ManagedClient`.
 ///
 /// Lifecycle hooks (addHook) are accepted and stored as hook count for validation.
 /// Actual hook invocation is delegated to the TypeScript wrapper layer in
@@ -183,7 +183,7 @@ pub struct LlmClientOptions {
 /// cross-thread JS callback invocation unreliable for this use case.
 #[napi]
 pub struct LlmClient {
-    inner: Arc<DefaultClient>,
+    inner: Arc<ManagedClient>,
     hook_count: Arc<Mutex<u32>>,
 }
 
@@ -241,7 +241,7 @@ impl LlmClient {
         }
 
         let config = builder.build();
-        let client = DefaultClient::new(config, options.model_hint.as_deref()).map_err(to_napi_err)?;
+        let client = ManagedClient::new(config, options.model_hint.as_deref()).map_err(to_napi_err)?;
         Ok(Self {
             inner: Arc::new(client),
             hook_count: Arc::new(Mutex::new(0)),

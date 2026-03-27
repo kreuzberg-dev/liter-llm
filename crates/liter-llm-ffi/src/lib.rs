@@ -16,7 +16,8 @@
 
 use std::ffi::{CStr, CString, c_char};
 
-use liter_llm::client::{BatchClient, ClientConfig, DefaultClient, FileClient, LlmClient, ResponseClient};
+use liter_llm::client::managed::ManagedClient;
+use liter_llm::client::{BatchClient, ClientConfig, FileClient, LlmClient, ResponseClient};
 
 // ---------------------------------------------------------------------------
 // Thread-local last-error storage
@@ -110,7 +111,7 @@ fn invoke_on_error(hooks: &Option<LiterLlmHookCallbacks>, request_json_c: &CStri
 /// cbindgen:no-export — we emit the opaque declaration manually in the header
 /// preamble so C callers only ever hold a `LiterLlmClient*`.
 pub struct LiterLlmClient {
-    inner: DefaultClient,
+    inner: ManagedClient,
     /// Stored lifecycle hook callbacks, set via `literllm_set_hooks`.
     hooks: Option<LiterLlmHookCallbacks>,
 }
@@ -121,15 +122,15 @@ pub struct LiterLlmClient {
 ///
 /// # Thread safety
 ///
-/// `LiterLlmClient` holds a `DefaultClient`, which is `Send + Sync`.  The
+/// `LiterLlmClient` holds a `ManagedClient`, which is `Send + Sync`.  The
 /// shared runtime is likewise `Send + Sync`.  All calls into this crate are
 /// therefore safe to make from multiple threads concurrently.
-// Compile-time assertion: DefaultClient must be Send + Sync so that the
+// Compile-time assertion: ManagedClient must be Send + Sync so that the
 // opaque handle can be used from multiple C threads without data races.
 const _: () = {
     const fn _assert_send_sync<T: Send + Sync>() {}
     // Called at compile time — zero run-time cost.
-    let _ = _assert_send_sync::<DefaultClient>;
+    let _ = _assert_send_sync::<ManagedClient>;
 };
 
 fn runtime() -> Result<&'static tokio::runtime::Runtime, String> {
@@ -233,7 +234,7 @@ pub unsafe extern "C" fn literllm_client_new(
 
     let config: ClientConfig = config_builder.build();
 
-    match DefaultClient::new(config, model_hint_str.as_deref()) {
+    match ManagedClient::new(config, model_hint_str.as_deref()) {
         Ok(client) => {
             let handle = Box::new(LiterLlmClient {
                 inner: client,
@@ -716,7 +717,7 @@ fn json_request_response<Req, Resp>(
     client: *const LiterLlmClient,
     request_json: *const c_char,
     op: impl for<'a> FnOnce(
-        &'a DefaultClient,
+        &'a ManagedClient,
         Req,
     ) -> std::pin::Pin<
         Box<dyn std::future::Future<Output = liter_llm::error::Result<Resp>> + Send + 'a>,
@@ -818,7 +819,7 @@ fn id_request_response<Resp>(
     id_ptr: *const c_char,
     id_label: &str,
     op: impl for<'a> FnOnce(
-        &'a DefaultClient,
+        &'a ManagedClient,
         &'a str,
     ) -> std::pin::Pin<
         Box<dyn std::future::Future<Output = liter_llm::error::Result<Resp>> + Send + 'a>,
@@ -906,7 +907,7 @@ fn id_request_bytes(
     id_ptr: *const c_char,
     id_label: &str,
     op: impl for<'a> FnOnce(
-        &'a DefaultClient,
+        &'a ManagedClient,
         &'a str,
     ) -> std::pin::Pin<
         Box<dyn std::future::Future<Output = liter_llm::error::Result<bytes::Bytes>> + Send + 'a>,
@@ -1929,7 +1930,7 @@ pub unsafe extern "C" fn literllm_client_new_with_config(config_json: *const c_c
 
     let config: ClientConfig = builder.build();
 
-    match DefaultClient::new(config, parsed.model_hint.as_deref()) {
+    match ManagedClient::new(config, parsed.model_hint.as_deref()) {
         Ok(client) => {
             let handle = Box::new(LiterLlmClient {
                 inner: client,
