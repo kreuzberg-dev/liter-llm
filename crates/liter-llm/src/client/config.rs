@@ -4,6 +4,7 @@ use std::time::Duration;
 use secrecy::SecretString;
 
 use crate::auth::CredentialProvider;
+#[cfg(feature = "native-http")]
 use crate::error::{LiterLlmError, Result};
 
 /// Configuration for an LLM client.

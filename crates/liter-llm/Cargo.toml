@@ -16,13 +16,13 @@ ignored = ["dashmap", "tower-http"]
 # Enable the native HTTP stack (reqwest + tokio).  Disable this feature when
 # compiling for WebAssembly, where the browser / Node.js fetch API is used
 # instead and the tokio multi-thread runtime is unavailable.
-native-http = ["dep:reqwest", "dep:tokio", "dep:memchr", "dep:bytes", "dep:base64"]
+native-http = ["dep:reqwest", "dep:tokio", "dep:memchr", "dep:base64"]
 # Structured tracing via the `tracing` crate.  Adds `#[instrument]` spans on
 # HTTP functions and SSE parser warnings.  Can be enabled independently of the
 # Tower middleware integration.
 tracing = ["dep:tracing"]
 # Tower middleware integration (LlmService, TracingLayer, FallbackLayer).
-tower = ["dep:tower", "dep:tower-http", "dep:dashmap", "dep:bytes", "tracing"]
+tower = ["dep:tower", "dep:tower-http", "dep:dashmap", "tracing"]
 # OpenTelemetry export bridge via `tracing-opentelemetry`.  Depends on `tracing`
 # and re-exports `tracing_opentelemetry` so callers can compose their own
 # subscriber stack without a hard dependency on the crate themselves.
@@ -61,7 +61,7 @@ default = ["native-http"]
 aws-credential-types = { version = "1", optional = true }
 aws-sigv4 = { version = "1", features = ["sign-http", "http1"], optional = true }
 base64 = { workspace = true, optional = true }
-bytes = { workspace = true, optional = true }
+bytes = { workspace = true }
 dashmap = { workspace = true, optional = true }
 futures-core = { workspace = true }
 jsonwebtoken = { workspace = true, optional = true }
