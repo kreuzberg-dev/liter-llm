@@ -8,11 +8,6 @@ from .mock_server import MockRoute, MockServerInfo
 from liter_llm import (  # noqa: E402
     LlmClient,
     AuthenticationError,
-    RateLimitedError,
-    ServerError,
-    NotFoundError,
-    ServiceUnavailableError,
-    BadRequestError,
 )
 
 
@@ -98,6 +93,34 @@ async def test_basic_stream(mock_server: MockServerInfo) -> None:
     assert len(chunks) >= 3, f"Expected at least 3 chunk(s), got {len(chunks)}"
     content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
     assert content == "1 2 3", f"Stream content mismatch: {content!r}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute(
+        "/chat/completions",
+        "POST",
+        200,
+        stream_chunks=[
+            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
+        ],
+    ),
+]], indirect=True)
+async def test_bedrock_stream(mock_server: MockServerInfo) -> None:
+    """Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\",\"stream\":true}")
+    chunks = []
+    async for chunk in await client.chat_stream(**request):
+        chunks.append(chunk)
+    assert len(chunks) >= 3, f"Expected at least 3 chunk(s), got {len(chunks)}"
+    content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
+    assert content == "One Two Three", f"Stream content mismatch: {content!r}"
 
 
 @pytest.mark.asyncio
@@ -205,3 +228,31 @@ async def test_stream_with_usage(mock_server: MockServerInfo) -> None:
     assert len(chunks) >= 2, f"Expected at least 2 chunk(s), got {len(chunks)}"
     content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
     assert content == "Hi there!", f"Stream content mismatch: {content!r}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute(
+        "/chat/completions",
+        "POST",
+        200,
+        stream_chunks=[
+            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
+        ],
+    ),
+]], indirect=True)
+async def test_vertex_stream(mock_server: MockServerInfo) -> None:
+    """Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\",\"stream\":true}")
+    chunks = []
+    async for chunk in await client.chat_stream(**request):
+        chunks.append(chunk)
+    assert len(chunks) >= 3, f"Expected at least 3 chunk(s), got {len(chunks)}"
+    content = "".join(c.choices[0].delta.content or "" for c in chunks if c.choices)
+    assert content == "One Two Three", f"Stream content mismatch: {content!r}"

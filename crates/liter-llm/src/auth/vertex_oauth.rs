@@ -293,8 +293,9 @@ mod tests {
     fn cached_token_expired() {
         let cached = CachedToken {
             token: SecretString::from("test-token".to_owned()),
-            acquired_at: Instant::now() - std::time::Duration::from_secs(3600),
-            expires_in_secs: 3600,
+            // Zero lifetime is immediately expired; avoids Duration subtraction panic on Windows.
+            acquired_at: Instant::now(),
+            expires_in_secs: 0,
         };
         assert!(!cached.is_valid());
     }

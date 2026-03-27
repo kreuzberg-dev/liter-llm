@@ -108,3 +108,57 @@ async def test_basic_list_models(mock_server: MockServerInfo) -> None:
 
     assert len(response.data) == 3, f"Expected 3 model(s), got {len(response.data)}"
     assert len(response.data) >= 1, f"Expected at least 1 model(s), got {len(response.data)}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello!\",\"role\":\"assistant\"}}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":3,\"prompt_tokens\":12,\"total_tokens\":15}}"),
+]], indirect=True)
+async def test_bedrock_chat(mock_server: MockServerInfo) -> None:
+    """Basic chat completion via the AWS Bedrock provider using the bedrock/ prefix for routing — verifies the prefix is stripped before dispatching and the Converse API response is normalised to the standard OpenAI chat completion shape"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"max_tokens\":16,\"messages\":[{\"content\":\"Say hello in one word.\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\",\"temperature\":0}")
+    response = await client.chat(**request)
+
+    assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
+    assert response.choices[0].message.content == "Hello!", "message content mismatch"
+    assert response.choices[0].finish_reason == "stop", "finish_reason mismatch"
+    assert response.usage is not None, "Expected usage object"
+    assert response.usage.total_tokens == 15, "total_tokens mismatch"
+    assert response.model == "anthropic.claude-3-sonnet-20240229-v1:0", "model mismatch"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello!\",\"role\":\"assistant\"}}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":3,\"prompt_tokens\":10,\"total_tokens\":13}}"),
+]], indirect=True)
+async def test_vertex_chat(mock_server: MockServerInfo) -> None:
+    """Basic chat completion via the Google Vertex AI provider using the vertex_ai/ prefix for routing — verifies the prefix is stripped before dispatching and the Gemini response is normalised to the standard OpenAI chat completion shape"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"max_tokens\":16,\"messages\":[{\"content\":\"Say hello in one word.\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\",\"temperature\":0}")
+    response = await client.chat(**request)
+
+    assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
+    assert response.choices[0].message.content == "Hello!", "message content mismatch"
+    assert response.choices[0].finish_reason == "stop", "finish_reason mismatch"
+    assert response.usage is not None, "Expected usage object"
+    assert response.usage.total_tokens == 13, "total_tokens mismatch"
+    assert response.model == "gemini-2.0-flash", "model mismatch"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute("/embeddings", "POST", 200, "{\"data\":[{\"embedding\":[0.012390136,-0.004321289,0.023456781,-0.008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0.015678901,0.007654321,-0.011234567,0.003456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.012390136,-0.004321289,0.023456781,-0.008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0.015678901,0.007654321,-0.011234567,0.003456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.012390136,-0.004321289,0.023456781,-0.008765432,0.015678901,-0.002345678,0.019012345,0.007654321,-0.011234567,0.003456789,0.016789012,-0.009876543,0.005678901,-0.01456789,0.021234567,-0.00654321,0.018901234,0.004321098,-0.013456789,0.001234567,0.022345678,-0.007654321,0.010123456,-0.003456789,0.017890123,-0.005432109,0.020123456,0.00654321,-0.012345678,0.002345678,0.019876543,-0.008765432,0.014234567,-0.001234567,0.023456781,-0.009876543,0.015678901,0.007654321,-0.011234567,0.003456789],\"index\":0,\"object\":\"embedding\"}],\"model\":\"text-embedding-005\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":3,\"total_tokens\":3}}"),
+]], indirect=True)
+async def test_vertex_embed(mock_server: MockServerInfo) -> None:
+    """Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"input\":\"Hello\",\"model\":\"vertex_ai/text-embedding-005\"}")
+    response = await client.embed(**request)
+
+    assert len(response.data) == 1, f"Expected 1 embedding(s), got {len(response.data)}"
+    assert len(response.data[0].embedding) == 160, f"Expected 160 dimensions, got {len(response.data[0].embedding)}"
+    assert len(response.data) >= 1, f"Expected at least 1 embedding(s), got {len(response.data)}"

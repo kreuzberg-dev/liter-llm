@@ -262,20 +262,22 @@ fn write_test_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Res
     writeln!(out).unwrap();
     writeln!(out, "from .mock_server import MockRoute, MockServerInfo").unwrap();
 
-    // Check if any fixture in this category uses error assertions.
-    let has_errors = fixtures
+    // Collect only the specific error classes actually used in this category's fixtures.
+    let mut needed_error_classes: std::collections::BTreeSet<&'static str> = fixtures
         .iter()
-        .any(|f| f.api.mock_response.status >= 400 || !f.assertions.expect_success);
+        .filter(|f| f.api.mock_response.status >= 400 || !f.assertions.expect_success)
+        .map(|f| error_exception_class(f.api.mock_response.status))
+        .filter(|cls| *cls != "Exception")
+        .collect();
+    // LlmClient is always needed but handled separately.
+    needed_error_classes.remove("LlmClient");
 
-    if has_errors {
+    if !needed_error_classes.is_empty() {
         writeln!(out, "from liter_llm import (  # noqa: E402").unwrap();
         writeln!(out, "    LlmClient,").unwrap();
-        writeln!(out, "    AuthenticationError,").unwrap();
-        writeln!(out, "    RateLimitedError,").unwrap();
-        writeln!(out, "    ServerError,").unwrap();
-        writeln!(out, "    NotFoundError,").unwrap();
-        writeln!(out, "    ServiceUnavailableError,").unwrap();
-        writeln!(out, "    BadRequestError,").unwrap();
+        for cls in &needed_error_classes {
+            writeln!(out, "    {cls},").unwrap();
+        }
         writeln!(out, ")").unwrap();
     } else {
         writeln!(out, "from liter_llm import LlmClient  # noqa: E402").unwrap();

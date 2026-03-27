@@ -53,4 +53,4 @@ jobs:
         with:
           ffi-crate-name: liter-llm-ffi
           ffi-lib-name: liter_llm_ffi
-          java-version: "25.0.2+10"
+          java-version: "25.0.2+10.0.LTS"

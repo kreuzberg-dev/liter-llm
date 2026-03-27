@@ -8,11 +8,11 @@ from .mock_server import MockRoute, MockServerInfo
 from liter_llm import (  # noqa: E402
     LlmClient,
     AuthenticationError,
+    BadRequestError,
+    NotFoundError,
     RateLimitedError,
     ServerError,
-    NotFoundError,
     ServiceUnavailableError,
-    BadRequestError,
 )
 
 
@@ -65,6 +65,19 @@ async def test_bad_request_400(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"temperature\":5.0}")
     with pytest.raises(BadRequestError):
+        await client.chat(**request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 403, "{\"message\":\"You don't have access to the model with the specified model ID.\"}"),
+]], indirect=True)
+async def test_bedrock_error_auth(mock_server: MockServerInfo) -> None:
+    """AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\"}")
+    with pytest.raises(Exception):
         await client.chat(**request)
 
 
@@ -169,4 +182,17 @@ async def test_service_unavailable_502(mock_server: MockServerInfo) -> None:
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
     with pytest.raises(ServiceUnavailableError):
+        await client.chat(**request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mock_server", [[
+    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":401,\"message\":\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\"status\":\"UNAUTHENTICATED\"}}"),
+]], indirect=True)
+async def test_vertex_error_auth(mock_server: MockServerInfo) -> None:
+    """Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication"""
+    import json
+    client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
+    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\"}")
+    with pytest.raises(AuthenticationError):
         await client.chat(**request)

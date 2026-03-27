@@ -222,9 +222,10 @@ mod tests {
     fn cached_token_expired() {
         let cached = CachedToken {
             token: SecretString::from("test-token".to_owned()),
-            // Simulate a token acquired 3600 seconds ago with 3600s lifetime.
-            acquired_at: Instant::now() - std::time::Duration::from_secs(3600),
-            expires_in_secs: 3600,
+            // A token with zero lifetime is immediately expired (no Duration subtraction
+            // needed, which avoids panics on Windows where Instant uptime may be < 1h).
+            acquired_at: Instant::now(),
+            expires_in_secs: 0,
         };
         assert!(!cached.is_valid());
     }
@@ -233,9 +234,9 @@ mod tests {
     fn cached_token_within_buffer() {
         let cached = CachedToken {
             token: SecretString::from("test-token".to_owned()),
-            // 3400 seconds elapsed out of 3600 => only 200s remaining < 300s buffer.
-            acquired_at: Instant::now() - std::time::Duration::from_secs(3400),
-            expires_in_secs: 3600,
+            // 200s lifetime is within the 300s expiry buffer, so the token is invalid.
+            acquired_at: Instant::now(),
+            expires_in_secs: 200,
         };
         assert!(!cached.is_valid());
     }

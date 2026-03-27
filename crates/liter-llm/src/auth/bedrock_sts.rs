@@ -283,8 +283,9 @@ mod tests {
             access_key_id: SecretString::from("AKIA...".to_owned()),
             secret_access_key: SecretString::from("secret".to_owned()),
             session_token: SecretString::from("token".to_owned()),
-            acquired_at: Instant::now() - std::time::Duration::from_secs(3600),
-            expires_in_secs: 3600,
+            // Zero lifetime is immediately expired; avoids Duration subtraction panic on Windows.
+            acquired_at: Instant::now(),
+            expires_in_secs: 0,
         };
         assert!(!cached.is_valid());
     }

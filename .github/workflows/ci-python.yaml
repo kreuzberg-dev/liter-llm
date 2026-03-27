@@ -83,9 +83,8 @@ jobs:
           shell: bash
 
       - name: Build Python Bindings
-        run: |
-          uv pip install maturin
-          cd packages/python && uv run maturin develop --release
+        run: uvx maturin develop --release
+        working-directory: packages/python
         shell: bash
 
       - name: Smoke Test Python Bindings

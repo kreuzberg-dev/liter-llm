@@ -8,6 +8,7 @@ GEMSPEC = Gem::Specification.load('liter_llm.gemspec')
 
 RbSys::ExtensionTask.new('liter_llm_rb', GEMSPEC) do |ext|
   ext.lib_dir = 'lib/liter_llm'
+  ext.cargo_dir = 'ext/liter_llm_rb/native'
 end
 
 RSpec::Core::RakeTask.new(:spec) do |t|
