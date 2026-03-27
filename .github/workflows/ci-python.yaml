@@ -47,7 +47,7 @@ jobs:
         python: ["3.10", "3.12", "3.14"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Task
         uses: go-task/setup-task@v2

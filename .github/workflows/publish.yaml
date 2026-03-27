@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
 
@@ -318,7 +318,7 @@ jobs:
           - label: windows-x86_64
             runner: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/build-python-wheels@v1
@@ -337,7 +337,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -380,7 +380,7 @@ jobs:
             runner: windows-latest
             napi_target: x86_64-pc-windows-msvc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -412,7 +412,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -474,7 +474,7 @@ jobs:
           - label: macos-arm64
             runner: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/build-ruby-gem@v1
@@ -514,7 +514,7 @@ jobs:
             target: aarch64-apple-darwin
             lib_ext: dylib
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -584,7 +584,7 @@ jobs:
             os: windows
             arch: x86_64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -660,7 +660,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             rid: win-x64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/build-rust-ffi@v1
@@ -699,7 +699,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: actions/download-artifact@v4
@@ -741,7 +741,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: actions/download-artifact@v4
@@ -779,7 +779,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: actions/download-artifact@v4
@@ -861,7 +861,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: kreuzberg-dev/actions/setup-rust@v1
@@ -917,7 +917,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: actions/setup-node@v4
@@ -1040,7 +1040,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: actions/download-artifact@v4
@@ -1068,7 +1068,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - uses: erlef/setup-beam@v1
@@ -1160,7 +1160,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
 
