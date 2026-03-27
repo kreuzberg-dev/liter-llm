@@ -84,7 +84,6 @@ tasks:
 
   e2e:test:
     desc: Run TypeScript/Node E2E tests
-    dir: "{{.PROJECT_ROOT}}"
     cmds:
       - pnpm -r --filter="./packages/typescript/**" run build
       - cmd: |
