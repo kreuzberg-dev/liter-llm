@@ -1,0 +1,47 @@
+{
+	"id": "cache_miss_ttl",
+	"category": "cache",
+	"description": "Tests that cache expires after TTL",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "gpt-4",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-cache-miss-001",
+				"object": "chat.completion",
+				"created": 1711000000,
+				"model": "gpt-4",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello! How can I help you today?"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 8,
+					"completion_tokens": 9,
+					"total_tokens": 17
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": true,
+		"cache_hit": false
+	},
+	"tags": ["cache"],
+	"skip": {}
+}

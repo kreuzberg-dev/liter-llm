@@ -1,0 +1,77 @@
+{
+	"id": "api_surface_parity",
+	"category": "parity",
+	"description": "Canonical API surface definition for cross-binding parity verification",
+	"api": {
+		"method": "chat",
+		"request": {},
+		"mock_response": {
+			"status": 200,
+			"body": {}
+		}
+	},
+	"client_config": {
+		"required_params": ["api_key"],
+		"optional_params": ["base_url", "model_hint", "timeout", "max_retries", "cache", "budget", "extra_headers"]
+	},
+	"methods": [
+		"chat",
+		"chat_stream",
+		"embed",
+		"list_models",
+		"image_generate",
+		"speech",
+		"transcribe",
+		"moderate",
+		"rerank",
+		"create_file",
+		"retrieve_file",
+		"delete_file",
+		"list_files",
+		"file_content",
+		"create_batch",
+		"retrieve_batch",
+		"list_batches",
+		"cancel_batch",
+		"create_response",
+		"retrieve_response",
+		"cancel_response"
+	],
+	"hooks": ["on_request", "on_response", "on_error"],
+	"registration": ["register_provider", "add_hook"],
+	"error_types": [
+		"Authentication",
+		"RateLimited",
+		"BadRequest",
+		"NotFound",
+		"ServerError",
+		"ServiceUnavailable",
+		"Timeout",
+		"BudgetExceeded",
+		"ContextWindowExceeded",
+		"ContentPolicy",
+		"Network",
+		"Streaming",
+		"EndpointNotSupported",
+		"InvalidHeader",
+		"Serialization"
+	],
+	"config_types": {
+		"CacheConfig": {
+			"max_entries": "int",
+			"ttl_seconds": "int",
+			"backend": "string"
+		},
+		"BudgetConfig": {
+			"global_limit": "float",
+			"model_limits": "map<string, float>",
+			"enforcement": "enum(soft, hard)"
+		},
+		"ProviderConfig": {
+			"name": "string",
+			"base_url": "string",
+			"auth_header": "string",
+			"model_prefixes": "list<string>"
+		}
+	}
+}

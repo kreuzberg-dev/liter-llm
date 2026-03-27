@@ -4,6 +4,23 @@ use itertools::Itertools;
 use serde::Deserialize;
 use walkdir::WalkDir;
 
+/// Client configuration overrides for fixtures that test caching, budgets, etc.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct ClientConfig {
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub cache: Option<serde_json::Value>,
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub budget: Option<serde_json::Value>,
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub extra_headers: Option<serde_json::Value>,
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub custom_provider: Option<serde_json::Value>,
+}
+
 /// Parsed fixture definition for LLM API e2e test generation.
 #[derive(Debug, Clone, Deserialize)]
 pub struct Fixture {
@@ -11,6 +28,9 @@ pub struct Fixture {
     pub category: String,
     pub description: String,
     pub api: ApiSpec,
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub client_config: ClientConfig,
     #[serde(default)]
     pub assertions: Assertions,
     #[serde(default)]
@@ -238,6 +258,36 @@ pub struct Assertions {
     #[serde(default)]
     #[allow(dead_code)] // reserved for future generator use
     pub error_status_code: Option<u16>,
+
+    // ── Cache ─────────────────────────────────────────────────────────────────
+    /// Assert that the response was served from cache.
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub cache_hit: Option<bool>,
+    /// Assert that the cache was bypassed for this request.
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub cache_bypassed: Option<bool>,
+
+    // ── Budget ────────────────────────────────────────────────────────────────
+    /// Assert that cost was tracked for the request.
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub cost_tracked: Option<bool>,
+
+    // ── Hooks ─────────────────────────────────────────────────────────────────
+    /// Assert that the `on_request` hook was called.
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub hook_on_request_called: Option<bool>,
+    /// Assert that the `on_response` hook was called.
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub hook_on_response_called: Option<bool>,
+    /// Assert that the `on_error` hook was called.
+    #[serde(default)]
+    #[allow(dead_code)] // reserved for future generator use
+    pub hook_on_error_called: Option<bool>,
 }
 
 fn default_true() -> bool {

@@ -1,0 +1,54 @@
+{
+	"id": "provider_auth",
+	"category": "custom_provider",
+	"description": "Tests custom provider with custom auth header",
+	"client_config": {
+		"custom_provider": {
+			"name": "my-auth-provider",
+			"base_url": "http://localhost",
+			"model_prefixes": ["my-auth-"],
+			"auth_header": "api-key:X-Custom-Key"
+		}
+	},
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "my-auth-model-v1",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-auth-001",
+				"object": "chat.completion",
+				"created": 1711000000,
+				"model": "my-auth-model-v1",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello with custom auth!"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 8,
+					"completion_tokens": 6,
+					"total_tokens": 14
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": true
+	},
+	"tags": ["custom_provider"],
+	"skip": {}
+}
