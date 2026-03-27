@@ -192,8 +192,7 @@ fn write_spec_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Res
     }
 
     if is_specialized {
-        // Wrap specialized tests in a single describe.skip block (TDD: features not yet implemented).
-        writeln!(out, "describe.skip({category:?}, () => {{").unwrap();
+        writeln!(out, "describe({category:?}, () => {{").unwrap();
         for fixture in &active_fixtures {
             write_specialized_wasm_test(&mut out, fixture, category);
         }

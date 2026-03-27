@@ -105,9 +105,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public EmbeddingResponse embed(EmbeddingRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/embeddings", body);
-		return deserialize(responseBody, EmbeddingResponse.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/embeddings", body);
+			EmbeddingResponse response = deserialize(responseBody, EmbeddingResponse.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -118,8 +126,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ModelsListResponse listModels() throws LlmException {
-		String responseBody = get("/models");
-		return deserialize(responseBody, ModelsListResponse.class);
+		runOnRequest(null);
+		try {
+			String responseBody = get("/models");
+			ModelsListResponse response = deserialize(responseBody, ModelsListResponse.class);
+			runOnResponse(null, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(null, e);
+			throw e;
+		}
 	}
 
 	// ─── Inference API ────────────────────────────────────────────────────────
@@ -134,9 +150,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ImagesResponse imageGenerate(CreateImageRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/images/generations", body);
-		return deserialize(responseBody, ImagesResponse.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/images/generations", body);
+			ImagesResponse response = deserialize(responseBody, ImagesResponse.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -149,8 +173,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public byte[] speech(CreateSpeechRequest request) throws LlmException {
-		String body = serialize(request);
-		return postForBytes("/audio/speech", body);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			byte[] response = postForBytes("/audio/speech", body);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -163,9 +195,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public TranscriptionResponse transcribe(CreateTranscriptionRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/audio/transcriptions", body);
-		return deserialize(responseBody, TranscriptionResponse.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/audio/transcriptions", body);
+			TranscriptionResponse response = deserialize(responseBody, TranscriptionResponse.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -178,9 +218,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ModerationResponse moderate(ModerationRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/moderations", body);
-		return deserialize(responseBody, ModerationResponse.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/moderations", body);
+			ModerationResponse response = deserialize(responseBody, ModerationResponse.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -193,9 +241,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public RerankResponse rerank(RerankRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/rerank", body);
-		return deserialize(responseBody, RerankResponse.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/rerank", body);
+			RerankResponse response = deserialize(responseBody, RerankResponse.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	// ─── File Management ──────────────────────────────────────────────────────
@@ -210,9 +266,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public FileObject createFile(CreateFileRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/files", body);
-		return deserialize(responseBody, FileObject.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/files", body);
+			FileObject response = deserialize(responseBody, FileObject.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -225,8 +289,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public FileObject retrieveFile(String fileId) throws LlmException {
-		String responseBody = get("/files/" + fileId);
-		return deserialize(responseBody, FileObject.class);
+		runOnRequest(fileId);
+		try {
+			String responseBody = get("/files/" + fileId);
+			FileObject response = deserialize(responseBody, FileObject.class);
+			runOnResponse(fileId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(fileId, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -239,8 +311,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public DeleteResponse deleteFile(String fileId) throws LlmException {
-		String responseBody = delete("/files/" + fileId);
-		return deserialize(responseBody, DeleteResponse.class);
+		runOnRequest(fileId);
+		try {
+			String responseBody = delete("/files/" + fileId);
+			DeleteResponse response = deserialize(responseBody, DeleteResponse.class);
+			runOnResponse(fileId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(fileId, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -253,24 +333,32 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public FileListResponse listFiles(FileListQuery query) throws LlmException {
-		String path = "/files";
-		if (query != null) {
-			var params = new java.util.ArrayList<String>();
-			if (query.purpose() != null) {
-				params.add("purpose=" + query.purpose());
+		runOnRequest(query);
+		try {
+			String path = "/files";
+			if (query != null) {
+				var params = new java.util.ArrayList<String>();
+				if (query.purpose() != null) {
+					params.add("purpose=" + query.purpose());
+				}
+				if (query.limit() != null) {
+					params.add("limit=" + query.limit());
+				}
+				if (query.after() != null) {
+					params.add("after=" + query.after());
+				}
+				if (!params.isEmpty()) {
+					path += "?" + String.join("&", params);
+				}
 			}
-			if (query.limit() != null) {
-				params.add("limit=" + query.limit());
-			}
-			if (query.after() != null) {
-				params.add("after=" + query.after());
-			}
-			if (!params.isEmpty()) {
-				path += "?" + String.join("&", params);
-			}
+			String responseBody = get(path);
+			FileListResponse response = deserialize(responseBody, FileListResponse.class);
+			runOnResponse(query, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(query, e);
+			throw e;
 		}
-		String responseBody = get(path);
-		return deserialize(responseBody, FileListResponse.class);
 	}
 
 	/**
@@ -283,7 +371,15 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public byte[] fileContent(String fileId) throws LlmException {
-		return getForBytes("/files/" + fileId + "/content");
+		runOnRequest(fileId);
+		try {
+			byte[] response = getForBytes("/files/" + fileId + "/content");
+			runOnResponse(fileId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(fileId, e);
+			throw e;
+		}
 	}
 
 	// ─── Batch Management ─────────────────────────────────────────────────────
@@ -298,9 +394,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchObject createBatch(CreateBatchRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/batches", body);
-		return deserialize(responseBody, BatchObject.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/batches", body);
+			BatchObject response = deserialize(responseBody, BatchObject.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -313,8 +417,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchObject retrieveBatch(String batchId) throws LlmException {
-		String responseBody = get("/batches/" + batchId);
-		return deserialize(responseBody, BatchObject.class);
+		runOnRequest(batchId);
+		try {
+			String responseBody = get("/batches/" + batchId);
+			BatchObject response = deserialize(responseBody, BatchObject.class);
+			runOnResponse(batchId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(batchId, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -327,21 +439,29 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchListResponse listBatches(BatchListQuery query) throws LlmException {
-		String path = "/batches";
-		if (query != null) {
-			var params = new java.util.ArrayList<String>();
-			if (query.limit() != null) {
-				params.add("limit=" + query.limit());
+		runOnRequest(query);
+		try {
+			String path = "/batches";
+			if (query != null) {
+				var params = new java.util.ArrayList<String>();
+				if (query.limit() != null) {
+					params.add("limit=" + query.limit());
+				}
+				if (query.after() != null) {
+					params.add("after=" + query.after());
+				}
+				if (!params.isEmpty()) {
+					path += "?" + String.join("&", params);
+				}
 			}
-			if (query.after() != null) {
-				params.add("after=" + query.after());
-			}
-			if (!params.isEmpty()) {
-				path += "?" + String.join("&", params);
-			}
+			String responseBody = get(path);
+			BatchListResponse response = deserialize(responseBody, BatchListResponse.class);
+			runOnResponse(query, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(query, e);
+			throw e;
 		}
-		String responseBody = get(path);
-		return deserialize(responseBody, BatchListResponse.class);
 	}
 
 	/**
@@ -354,8 +474,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public BatchObject cancelBatch(String batchId) throws LlmException {
-		String responseBody = post("/batches/" + batchId + "/cancel", "");
-		return deserialize(responseBody, BatchObject.class);
+		runOnRequest(batchId);
+		try {
+			String responseBody = post("/batches/" + batchId + "/cancel", "");
+			BatchObject response = deserialize(responseBody, BatchObject.class);
+			runOnResponse(batchId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(batchId, e);
+			throw e;
+		}
 	}
 
 	// ─── Responses API ────────────────────────────────────────────────────────
@@ -370,9 +498,17 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ResponseObject createResponse(CreateResponseRequest request) throws LlmException {
-		String body = serialize(request);
-		String responseBody = post("/responses", body);
-		return deserialize(responseBody, ResponseObject.class);
+		runOnRequest(request);
+		try {
+			String body = serialize(request);
+			String responseBody = post("/responses", body);
+			ResponseObject response = deserialize(responseBody, ResponseObject.class);
+			runOnResponse(request, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -385,8 +521,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ResponseObject retrieveResponse(String responseId) throws LlmException {
-		String responseBody = get("/responses/" + responseId);
-		return deserialize(responseBody, ResponseObject.class);
+		runOnRequest(responseId);
+		try {
+			String responseBody = get("/responses/" + responseId);
+			ResponseObject response = deserialize(responseBody, ResponseObject.class);
+			runOnResponse(responseId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(responseId, e);
+			throw e;
+		}
 	}
 
 	/**
@@ -399,8 +543,16 @@ public final class LlmClient implements AutoCloseable {
 	 *             if the request fails for any reason
 	 */
 	public ResponseObject cancelResponse(String responseId) throws LlmException {
-		String responseBody = post("/responses/" + responseId + "/cancel", "");
-		return deserialize(responseBody, ResponseObject.class);
+		runOnRequest(responseId);
+		try {
+			String responseBody = post("/responses/" + responseId + "/cancel", "");
+			ResponseObject response = deserialize(responseBody, ResponseObject.class);
+			runOnResponse(responseId, response);
+			return response;
+		} catch (LlmException e) {
+			runOnError(responseId, e);
+			throw e;
+		}
 	}
 
 	// ─── Hooks & Custom Providers ─────────────────────────────────────────────

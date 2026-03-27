@@ -8,7 +8,7 @@ import type { MockServer } from "./helpers.js";
 // Run `wasm-pack build --target nodejs` in crates/liter-llm-wasm first.
 import { LlmClient } from "liter-llm-wasm";
 
-describe.skip("hooks", () => {
+describe("hooks", () => {
 
   it("Tests that on_request hook can reject a request", async () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{}", streamChunks: [] }]);

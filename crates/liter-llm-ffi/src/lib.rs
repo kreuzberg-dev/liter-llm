@@ -47,6 +47,58 @@ fn clear_last_error() {
 }
 
 // ---------------------------------------------------------------------------
+// Hook invocation helpers
+// ---------------------------------------------------------------------------
+
+/// Invoke the `on_request` hook if registered.  Returns the hook's return
+/// code: `0` to proceed, non-zero to reject the request (guardrail).
+///
+/// # Safety
+///
+/// The `hooks` field must contain valid function pointers for the lifetime
+/// of the client, as guaranteed by the `literllm_set_hooks` contract.
+fn invoke_on_request(hooks: &Option<LiterLlmHookCallbacks>, request_json_c: &CString) -> i32 {
+    if let Some(cb) = hooks
+        && let Some(on_request) = cb.on_request
+    {
+        // SAFETY: `on_request` is a valid function pointer provided by
+        // the caller of `literllm_set_hooks`.  `request_json_c.as_ptr()`
+        // is valid for this call scope.  `cb.user_data` is forwarded as-is.
+        return unsafe { on_request(request_json_c.as_ptr(), cb.user_data) };
+    }
+    0
+}
+
+/// Invoke the `on_response` hook if registered.
+///
+/// # Safety
+///
+/// Same safety requirements as `invoke_on_request`.
+fn invoke_on_response(hooks: &Option<LiterLlmHookCallbacks>, request_json_c: &CString, response_json_c: &CString) {
+    if let Some(cb) = hooks
+        && let Some(on_response) = cb.on_response
+    {
+        // SAFETY: both CString pointers are valid for this call scope.
+        unsafe { on_response(request_json_c.as_ptr(), response_json_c.as_ptr(), cb.user_data) };
+    }
+}
+
+/// Invoke the `on_error` hook if registered.
+///
+/// # Safety
+///
+/// Same safety requirements as `invoke_on_request`.
+fn invoke_on_error(hooks: &Option<LiterLlmHookCallbacks>, request_json_c: &CString, error_msg: &str) {
+    if let Some(cb) = hooks
+        && let Some(on_error) = cb.on_error
+        && let Ok(err_c) = CString::new(error_msg)
+    {
+        // SAFETY: both CString pointers are valid for this call scope.
+        unsafe { on_error(request_json_c.as_ptr(), err_c.as_ptr(), cb.user_data) };
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Opaque client handle
 // ---------------------------------------------------------------------------
 
@@ -59,6 +111,8 @@ fn clear_last_error() {
 /// preamble so C callers only ever hold a `LiterLlmClient*`.
 pub struct LiterLlmClient {
     inner: DefaultClient,
+    /// Stored lifecycle hook callbacks, set via `literllm_set_hooks`.
+    hooks: Option<LiterLlmHookCallbacks>,
 }
 
 /// Tokio runtime used for blocking on async operations from synchronous C callers.
@@ -181,7 +235,10 @@ pub unsafe extern "C" fn literllm_client_new(
 
     match DefaultClient::new(config, model_hint_str.as_deref()) {
         Ok(client) => {
-            let handle = Box::new(LiterLlmClient { inner: client });
+            let handle = Box::new(LiterLlmClient {
+                inner: client,
+                hooks: None,
+            });
             Box::into_raw(handle)
         }
         Err(e) => {
@@ -243,7 +300,8 @@ pub unsafe extern "C" fn literllm_chat(client: *const LiterLlmClient, request_js
     }
 
     // SAFETY: caller guarantees `client` and `request_json` are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let json_str = match unsafe { CStr::from_ptr(request_json) }.to_str() {
         Ok(s) => s,
@@ -252,6 +310,23 @@ pub unsafe extern "C" fn literllm_chat(client: *const LiterLlmClient, request_js
             return std::ptr::null_mut();
         }
     };
+
+    // Build a CString copy of the request for hook invocation.
+    let req_c = match CString::new(json_str) {
+        Ok(c) => c,
+        Err(e) => {
+            set_last_error(format!("literllm_chat: request_json contained NUL byte: {e}"));
+            return std::ptr::null_mut();
+        }
+    };
+
+    // Invoke on_request hook; non-zero return rejects the request.
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error("literllm_chat: request rejected by on_request hook".into());
+        invoke_on_error(&client_handle.hooks, &req_c, "request rejected by on_request hook");
+        return std::ptr::null_mut();
+    }
 
     let request = match serde_json::from_str(json_str) {
         Ok(r) => r,
@@ -273,7 +348,10 @@ pub unsafe extern "C" fn literllm_chat(client: *const LiterLlmClient, request_js
     match result {
         Ok(response) => match serde_json::to_string(&response) {
             Ok(json) => match CString::new(json) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("literllm_chat: response JSON contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -285,7 +363,9 @@ pub unsafe extern "C" fn literllm_chat(client: *const LiterLlmClient, request_js
             }
         },
         Err(e) => {
-            set_last_error(format!("literllm_chat: {e}"));
+            let msg = format!("literllm_chat: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -345,7 +425,8 @@ pub unsafe extern "C" fn literllm_chat_stream(
     }
 
     // SAFETY: caller guarantees `client` and `request_json` are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let json_str = match unsafe { CStr::from_ptr(request_json) }.to_str() {
         Ok(s) => s,
@@ -354,6 +435,21 @@ pub unsafe extern "C" fn literllm_chat_stream(
             return -1;
         }
     };
+
+    let req_c = match CString::new(json_str) {
+        Ok(c) => c,
+        Err(e) => {
+            set_last_error(format!("literllm_chat_stream: request_json contained NUL byte: {e}"));
+            return -1;
+        }
+    };
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error("literllm_chat_stream: request rejected by on_request hook".into());
+        invoke_on_error(&client_handle.hooks, &req_c, "request rejected by on_request hook");
+        return -1;
+    }
 
     let request = match serde_json::from_str(json_str) {
         Ok(r) => r,
@@ -410,8 +506,14 @@ pub unsafe extern "C" fn literllm_chat_stream(
     });
 
     match result {
-        Ok(()) => 0,
+        Ok(()) => {
+            // Notify on_response with a synthetic "stream complete" marker.
+            let done_c = CString::new(r#"{"stream":"complete"}"#).unwrap_or_default();
+            invoke_on_response(&client_handle.hooks, &req_c, &done_c);
+            0
+        }
         Err(e) => {
+            invoke_on_error(&client_handle.hooks, &req_c, &e);
             set_last_error(e);
             -1
         }
@@ -452,7 +554,8 @@ pub unsafe extern "C" fn literllm_embed(client: *const LiterLlmClient, request_j
     }
 
     // SAFETY: caller guarantees `client` and `request_json` are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let json_str = match unsafe { CStr::from_ptr(request_json) }.to_str() {
         Ok(s) => s,
@@ -461,6 +564,21 @@ pub unsafe extern "C" fn literllm_embed(client: *const LiterLlmClient, request_j
             return std::ptr::null_mut();
         }
     };
+
+    let req_c = match CString::new(json_str) {
+        Ok(c) => c,
+        Err(e) => {
+            set_last_error(format!("literllm_embed: request_json contained NUL byte: {e}"));
+            return std::ptr::null_mut();
+        }
+    };
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error("literllm_embed: request rejected by on_request hook".into());
+        invoke_on_error(&client_handle.hooks, &req_c, "request rejected by on_request hook");
+        return std::ptr::null_mut();
+    }
 
     let request = match serde_json::from_str(json_str) {
         Ok(r) => r,
@@ -482,7 +600,10 @@ pub unsafe extern "C" fn literllm_embed(client: *const LiterLlmClient, request_j
     match result {
         Ok(response) => match serde_json::to_string(&response) {
             Ok(json) => match CString::new(json) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("literllm_embed: response JSON contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -494,7 +615,9 @@ pub unsafe extern "C" fn literllm_embed(client: *const LiterLlmClient, request_j
             }
         },
         Err(e) => {
-            set_last_error(format!("literllm_embed: {e}"));
+            let msg = format!("literllm_embed: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -529,7 +652,19 @@ pub unsafe extern "C" fn literllm_list_models(client: *const LiterLlmClient) -> 
     // SAFETY: caller guarantees `client` is non-null and was returned by
     // `literllm_client_new`.  The shared reference is valid for the duration
     // of this call.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
+
+    // Use a synthetic request marker for hook invocation since list_models
+    // does not take a request body.
+    let req_c = CString::new(r#"{"action":"list_models"}"#).unwrap_or_default();
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error("literllm_list_models: request rejected by on_request hook".into());
+        invoke_on_error(&client_handle.hooks, &req_c, "request rejected by on_request hook");
+        return std::ptr::null_mut();
+    }
 
     let rt = match runtime() {
         Ok(rt) => rt,
@@ -543,7 +678,10 @@ pub unsafe extern "C" fn literllm_list_models(client: *const LiterLlmClient) -> 
     match result {
         Ok(response) => match serde_json::to_string(&response) {
             Ok(json) => match CString::new(json) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("literllm_list_models: response JSON contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -555,7 +693,9 @@ pub unsafe extern "C" fn literllm_list_models(client: *const LiterLlmClient) -> 
             }
         },
         Err(e) => {
-            set_last_error(format!("literllm_list_models: {e}"));
+            let msg = format!("literllm_list_models: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -598,7 +738,8 @@ where
     }
 
     // SAFETY: caller guarantees `client` and `request_json` are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let json_str = match unsafe { CStr::from_ptr(request_json) }.to_str() {
         Ok(s) => s,
@@ -607,6 +748,25 @@ where
             return std::ptr::null_mut();
         }
     };
+
+    let req_c = match CString::new(json_str) {
+        Ok(c) => c,
+        Err(e) => {
+            set_last_error(format!("{name}: request_json contained NUL byte: {e}"));
+            return std::ptr::null_mut();
+        }
+    };
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error(format!("{name}: request rejected by on_request hook"));
+        invoke_on_error(
+            &client_handle.hooks,
+            &req_c,
+            &format!("{name}: request rejected by on_request hook"),
+        );
+        return std::ptr::null_mut();
+    }
 
     let request: Req = match serde_json::from_str(json_str) {
         Ok(r) => r,
@@ -628,7 +788,10 @@ where
     match result {
         Ok(response) => match serde_json::to_string(&response) {
             Ok(json) => match CString::new(json) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("{name}: response JSON contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -640,7 +803,9 @@ where
             }
         },
         Err(e) => {
-            set_last_error(format!("{name}: {e}"));
+            let msg = format!("{name}: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -674,7 +839,8 @@ where
     }
 
     // SAFETY: caller guarantees `client` and `id_ptr` are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let id_str = match unsafe { CStr::from_ptr(id_ptr) }.to_str() {
         Ok(s) => s,
@@ -683,6 +849,20 @@ where
             return std::ptr::null_mut();
         }
     };
+
+    // Synthetic request JSON for hook invocation.
+    let req_c = CString::new(format!(r#"{{"action":"{name}","{id_label}":"{id_str}"}}"#)).unwrap_or_default();
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error(format!("{name}: request rejected by on_request hook"));
+        invoke_on_error(
+            &client_handle.hooks,
+            &req_c,
+            &format!("{name}: request rejected by on_request hook"),
+        );
+        return std::ptr::null_mut();
+    }
 
     let rt = match runtime() {
         Ok(rt) => rt,
@@ -696,7 +876,10 @@ where
     match result {
         Ok(response) => match serde_json::to_string(&response) {
             Ok(json) => match CString::new(json) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("{name}: response JSON contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -708,7 +891,9 @@ where
             }
         },
         Err(e) => {
-            set_last_error(format!("{name}: {e}"));
+            let msg = format!("{name}: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -739,7 +924,8 @@ fn id_request_bytes(
     }
 
     // SAFETY: caller guarantees `client` and `id_ptr` are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let id_str = match unsafe { CStr::from_ptr(id_ptr) }.to_str() {
         Ok(s) => s,
@@ -748,6 +934,19 @@ fn id_request_bytes(
             return std::ptr::null_mut();
         }
     };
+
+    let req_c = CString::new(format!(r#"{{"action":"{name}","{id_label}":"{id_str}"}}"#)).unwrap_or_default();
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error(format!("{name}: request rejected by on_request hook"));
+        invoke_on_error(
+            &client_handle.hooks,
+            &req_c,
+            &format!("{name}: request rejected by on_request hook"),
+        );
+        return std::ptr::null_mut();
+    }
 
     let rt = match runtime() {
         Ok(rt) => rt,
@@ -763,7 +962,10 @@ fn id_request_bytes(
             use base64::Engine;
             let encoded = base64::engine::general_purpose::STANDARD.encode(&data);
             match CString::new(encoded) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("{name}: base64 output contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -771,7 +973,9 @@ fn id_request_bytes(
             }
         }
         Err(e) => {
-            set_last_error(format!("{name}: {e}"));
+            let msg = format!("{name}: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -841,7 +1045,8 @@ pub unsafe extern "C" fn literllm_speech(client: *const LiterLlmClient, request_
     }
 
     // SAFETY: caller guarantees both pointers are non-null and valid.
-    let client_ref = unsafe { &(*client).inner };
+    let client_handle = unsafe { &(*client) };
+    let client_ref = &client_handle.inner;
 
     let json_str = match unsafe { CStr::from_ptr(request_json) }.to_str() {
         Ok(s) => s,
@@ -850,6 +1055,21 @@ pub unsafe extern "C" fn literllm_speech(client: *const LiterLlmClient, request_
             return std::ptr::null_mut();
         }
     };
+
+    let req_c = match CString::new(json_str) {
+        Ok(c) => c,
+        Err(e) => {
+            set_last_error(format!("literllm_speech: request_json contained NUL byte: {e}"));
+            return std::ptr::null_mut();
+        }
+    };
+
+    let hook_rc = invoke_on_request(&client_handle.hooks, &req_c);
+    if hook_rc != 0 {
+        set_last_error("literllm_speech: request rejected by on_request hook".into());
+        invoke_on_error(&client_handle.hooks, &req_c, "request rejected by on_request hook");
+        return std::ptr::null_mut();
+    }
 
     let request = match serde_json::from_str(json_str) {
         Ok(r) => r,
@@ -873,7 +1093,10 @@ pub unsafe extern "C" fn literllm_speech(client: *const LiterLlmClient, request_
             use base64::Engine;
             let encoded = base64::engine::general_purpose::STANDARD.encode(&data);
             match CString::new(encoded) {
-                Ok(c_str) => c_str.into_raw(),
+                Ok(c_str) => {
+                    invoke_on_response(&client_handle.hooks, &req_c, &c_str);
+                    c_str.into_raw()
+                }
                 Err(e) => {
                     set_last_error(format!("literllm_speech: base64 output contained NUL byte: {e}"));
                     std::ptr::null_mut()
@@ -881,7 +1104,9 @@ pub unsafe extern "C" fn literllm_speech(client: *const LiterLlmClient, request_
             }
         }
         Err(e) => {
-            set_last_error(format!("literllm_speech: {e}"));
+            let msg = format!("literllm_speech: {e}");
+            invoke_on_error(&client_handle.hooks, &req_c, &msg);
+            set_last_error(msg);
             std::ptr::null_mut()
         }
     }
@@ -1706,7 +1931,10 @@ pub unsafe extern "C" fn literllm_client_new_with_config(config_json: *const c_c
 
     match DefaultClient::new(config, parsed.model_hint.as_deref()) {
         Ok(client) => {
-            let handle = Box::new(LiterLlmClient { inner: client });
+            let handle = Box::new(LiterLlmClient {
+                inner: client,
+                hooks: None,
+            });
             Box::into_raw(handle)
         }
         Err(e) => {
@@ -1846,15 +2074,13 @@ pub unsafe extern "C" fn literllm_set_hooks(
 
     // SAFETY: caller guarantees both pointers are non-null and valid.
     // We copy the callbacks struct so the caller can free theirs.
-    let _cb = unsafe { std::ptr::read(callbacks) };
+    let cb = unsafe { std::ptr::read(callbacks) };
 
-    // The hook callbacks are accepted and validated.  Full integration with
-    // the Tower middleware stack requires storing them on the client handle
-    // and invoking them during request dispatch.  This is the FFI contract
-    // point; the callbacks struct is validated and ready for use.
-    //
-    // TODO: Wire callbacks into the client's request lifecycle by wrapping
-    // DefaultClient in a HooksLayer-compatible adapter.
+    // SAFETY: caller guarantees `client` is a valid, non-null pointer returned
+    // by `literllm_client_new`.  We store the callbacks on the client handle
+    // so they can be invoked during each API call's lifecycle.
+    let client_ref = unsafe { &mut *client };
+    client_ref.hooks = Some(cb);
 
     0
 }

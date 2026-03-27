@@ -102,10 +102,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         ChatCompletionRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("chat/completions", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<ChatCompletionResponse>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("chat/completions", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<ChatCompletionResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>
@@ -119,10 +130,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         EmbeddingRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("embeddings", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<EmbeddingResponse>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("embeddings", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<EmbeddingResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>
@@ -134,8 +156,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
     public async Task<ModelsListResponse> ListModelsAsync(
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await GetAsync("models", cancellationToken).ConfigureAwait(false);
-        return Deserialize<ModelsListResponse>(responseJson);
+        object request = "list_models";
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await GetAsync("models", cancellationToken).ConfigureAwait(false);
+            var response = Deserialize<ModelsListResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     // ─── Inference API ────────────────────────────────────────────────────────
@@ -149,10 +183,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateImageRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("images/generations", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<ImagesResponse>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("images/generations", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<ImagesResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Generates audio speech from text, returning raw audio bytes.</summary>
@@ -164,9 +209,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateSpeechRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        return await PostForBytesAsync("audio/speech", body, cancellationToken)
-            .ConfigureAwait(false);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var response = await PostForBytesAsync("audio/speech", body, cancellationToken)
+                .ConfigureAwait(false);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Transcribes audio to text.</summary>
@@ -178,10 +234,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateTranscriptionRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("audio/transcriptions", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<TranscriptionResponse>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("audio/transcriptions", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<TranscriptionResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Checks content against moderation policies.</summary>
@@ -193,10 +260,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         ModerationRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("moderations", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<ModerationResponse>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("moderations", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<ModerationResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Reranks documents by relevance to a query.</summary>
@@ -208,10 +286,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         RerankRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("rerank", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<RerankResponse>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("rerank", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<RerankResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     // ─── File Management ──────────────────────────────────────────────────────
@@ -225,10 +314,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateFileRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("files", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<FileObject>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("files", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<FileObject>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Retrieves metadata for a file by ID.</summary>
@@ -240,9 +340,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string fileId,
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await GetAsync($"files/{fileId}", cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<FileObject>(responseJson);
+        await RunOnRequestAsync(fileId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await GetAsync($"files/{fileId}", cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<FileObject>(responseJson);
+            await RunOnResponseAsync(fileId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(fileId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Deletes a file by ID.</summary>
@@ -254,9 +365,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string fileId,
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await DeleteAsync($"files/{fileId}", cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<DeleteResponse>(responseJson);
+        await RunOnRequestAsync(fileId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await DeleteAsync($"files/{fileId}", cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<DeleteResponse>(responseJson);
+            await RunOnResponseAsync(fileId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(fileId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Lists files, optionally filtered by query parameters.</summary>
@@ -268,18 +390,30 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         FileListQuery? query = null,
         CancellationToken cancellationToken = default)
     {
-        var path = "files";
-        if (query is not null)
+        object request = query ?? (object)"list_files";
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
         {
-            var parameters = new List<string>();
-            if (query.Purpose is not null) parameters.Add($"purpose={Uri.EscapeDataString(query.Purpose)}");
-            if (query.Limit is not null) parameters.Add($"limit={query.Limit}");
-            if (query.After is not null) parameters.Add($"after={Uri.EscapeDataString(query.After)}");
-            if (parameters.Count > 0) path += "?" + string.Join("&", parameters);
-        }
+            var path = "files";
+            if (query is not null)
+            {
+                var parameters = new List<string>();
+                if (query.Purpose is not null) parameters.Add($"purpose={Uri.EscapeDataString(query.Purpose)}");
+                if (query.Limit is not null) parameters.Add($"limit={query.Limit}");
+                if (query.After is not null) parameters.Add($"after={Uri.EscapeDataString(query.After)}");
+                if (parameters.Count > 0) path += "?" + string.Join("&", parameters);
+            }
 
-        var responseJson = await GetAsync(path, cancellationToken).ConfigureAwait(false);
-        return Deserialize<FileListResponse>(responseJson);
+            var responseJson = await GetAsync(path, cancellationToken).ConfigureAwait(false);
+            var response = Deserialize<FileListResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Retrieves the raw content of a file.</summary>
@@ -291,8 +425,19 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string fileId,
         CancellationToken cancellationToken = default)
     {
-        return await GetForBytesAsync($"files/{fileId}/content", cancellationToken)
-            .ConfigureAwait(false);
+        await RunOnRequestAsync(fileId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var response = await GetForBytesAsync($"files/{fileId}/content", cancellationToken)
+                .ConfigureAwait(false);
+            await RunOnResponseAsync(fileId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(fileId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     // ─── Batch Management ─────────────────────────────────────────────────────
@@ -306,10 +451,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateBatchRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("batches", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<BatchObject>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("batches", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<BatchObject>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Retrieves a batch by ID.</summary>
@@ -321,9 +477,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string batchId,
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await GetAsync($"batches/{batchId}", cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<BatchObject>(responseJson);
+        await RunOnRequestAsync(batchId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await GetAsync($"batches/{batchId}", cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<BatchObject>(responseJson);
+            await RunOnResponseAsync(batchId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(batchId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Lists batches, optionally filtered by query parameters.</summary>
@@ -335,17 +502,29 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         BatchListQuery? query = null,
         CancellationToken cancellationToken = default)
     {
-        var path = "batches";
-        if (query is not null)
+        object request = query ?? (object)"list_batches";
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
         {
-            var parameters = new List<string>();
-            if (query.Limit is not null) parameters.Add($"limit={query.Limit}");
-            if (query.After is not null) parameters.Add($"after={Uri.EscapeDataString(query.After)}");
-            if (parameters.Count > 0) path += "?" + string.Join("&", parameters);
-        }
+            var path = "batches";
+            if (query is not null)
+            {
+                var parameters = new List<string>();
+                if (query.Limit is not null) parameters.Add($"limit={query.Limit}");
+                if (query.After is not null) parameters.Add($"after={Uri.EscapeDataString(query.After)}");
+                if (parameters.Count > 0) path += "?" + string.Join("&", parameters);
+            }
 
-        var responseJson = await GetAsync(path, cancellationToken).ConfigureAwait(false);
-        return Deserialize<BatchListResponse>(responseJson);
+            var responseJson = await GetAsync(path, cancellationToken).ConfigureAwait(false);
+            var response = Deserialize<BatchListResponse>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Cancels an in-progress batch.</summary>
@@ -357,9 +536,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string batchId,
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await PostAsync($"batches/{batchId}/cancel", "", cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<BatchObject>(responseJson);
+        await RunOnRequestAsync(batchId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await PostAsync($"batches/{batchId}/cancel", "", cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<BatchObject>(responseJson);
+            await RunOnResponseAsync(batchId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(batchId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     // ─── Responses API ────────────────────────────────────────────────────────
@@ -373,10 +563,21 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         CreateResponseRequest request,
         CancellationToken cancellationToken = default)
     {
-        var body = Serialize(request);
-        var responseJson = await PostAsync("responses", body, cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<ResponseObject>(responseJson);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var body = Serialize(request);
+            var responseJson = await PostAsync("responses", body, cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<ResponseObject>(responseJson);
+            await RunOnResponseAsync(request, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Retrieves a response by ID.</summary>
@@ -388,9 +589,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string responseId,
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await GetAsync($"responses/{responseId}", cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<ResponseObject>(responseJson);
+        await RunOnRequestAsync(responseId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await GetAsync($"responses/{responseId}", cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<ResponseObject>(responseJson);
+            await RunOnResponseAsync(responseId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(responseId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     /// <summary>Cancels an in-progress response.</summary>
@@ -402,9 +614,20 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         string responseId,
         CancellationToken cancellationToken = default)
     {
-        var responseJson = await PostAsync($"responses/{responseId}/cancel", "", cancellationToken)
-            .ConfigureAwait(false);
-        return Deserialize<ResponseObject>(responseJson);
+        await RunOnRequestAsync(responseId, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var responseJson = await PostAsync($"responses/{responseId}/cancel", "", cancellationToken)
+                .ConfigureAwait(false);
+            var response = Deserialize<ResponseObject>(responseJson);
+            await RunOnResponseAsync(responseId, response, cancellationToken).ConfigureAwait(false);
+            return response;
+        }
+        catch (LlmException ex)
+        {
+            await RunOnErrorAsync(responseId, ex, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
     }
 
     // ─── Hooks & Custom Providers ─────────────────────────────────────────────

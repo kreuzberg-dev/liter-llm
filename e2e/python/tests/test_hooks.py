@@ -41,7 +41,6 @@ class GuardrailHook:
         pass
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{}"),
@@ -56,7 +55,6 @@ async def test_hook_guardrail(mock_server: MockServerInfo) -> None:
         await client.chat(**request)
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 500, "{\"error\":{\"code\":\"internal_error\",\"message\":\"Internal server error\",\"type\":\"server_error\"}}"),
@@ -74,7 +72,6 @@ async def test_hook_on_error(mock_server: MockServerInfo) -> None:
     assert hook.on_error_called, "Expected on_error hook to be called"
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-hook-req-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),
@@ -89,7 +86,6 @@ async def test_hook_on_request(mock_server: MockServerInfo) -> None:
     assert hook.on_request_called, "Expected on_request hook to be called"
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-hook-resp-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),

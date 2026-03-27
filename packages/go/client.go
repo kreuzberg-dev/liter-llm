@@ -384,27 +384,41 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatCompletionRequest, han
 		return fmt.Errorf("%w: handler must not be nil", ErrInvalidRequest)
 	}
 
+	// Run pre-request hooks.
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return err
+	}
+
 	streamTrue := true
 	copy := *req
 	copy.Stream = &streamTrue
 
 	body, err := marshalBody(&copy)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/chat/completions", body, true)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return err
 	}
 	defer resp.Body.Close()
 
-	return parseSSEStream(resp.Body, handler)
+	if err := parseSSEStream(resp.Body, handler); err != nil {
+		c.runOnError(ctx, req, err)
+		return err
+	}
+
+	c.runOnResponse(ctx, req, nil)
+	return nil
 }
 
 // parseSSEStream reads an SSE response body, parses each data line as a
@@ -454,26 +468,37 @@ func (c *Client) Embed(ctx context.Context, req *EmbeddingRequest) (*EmbeddingRe
 		return nil, fmt.Errorf("%w: model is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/embeddings", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result EmbeddingResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode embedding response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode embedding response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -481,21 +506,32 @@ func (c *Client) Embed(ctx context.Context, req *EmbeddingRequest) (*EmbeddingRe
 
 // ListModels retrieves the list of models from the configured provider endpoint.
 func (c *Client) ListModels(ctx context.Context) (*ModelsListResponse, error) {
+	// ListModels has no request body; use nil as the hook request sentinel.
+	if err := c.runOnRequest(ctx, nil); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, "/models", nil, false)
 	if err != nil {
+		c.runOnError(ctx, nil, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, nil, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ModelsListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode models response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode models response: %w", err)
+		c.runOnError(ctx, nil, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, nil, &result)
 	return &result, nil
 }
 
@@ -510,26 +546,37 @@ func (c *Client) ImageGenerate(ctx context.Context, req *CreateImageRequest) (*I
 		return nil, fmt.Errorf("%w: prompt is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/images/generations", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ImagesResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode image response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode image response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -550,26 +597,37 @@ func (c *Client) Speech(ctx context.Context, req *CreateSpeechRequest) ([]byte, 
 		return nil, fmt.Errorf("%w: voice is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/audio/speech", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("literllm: read speech response: %w", err)
+		readErr := fmt.Errorf("literllm: read speech response: %w", err)
+		c.runOnError(ctx, req, readErr)
+		return nil, readErr
 	}
+
+	c.runOnResponse(ctx, req, data)
 	return data, nil
 }
 
@@ -584,26 +642,37 @@ func (c *Client) Transcribe(ctx context.Context, req *CreateTranscriptionRequest
 		return nil, fmt.Errorf("%w: model is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/audio/transcriptions", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result TranscriptionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode transcription response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode transcription response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -615,26 +684,37 @@ func (c *Client) Moderate(ctx context.Context, req *ModerationRequest) (*Moderat
 		return nil, fmt.Errorf("%w: request must not be nil", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/moderations", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ModerationResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode moderation response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode moderation response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -652,26 +732,37 @@ func (c *Client) Rerank(ctx context.Context, req *RerankRequest) (*RerankRespons
 		return nil, fmt.Errorf("%w: query is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/rerank", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result RerankResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode rerank response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode rerank response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -683,26 +774,37 @@ func (c *Client) CreateFile(ctx context.Context, req *CreateFileRequest) (*FileO
 		return nil, fmt.Errorf("%w: request must not be nil", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/files", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result FileObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode file response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode file response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -712,21 +814,31 @@ func (c *Client) RetrieveFile(ctx context.Context, fileID string) (*FileObject, 
 		return nil, fmt.Errorf("%w: file_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, fileID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, "/files/"+fileID, nil, false)
 	if err != nil {
+		c.runOnError(ctx, fileID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, fileID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result FileObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode file response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode file response: %w", err)
+		c.runOnError(ctx, fileID, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, fileID, &result)
 	return &result, nil
 }
 
@@ -736,26 +848,40 @@ func (c *Client) DeleteFile(ctx context.Context, fileID string) (*DeleteResponse
 		return nil, fmt.Errorf("%w: file_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, fileID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodDelete, "/files/"+fileID, nil, false)
 	if err != nil {
+		c.runOnError(ctx, fileID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, fileID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result DeleteResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode delete response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode delete response: %w", err)
+		c.runOnError(ctx, fileID, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, fileID, &result)
 	return &result, nil
 }
 
 // ListFiles lists files, optionally filtered by query parameters.
 func (c *Client) ListFiles(ctx context.Context, query *FileListQuery) (*FileListResponse, error) {
+	if err := c.runOnRequest(ctx, query); err != nil {
+		return nil, err
+	}
+
 	path := "/files"
 	if query != nil {
 		var params []string
@@ -775,19 +901,25 @@ func (c *Client) ListFiles(ctx context.Context, query *FileListQuery) (*FileList
 
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, path, nil, false)
 	if err != nil {
+		c.runOnError(ctx, query, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, query, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result FileListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode file list response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode file list response: %w", err)
+		c.runOnError(ctx, query, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, query, &result)
 	return &result, nil
 }
 
@@ -797,21 +929,31 @@ func (c *Client) FileContent(ctx context.Context, fileID string) ([]byte, error)
 		return nil, fmt.Errorf("%w: file_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, fileID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, "/files/"+fileID+"/content", nil, false)
 	if err != nil {
+		c.runOnError(ctx, fileID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, fileID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("literllm: read file content: %w", err)
+		readErr := fmt.Errorf("literllm: read file content: %w", err)
+		c.runOnError(ctx, fileID, readErr)
+		return nil, readErr
 	}
+
+	c.runOnResponse(ctx, fileID, data)
 	return data, nil
 }
 
@@ -823,26 +965,37 @@ func (c *Client) CreateBatch(ctx context.Context, req *CreateBatchRequest) (*Bat
 		return nil, fmt.Errorf("%w: request must not be nil", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/batches", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result BatchObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode batch response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode batch response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -852,26 +1005,40 @@ func (c *Client) RetrieveBatch(ctx context.Context, batchID string) (*BatchObjec
 		return nil, fmt.Errorf("%w: batch_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, batchID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, "/batches/"+batchID, nil, false)
 	if err != nil {
+		c.runOnError(ctx, batchID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, batchID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result BatchObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode batch response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode batch response: %w", err)
+		c.runOnError(ctx, batchID, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, batchID, &result)
 	return &result, nil
 }
 
 // ListBatches lists batches, optionally filtered by query parameters.
 func (c *Client) ListBatches(ctx context.Context, query *BatchListQuery) (*BatchListResponse, error) {
+	if err := c.runOnRequest(ctx, query); err != nil {
+		return nil, err
+	}
+
 	path := "/batches"
 	if query != nil {
 		var params []string
@@ -888,19 +1055,25 @@ func (c *Client) ListBatches(ctx context.Context, query *BatchListQuery) (*Batch
 
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, path, nil, false)
 	if err != nil {
+		c.runOnError(ctx, query, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, query, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result BatchListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode batch list response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode batch list response: %w", err)
+		c.runOnError(ctx, query, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, query, &result)
 	return &result, nil
 }
 
@@ -910,21 +1083,31 @@ func (c *Client) CancelBatch(ctx context.Context, batchID string) (*BatchObject,
 		return nil, fmt.Errorf("%w: batch_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, batchID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/batches/"+batchID+"/cancel", nil, false)
 	if err != nil {
+		c.runOnError(ctx, batchID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, batchID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result BatchObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode batch response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode batch response: %w", err)
+		c.runOnError(ctx, batchID, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, batchID, &result)
 	return &result, nil
 }
 
@@ -939,26 +1122,37 @@ func (c *Client) CreateResponse(ctx context.Context, req *CreateResponseRequest)
 		return nil, fmt.Errorf("%w: model is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, req); err != nil {
+		return nil, err
+	}
+
 	body, err := marshalBody(req)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/responses", body, false)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, req, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ResponseObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode response: %w", err)
+		c.runOnError(ctx, req, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, req, &result)
 	return &result, nil
 }
 
@@ -968,21 +1162,31 @@ func (c *Client) RetrieveResponse(ctx context.Context, responseID string) (*Resp
 		return nil, fmt.Errorf("%w: response_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, responseID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodGet, "/responses/"+responseID, nil, false)
 	if err != nil {
+		c.runOnError(ctx, responseID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, responseID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ResponseObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode response: %w", err)
+		c.runOnError(ctx, responseID, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, responseID, &result)
 	return &result, nil
 }
 
@@ -992,21 +1196,31 @@ func (c *Client) CancelResponse(ctx context.Context, responseID string) (*Respon
 		return nil, fmt.Errorf("%w: response_id is required", ErrInvalidRequest)
 	}
 
+	if err := c.runOnRequest(ctx, responseID); err != nil {
+		return nil, err
+	}
+
 	httpReq, err := c.buildRequest(ctx, http.MethodPost, "/responses/"+responseID+"/cancel", nil, false)
 	if err != nil {
+		c.runOnError(ctx, responseID, err)
 		return nil, err
 	}
 
 	resp, err := c.do(httpReq)
 	if err != nil {
+		c.runOnError(ctx, responseID, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var result ResponseObject
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("literllm: decode response: %w", err)
+		decodeErr := fmt.Errorf("literllm: decode response: %w", err)
+		c.runOnError(ctx, responseID, decodeErr)
+		return nil, decodeErr
 	}
+
+	c.runOnResponse(ctx, responseID, &result)
 	return &result, nil
 }
 

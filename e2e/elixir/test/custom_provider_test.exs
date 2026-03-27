@@ -5,7 +5,6 @@ defmodule LiterLlmE2E.CustomProviderTest do
   alias LiterLlmE2E.MockServer
   alias LiterLlmE2E.Helpers
 
-  @tag :skip
   test "Tests custom provider with custom auth header" do
     routes = [
       %{
@@ -49,7 +48,6 @@ defmodule LiterLlmE2E.CustomProviderTest do
     assert doc["model"] == "my-auth-model-v1"
   end
 
-  @tag :skip
   test "Tests that a custom provider can be registered and routes requests" do
     routes = [
       %{

@@ -15,8 +15,6 @@ final class HooksTest extends TestCase
     /** Tests that on_request hook can reject a request */
     public function testHookGuardrail(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -50,8 +48,6 @@ final class HooksTest extends TestCase
     /** Tests that on_error hook is called on failure */
     public function testHookOnError(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -89,8 +85,6 @@ final class HooksTest extends TestCase
     /** Tests that on_request hook is called before the request */
     public function testHookOnRequest(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -125,8 +119,6 @@ final class HooksTest extends TestCase
     /** Tests that on_response hook is called with response data */
     public function testHookOnResponse(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',

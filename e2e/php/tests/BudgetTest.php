@@ -15,8 +15,6 @@ final class BudgetTest extends TestCase
     /** Tests that a request is rejected when budget is exceeded */
     public function testBudgetEnforced(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -47,8 +45,6 @@ final class BudgetTest extends TestCase
     /** Tests per-model budget limit */
     public function testBudgetPerModel(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -79,8 +75,6 @@ final class BudgetTest extends TestCase
     /** Tests that cost is tracked after a successful response */
     public function testBudgetTracked(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',

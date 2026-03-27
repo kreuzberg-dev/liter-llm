@@ -8,7 +8,6 @@ use liter_llm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
 /// Tests that on_request hook can reject a request (TDD -- will fail until hooks is implemented)
 #[tokio::test]
-#[ignore = "TDD: feature not yet implemented"]
 async fn hook_guardrail() {
     let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
         path: "/chat/completions",
@@ -51,7 +50,6 @@ async fn hook_guardrail() {
 
 /// Tests that on_error hook is called on failure (TDD -- will fail until hooks is implemented)
 #[tokio::test]
-#[ignore = "TDD: feature not yet implemented"]
 async fn hook_on_error() {
     let server = mock_server::MockServer::start(vec![mock_server::MockRoute {
         path: "/chat/completions",
@@ -94,7 +92,6 @@ async fn hook_on_error() {
 
 /// Tests that on_request hook is called before the request (TDD -- will fail until hooks is implemented)
 #[tokio::test]
-#[ignore = "TDD: feature not yet implemented"]
 async fn hook_on_request() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {
@@ -138,7 +135,6 @@ async fn hook_on_request() {
 
 /// Tests that on_response hook is called with response data (TDD -- will fail until hooks is implemented)
 #[tokio::test]
-#[ignore = "TDD: feature not yet implemented"]
 async fn hook_on_response() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {

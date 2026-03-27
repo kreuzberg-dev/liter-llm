@@ -716,7 +716,7 @@ fn write_cache_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let is_stream = fixture.api.method == "chat_stream";
 
         writeln!(out).unwrap();
-        writeln!(out, "@pytest.mark.skip(reason=\"TDD: feature not yet implemented\")").unwrap();
+
         writeln!(out, "@pytest.mark.asyncio").unwrap();
         writeln!(out, "@pytest.mark.parametrize(\"mock_server\", [[").unwrap();
 
@@ -806,7 +806,7 @@ fn write_budget_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
-        writeln!(out, "@pytest.mark.skip(reason=\"TDD: feature not yet implemented\")").unwrap();
+
         writeln!(out, "@pytest.mark.asyncio").unwrap();
         writeln!(out, "@pytest.mark.parametrize(\"mock_server\", [[").unwrap();
         writeln!(out, "    MockRoute({endpoint:?}, \"POST\", {status}, {body_json:?}),").unwrap();
@@ -926,7 +926,7 @@ fn write_hooks_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
-        writeln!(out, "@pytest.mark.skip(reason=\"TDD: feature not yet implemented\")").unwrap();
+
         writeln!(out, "@pytest.mark.asyncio").unwrap();
         writeln!(out, "@pytest.mark.parametrize(\"mock_server\", [[").unwrap();
         writeln!(out, "    MockRoute({endpoint:?}, \"POST\", {status}, {body_json:?}),").unwrap();
@@ -1017,7 +1017,7 @@ fn write_custom_provider_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
-        writeln!(out, "@pytest.mark.skip(reason=\"TDD: feature not yet implemented\")").unwrap();
+
         writeln!(out, "@pytest.mark.asyncio").unwrap();
         writeln!(out, "@pytest.mark.parametrize(\"mock_server\", [[").unwrap();
         writeln!(out, "    MockRoute({endpoint:?}, \"POST\", {status}, {body_json:?}),").unwrap();

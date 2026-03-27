@@ -4,7 +4,7 @@ import { startMockServer, type MockServer, type MockRoute } from "./helpers";
 // @ts-ignore – binding not yet implemented; tests compile and fail at runtime
 import { LlmClient } from "@kreuzberg/liter-llm";
 
-describe.skip("custom_provider", () => {
+describe("custom_provider", () => {
   // Tests custom provider with custom auth header
   it("provider_auth", async () => {
     const routes: MockRoute[] = [

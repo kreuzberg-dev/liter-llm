@@ -545,6 +545,9 @@ pub struct LlmClient {
     /// Full Authorization header value.  When the user does not provide
     /// `authHeader` this defaults to `"Bearer {api_key}"`.
     auth_header_override: Option<String>,
+    /// Registered lifecycle hook objects.  Each hook is a JS object with
+    /// optional `onRequest`, `onResponse`, and `onError` async methods.
+    hooks: Vec<JsValue>,
 }
 
 #[wasm_bindgen]
@@ -564,6 +567,7 @@ impl LlmClient {
             base_url,
             max_retries: opts.max_retries,
             auth_header_override: opts.auth_header,
+            hooks: Vec::new(),
         })
     }
 
@@ -583,12 +587,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/chat/completions");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -620,12 +634,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/embeddings");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -637,11 +661,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str("listModels");
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/models");
-            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -656,12 +691,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/images/generations");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -673,12 +718,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/audio/speech");
-            let resp_bytes = fetch_bytes_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_bytes)
+            match fetch_bytes_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_bytes) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_bytes.clone()]).await;
+                    Ok(resp_bytes)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -690,12 +745,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/audio/transcriptions");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -707,12 +772,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/moderations");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -724,12 +799,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/rerank");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -744,12 +829,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/files");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -761,11 +856,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&file_id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/files/{file_id}");
-            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -777,11 +883,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&file_id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/files/{file_id}");
-            let resp_json = fetch_json_delete_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_delete_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -794,11 +911,13 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            invoke_hooks(&hooks, "onRequest", &[query.clone()]).await;
             let mut url = format!("{base_url}/files");
             if !query.is_null() && !query.is_undefined() {
-                let params = js_to_json(query)?;
+                let params = js_to_json(query.clone())?;
                 if let serde_json::Value::Object(map) = params {
                     let qs: Vec<String> = map
                         .into_iter()
@@ -813,8 +932,16 @@ impl LlmClient {
                     }
                 }
             }
-            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[query, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[query, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -826,11 +953,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&file_id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/files/{file_id}/content");
-            let resp_bytes = fetch_bytes_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_bytes)
+            match fetch_bytes_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_bytes) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_bytes.clone()]).await;
+                    Ok(resp_bytes)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -845,12 +983,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/batches");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -862,11 +1010,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&batch_id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/batches/{batch_id}");
-            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -879,11 +1038,13 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            invoke_hooks(&hooks, "onRequest", &[query.clone()]).await;
             let mut url = format!("{base_url}/batches");
             if !query.is_null() && !query.is_undefined() {
-                let params = js_to_json(query)?;
+                let params = js_to_json(query.clone())?;
                 if let serde_json::Value::Object(map) = params {
                     let qs: Vec<String> = map
                         .into_iter()
@@ -898,8 +1059,16 @@ impl LlmClient {
                     }
                 }
             }
-            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[query, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[query, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -911,17 +1080,29 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&batch_id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/batches/{batch_id}/cancel");
-            let resp_json = fetch_json_post_with_auth(
+            match fetch_json_post_with_auth(
                 &url,
                 &auth_header,
                 serde_json::Value::Object(Default::default()),
                 max_retries,
             )
-            .await?;
-            Ok(resp_json)
+            .await
+            {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -936,12 +1117,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
-            let req_json = js_to_json(request)?;
+            invoke_hooks(&hooks, "onRequest", &[request.clone()]).await;
+            let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/responses");
-            let resp_json = fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -953,11 +1144,22 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/responses/{id}");
-            let resp_json = fetch_json_get_with_auth(&url, &auth_header, max_retries).await?;
-            Ok(resp_json)
+            match fetch_json_get_with_auth(&url, &auth_header, max_retries).await {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -969,17 +1171,29 @@ impl LlmClient {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
 
         wasm_bindgen_futures::future_to_promise(async move {
+            let req_marker = JsValue::from_str(&id);
+            invoke_hooks(&hooks, "onRequest", &[req_marker.clone()]).await;
             let url = format!("{base_url}/responses/{id}/cancel");
-            let resp_json = fetch_json_post_with_auth(
+            match fetch_json_post_with_auth(
                 &url,
                 &auth_header,
                 serde_json::Value::Object(Default::default()),
                 max_retries,
             )
-            .await?;
-            Ok(resp_json)
+            .await
+            {
+                Ok(resp_json) => {
+                    invoke_hooks(&hooks, "onResponse", &[req_marker, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    invoke_hooks(&hooks, "onError", &[req_marker, err.clone()]).await;
+                    Err(err)
+                }
+            }
         })
     }
 
@@ -1037,24 +1251,43 @@ impl LlmClient {
     /// });
     /// ```
     #[wasm_bindgen(js_name = "addHook")]
-    pub fn add_hook(&mut self, _hook: JsValue) -> Result<(), JsValue> {
-        // Store hooks for JS-side middleware orchestration.
-        // In the WASM architecture, hooks are invoked by the JS wrapper layer
-        // (packages/typescript/) rather than the Rust core, because WASM uses
-        // browser fetch directly and does not route through Tower middleware.
-        // The hook object is validated here but stored for the JS wrapper to
-        // consume.  A full implementation would store these in a Vec<JsValue>
-        // on the struct and invoke them in each method.
-        //
-        // For now this validates the hook shape and returns Ok to signal
-        // acceptance; the packages/typescript wrapper is responsible for
-        // calling the hook methods around each API call.
-        if !_hook.is_object() {
+    pub fn add_hook(&mut self, hook: JsValue) -> Result<(), JsValue> {
+        if !hook.is_object() {
             return Err(js_err(
                 "hook must be an object with optional onRequest/onResponse/onError methods",
             ));
         }
+        self.hooks.push(hook);
         Ok(())
+    }
+}
+
+/// Invoke a named method on each hook object, passing the given arguments.
+///
+/// Each hook is a JS object with optional `onRequest`, `onResponse`, and
+/// `onError` methods.  If the method exists and is a function, it is called.
+/// If it returns a `Promise`, that promise is awaited.  Errors from hook
+/// invocations are silently ignored — hooks are advisory.
+async fn invoke_hooks(hooks: &[JsValue], method_name: &str, args: &[JsValue]) {
+    let method_key = JsValue::from_str(method_name);
+    for hook in hooks {
+        if let Ok(func) = js_sys::Reflect::get(hook, &method_key) {
+            if func.is_function() {
+                let f: js_sys::Function = func.into();
+                let result = match args.len() {
+                    0 => f.call0(hook),
+                    1 => f.call1(hook, &args[0]),
+                    2 => f.call2(hook, &args[0], &args[1]),
+                    _ => f.call1(hook, &args[0]), // fallback
+                };
+                // If the hook returns a Promise, await it (best-effort).
+                if let Ok(val) = result {
+                    if val.is_instance_of::<Promise>() {
+                        let _ = JsFuture::from(Promise::from(val)).await;
+                    }
+                }
+            }
+        }
     }
 }
 

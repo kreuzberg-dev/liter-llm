@@ -855,15 +855,6 @@ fn write_new_category_test_fn(out: &mut String, fixture: &Fixture, category: &st
     writeln!(out, "/* {} */", fixture.description).unwrap();
     writeln!(out, "static void test_{fn_name}(void)").unwrap();
     writeln!(out, "{{").unwrap();
-    writeln!(
-        out,
-        "    /* SKIP: TDD -- feature not yet implemented ({} category). */",
-        category
-    )
-    .unwrap();
-    writeln!(out, "    printf(\"SKIP: TDD: feature not yet implemented\\n\");").unwrap();
-    writeln!(out, "    return;").unwrap();
-    writeln!(out).unwrap();
 
     // All new-category tests use the base_url env var for the mock server.
     writeln!(out, "    const char *base_url = getenv(\"LITER_LLM_TEST_BASE_URL\");").unwrap();

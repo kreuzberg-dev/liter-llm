@@ -5,7 +5,6 @@ defmodule LiterLlmE2E.CacheTest do
   alias LiterLlmE2E.MockServer
   alias LiterLlmE2E.Helpers
 
-  @tag :skip
   test "Tests that identical chat requests return cached response" do
     routes = [
       %{
@@ -48,7 +47,6 @@ defmodule LiterLlmE2E.CacheTest do
              get_in(doc2, ["choices", Access.at(0), "message", "content"])
   end
 
-  @tag :skip
   test "Tests that cache expires after TTL" do
     routes = [
       %{
@@ -88,7 +86,6 @@ defmodule LiterLlmE2E.CacheTest do
     assert resp2 != nil
   end
 
-  @tag :skip
   test "Tests that streaming requests bypass cache entirely" do
     routes = [
       %{

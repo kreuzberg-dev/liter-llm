@@ -4,7 +4,7 @@ import { startMockServer, type MockServer, type MockRoute } from "./helpers";
 // @ts-ignore – binding not yet implemented; tests compile and fail at runtime
 import { LlmClient } from "@kreuzberg/liter-llm";
 
-describe.skip("cache", () => {
+describe("cache", () => {
   // Tests that identical chat requests return cached response
   it("cache_hit", async () => {
     const routes: MockRoute[] = [

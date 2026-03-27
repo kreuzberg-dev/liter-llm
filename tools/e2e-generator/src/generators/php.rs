@@ -632,12 +632,6 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
     writeln!(out, "    /** {} */", fixture.description).unwrap();
     writeln!(out, "    public function test{method_name}(): void").unwrap();
     writeln!(out, "    {{").unwrap();
-    writeln!(
-        out,
-        "        $this->markTestSkipped('TDD: feature not yet implemented');"
-    )
-    .unwrap();
-    writeln!(out).unwrap();
 
     writeln!(out, "        $routes = [").unwrap();
     writeln!(out, "            new MockRoute(").unwrap();

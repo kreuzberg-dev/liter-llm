@@ -178,11 +178,7 @@ fn write_spec_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Res
     writeln!(out, r#"import {{ LlmClient }} from "@kreuzberg/liter-llm";"#).unwrap();
     writeln!(out).unwrap();
 
-    let describe_fn = if SPECIALIZED_CATEGORIES.contains(&category) {
-        "describe.skip"
-    } else {
-        "describe"
-    };
+    let describe_fn = "describe";
     writeln!(out, r#"{describe_fn}("{category}", () => {{"#).unwrap();
 
     for fixture in fixtures {

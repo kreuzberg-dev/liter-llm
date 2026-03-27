@@ -15,8 +15,6 @@ final class CacheTest extends TestCase
     /** Tests that identical chat requests return cached response */
     public function testCacheHit(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -48,8 +46,6 @@ final class CacheTest extends TestCase
     /** Tests that cache expires after TTL */
     public function testCacheMissTtl(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -82,8 +78,6 @@ final class CacheTest extends TestCase
     /** Tests that streaming requests bypass cache entirely */
     public function testCacheStreamBypass(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',

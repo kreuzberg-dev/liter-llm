@@ -13,7 +13,6 @@ import (
 func TestCache(t *testing.T) {
 	t.Run("cache_hit", func(t *testing.T) {
 		// Tests that identical chat requests return cached response
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -60,7 +59,6 @@ func TestCache(t *testing.T) {
 
 	t.Run("cache_miss_ttl", func(t *testing.T) {
 		// Tests that cache expires after TTL
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -106,7 +104,6 @@ func TestCache(t *testing.T) {
 
 	t.Run("cache_stream_bypass", func(t *testing.T) {
 		// Tests that streaming requests bypass cache entirely
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{

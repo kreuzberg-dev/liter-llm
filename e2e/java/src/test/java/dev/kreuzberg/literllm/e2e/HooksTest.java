@@ -4,14 +4,12 @@ package dev.kreuzberg.literllm.e2e;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** E2E tests for category: hooks. */
 class HooksTest {
 
   /** Tests that on_request hook can reject a request */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void hookGuardrail() throws Exception {
     try (Helpers.MockServer server =
@@ -39,7 +37,6 @@ class HooksTest {
   }
 
   /** Tests that on_error hook is called on failure */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void hookOnError() throws Exception {
     try (Helpers.MockServer server =
@@ -71,7 +68,6 @@ class HooksTest {
   }
 
   /** Tests that on_request hook is called before the request */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void hookOnRequest() throws Exception {
     try (Helpers.MockServer server =
@@ -101,7 +97,6 @@ class HooksTest {
   }
 
   /** Tests that on_response hook is called with response data */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void hookOnResponse() throws Exception {
     try (Helpers.MockServer server =

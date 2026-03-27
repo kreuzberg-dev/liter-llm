@@ -13,7 +13,6 @@ import (
 func TestCustomProvider(t *testing.T) {
 	t.Run("provider_auth", func(t *testing.T) {
 		// Tests custom provider with custom auth header
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -62,7 +61,6 @@ func TestCustomProvider(t *testing.T) {
 
 	t.Run("register_provider", func(t *testing.T) {
 		// Tests that a custom provider can be registered and routes requests
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{

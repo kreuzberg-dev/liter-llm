@@ -763,7 +763,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
 
     writeln!(out).unwrap();
     writeln!(out, "  /** {} */", fixture.description).unwrap();
-    writeln!(out, "  @Disabled(\"TDD: feature not yet implemented\")").unwrap();
+
     writeln!(out, "  @Test").unwrap();
     writeln!(out, "  void {method_name}() throws Exception {{").unwrap();
 

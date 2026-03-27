@@ -8,7 +8,6 @@ use liter_llm::{ClientConfigBuilder, DefaultClient, LlmClient};
 
 /// Tests custom provider with custom auth header (TDD -- will fail until custom_provider is implemented)
 #[tokio::test]
-#[ignore = "TDD: feature not yet implemented"]
 async fn provider_auth() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {
@@ -48,7 +47,6 @@ async fn provider_auth() {
 
 /// Tests that a custom provider can be registered and routes requests (TDD -- will fail until custom_provider is implemented)
 #[tokio::test]
-#[ignore = "TDD: feature not yet implemented"]
 async fn register_provider() {
     let server = mock_server::MockServer::start(vec![
         mock_server::MockRoute {

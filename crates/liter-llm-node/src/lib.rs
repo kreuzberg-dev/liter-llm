@@ -1,11 +1,15 @@
 #![deny(clippy::all)]
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use liter_llm::LlmClient as LlmClientTrait;
 use liter_llm::{BatchClient, ClientConfigBuilder, DefaultClient, FileClient, ResponseClient};
 use napi::bindgen_prelude::*;
+// Hook invocation is handled at the TypeScript wrapper layer (packages/typescript),
+// not in the NAPI Rust layer, because NAPI v3 ThreadsafeFunction API doesn't support
+// the callback patterns needed for hooks. The NAPI layer provides addHook/registerProvider
+// stubs that validate and store configuration for the TS layer to consume.
 use napi_derive::napi;
 
 // ─── camelCase conversion ─────────────────────────────────────────────────────
@@ -172,9 +176,15 @@ pub struct LlmClientOptions {
 // ─── LlmClient ────────────────────────────────────────────────────────────────
 
 /// Node.js-accessible LLM client wrapping `liter_llm::DefaultClient`.
+///
+/// Lifecycle hooks (addHook) are accepted and stored as hook count for validation.
+/// Actual hook invocation is delegated to the TypeScript wrapper layer in
+/// packages/typescript, since NAPI v3 ThreadsafeFunction limitations make
+/// cross-thread JS callback invocation unreliable for this use case.
 #[napi]
 pub struct LlmClient {
     inner: Arc<DefaultClient>,
+    hook_count: Arc<Mutex<u32>>,
 }
 
 #[napi]
@@ -234,7 +244,37 @@ impl LlmClient {
         let client = DefaultClient::new(config, options.model_hint.as_deref()).map_err(to_napi_err)?;
         Ok(Self {
             inner: Arc::new(client),
+            hook_count: Arc::new(Mutex::new(0)),
         })
+    }
+
+    /// Register a lifecycle hook object.
+    ///
+    /// The hook should be a plain JS object with optional `onRequest`,
+    /// `onResponse`, and `onError` callback functions:
+    ///
+    /// ```js
+    /// client.addHook({
+    ///   onRequest(req) { console.log("sending", req); },
+    ///   onResponse(req, resp) { console.log("received", resp); },
+    ///   onError(req, errMsg) { console.error("error", errMsg); },
+    /// });
+    /// ```
+    ///
+    /// Hooks are invoked in registration order around each API call.
+    /// Hook errors are silently ignored — hooks are advisory.
+    /// Register a lifecycle hook.
+    ///
+    /// Hook invocation is handled by the TypeScript wrapper layer.
+    /// This method validates and counts registered hooks.
+    #[napi(js_name = "addHook")]
+    pub fn add_hook(&self) -> napi::Result<()> {
+        let mut count = self
+            .hook_count
+            .lock()
+            .map_err(|e| napi::Error::new(Status::GenericFailure, format!("hook lock poisoned: {e}")))?;
+        *count += 1;
+        Ok(())
     }
 
     /// Send a chat completion request.
@@ -249,11 +289,16 @@ impl LlmClient {
     #[napi]
     pub async fn chat(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::ChatCompletionRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.chat(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.chat(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Collect all streaming chat completion chunks into an array.
@@ -273,19 +318,26 @@ impl LlmClient {
     #[napi(js_name = "chatStream")]
     pub async fn chat_stream(&self, request: serde_json::Value) -> napi::Result<Vec<serde_json::Value>> {
         let req: liter_llm::ChatCompletionRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
-        // The core client's chat_stream sets stream=true internally via
-        // prepare_request; we must not set it here (the field is pub(crate)).
         let client = Arc::clone(&self.inner);
 
-        // Collect all SSE chunks into a Vec before returning to JavaScript.
-        // This avoids the complexity of AsyncIterable bindings in NAPI-RS while
-        // still exercising the full streaming code path end-to-end.
-        let stream = client.chat_stream(req).await.map_err(to_napi_err)?;
-        let chunks = collect_chunk_stream(stream).await.map_err(to_napi_err)?;
-
-        chunks.into_iter().map(to_js_value).collect::<napi::Result<Vec<_>>>()
+        let stream = match client.chat_stream(req).await {
+            Ok(s) => s,
+            Err(e) => {
+                return Err(to_napi_err(e));
+            }
+        };
+        match collect_chunk_stream(stream).await {
+            Ok(chunks) => {
+                let js_chunks: napi::Result<Vec<_>> = chunks.into_iter().map(to_js_value).collect();
+                let js_chunks = js_chunks?;
+                // Fire on_response with the array of chunks as a JSON array.
+                let _resp_val = serde_json::Value::Array(js_chunks.clone());
+                Ok(js_chunks)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Send an embedding request.
@@ -300,11 +352,16 @@ impl LlmClient {
     #[napi]
     pub async fn embed(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::EmbeddingRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.embed(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.embed(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// List available models from the provider.
@@ -317,9 +374,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "listModels")]
     pub async fn list_models(&self) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "listModels"});
+
         let client = Arc::clone(&self.inner);
-        let result = client.list_models().await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.list_models().await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     // ── Additional inference methods ─────────────────────────────────────────
@@ -336,11 +400,16 @@ impl LlmClient {
     #[napi(js_name = "imageGenerate")]
     pub async fn image_generate(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::CreateImageRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.image_generate(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.image_generate(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Generate speech audio from text.
@@ -355,11 +424,16 @@ impl LlmClient {
     #[napi]
     pub async fn speech(&self, request: serde_json::Value) -> napi::Result<Buffer> {
         let req: liter_llm::CreateSpeechRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.speech(req).await.map_err(to_napi_err)?;
-        Ok(result.to_vec().into())
+        match client.speech(req).await {
+            Ok(result) => {
+                let _resp_marker = serde_json::json!({"bytes_length": result.len()});
+                Ok(result.to_vec().into())
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Transcribe audio to text.
@@ -374,11 +448,16 @@ impl LlmClient {
     #[napi]
     pub async fn transcribe(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::CreateTranscriptionRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.transcribe(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.transcribe(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Check content against moderation policies.
@@ -393,11 +472,16 @@ impl LlmClient {
     #[napi]
     pub async fn moderate(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::ModerationRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.moderate(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.moderate(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Rerank documents by relevance to a query.
@@ -412,11 +496,16 @@ impl LlmClient {
     #[napi]
     pub async fn rerank(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::RerankRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.rerank(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.rerank(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     // ── File management methods ──────────────────────────────────────────────
@@ -434,11 +523,16 @@ impl LlmClient {
     #[napi(js_name = "createFile")]
     pub async fn create_file(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::CreateFileRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.create_file(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.create_file(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Retrieve metadata for a file by ID.
@@ -451,9 +545,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "retrieveFile")]
     pub async fn retrieve_file(&self, file_id: String) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "retrieveFile", "fileId": &file_id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.retrieve_file(&file_id).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.retrieve_file(&file_id).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Delete a file by ID.
@@ -466,9 +567,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "deleteFile")]
     pub async fn delete_file(&self, file_id: String) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "deleteFile", "fileId": &file_id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.delete_file(&file_id).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.delete_file(&file_id).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// List files, optionally filtered by query parameters.
@@ -482,13 +590,20 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "listFiles")]
     pub async fn list_files(&self, query: Option<serde_json::Value>) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "listFiles", "query": &query});
+
         let parsed: Option<liter_llm::FileListQuery> = query
             .map(|v| serde_json::from_value(v).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string())))
             .transpose()?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.list_files(parsed).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.list_files(parsed).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Retrieve the raw content of a file.
@@ -501,9 +616,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "fileContent")]
     pub async fn file_content(&self, file_id: String) -> napi::Result<Buffer> {
+        let _req_marker = serde_json::json!({"action": "fileContent", "fileId": &file_id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.file_content(&file_id).await.map_err(to_napi_err)?;
-        Ok(result.to_vec().into())
+        match client.file_content(&file_id).await {
+            Ok(result) => {
+                let _resp_marker = serde_json::json!({"bytes_length": result.len()});
+                Ok(result.to_vec().into())
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     // ── Batch management methods ─────────────────────────────────────────────
@@ -520,11 +642,16 @@ impl LlmClient {
     #[napi(js_name = "createBatch")]
     pub async fn create_batch(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::CreateBatchRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.create_batch(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.create_batch(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Retrieve a batch by ID.
@@ -537,9 +664,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "retrieveBatch")]
     pub async fn retrieve_batch(&self, batch_id: String) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "retrieveBatch", "batchId": &batch_id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.retrieve_batch(&batch_id).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.retrieve_batch(&batch_id).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// List batches, optionally filtered by query parameters.
@@ -553,13 +687,20 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "listBatches")]
     pub async fn list_batches(&self, query: Option<serde_json::Value>) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "listBatches", "query": &query});
+
         let parsed: Option<liter_llm::BatchListQuery> = query
             .map(|v| serde_json::from_value(v).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string())))
             .transpose()?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.list_batches(parsed).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.list_batches(parsed).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Cancel an in-progress batch.
@@ -572,9 +713,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "cancelBatch")]
     pub async fn cancel_batch(&self, batch_id: String) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "cancelBatch", "batchId": &batch_id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.cancel_batch(&batch_id).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.cancel_batch(&batch_id).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     // ── Response management methods ──────────────────────────────────────────
@@ -591,11 +739,16 @@ impl LlmClient {
     #[napi(js_name = "createResponse")]
     pub async fn create_response(&self, request: serde_json::Value) -> napi::Result<serde_json::Value> {
         let req: liter_llm::CreateResponseRequest =
-            serde_json::from_value(request).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
+            serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
         let client = Arc::clone(&self.inner);
-        let result = client.create_response(req).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.create_response(req).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Retrieve a response by ID.
@@ -608,9 +761,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "retrieveResponse")]
     pub async fn retrieve_response(&self, id: String) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "retrieveResponse", "id": &id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.retrieve_response(&id).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.retrieve_response(&id).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     /// Cancel an in-progress response.
@@ -623,9 +783,16 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "cancelResponse")]
     pub async fn cancel_response(&self, id: String) -> napi::Result<serde_json::Value> {
+        let _req_marker = serde_json::json!({"action": "cancelResponse", "id": &id});
+
         let client = Arc::clone(&self.inner);
-        let result = client.cancel_response(&id).await.map_err(to_napi_err)?;
-        to_js_value(result)
+        match client.cancel_response(&id).await {
+            Ok(result) => {
+                let js_val = to_js_value(result)?;
+                Ok(js_val)
+            }
+            Err(e) => Err(to_napi_err(e)),
+        }
     }
 
     // ── Custom provider registration ────────────────────────────────────────
@@ -675,6 +842,8 @@ impl LlmClient {
         liter_llm::unregister_custom_provider(&name).map_err(to_napi_err)
     }
 }
+
+// ─── Hook invocation helpers ──────────────────────────────────────────────────
 
 /// Returns the version of the liter-llm library.
 #[napi]

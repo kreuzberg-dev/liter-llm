@@ -13,7 +13,6 @@ import (
 func TestBudget(t *testing.T) {
 	t.Run("budget_enforced", func(t *testing.T) {
 		// Tests that a request is rejected when budget is exceeded
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -49,7 +48,6 @@ func TestBudget(t *testing.T) {
 
 	t.Run("budget_per_model", func(t *testing.T) {
 		// Tests per-model budget limit
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -85,7 +83,6 @@ func TestBudget(t *testing.T) {
 
 	t.Run("budget_tracked", func(t *testing.T) {
 		// Tests that cost is tracked after a successful response
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{

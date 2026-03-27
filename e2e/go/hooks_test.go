@@ -13,7 +13,6 @@ import (
 func TestHooks(t *testing.T) {
 	t.Run("hook_guardrail", func(t *testing.T) {
 		// Tests that on_request hook can reject a request
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -51,7 +50,6 @@ func TestHooks(t *testing.T) {
 
 	t.Run("hook_on_error", func(t *testing.T) {
 		// Tests that on_error hook is called on failure
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -90,7 +88,6 @@ func TestHooks(t *testing.T) {
 
 	t.Run("hook_on_request", func(t *testing.T) {
 		// Tests that on_request hook is called before the request
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{
@@ -132,7 +129,6 @@ func TestHooks(t *testing.T) {
 
 	t.Run("hook_on_response", func(t *testing.T) {
 		// Tests that on_response hook is called with response data
-		t.Skip("TDD: feature not yet implemented")
 
 		server := NewMockServer([]MockRoute{
 			{

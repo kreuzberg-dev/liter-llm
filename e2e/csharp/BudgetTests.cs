@@ -10,7 +10,7 @@ public sealed class BudgetTests
 {
 
     /// <summary>Tests that a request is rejected when budget is exceeded</summary>
-    [Fact(Skip = "TDD: feature not yet implemented")]
+    [Fact]
     public async Task BudgetEnforced()
     {
         var routes = new[]
@@ -41,7 +41,7 @@ public sealed class BudgetTests
     }
 
     /// <summary>Tests per-model budget limit</summary>
-    [Fact(Skip = "TDD: feature not yet implemented")]
+    [Fact]
     public async Task BudgetPerModel()
     {
         var routes = new[]
@@ -72,7 +72,7 @@ public sealed class BudgetTests
     }
 
     /// <summary>Tests that cost is tracked after a successful response</summary>
-    [Fact(Skip = "TDD: feature not yet implemented")]
+    [Fact]
     public async Task BudgetTracked()
     {
         var routes = new[]

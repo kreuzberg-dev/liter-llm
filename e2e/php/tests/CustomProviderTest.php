@@ -15,8 +15,6 @@ final class CustomProviderTest extends TestCase
     /** Tests custom provider with custom auth header */
     public function testProviderAuth(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',
@@ -51,8 +49,6 @@ final class CustomProviderTest extends TestCase
     /** Tests that a custom provider can be registered and routes requests */
     public function testRegisterProvider(): void
     {
-        $this->markTestSkipped('TDD: feature not yet implemented');
-
         $routes = [
             new MockRoute(
                 path: '/chat/completions',

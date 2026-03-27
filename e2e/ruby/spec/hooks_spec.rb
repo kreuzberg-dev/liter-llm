@@ -5,7 +5,7 @@ require "spec_helper"
 require "liter_llm"
 
 RSpec.describe "hooks" do
-  xit "hook_guardrail" do
+  it "hook_guardrail" do
     # Tests that on_request hook can reject a request
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",
@@ -29,7 +29,7 @@ RSpec.describe "hooks" do
     server&.stop
   end
 
-  xit "hook_on_error" do
+  it "hook_on_error" do
     # Tests that on_error hook is called on failure
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",
@@ -58,7 +58,7 @@ RSpec.describe "hooks" do
     server&.stop
   end
 
-  xit "hook_on_request" do
+  it "hook_on_request" do
     # Tests that on_request hook is called before the request
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",
@@ -87,7 +87,7 @@ RSpec.describe "hooks" do
     server&.stop
   end
 
-  xit "hook_on_response" do
+  it "hook_on_response" do
     # Tests that on_response hook is called with response data
     route = E2EHelpers::MockRoute.new(
       path: "/chat/completions",

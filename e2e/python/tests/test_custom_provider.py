@@ -10,7 +10,6 @@ from .mock_server import MockRoute, MockServerInfo
 from liter_llm import LlmClient
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello with custom auth!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-auth-001\",\"model\":\"my-auth-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":6,\"prompt_tokens\":8,\"total_tokens\":14}}"),
@@ -29,7 +28,6 @@ async def test_provider_auth(mock_server: MockServerInfo) -> None:
     assert response.model == "my-auth-model-v1", "model mismatch"
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello from custom provider!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-custom-001\",\"model\":\"my-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":7,\"prompt_tokens\":8,\"total_tokens\":15}}"),

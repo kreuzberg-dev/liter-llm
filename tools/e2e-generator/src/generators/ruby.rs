@@ -548,7 +548,7 @@ fn write_cache_specs(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
         let is_stream = fixture.api.method == "chat_stream";
 
-        writeln!(out, "  xit {:?} do", fixture.id).unwrap();
+        writeln!(out, "  it {:?} do", fixture.id).unwrap();
         writeln!(out, "    # {}", fixture.description).unwrap();
 
         if is_stream && !fixture.api.mock_response.stream_chunks.is_empty() {
@@ -639,7 +639,7 @@ fn write_budget_specs(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let status = fixture.api.mock_response.status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
-        writeln!(out, "  xit {:?} do", fixture.id).unwrap();
+        writeln!(out, "  it {:?} do", fixture.id).unwrap();
         writeln!(out, "    # {}", fixture.description).unwrap();
 
         writeln!(out, "    route = E2EHelpers::MockRoute.new(").unwrap();
@@ -715,7 +715,7 @@ fn write_hooks_specs(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         let status = fixture.api.mock_response.status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
-        writeln!(out, "  xit {:?} do", fixture.id).unwrap();
+        writeln!(out, "  it {:?} do", fixture.id).unwrap();
         writeln!(out, "    # {}", fixture.description).unwrap();
 
         writeln!(out, "    route = E2EHelpers::MockRoute.new(").unwrap();
@@ -818,7 +818,7 @@ fn write_custom_provider_specs(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
         let status = fixture.api.mock_response.status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
-        writeln!(out, "  xit {:?} do", fixture.id).unwrap();
+        writeln!(out, "  it {:?} do", fixture.id).unwrap();
         writeln!(out, "    # {}", fixture.description).unwrap();
 
         writeln!(out, "    route = E2EHelpers::MockRoute.new(").unwrap();

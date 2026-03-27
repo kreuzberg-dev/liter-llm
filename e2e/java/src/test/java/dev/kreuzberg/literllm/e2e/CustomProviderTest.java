@@ -4,14 +4,12 @@ package dev.kreuzberg.literllm.e2e;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** E2E tests for category: custom_provider. */
 class CustomProviderTest {
 
   /** Tests custom provider with custom auth header */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void providerAuth() throws Exception {
     try (Helpers.MockServer server =
@@ -41,7 +39,6 @@ class CustomProviderTest {
   }
 
   /** Tests that a custom provider can be registered and routes requests */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void registerProvider() throws Exception {
     try (Helpers.MockServer server =

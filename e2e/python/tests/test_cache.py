@@ -10,7 +10,6 @@ from .mock_server import MockRoute, MockServerInfo
 from liter_llm import LlmClient
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-cache-hit-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),
@@ -25,7 +24,6 @@ async def test_cache_hit(mock_server: MockServerInfo) -> None:
     assert response2.choices[0].message.content == response1.choices[0].message.content
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-cache-miss-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),
@@ -41,7 +39,6 @@ async def test_cache_miss_ttl(mock_server: MockServerInfo) -> None:
     assert response2 is not None
 
 
-@pytest.mark.skip(reason="TDD: feature not yet implemented")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mock_server", [[
     MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-stream-bypass-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),

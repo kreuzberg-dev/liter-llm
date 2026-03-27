@@ -4,14 +4,12 @@ package dev.kreuzberg.literllm.e2e;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** E2E tests for category: cache. */
 class CacheTest {
 
   /** Tests that identical chat requests return cached response */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void cacheHit() throws Exception {
     try (Helpers.MockServer server =
@@ -45,7 +43,6 @@ class CacheTest {
   }
 
   /** Tests that cache expires after TTL */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void cacheMissTtl() throws Exception {
     try (Helpers.MockServer server =
@@ -80,7 +77,6 @@ class CacheTest {
   }
 
   /** Tests that streaming requests bypass cache entirely */
-  @Disabled("TDD: feature not yet implemented")
   @Test
   void cacheStreamBypass() throws Exception {
     try (Helpers.MockServer server =
