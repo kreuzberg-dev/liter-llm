@@ -1076,15 +1076,21 @@ async fn sleep_ms(ms: u32) {
 /// `"HTTP {status}: {message}"`.  We parse the numeric status code from that
 /// prefix to avoid false positives from user-visible messages that happen to
 /// contain a matching number substring.
-fn is_retryable_error(error: &JsValue) -> bool {
-    if let Some(s) = error.as_string()
-        && let Some(rest) = s.strip_prefix("HTTP ")
+/// Check whether an HTTP error message string represents a retryable error.
+///
+/// Matches the format `"HTTP NNN: message"` where NNN is 429 or 5xx.
+fn is_retryable_http_error(s: &str) -> bool {
+    if let Some(rest) = s.strip_prefix("HTTP ")
         && let Some((code_str, _)) = rest.split_once(':')
         && let Ok(status) = code_str.trim().parse::<u16>()
     {
         return status == 429 || (500..=599).contains(&status);
     }
     false
+}
+
+fn is_retryable_error(error: &JsValue) -> bool {
+    error.as_string().is_some_and(|s| is_retryable_http_error(&s))
 }
 
 /// Shared inner fetch implementation using the JS `fetch` API.
@@ -1385,19 +1391,17 @@ mod tests {
     }
 
     #[test]
-    fn test_is_retryable_error() {
+    fn test_is_retryable_http_error() {
         // Retryable: 429 and 5xx in "HTTP NNN: message" format.
-        assert!(is_retryable_error(&JsValue::from_str("HTTP 429: rate limited")));
-        assert!(is_retryable_error(&JsValue::from_str(
-            "HTTP 500: internal server error"
-        )));
-        assert!(is_retryable_error(&JsValue::from_str("HTTP 503: service unavailable")));
+        assert!(is_retryable_http_error("HTTP 429: rate limited"));
+        assert!(is_retryable_http_error("HTTP 500: internal server error"));
+        assert!(is_retryable_http_error("HTTP 503: service unavailable"));
         // Not retryable: 4xx client errors (excluding 429).
-        assert!(!is_retryable_error(&JsValue::from_str("HTTP 400: bad request")));
-        assert!(!is_retryable_error(&JsValue::from_str("HTTP 401: unauthorized")));
+        assert!(!is_retryable_http_error("HTTP 400: bad request"));
+        assert!(!is_retryable_http_error("HTTP 401: unauthorized"));
         // Not retryable: bare numbers or unrelated strings do not match.
-        assert!(!is_retryable_error(&JsValue::from_str("429")));
-        assert!(!is_retryable_error(&JsValue::from_str("network error")));
+        assert!(!is_retryable_http_error("429"));
+        assert!(!is_retryable_http_error("network error"));
     }
 
     #[test]

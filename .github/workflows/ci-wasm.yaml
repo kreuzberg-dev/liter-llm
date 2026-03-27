@@ -77,6 +77,11 @@ jobs:
         run: wasm-pack test --headless --firefox
         shell: bash
 
+      - name: Build WASM Package (Node.js target for E2E)
+        working-directory: crates/liter-llm-wasm
+        run: pnpm run build:nodejs
+        shell: bash
+
       - name: Run WASM E2E Tests
         env:
           PROJECT_ROOT: ${{ github.workspace }}

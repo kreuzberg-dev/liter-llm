@@ -57,7 +57,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: "1.23.0"
+  GO_VERSION: "1.26"
 
 jobs:
   validate:
