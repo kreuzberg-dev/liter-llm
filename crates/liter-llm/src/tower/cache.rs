@@ -6,16 +6,19 @@
 //! streaming, model-list, and other response variants are passed through
 //! uncached.
 //!
-//! The cache is a simple in-memory LRU with a configurable maximum entry count
-//! and TTL.  It uses [`std::collections::HashMap`] with a [`VecDeque`] for LRU
-//! eviction order.
+//! The default backend is an in-memory LRU ([`InMemoryStore`]) with a
+//! configurable maximum entry count and TTL.  Implement the [`CacheStore`]
+//! trait to plug in Redis, DynamoDB, or any other storage backend.
 
 use std::collections::{HashMap, VecDeque};
+use std::future::Future;
 use std::hash::{DefaultHasher, Hash, Hasher};
+use std::pin::Pin;
 use std::sync::{Arc, RwLock};
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 
+use serde::{Deserialize, Serialize};
 use tower::{Layer, Service};
 
 use super::types::{LlmRequest, LlmResponse};
@@ -43,7 +46,59 @@ impl Default for CacheConfig {
     }
 }
 
-// ---- Cache entry -----------------------------------------------------------
+// ---- Cached response -------------------------------------------------------
+
+/// The subset of [`LlmResponse`] variants that can be cached.
+///
+/// Streaming responses are not cacheable because they are consumed once.
+#[derive(Clone, Serialize, Deserialize)]
+pub enum CachedResponse {
+    /// A cached chat completion response.
+    Chat(ChatCompletionResponse),
+    /// A cached embedding response.
+    Embed(EmbeddingResponse),
+}
+
+impl CachedResponse {
+    /// Convert this cached response back into the full [`LlmResponse`] enum.
+    pub fn into_llm_response(self) -> LlmResponse {
+        match self {
+            Self::Chat(r) => LlmResponse::Chat(r),
+            Self::Embed(r) => LlmResponse::Embed(r),
+        }
+    }
+}
+
+// ---- CacheStore trait ------------------------------------------------------
+
+/// Pluggable cache backend.
+///
+/// Implement this trait to provide a custom storage layer (Redis, DynamoDB,
+/// disk, etc.).  The default in-memory implementation is [`InMemoryStore`].
+///
+/// All methods return pinned, boxed futures so the trait is object-safe and
+/// can be used behind `Arc<dyn CacheStore>`.
+pub trait CacheStore: Send + Sync + 'static {
+    /// Look up a cached response by its hash key.
+    ///
+    /// `request_body` is the serialized request used to guard against 64-bit
+    /// hash collisions — implementations should compare it against the stored
+    /// body before returning a hit.
+    fn get(&self, key: u64, request_body: &str) -> Pin<Box<dyn Future<Output = Option<CachedResponse>> + Send + '_>>;
+
+    /// Store a response under the given hash key.
+    fn put(
+        &self,
+        key: u64,
+        request_body: String,
+        response: CachedResponse,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>>;
+
+    /// Remove an entry by key (e.g. on expiry).
+    fn remove(&self, key: u64) -> Pin<Box<dyn Future<Output = ()> + Send + '_>>;
+}
+
+// ---- In-memory store -------------------------------------------------------
 
 /// A cached response with its insertion timestamp and the serialized request
 /// body used to verify lookups (guarding against 64-bit hash collisions).
@@ -54,26 +109,6 @@ struct CacheEntry {
     response: CachedResponse,
     inserted_at: Instant,
 }
-
-/// The subset of [`LlmResponse`] variants that can be cached.
-///
-/// Streaming responses are not cacheable because they are consumed once.
-#[derive(Clone)]
-enum CachedResponse {
-    Chat(ChatCompletionResponse),
-    Embed(EmbeddingResponse),
-}
-
-impl CachedResponse {
-    fn into_llm_response(self) -> LlmResponse {
-        match self {
-            Self::Chat(r) => LlmResponse::Chat(r),
-            Self::Embed(r) => LlmResponse::Embed(r),
-        }
-    }
-}
-
-// ---- Inner cache -----------------------------------------------------------
 
 struct InnerCache {
     map: HashMap<u64, CacheEntry>,
@@ -150,20 +185,83 @@ impl InnerCache {
     }
 }
 
+/// In-memory LRU cache store.
+///
+/// This is the default [`CacheStore`] backend used by [`CacheLayer::new`].
+/// It uses a [`HashMap`] with a [`VecDeque`] for LRU eviction order.
+pub struct InMemoryStore {
+    inner: RwLock<InnerCache>,
+}
+
+impl InMemoryStore {
+    /// Create a new in-memory store with the given configuration.
+    #[must_use]
+    pub fn new(config: &CacheConfig) -> Self {
+        Self {
+            inner: RwLock::new(InnerCache::new(config)),
+        }
+    }
+}
+
+impl CacheStore for InMemoryStore {
+    fn get(&self, key: u64, request_body: &str) -> Pin<Box<dyn Future<Output = Option<CachedResponse>> + Send + '_>> {
+        // Perform all synchronous work eagerly, then wrap result in a ready
+        // future.  This avoids capturing `request_body` in an async block
+        // (which would require tying its lifetime to the future).
+        let result = self.inner.read().ok().and_then(|cache| {
+            let hit = cache.get_if_valid(key, request_body);
+            let expired = hit.is_none() && cache.is_expired(key);
+            drop(cache);
+            if expired && let Ok(mut w) = self.inner.write() {
+                w.remove_expired(key);
+            }
+            hit
+        });
+        Box::pin(std::future::ready(result))
+    }
+
+    fn put(
+        &self,
+        key: u64,
+        request_body: String,
+        response: CachedResponse,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        if let Ok(mut cache) = self.inner.write() {
+            cache.insert(key, request_body, response);
+        }
+        Box::pin(std::future::ready(()))
+    }
+
+    fn remove(&self, key: u64) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        if let Ok(mut cache) = self.inner.write() {
+            cache.remove_expired(key);
+        }
+        Box::pin(std::future::ready(()))
+    }
+}
+
 // ---- Layer -----------------------------------------------------------------
 
 /// Tower [`Layer`] that caches non-streaming LLM responses.
 pub struct CacheLayer {
-    cache: Arc<RwLock<InnerCache>>,
+    store: Arc<dyn CacheStore>,
 }
 
 impl CacheLayer {
     /// Create a new cache layer with the given configuration.
+    ///
+    /// Uses the default [`InMemoryStore`] backend.
     #[must_use]
     pub fn new(config: CacheConfig) -> Self {
         Self {
-            cache: Arc::new(RwLock::new(InnerCache::new(&config))),
+            store: Arc::new(InMemoryStore::new(&config)),
         }
+    }
+
+    /// Create a new cache layer with a custom [`CacheStore`] backend.
+    #[must_use]
+    pub fn with_store(store: Arc<dyn CacheStore>) -> Self {
+        Self { store }
     }
 }
 
@@ -173,7 +271,7 @@ impl<S> Layer<S> for CacheLayer {
     fn layer(&self, inner: S) -> Self::Service {
         CacheService {
             inner,
-            cache: Arc::clone(&self.cache),
+            store: Arc::clone(&self.store),
         }
     }
 }
@@ -183,14 +281,14 @@ impl<S> Layer<S> for CacheLayer {
 /// Tower service produced by [`CacheLayer`].
 pub struct CacheService<S> {
     inner: S,
-    cache: Arc<RwLock<InnerCache>>,
+    store: Arc<dyn CacheStore>,
 }
 
 impl<S: Clone> Clone for CacheService<S> {
     fn clone(&self) -> Self {
         Self {
             inner: self.inner.clone(),
-            cache: Arc::clone(&self.cache),
+            store: Arc::clone(&self.store),
         }
     }
 }
@@ -232,27 +330,17 @@ where
     fn call(&mut self, req: LlmRequest) -> Self::Future {
         let key_and_body = cache_key(&req);
 
-        // Fast path: read lock to check cache — no write lock needed for hits.
-        if let Some((k, ref body)) = key_and_body
-            && let Ok(cache) = self.cache.read()
-        {
-            if let Some(cached) = cache.get_if_valid(k, body) {
-                return Box::pin(async move { Ok(cached.into_llm_response()) });
-            }
-            // If the entry is expired, we need a write lock to evict it.
-            // We do this below after dropping the read lock.
-            if cache.is_expired(k) {
-                drop(cache);
-                if let Ok(mut cache) = self.cache.write() {
-                    cache.remove_expired(k);
-                }
-            }
-        }
-
-        let cache = Arc::clone(&self.cache);
+        let store = Arc::clone(&self.store);
         let fut = self.inner.call(req);
 
         Box::pin(async move {
+            // Check cache for a hit.
+            if let Some((k, ref body)) = key_and_body
+                && let Some(cached) = store.get(k, body).await
+            {
+                return Ok(cached.into_llm_response());
+            }
+
             let resp = fut.await?;
 
             // Store cacheable responses.
@@ -262,10 +350,8 @@ where
                     LlmResponse::Embed(r) => Some(CachedResponse::Embed(r.clone())),
                     _ => None,
                 };
-                if let Some(cached) = cached
-                    && let Ok(mut cache) = cache.write()
-                {
-                    cache.insert(k, body, cached);
+                if let Some(cached) = cached {
+                    store.put(k, body, cached).await;
                 }
             }
 

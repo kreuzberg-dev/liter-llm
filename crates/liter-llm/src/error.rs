@@ -75,6 +75,9 @@ pub enum LiterLlmError {
 
     #[error("serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
+
+    #[error("budget exceeded: {message}")]
+    BudgetExceeded { message: String, model: Option<String> },
 }
 
 impl LiterLlmError {
@@ -118,6 +121,7 @@ impl LiterLlmError {
             Self::EndpointNotSupported { .. } => "EndpointNotSupported",
             Self::InvalidHeader { .. } => "InvalidHeader",
             Self::Serialization(_) => "Serialization",
+            Self::BudgetExceeded { .. } => "BudgetExceeded",
         }
     }
 

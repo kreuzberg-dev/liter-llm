@@ -21,6 +21,10 @@
 //!   cooldowns after transient errors.
 //! - [`health::HealthCheckLayer`] / [`health::HealthCheckService`] — periodic
 //!   health probes with automatic request rejection on failure.
+//! - [`budget::BudgetLayer`] / [`budget::BudgetService`] — global and per-model
+//!   spending budget enforcement (hard reject or soft warn).
+//! - [`hooks::HooksLayer`] / [`hooks::HooksService`] — user-defined pre/post
+//!   request hooks for guardrails, logging, and auditing.
 //!
 //! # Example
 //!
@@ -35,11 +39,13 @@
 //!     .service(LlmService::new(client));
 //! ```
 
+pub mod budget;
 pub mod cache;
 pub mod cooldown;
 pub mod cost;
 pub mod fallback;
 pub mod health;
+pub mod hooks;
 pub mod rate_limit;
 pub mod router;
 pub mod service;
@@ -53,11 +59,13 @@ pub mod types;
 // Re-export tower core types for convenient access
 pub use tower::ServiceExt;
 
-pub use cache::{CacheConfig, CacheLayer, CacheService};
+pub use budget::{BudgetConfig, BudgetLayer, BudgetService, BudgetState, Enforcement};
+pub use cache::{CacheConfig, CacheLayer, CacheService, CacheStore, CachedResponse, InMemoryStore};
 pub use cooldown::{CooldownLayer, CooldownService};
 pub use cost::{CostTrackingLayer, CostTrackingService};
 pub use fallback::{FallbackLayer, FallbackService};
 pub use health::{HealthCheckLayer, HealthCheckService};
+pub use hooks::{HooksLayer, HooksService, LlmHook};
 pub use rate_limit::{ModelRateLimitLayer, ModelRateLimitService, RateLimitConfig};
 pub use router::{Router, RoutingStrategy};
 pub use service::LlmService;
