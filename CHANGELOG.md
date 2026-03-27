@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc.3] - 2026-03-27
+
+### Added
+
+- Pluggable cache backends via `CacheStore` trait with `InMemoryStore` default
+- Budget enforcement middleware (`BudgetLayer`) with hard/soft modes, per-model limits
+- Callback hooks middleware (`HooksLayer`) with on_request/on_response/on_error + guardrails
+- Custom provider registration at runtime (`register_custom_provider`)
+- `HookRejected` and `BudgetExceeded` error types
+- Extended `ClientConfigBuilder` with `.cache()`, `.budget()`, `.hook()` methods
+- Cache, budget, hooks, and custom provider support across all 11 language bindings
+- TDD e2e test fixtures for cache, budget, hooks, custom providers, and API surface parity
+- E2e test generators updated for all 11 languages with new feature tests
+- Hooks wired into ALL 21 API methods in Go, Java, C#, Elixir, WASM, C FFI
+- All 17 missing Python method stubs (image, speech, transcribe, moderate, rerank, files, batches, responses)
+
+### Fixed
+
+- Hook panic isolation via `catch_unwind` (panicking hooks don't crash the service)
+- Custom provider validation (whitespace-only names, empty-string prefixes rejected)
+- Node NAPI: missing `#[napi]` attributes on 6 methods
+- WASM e2e: skip empty streaming test file, use pnpm for workspace link protocol
+- Java: Maven 3.x-compatible plugin versions
+- TypeScript: fix ESM/CJS exports map for tsup dual output
+- Generators: stop overwriting package.json (preserve workspace-managed deps)
+
 ## [1.0.0-rc.2] - 2026-03-27
 
 ### Fixed
@@ -49,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E test generator for all 11 languages from JSON fixtures
 - 11 fixtures across smoke, streaming, error-handling, tool-calling, types
 
-[Unreleased]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.2...HEAD
+[Unreleased]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.3...HEAD
+[1.0.0-rc.3]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.2...v1.0.0-rc.3
 [1.0.0-rc.2]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/kreuzberg-dev/liter-llm/releases/tag/v1.0.0-rc.1
