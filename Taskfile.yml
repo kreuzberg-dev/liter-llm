@@ -49,6 +49,8 @@ includes:
     taskfile: .task/tools/test-apps.yml
   docs:
     taskfile: .task/tools/docs.yml
+  snippets:
+    taskfile: .task/workflows/snippets.yml
 
 vars:
   PROJECT_ROOT:
@@ -273,6 +275,16 @@ tasks:
     desc: Generate C# E2E tests
     cmds:
       - task: e2e:generate:csharp
+
+  generate:providers-doc:
+    desc: Generate providers documentation from schemas/providers.json
+    cmds:
+      - uv run python scripts/generate_providers_doc.py
+
+  generate:providers-doc:check:
+    desc: Validate providers documentation is up-to-date (CI)
+    cmds:
+      - uv run python scripts/generate_providers_doc.py --validate
 
   generate:readme:
     desc: Generate package READMEs from Jinja2 templates

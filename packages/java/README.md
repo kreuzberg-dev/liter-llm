@@ -97,17 +97,19 @@ Send a message to any provider using the `provider/model` prefix:
 
 ```java
 import dev.kreuzberg.literllm.LlmClient;
-import dev.kreuzberg.literllm.ChatRequest;
-import dev.kreuzberg.literllm.Message;
+import dev.kreuzberg.literllm.Types.*;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        try (var client = new LlmClient()) {
-            var response = client.chat(ChatRequest.builder()
-                .model("openai/gpt-4o")
-                .message(new Message("user", "Hello!"))
-                .build());
-            System.out.println(response.getContent());
+        try (var client = LlmClient.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build()) {
+            var response = client.chat(new ChatCompletionRequest(
+                "openai/gpt-4o",
+                List.of(new UserMessage("Hello!"))
+            ));
+            System.out.println(response.choices().getFirst().message().content());
         }
     }
 }
@@ -121,20 +123,21 @@ Stream tokens in real time:
 
 ```java
 import dev.kreuzberg.literllm.LlmClient;
-import dev.kreuzberg.literllm.ChatRequest;
-import dev.kreuzberg.literllm.Message;
+import dev.kreuzberg.literllm.Types.*;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        try (var client = new LlmClient()) {
-            client.chatStream(
-                ChatRequest.builder()
-                    .model("openai/gpt-4o")
-                    .message(new Message("user", "Tell me a story"))
-                    .build(),
-                chunk -> System.out.print(chunk.getDelta())
-            );
-            System.out.println();
+        // Note: The Java client does not yet support streaming.
+        // Use the non-streaming chat method instead.
+        try (var client = LlmClient.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build()) {
+            var response = client.chat(new ChatCompletionRequest(
+                "openai/gpt-4o",
+                List.of(new UserMessage("Tell me a story"))
+            ));
+            System.out.println(response.choices().getFirst().message().content());
         }
     }
 }
@@ -206,6 +209,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 

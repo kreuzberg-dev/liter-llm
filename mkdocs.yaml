@@ -127,6 +127,12 @@ extra:
     - icon: fontawesome/brands/rust
       link: https://crates.io/crates/liter-llm
       name: View on crates.io
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/xt9WY3GnKR
+      name: Join our Discord
+    - icon: fontawesome/solid/globe
+      link: https://kreuzberg.dev
+      name: kreuzberg.dev
   status:
     new: Recently added
     deprecated: Deprecated

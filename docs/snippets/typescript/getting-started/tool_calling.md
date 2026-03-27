@@ -1,18 +1,21 @@
 ```typescript
-import { LlmClient, type Tool } from "liter-llm";
+import { LlmClient } from "liter-llm";
 
-const client = new LlmClient();
+const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
 
-const tools: Tool[] = [
+const tools = [
   {
-    name: "get_weather",
-    description: "Get the current weather for a location",
-    parameters: {
-      type: "object",
-      properties: {
-        location: { type: "string", description: "City name" },
+    type: "function" as const,
+    function: {
+      name: "get_weather",
+      description: "Get the current weather for a location",
+      parameters: {
+        type: "object",
+        properties: {
+          location: { type: "string", description: "City name" },
+        },
+        required: ["location"],
       },
-      required: ["location"],
     },
   },
 ];
@@ -23,7 +26,7 @@ const response = await client.chat({
   tools,
 });
 
-for (const call of response.toolCalls ?? []) {
-  console.log(`Tool: ${call.name}, Args:`, call.arguments);
+for (const call of response.choices[0]?.message?.toolCalls ?? []) {
+  console.log(`Tool: ${call.function.name}, Args: ${call.function.arguments}`);
 }
 ```

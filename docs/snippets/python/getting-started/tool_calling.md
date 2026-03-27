@@ -1,27 +1,38 @@
 ```python
 import asyncio
-from liter_llm import LlmClient, Tool, ToolParameter
+import os
+from liter_llm import LlmClient
 
 async def main() -> None:
-    client = LlmClient()
+    client = LlmClient(api_key=os.environ["OPENAI_API_KEY"])
 
-    get_weather = Tool(
-        name="get_weather",
-        description="Get the current weather for a location",
-        parameters=[
-            ToolParameter(name="location", type="string", description="City name", required=True),
-        ],
-    )
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the current weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string", "description": "City name"},
+                    },
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
 
     response = await client.chat(
         model="openai/gpt-4o",
         messages=[{"role": "user", "content": "What is the weather in Berlin?"}],
-        tools=[get_weather],
+        tools=tools,
     )
 
-    if response.tool_calls:
-        for call in response.tool_calls:
-            print(f"Tool: {call.name}, Args: {call.arguments}")
+    choice = response.choices[0]
+    if choice.message.tool_calls:
+        for call in choice.message.tool_calls:
+            print(f"Tool: {call.function.name}, Args: {call.function.arguments}")
 
 asyncio.run(main())
 ```

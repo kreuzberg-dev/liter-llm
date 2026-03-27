@@ -10,7 +10,7 @@ importers:
 
   e2e/typescript:
     dependencies:
-      liter-lm:
+      liter-llm:
         specifier: link:../../packages/typescript
         version: link:../../packages/typescript
     devDependencies:

@@ -95,13 +95,16 @@ Send a message to any provider using the `provider/model` prefix:
 # frozen_string_literal: true
 
 require "liter_llm"
+require "json"
 
-client = LiterLlm::Client.new
-response = client.chat(
+client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"), {})
+
+response = JSON.parse(client.chat(JSON.generate(
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Hello!" }]
-)
-puts response.content
+)))
+
+puts response.dig("choices", 0, "message", "content")
 ```
 
 ### Common Use Cases
@@ -114,15 +117,18 @@ Stream tokens in real time:
 # frozen_string_literal: true
 
 require "liter_llm"
+require "json"
 
-client = LiterLlm::Client.new
-client.chat_stream(
+# Note: The Ruby client does not yet support streaming.
+# Use the non-streaming chat method instead.
+client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"), {})
+
+response = JSON.parse(client.chat(JSON.generate(
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Tell me a story" }]
-) do |chunk|
-  print chunk.delta
-end
-puts
+)))
+
+puts response.dig("choices", 0, "message", "content")
 ```
 
 ### Next Steps
@@ -191,6 +197,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 

@@ -146,7 +146,7 @@ import (
  "fmt"
  "log"
 
- literllm "github.com/kreuzberg-dev/liter-llm/packages/go"
+ literllm "github.com/kreuzberg-dev/liter-llm/go"
 )
 
 func main() {
@@ -223,9 +223,12 @@ fmt.Println(resp.Content)
 
 ## API Reference
 
+- **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **GoDoc**: [pkg.go.dev/github.com/kreuzberg-dev/liter-llm/packages/go](https://pkg.go.dev/github.com/kreuzberg-dev/liter-llm/packages/go)
 - **Provider Registry**: [schemas/providers.json](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)
 - **GitHub Repository**: [github.com/kreuzberg-dev/liter-llm](https://github.com/kreuzberg-dev/liter-llm)
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Troubleshooting
 

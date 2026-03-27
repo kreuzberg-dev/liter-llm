@@ -96,13 +96,14 @@ Send a message to any provider using the `provider/model` prefix:
 ```elixir
 {:ok, response} =
   LiterLlm.chat(
-    model: "openai/gpt-4o",
-    messages: [
-      %{"role" => "user", "content" => "Hello!"}
-    ]
+    %{
+      model: "openai/gpt-4o",
+      messages: [%{role: "user", content: "Hello!"}]
+    },
+    api_key: System.fetch_env!("OPENAI_API_KEY")
   )
 
-IO.puts(response["content"])
+IO.puts(hd(response["choices"])["message"]["content"])
 ```
 
 ### Common Use Cases
@@ -112,19 +113,18 @@ IO.puts(response["content"])
 Stream tokens in real time:
 
 ```elixir
-{:ok, stream} =
-  LiterLlm.chat_stream(
-    model: "openai/gpt-4o",
-    messages: [
-      %{"role" => "user", "content" => "Tell me a story"}
-    ]
+# Note: The Elixir client does not yet support streaming.
+# Use the non-streaming chat function instead.
+{:ok, response} =
+  LiterLlm.chat(
+    %{
+      model: "openai/gpt-4o",
+      messages: [%{role: "user", content: "Tell me a story"}]
+    },
+    api_key: System.fetch_env!("OPENAI_API_KEY")
   )
 
-stream
-|> Stream.each(fn chunk -> IO.write(chunk["delta"]) end)
-|> Stream.run()
-
-IO.puts("")
+IO.puts(hd(response["choices"])["message"]["content"])
 ```
 
 ### Next Steps
@@ -193,6 +193,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 

@@ -56,7 +56,7 @@
         <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
         <central-publishing-plugin.version>0.10.0</central-publishing-plugin.version>
         <checkstyle.version>13.3.0</checkstyle.version>
-        <pmd.version>7.19.0</pmd.version>
+        <pmd.version>7.22.0</pmd.version>
         <!-- Skip GPG signing by default, only enable for publish profile -->
         <gpg.skip>true</gpg.skip>
     </properties>

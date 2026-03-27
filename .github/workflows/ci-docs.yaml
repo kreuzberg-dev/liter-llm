@@ -1,0 +1,101 @@
+name: ci-docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "tools/snippet-runner/**"
+      - "mkdocs.yaml"
+      - "pyproject.toml"
+      - ".github/workflows/ci-docs.yaml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "tools/snippet-runner/**"
+      - "mkdocs.yaml"
+      - "pyproject.toml"
+      - ".github/workflows/ci-docs.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.17"
+          otp-version: "27"
+
+      - name: Cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-snippet-runner-${{ hashFiles('tools/snippet-runner/Cargo.toml') }}
+
+      - name: Build snippet-runner
+        run: cargo build --release -p snippet-runner
+
+      - name: Validate snippets
+        run: ./target/release/snippet-runner validate --snippets docs/snippets --level syntax --timeout 120
+
+      - name: Build docs
+        run: |
+          uv sync --group doc --no-editable --no-install-workspace --no-install-project
+          uv run --no-sync zensical build --clean

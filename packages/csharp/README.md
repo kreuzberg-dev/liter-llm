@@ -92,13 +92,14 @@ Send a message to any provider using the `provider/model` prefix:
 ```csharp
 using LiterLlm;
 
-var client = new LlmClient();
-var response = await client.ChatAsync(new ChatRequest
-{
-    Model = "openai/gpt-4o",
-    Messages = [new Message { Role = "user", Content = "Hello!" }],
-});
-Console.WriteLine(response.Content);
+await using var client = new LlmClient(
+    apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!);
+
+var response = await client.ChatAsync(new ChatCompletionRequest(
+    Model: "openai/gpt-4o",
+    Messages: [new UserMessage("Hello!")]
+));
+Console.WriteLine(response.Choices[0].Message.Content);
 ```
 
 ### Common Use Cases
@@ -110,16 +111,16 @@ Stream tokens in real time:
 ```csharp
 using LiterLlm;
 
-var client = new LlmClient();
-await foreach (var chunk in client.ChatStreamAsync(new ChatRequest
-{
-    Model = "openai/gpt-4o",
-    Messages = [new Message { Role = "user", Content = "Tell me a story" }],
-}))
-{
-    Console.Write(chunk.Delta);
-}
-Console.WriteLine();
+// Note: The C# client does not yet support streaming.
+// Use the non-streaming ChatAsync method instead.
+await using var client = new LlmClient(
+    apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!);
+
+var response = await client.ChatAsync(new ChatCompletionRequest(
+    Model: "openai/gpt-4o",
+    Messages: [new UserMessage("Tell me a story")]
+));
+Console.WriteLine(response.Choices[0].Message.Content);
 ```
 
 ### Next Steps
@@ -188,6 +189,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 

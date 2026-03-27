@@ -98,17 +98,17 @@ yarn add @kreuzberg/liter-llm-wasm
 Send a message to any provider using the `provider/model` prefix:
 
 ```typescript
-import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
+import init, { LlmClient } from "liter-llm-wasm";
 
 await init();
 
-const client = new LlmClient();
+const client = new LlmClient({ apiKey: "sk-..." });
 const response = await client.chat({
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Hello!" }],
 });
 
-console.log(response.content);
+console.log(response.choices[0].message.content);
 ```
 
 ### Common Use Cases
@@ -118,19 +118,19 @@ console.log(response.content);
 Stream tokens in real time:
 
 ```typescript
-import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
+import init, { LlmClient } from "liter-llm-wasm";
 
 await init();
 
-const client = new LlmClient();
-const stream = client.chatStream({
+// Note: chatStream is not yet supported in the WASM binding.
+// Use the non-streaming chat method instead.
+const client = new LlmClient({ apiKey: "sk-..." });
+const response = await client.chat({
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Tell me a story" }],
 });
 
-for await (const chunk of stream) {
-  console.log(chunk.delta);
-}
+console.log(response.choices[0].message.content);
 ```
 
 ### Next Steps
@@ -199,6 +199,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 

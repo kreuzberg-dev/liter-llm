@@ -60,17 +60,15 @@
 
 ## Why liter-llm?
 
-We used [litellm](https://github.com/BerriAI/litellm). A lot of people did. Then in March 2025, [versions 1.82.7 and 1.82.8 shipped with a backdoor](https://www.xda-developers.com/popular-python-library-backdoor-machine/) that silently harvested SSH keys, AWS credentials, environment variables, and Kubernetes configs from every machine that installed them. One bad release in your dependency tree was all it took.
+A universal LLM API client, compiled from the ground up in Rust. No interpreter, no transitive dependency tree, no supply chain surface area. One binary, 11 native language bindings, 142 providers.
 
-That was the wake-up call. We built liter-llm to be *literally lighter* -- and fundamentally different in the ways that matter:
-
-- **Compiled, not interpreted.** A Rust binary has no `pip install` supply chain. No `.pth` auto-execution hooks. No transitive dependency tree to backdoor.
-- **Secrets stay secret.** API keys are wrapped in [`secrecy::SecretString`](https://docs.rs/secrecy/) -- zeroed on drop, redacted in logs, never serialized. Not stored as plain `str`.
-- **One core, 11 languages.** Python, TypeScript, Go, Java, Ruby, PHP, C#, Elixir, WebAssembly, C/FFI -- all thin wrappers around the same Rust core. No reimplementation drift.
-- **Observability built in.** Production-grade [OpenTelemetry](https://opentelemetry.io/) with GenAI semantic conventions (`gen_ai.usage.input_tokens`, `gen_ai.response.model`, etc.) -- not an afterthought callback system.
+- **Compiled Rust core.** No `pip install` supply chain. No `.pth` auto-execution hooks. No runtime dependency tree to compromise. The kind of [supply chain attack that hit litellm](https://www.xda-developers.com/popular-python-library-backdoor-machine/) in 2026 is structurally impossible here.
+- **Secrets stay secret.** API keys are wrapped in [`secrecy::SecretString`](https://docs.rs/secrecy/) -- zeroed on drop, redacted in logs, never serialized.
+- **Polyglot from day one.** Python, TypeScript, Go, Java, Ruby, PHP, C#, Elixir, WebAssembly, C/FFI -- all thin wrappers around the same Rust core. No reimplementation drift.
+- **Observability built in.** Production-grade [OpenTelemetry](https://opentelemetry.io/) with GenAI semantic conventions -- not an afterthought callback system.
 - **Composable middleware.** Rate limiting, caching, cost tracking, health checks, and fallback as [Tower](https://docs.rs/tower/) layers you stack like building blocks.
 
-We give full credit to litellm for the work that came before -- our provider registry was bootstrapped from theirs. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+We give credit to [litellm](https://github.com/BerriAI/litellm) for proving the category -- our provider registry was bootstrapped from theirs. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
 
 ## Feature Comparison
 
@@ -212,7 +210,7 @@ All bindings expose a unified `chat()` function:
 
 ## Part of kreuzberg.dev
 
-liter-llm is built by the [kreuzberg.dev](https://github.com/kreuzberg-dev) team -- the same people behind [Kreuzberg](https://github.com/kreuzberg-dev/kreuzberg) (document extraction for 91+ formats), [tree-sitter-language-pack](https://github.com/kreuzberg-dev/tree-sitter-language-pack) (multilingual parsing), and [html-to-markdown](https://github.com/kreuzberg-dev/html-to-markdown). All our libraries share the same Rust-core, polyglot-bindings architecture.
+liter-llm is built by the [kreuzberg.dev](https://kreuzberg.dev) team -- the same people behind [Kreuzberg](https://github.com/kreuzberg-dev/kreuzberg) (document extraction for 91+ formats), [tree-sitter-language-pack](https://github.com/kreuzberg-dev/tree-sitter-language-pack) (multilingual parsing), and [html-to-markdown](https://github.com/kreuzberg-dev/html-to-markdown). All our libraries share the same Rust-core, polyglot-bindings architecture. Visit [kreuzberg.dev](https://kreuzberg.dev) or find us on [GitHub](https://github.com/kreuzberg-dev).
 
 ## Contributing
 

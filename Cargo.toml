@@ -7,6 +7,7 @@ members = [
     "crates/liter-llm-py",
     "crates/liter-llm-wasm",
     "tools/e2e-generator",
+    "tools/snippet-runner",
 ]
 resolver = "2"
 
@@ -42,6 +43,7 @@ opentelemetry = "0.31"
 pin-project-lite = "0.2"
 pyo3 = { version = "0.28", features = ["abi3-py310"] }
 pyo3-async-runtimes = { version = "0.28", features = ["tokio-runtime"] }
+rayon = "1"
 rb-sys = "0.9"
 # Async / HTTP
 reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls", "multipart", "form"] }
@@ -53,12 +55,14 @@ secrecy = { version = "0.10", features = ["serde"] }
 # Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tempfile = "3"
 
 # Error handling
 thiserror = "2"
 tokenizers = { version = "0.22", default-features = false, features = ["http", "fancy-regex"] }
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1" # Reserved for future streaming utilities and stream combinators
+toml = "1.1"
 tower = { version = "0.5", features = ["retry", "limit", "timeout", "buffer", "load-shed", "steer", "util"] }
 tower-http = { version = "0.6", features = ["follow-redirect", "set-header", "sensitive-headers", "trace", "request-id"] }
 tower-layer = "0.3"
@@ -66,8 +70,10 @@ tower-service = "0.3"
 tracing = "0.1"
 tracing-opentelemetry = "0.32"
 url = "2" # Reserved for future URL parsing and validation utilities
+walkdir = "2.5"
 wasm-bindgen = "0.2"
 wasm-bindgen-test = "0.3"
+which = "8"
 
 [profile.release]
 lto = "thin"

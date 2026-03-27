@@ -85,15 +85,16 @@ Send a message to any provider using the `provider/model` prefix:
 
 ```python
 import asyncio
+import os
 from liter_llm import LlmClient
 
 async def main() -> None:
-    client = LlmClient()
+    client = LlmClient(api_key=os.environ["OPENAI_API_KEY"])
     response = await client.chat(
         model="openai/gpt-4o",
         messages=[{"role": "user", "content": "Hello!"}],
     )
-    print(response.content)
+    print(response.choices[0].message.content)
 
 asyncio.run(main())
 ```
@@ -106,15 +107,17 @@ Stream tokens in real time:
 
 ```python
 import asyncio
+import os
 from liter_llm import LlmClient
 
 async def main() -> None:
-    client = LlmClient()
+    client = LlmClient(api_key=os.environ["OPENAI_API_KEY"])
     async for chunk in client.chat_stream(
         model="openai/gpt-4o",
         messages=[{"role": "user", "content": "Tell me a story"}],
     ):
-        print(chunk.delta, end="", flush=True)
+        if chunk.choices and chunk.choices[0].delta.content:
+            print(chunk.choices[0].delta.content, end="", flush=True)
     print()
 
 asyncio.run(main())
@@ -126,28 +129,39 @@ Define and invoke tools:
 
 ```python
 import asyncio
-from liter_llm import LlmClient, Tool, ToolParameter
+import os
+from liter_llm import LlmClient
 
 async def main() -> None:
-    client = LlmClient()
+    client = LlmClient(api_key=os.environ["OPENAI_API_KEY"])
 
-    get_weather = Tool(
-        name="get_weather",
-        description="Get the current weather for a location",
-        parameters=[
-            ToolParameter(name="location", type="string", description="City name", required=True),
-        ],
-    )
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the current weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string", "description": "City name"},
+                    },
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
 
     response = await client.chat(
         model="openai/gpt-4o",
         messages=[{"role": "user", "content": "What is the weather in Berlin?"}],
-        tools=[get_weather],
+        tools=tools,
     )
 
-    if response.tool_calls:
-        for call in response.tool_calls:
-            print(f"Tool: {call.name}, Args: {call.arguments}")
+    choice = response.choices[0]
+    if choice.message.tool_calls:
+        for call in choice.message.tool_calls:
+            print(f"Tool: {call.function.name}, Args: {call.function.arguments}")
 
 asyncio.run(main())
 ```
@@ -218,6 +232,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 

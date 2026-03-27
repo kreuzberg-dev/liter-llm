@@ -108,12 +108,12 @@ Send a message to any provider using the `provider/model` prefix:
 ```typescript
 import { LlmClient } from "liter-llm";
 
-const client = new LlmClient();
+const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
 const response = await client.chat({
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Hello!" }],
 });
-console.log(response.content);
+console.log(response.choices[0].message.content);
 ```
 
 ### Common Use Cases
@@ -125,14 +125,14 @@ Stream tokens in real time:
 ```typescript
 import { LlmClient } from "liter-llm";
 
-const client = new LlmClient();
-const stream = client.chatStream({
+const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
+const chunks = await client.chatStream({
   model: "openai/gpt-4o",
   messages: [{ role: "user", content: "Tell me a story" }],
 });
 
-for await (const chunk of stream) {
-  process.stdout.write(chunk.delta ?? "");
+for (const chunk of chunks) {
+  process.stdout.write(chunk.choices[0]?.delta?.content ?? "");
 }
 console.log();
 ```
@@ -142,20 +142,23 @@ console.log();
 Define and invoke tools:
 
 ```typescript
-import { LlmClient, type Tool } from "liter-llm";
+import { LlmClient } from "liter-llm";
 
-const client = new LlmClient();
+const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
 
-const tools: Tool[] = [
+const tools = [
   {
-    name: "get_weather",
-    description: "Get the current weather for a location",
-    parameters: {
-      type: "object",
-      properties: {
-        location: { type: "string", description: "City name" },
+    type: "function" as const,
+    function: {
+      name: "get_weather",
+      description: "Get the current weather for a location",
+      parameters: {
+        type: "object",
+        properties: {
+          location: { type: "string", description: "City name" },
+        },
+        required: ["location"],
       },
-      required: ["location"],
     },
   },
 ];
@@ -166,8 +169,8 @@ const response = await client.chat({
   tools,
 });
 
-for (const call of response.toolCalls ?? []) {
-  console.log(`Tool: ${call.name}, Args:`, call.arguments);
+for (const call of response.choices[0]?.message?.toolCalls ?? []) {
+  console.log(`Tool: ${call.function.name}, Args: ${call.function.arguments}`);
 }
 ```
 
@@ -260,6 +263,8 @@ See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** -- Source, issues, and discussions
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** -- 142 supported providers
+
+Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Contributing
 
