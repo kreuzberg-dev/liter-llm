@@ -26,7 +26,7 @@ static void test_batch_embed(void) {
 
     LiterLlmResponse *resp =
         liter_llm_http_post(url, "{\"input\":[\"Hello\",\"World\"],\"model\":"
-                                "\"text-embedding-3-small\"}");
+                                 "\"text-embedding-3-small\"}");
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_batch_embed");
     liter_llm_assert_json_array_len(resp->body, "data", 2, "test_batch_embed");
@@ -59,12 +59,12 @@ static void test_embed_encoding_format(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_embed_encoding_format");
     liter_llm_assert_json_array_len(resp->body, "data", 1,
-                                   "test_embed_encoding_format");
+                                    "test_embed_encoding_format");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "data", 1,
-                                   "test_embed_encoding_format");
+                                    "test_embed_encoding_format");
   }
 }
 
@@ -115,12 +115,12 @@ static void test_embed_with_dimensions(void) {
     assert(resp != NULL);
     liter_llm_assert_status(resp, 200L, "test_embed_with_dimensions");
     liter_llm_assert_json_array_len(resp->body, "data", 1,
-                                   "test_embed_with_dimensions");
+                                    "test_embed_with_dimensions");
     liter_llm_response_free(resp);
   } else {
     /* Offline: assert against pre-recorded mock body. */
     liter_llm_assert_json_array_len(mock_body, "data", 1,
-                                   "test_embed_with_dimensions");
+                                    "test_embed_with_dimensions");
   }
 }
 

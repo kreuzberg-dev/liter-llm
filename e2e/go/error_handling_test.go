@@ -110,6 +110,31 @@ func TestErrorHandling(t *testing.T) {
 		_ = fmt.Sprintf("") // suppress import
 	})
 
+	t.Run("bedrock_error_auth", func(t *testing.T) {
+		// AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication
+		server := NewMockServer([]MockRoute{
+			{
+				Path:         "/chat/completions",
+				Method:       "POST",
+				Status:       403,
+				Body:         `{"message":"You don't have access to the model with the specified model ID."}`,
+				StreamChunks: nil,
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\"}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 403, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
+	})
+
 	t.Run("content_policy_violation", func(t *testing.T) {
 		// 400 error when a request is rejected due to content policy
 		server := NewMockServer([]MockRoute{
@@ -307,6 +332,31 @@ func TestErrorHandling(t *testing.T) {
 
 		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
 		AssertEqual(t, "error status code", 502, resp.StatusCode)
+		_ = fmt.Sprintf("") // suppress import
+	})
+
+	t.Run("vertex_error_auth", func(t *testing.T) {
+		// Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication
+		server := NewMockServer([]MockRoute{
+			{
+				Path:         "/chat/completions",
+				Method:       "POST",
+				Status:       401,
+				Body:         `{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}`,
+				StreamChunks: nil,
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\"}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertTrue(t, "expected error status", resp.StatusCode >= 400)
+		AssertEqual(t, "error status code", 401, resp.StatusCode)
 		_ = fmt.Sprintf("") // suppress import
 	})
 

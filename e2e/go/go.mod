@@ -3,4 +3,4 @@ module literllm_e2e
 
 go 1.23
 
-require github.com/kreuzberg-dev/liter-llm/packages/go v0.0.0
+require github.com/kreuzberg-dev/liter-llm/go v0.0.0

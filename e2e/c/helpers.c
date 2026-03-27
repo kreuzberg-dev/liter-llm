@@ -135,8 +135,8 @@ static size_t sse_write_callback(void *ptr, size_t size, size_t nmemb,
   return bytes;
 }
 
-int liter_llm_read_sse(const char *url, const char *json_body, char **chunks_out,
-                      int max_chunks) {
+int liter_llm_read_sse(const char *url, const char *json_body,
+                       char **chunks_out, int max_chunks) {
   SseState st;
   memset(&st, 0, sizeof(st));
   st.chunks = chunks_out;
@@ -173,7 +173,7 @@ void liter_llm_response_free(LiterLlmResponse *resp) {
  * ───────────────────────────────────────────────────────── */
 
 void liter_llm_assert_status(const LiterLlmResponse *resp, long expected,
-                            const char *test_name) {
+                             const char *test_name) {
   if (resp->status != expected) {
     fprintf(stderr, "FAIL [%s]: expected status %ld, got %ld\n", test_name,
             expected, resp->status);
@@ -186,8 +186,8 @@ void liter_llm_assert_status(const LiterLlmResponse *resp, long expected,
  * json. This is intentionally simple — not a full JSON parser.
  */
 void liter_llm_assert_json_field(const char *json, const char *key,
-                                const char *expected_value,
-                                const char *test_name) {
+                                 const char *expected_value,
+                                 const char *test_name) {
   if (!json || !key || !expected_value)
     return;
 
@@ -206,7 +206,7 @@ void liter_llm_assert_json_field(const char *json, const char *key,
 }
 
 void liter_llm_assert_json_array_len(const char *json, const char *key,
-                                    int expected_len, const char *test_name) {
+                                     int expected_len, const char *test_name) {
   if (!json || !key)
     return;
 

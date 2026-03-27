@@ -176,6 +176,61 @@ func TestStreaming(t *testing.T) {
 		AssertEqual(t, "stream content", "1 2 3", content)
 	})
 
+	t.Run("bedrock_stream", func(t *testing.T) {
+		// Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API
+		server := NewMockServer([]MockRoute{
+			{
+				Path:   "/chat/completions",
+				Method: "POST",
+				Status: 200,
+				Body:   `null`,
+				StreamChunks: []string{
+					`{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}`,
+				},
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\",\"stream\":true}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
+
+		chunks, err := ReadSSEChunks(resp.Body)
+		if err != nil {
+			t.Fatalf("ReadSSEChunks: %v", err)
+		}
+
+		AssertTrue(t, "expected at least 3 chunk(s)", len(chunks) >= 3)
+
+		// Verify each chunk is valid JSON and reconstruct content.
+		var content string
+		for _, rawChunk := range chunks {
+			var chunk map[string]interface{}
+			if err := json.Unmarshal([]byte(rawChunk), &chunk); err != nil {
+				continue // some chunks may not decode cleanly
+			}
+			if choices, ok := chunk["choices"].([]interface{}); ok && len(choices) > 0 {
+				if choice, ok := choices[0].(map[string]interface{}); ok {
+					if delta, ok := choice["delta"].(map[string]interface{}); ok {
+						if c, ok := delta["content"].(string); ok {
+							content += c
+						}
+					}
+				}
+			}
+		}
+		AssertEqual(t, "stream content", "One Two Three", content)
+	})
+
 	t.Run("empty_stream", func(t *testing.T) {
 		// Streaming chat completion that produces no content chunks before the DONE signal
 		server := NewMockServer([]MockRoute{
@@ -371,6 +426,61 @@ func TestStreaming(t *testing.T) {
 			}
 		}
 		AssertEqual(t, "stream content", "Hi there!", content)
+	})
+
+	t.Run("vertex_stream", func(t *testing.T) {
+		// Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly
+		server := NewMockServer([]MockRoute{
+			{
+				Path:   "/chat/completions",
+				Method: "POST",
+				Status: 200,
+				Body:   `null`,
+				StreamChunks: []string{
+					`{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}`,
+					`{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}`,
+				},
+			},
+		})
+		defer server.Close()
+
+		reqBody := bytes.NewBufferString("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\",\"stream\":true}")
+		resp, err := http.Post(server.URL+"/chat/completions", "application/json", reqBody)
+		if err != nil {
+			t.Fatalf("http.Post failed: %v", err)
+		}
+		defer resp.Body.Close()
+
+		AssertEqual(t, "HTTP status code", 200, resp.StatusCode)
+
+		chunks, err := ReadSSEChunks(resp.Body)
+		if err != nil {
+			t.Fatalf("ReadSSEChunks: %v", err)
+		}
+
+		AssertTrue(t, "expected at least 3 chunk(s)", len(chunks) >= 3)
+
+		// Verify each chunk is valid JSON and reconstruct content.
+		var content string
+		for _, rawChunk := range chunks {
+			var chunk map[string]interface{}
+			if err := json.Unmarshal([]byte(rawChunk), &chunk); err != nil {
+				continue // some chunks may not decode cleanly
+			}
+			if choices, ok := chunk["choices"].([]interface{}); ok && len(choices) > 0 {
+				if choice, ok := choices[0].(map[string]interface{}); ok {
+					if delta, ok := choice["delta"].(map[string]interface{}); ok {
+						if c, ok := delta["content"].(string); ok {
+							content += c
+						}
+					}
+				}
+			}
+		}
+		AssertEqual(t, "stream content", "One Two Three", content)
 	})
 
 }

@@ -121,6 +121,35 @@ describe("error-handling", () => {
     }
   });
 
+  // AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication
+  it("bedrock_error_auth", async () => {
+    const routes: MockRoute[] = [
+      {
+        path: "/chat/completions",
+        method: "POST",
+        status: 403,
+        body: `{"message":"You don't have access to the model with the specified model ID."}`,
+        streamChunks: [],
+      },
+    ];
+
+    const server = await startMockServer(routes);
+    try {
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
+
+      let threw = false;
+      try {
+        await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0"}`));
+      } catch (e) {
+        threw = true;
+        // error thrown as expected
+      }
+      expect(threw, "Expected client.chat to throw").toBe(true);
+    } finally {
+      server.close();
+    }
+  });
+
   // 400 error when a request is rejected due to content policy
   it("content_policy_violation", async () => {
     const routes: MockRoute[] = [
@@ -346,6 +375,35 @@ describe("error-handling", () => {
       } catch (e) {
         threw = true;
         expect((e as Error).message ?? "", "Expected service unavailable error").toMatch(/unavailable|502|503/i);
+      }
+      expect(threw, "Expected client.chat to throw").toBe(true);
+    } finally {
+      server.close();
+    }
+  });
+
+  // Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication
+  it("vertex_error_auth", async () => {
+    const routes: MockRoute[] = [
+      {
+        path: "/chat/completions",
+        method: "POST",
+        status: 401,
+        body: `{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}`,
+        streamChunks: [],
+      },
+    ];
+
+    const server = await startMockServer(routes);
+    try {
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
+
+      let threw = false;
+      try {
+        await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"vertex_ai/gemini-2.0-flash"}`));
+      } catch (e) {
+        threw = true;
+        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {

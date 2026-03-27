@@ -305,6 +305,12 @@ function readSseChunks(string $url, string $method, string $body = ''): array
 // ─── Test file generation ─────────────────────────────────────────────────────
 
 fn write_test_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Result<()> {
+    // Skip the parity category entirely — it defines the canonical API surface
+    // for cross-binding verification and does not produce runnable tests.
+    if category == "parity" {
+        return Ok(());
+    }
+
     let mut out = String::new();
 
     writeln!(out, "<?php").unwrap();
@@ -329,7 +335,11 @@ fn write_test_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Res
         if fixture.skip.languages.iter().any(|l| l == "php") {
             continue;
         }
-        write_test_method(&mut out, fixture);
+        if is_new_category(category) {
+            write_new_category_test_method(&mut out, fixture, category);
+        } else {
+            write_test_method(&mut out, fixture);
+        }
         wrote_any = true;
     }
 
@@ -597,4 +607,270 @@ fn pascal_case(name: &str) -> String {
 
 fn camel_case(name: &str) -> String {
     pascal_case(name)
+}
+
+/// Returns true for the new TDD fixture categories (cache, budget, hooks, custom_provider).
+fn is_new_category(category: &str) -> bool {
+    matches!(category, "cache" | "budget" | "hooks" | "custom_provider")
+}
+
+/// Emit a TDD test method for the new categories (cache, budget, hooks, custom_provider).
+/// These tests use the native client API and will fail until the features are implemented.
+fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category: &str) {
+    let method_name = camel_case(&fixture.id);
+    let is_error = !fixture.assertions.expect_success;
+    let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
+    let req_php = php_string_escape(&req_json);
+
+    // Build mock server for real response body.
+    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_php = php_string_escape(&body_json);
+    let endpoint = endpoint_for_method(fixture.api.method.as_str());
+    let status = fixture.api.mock_response.status;
+
+    writeln!(out).unwrap();
+    writeln!(out, "    /** {} */", fixture.description).unwrap();
+    writeln!(out, "    public function test{method_name}(): void").unwrap();
+    writeln!(out, "    {{").unwrap();
+
+    writeln!(out, "        $routes = [").unwrap();
+    writeln!(out, "            new MockRoute(").unwrap();
+    writeln!(out, "                path: '{endpoint}',").unwrap();
+    writeln!(out, "                method: 'POST',").unwrap();
+    writeln!(out, "                status: {status},").unwrap();
+    writeln!(out, "                body: '{body_php}',").unwrap();
+    writeln!(out, "                streamChunks: [],").unwrap();
+    writeln!(out, "            ),").unwrap();
+    writeln!(out, "        ];").unwrap();
+    writeln!(out).unwrap();
+    writeln!(out, "        $server = new MockServer($routes);").unwrap();
+    writeln!(out, "        $mockUrl = $server->url;").unwrap();
+    writeln!(out).unwrap();
+
+    match category {
+        "cache" => {
+            writeln!(
+                out,
+                "        // TDD: Cache tests -- will fail until cache feature is implemented."
+            )
+            .unwrap();
+            writeln!(out, "        $config = new LlmClientConfig([").unwrap();
+            writeln!(out, "            'api_key' => 'test-key',").unwrap();
+            writeln!(out, "            'base_url' => $mockUrl,").unwrap();
+            writeln!(
+                out,
+                "            'cache' => ['max_entries' => 10, 'ttl_seconds' => 60],"
+            )
+            .unwrap();
+            writeln!(out, "        ]);").unwrap();
+            writeln!(out, "        $client = new LlmClient($config);").unwrap();
+            writeln!(out).unwrap();
+
+            if fixture.assertions.cache_hit == Some(true) {
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $resp1 = $client->chat($request);").unwrap();
+                writeln!(out, "        $resp2 = $client->chat($request);").unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertTrue($resp2->isCacheHit(), 'Expected cache hit on second call');"
+                )
+                .unwrap();
+            } else if fixture.assertions.cache_bypassed == Some(true) {
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $resp = $client->chatStream($request);").unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertFalse($resp->isCacheHit(), 'Streaming requests should bypass cache');"
+                )
+                .unwrap();
+            } else {
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $resp1 = $client->chat($request);").unwrap();
+                writeln!(out, "        usleep(100_000);").unwrap();
+                writeln!(out, "        $resp2 = $client->chat($request);").unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertFalse($resp2->isCacheHit(), 'Expected cache miss after TTL expiry');"
+                )
+                .unwrap();
+            }
+        }
+        "budget" => {
+            writeln!(
+                out,
+                "        // TDD: Budget tests -- will fail until budget feature is implemented."
+            )
+            .unwrap();
+
+            if is_error {
+                writeln!(out, "        $config = new LlmClientConfig([").unwrap();
+                writeln!(out, "            'api_key' => 'test-key',").unwrap();
+                writeln!(out, "            'base_url' => $mockUrl,").unwrap();
+                writeln!(
+                    out,
+                    "            'budget' => ['global_limit' => 0.001, 'enforcement' => 'hard'],"
+                )
+                .unwrap();
+                writeln!(out, "        ]);").unwrap();
+                writeln!(out, "        $client = new LlmClient($config);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $this->expectException(BudgetExceededException::class);").unwrap();
+                writeln!(out, "        $client->chat($request);").unwrap();
+            } else {
+                writeln!(out, "        $config = new LlmClientConfig([").unwrap();
+                writeln!(out, "            'api_key' => 'test-key',").unwrap();
+                writeln!(out, "            'base_url' => $mockUrl,").unwrap();
+                writeln!(
+                    out,
+                    "            'budget' => ['global_limit' => 10.0, 'enforcement' => 'soft'],"
+                )
+                .unwrap();
+                writeln!(out, "        ]);").unwrap();
+                writeln!(out, "        $client = new LlmClient($config);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $resp = $client->chat($request);").unwrap();
+                writeln!(out, "        $this->assertNotNull($resp);").unwrap();
+                if fixture.assertions.cost_tracked == Some(true) {
+                    writeln!(
+                        out,
+                        "        $this->assertGreaterThan(0, $client->getBudgetUsage(), 'Expected cost to be tracked');"
+                    )
+                    .unwrap();
+                }
+            }
+        }
+        "hooks" => {
+            writeln!(
+                out,
+                "        // TDD: Hook tests -- will fail until hooks feature is implemented."
+            )
+            .unwrap();
+            writeln!(out, "        $config = new LlmClientConfig([").unwrap();
+            writeln!(out, "            'api_key' => 'test-key',").unwrap();
+            writeln!(out, "            'base_url' => $mockUrl,").unwrap();
+            writeln!(out, "        ]);").unwrap();
+            writeln!(out, "        $client = new LlmClient($config);").unwrap();
+            writeln!(out).unwrap();
+
+            if fixture.assertions.hook_on_request_called == Some(true) {
+                writeln!(out, "        $hookCalled = false;").unwrap();
+                writeln!(
+                    out,
+                    "        $client->addHook('on_request', function ($req) use (&$hookCalled) {{"
+                )
+                .unwrap();
+                writeln!(out, "            $hookCalled = true;").unwrap();
+                writeln!(out, "        }});").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $client->chat($request);").unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertTrue($hookCalled, 'Expected on_request hook to be called');"
+                )
+                .unwrap();
+            } else if fixture.assertions.hook_on_response_called == Some(true) {
+                writeln!(out, "        $hookCalled = false;").unwrap();
+                writeln!(
+                    out,
+                    "        $client->addHook('on_response', function ($resp) use (&$hookCalled) {{"
+                )
+                .unwrap();
+                writeln!(out, "            $hookCalled = true;").unwrap();
+                writeln!(out, "        }});").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $client->chat($request);").unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertTrue($hookCalled, 'Expected on_response hook to be called');"
+                )
+                .unwrap();
+            } else if fixture.assertions.hook_on_error_called == Some(true) {
+                writeln!(out, "        $hookCalled = false;").unwrap();
+                writeln!(
+                    out,
+                    "        $client->addHook('on_error', function ($err) use (&$hookCalled) {{"
+                )
+                .unwrap();
+                writeln!(out, "            $hookCalled = true;").unwrap();
+                writeln!(out, "        }});").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(
+                    out,
+                    "        try {{ $client->chat($request); }} catch (\\Throwable $e) {{ }}"
+                )
+                .unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertTrue($hookCalled, 'Expected on_error hook to be called');"
+                )
+                .unwrap();
+            } else if is_error {
+                writeln!(out, "        $client->addHook('on_request', function ($req) {{").unwrap();
+                writeln!(
+                    out,
+                    "            throw new HookRejectedException('Blocked by guardrail');"
+                )
+                .unwrap();
+                writeln!(out, "        }});").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $this->expectException(HookRejectedException::class);").unwrap();
+                writeln!(out, "        $client->chat($request);").unwrap();
+            }
+        }
+        "custom_provider" => {
+            writeln!(
+                out,
+                "        // TDD: Custom provider tests -- will fail until custom provider registration is implemented."
+            )
+            .unwrap();
+
+            if let Some(provider_cfg) = &fixture.client_config.custom_provider {
+                let name = provider_cfg
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("my-provider");
+
+                writeln!(out, "        $config = new LlmClientConfig([").unwrap();
+                writeln!(out, "            'api_key' => 'test-key',").unwrap();
+                writeln!(out, "        ]);").unwrap();
+                writeln!(out, "        $client = new LlmClient($config);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $client->registerProvider([").unwrap();
+                writeln!(out, "            'name' => '{}',", php_string_escape(name)).unwrap();
+                writeln!(out, "            'base_url' => $mockUrl,").unwrap();
+
+                if let Some(prefixes) = provider_cfg.get("model_prefixes").and_then(|v| v.as_array()) {
+                    let prefix_strs: Vec<String> = prefixes
+                        .iter()
+                        .filter_map(|p| p.as_str().map(|s| format!("'{}'", php_string_escape(s))))
+                        .collect();
+                    writeln!(out, "            'model_prefixes' => [{}],", prefix_strs.join(", ")).unwrap();
+                } else {
+                    writeln!(out, "            'model_prefixes' => [],").unwrap();
+                }
+
+                writeln!(out, "        ]);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "        $request = '{req_php}';").unwrap();
+                writeln!(out, "        $resp = $client->chat($request);").unwrap();
+                writeln!(
+                    out,
+                    "        $this->assertNotNull($resp, 'Expected response from custom provider');"
+                )
+                .unwrap();
+            }
+        }
+        _ => {
+            writeln!(out, "        // Unknown new category: {category}").unwrap();
+        }
+    }
+
+    writeln!(out, "        $server->stop();").unwrap();
+    writeln!(out, "    }}").unwrap();
 }

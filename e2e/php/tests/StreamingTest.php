@@ -90,6 +90,32 @@ final class StreamingTest extends TestCase
         $this->assertGreaterThanOrEqual(3, count($chunks), 'Expected at least 3 chunk(s)');
     }
 
+    /** Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API */
+    public function testBedrockStream(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 200,
+                body: 'null',
+                streamChunks: [
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $chunks = readSseChunks($server->url . '/chat/completions', 'POST', '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0","stream":true}');
+        $server->stop();
+
+        $this->assertGreaterThanOrEqual(3, count($chunks), 'Expected at least 3 chunk(s)');
+    }
+
     /** Streaming chat completion that produces no content chunks before the DONE signal */
     public function testEmptyStream(): void
     {
@@ -202,5 +228,31 @@ final class StreamingTest extends TestCase
         $server->stop();
 
         $this->assertGreaterThanOrEqual(2, count($chunks), 'Expected at least 2 chunk(s)');
+    }
+
+    /** Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly */
+    public function testVertexStream(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 200,
+                body: 'null',
+                streamChunks: [
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $chunks = readSseChunks($server->url . '/chat/completions', 'POST', '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"vertex_ai/gemini-2.0-flash","stream":true}');
+        $server->stop();
+
+        $this->assertGreaterThanOrEqual(3, count($chunks), 'Expected at least 3 chunk(s)');
     }
 }
