@@ -548,13 +548,60 @@ jobs:
             runner: ubuntu-24.04-arm
           - label: macos-arm64
             runner: macos-latest
+    env:
+      RB_SYS_CARGO_PROFILE: release
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: kreuzberg-dev/actions/build-ruby-gem@v1
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
         with:
-          package-dir: packages/ruby
+          cache-key-prefix: publish-ruby-${{ matrix.label }}
+          use-sccache: true
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler: none
+          bundler-cache: false
+
+      - name: Install Bundler
+        shell: bash
+        run: (gem install bundler --no-document) && bundler --version
+
+      - name: Install Task
+        uses: kreuzberg-dev/actions/install-task@v1
+
+      - name: Build FFI library
+        run: cargo build -p liter-llm-ffi --release
+        shell: bash
+
+      - name: Vendor liter-llm core crate
+        shell: bash
+        run: python3 scripts/ci/ruby/vendor-liter-llm-core.py
+
+      - name: Install Ruby dependencies
+        shell: bash
+        working-directory: packages/ruby
+        run: |
+          bundle config set --local path vendor/bundle
+          bundle check || bundle install
+
+      - name: Compile native extension
+        shell: bash
+        working-directory: packages/ruby
+        timeout-minutes: 30
+        run: bundle exec rake compile
+
+      - name: Build gem
+        shell: bash
+        working-directory: packages/ruby
+        run: gem build liter_llm.gemspec
+
       - uses: actions/upload-artifact@v7
         with:
           name: rubygems-${{ matrix.label }}
@@ -746,16 +793,26 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: kreuzberg-dev/actions/build-rust-ffi@v1
-        id: ffi
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1
         with:
-          crate-name: liter-llm-ffi
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
+      - name: Build FFI
+        shell: bash
+        run: cargo build -p liter-llm-ffi --release --target ${{ matrix.target }}
       - name: Stage FFI artifacts
         env:
-          LIB_PATH: ${{ steps.ffi.outputs.library-path }}
+          TARGET: ${{ matrix.target }}
           RID: ${{ matrix.rid }}
         run: |
+          # Find the built library
+          if [[ "$TARGET" == *"windows"* ]]; then
+            LIB_PATH="target/${TARGET}/release/liter_llm_ffi.dll"
+          elif [[ "$TARGET" == *"apple"* ]]; then
+            LIB_PATH="target/${TARGET}/release/libliter_llm_ffi.dylib"
+          else
+            LIB_PATH="target/${TARGET}/release/libliter_llm_ffi.so"
+          fi
           mkdir -p "ffi-staging/${RID}"
           cp "$LIB_PATH" "ffi-staging/${RID}/"
           # Copy cbindgen-generated header if present
