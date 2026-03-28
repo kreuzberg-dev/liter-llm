@@ -756,6 +756,7 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
+          CARGO_TARGET: ${{ matrix.target }}
         run: scripts/publish/php/build-pie-package.sh "${{ matrix.label }}" "dist/php"
       - uses: actions/upload-artifact@v7
         with:

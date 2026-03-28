@@ -49,7 +49,11 @@ mkdir -p "$OUTPUT_DIR"
 
 WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
 PHP_DIR="${WORKSPACE}/packages/php"
-TARGET_DIR="${WORKSPACE}/target/release"
+if [[ -n "${CARGO_TARGET:-}" ]]; then
+  TARGET_DIR="${WORKSPACE}/target/${CARGO_TARGET}/release"
+else
+  TARGET_DIR="${WORKSPACE}/target/release"
+fi
 
 # On Windows, Rust builds DLLs without the "lib" prefix
 if [[ "$OS" == "windows" ]]; then
