@@ -264,6 +264,7 @@ impl PhpLlmClient {
     ///                                   E.g. `'{"max_entries":256,"ttl_seconds":300}'`
     /// @param string|null $budgetJson    Budget config as JSON (optional).
     ///                                   E.g. `'{"global_limit":10.0,"enforcement":"hard"}'`
+    #[allow(clippy::too_many_arguments)]
     pub fn __construct(
         api_key: String,
         base_url: Option<String>,
