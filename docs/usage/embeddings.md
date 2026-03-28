@@ -1,12 +1,12 @@
 ---
-description: "How to generate text embeddings with liter-llm across multiple providers."
+description: "Generate text embeddings and rerank documents with liter-llm."
 ---
 
-# Embeddings
+# Embeddings & Rerank
 
-The `embed` method generates vector embeddings from text input. Embeddings are fixed-length numeric arrays that capture semantic meaning -- useful for search, clustering, and retrieval-augmented generation (RAG).
+## Embeddings
 
-## Basic Usage
+Generate vector embeddings from text. Embeddings are fixed-length numeric arrays that capture semantic meaning -- useful for search, clustering, and RAG.
 
 === "Python"
 
@@ -16,22 +16,55 @@ The `embed` method generates vector embeddings from text input. Embeddings are f
 
     --8<-- "snippets/typescript/guides/embeddings.md"
 
+=== "Rust"
+
+    --8<-- "snippets/rust/usage/embeddings.md"
+
 === "Go"
 
     --8<-- "snippets/go/guides/embeddings.md"
 
-## Supported Providers
+=== "Java"
 
-Not all providers support embeddings. The major embedding providers include:
+    --8<-- "snippets/java/usage/embeddings.md"
 
-| Provider | Prefix | Example model |
+=== "C#"
+
+    --8<-- "snippets/csharp/usage/embeddings.md"
+
+=== "Ruby"
+
+    --8<-- "snippets/ruby/usage/embeddings.md"
+
+=== "PHP"
+
+    --8<-- "snippets/php/usage/embeddings.md"
+
+=== "Elixir"
+
+    --8<-- "snippets/elixir/usage/embeddings.md"
+
+=== "WASM"
+
+    --8<-- "snippets/wasm/usage/embeddings.md"
+
+### Embedding Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `model` | string | Embedding model (e.g. `"openai/text-embedding-3-small"`) |
+| `input` | string/array | Text(s) to embed |
+| `encoding_format` | string | Output format (`"float"` or `"base64"`) |
+| `dimensions` | int | Output dimensionality (model-dependent) |
+
+### Embedding Providers
+
+| Provider | Prefix | Example Model |
 | --- | --- | --- |
 | OpenAI | `openai/` | `text-embedding-3-small`, `text-embedding-3-large` |
-| Azure | `azure/` | `text-embedding-ada-002` |
 | Cohere | `cohere/` | `embed-english-v3.0` |
 | Voyage AI | `voyage/` | `voyage-3` |
 | Mistral | `mistral/` | `mistral-embed` |
-| Hugging Face | `huggingface/` | Various |
 | Google Vertex AI | `vertex_ai/` | `text-embedding-004` |
 | AWS Bedrock | `bedrock/` | `amazon.titan-embed-text-v2:0` |
 | Ollama | `ollama/` | `nomic-embed-text` |
@@ -39,30 +72,56 @@ Not all providers support embeddings. The major embedding providers include:
 
 See the [Providers](../providers.md) page for the complete capability matrix.
 
-## Batch Embeddings
+## Rerank
 
-Pass multiple strings to embed them in a single request:
+Rerank documents by relevance to a query. Useful for improving retrieval quality in RAG pipelines:
 
-```python
-response = await client.embed(
-    model="openai/text-embedding-3-small",
-    input=[
-        "First document to embed",
-        "Second document to embed",
-        "Third document to embed",
-    ],
-)
-for i, item in enumerate(response.data):
-    print(f"Document {i}: {len(item.embedding)} dimensions")
-```
+=== "Python"
 
-## Choosing a Model
+    --8<-- "snippets/python/usage/rerank.md"
 
-Key considerations when selecting an embedding model:
+=== "TypeScript"
 
-| Factor | Guidance |
-| --- | --- |
-| **Dimensions** | Higher dimensions capture more nuance but use more storage. OpenAI's `text-embedding-3-small` outputs 1536 dimensions. |
-| **Cost** | Embedding models are significantly cheaper per token than chat models. |
-| **Latency** | Local providers (Ollama) have lower latency but may produce lower-quality embeddings. |
-| **Quality** | Evaluate on your specific retrieval task. MTEB leaderboard is a good starting point. |
+    --8<-- "snippets/typescript/usage/rerank.md"
+
+=== "Rust"
+
+    --8<-- "snippets/rust/usage/rerank.md"
+
+=== "Go"
+
+    --8<-- "snippets/go/usage/rerank.md"
+
+=== "Java"
+
+    --8<-- "snippets/java/usage/rerank.md"
+
+=== "C#"
+
+    --8<-- "snippets/csharp/usage/rerank.md"
+
+=== "Ruby"
+
+    --8<-- "snippets/ruby/usage/rerank.md"
+
+=== "PHP"
+
+    --8<-- "snippets/php/usage/rerank.md"
+
+=== "Elixir"
+
+    --8<-- "snippets/elixir/usage/rerank.md"
+
+=== "WASM"
+
+    --8<-- "snippets/wasm/usage/rerank.md"
+
+### Rerank Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `model` | string | Rerank model (e.g. `"cohere/rerank-v3.5"`) |
+| `query` | string | The query to rank documents against |
+| `documents` | array | Documents to rerank |
+| `top_n` | int | Number of top results to return |
+| `return_documents` | bool | Include document text in results |

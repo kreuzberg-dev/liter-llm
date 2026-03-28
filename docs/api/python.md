@@ -36,6 +36,9 @@ All parameters are keyword-only.
 | `model_hint` | `str \| None` | `None` | Hint for provider auto-detection (e.g. `"groq/llama3-70b"`) |
 | `max_retries` | `int` | `3` | Retries on 429 / 5xx responses |
 | `timeout` | `int` | `60` | Request timeout in seconds |
+| `cache` | `dict \| None` | `None` | Cache config: `{"max_entries": 256, "ttl_seconds": 300}` |
+| `budget` | `dict \| None` | `None` | Budget config: `{"global_limit": 10.0, "model_limits": {}, "enforcement": "hard"}` |
+| `extra_headers` | `dict \| None` | `None` | Additional HTTP headers |
 
 The client is immutable after construction and safe to share across tasks.
 
@@ -247,6 +250,53 @@ Cancel a response.
 
 ```python
 async def cancel_response(response_id: str) -> dict
+```
+
+#### `register_provider(config)`
+
+Register a custom provider for self-hosted or unsupported LLM endpoints.
+
+```python
+client.register_provider({
+    "name": "my-provider",
+    "base_url": "https://my-llm.example.com/v1",
+    "auth_header": "Authorization",
+    "model_prefixes": ["my-provider/"],
+})
+```
+
+#### `unregister_provider(name)`
+
+Remove a previously registered custom provider. Returns `True` if found and removed.
+
+```python
+removed = client.unregister_provider("my-provider")
+```
+
+#### `add_hook(hook)`
+
+Register a lifecycle hook for request/response/error events.
+
+```python
+class LoggingHook:
+    def on_request(self, request):
+        print(f"Sending request to {request['model']}")
+
+    def on_response(self, request, response):
+        print(f"Got response: {response.usage.total_tokens} tokens")
+
+    def on_error(self, request, error):
+        print(f"Error: {error}")
+
+client.add_hook(LoggingHook())
+```
+
+#### `budget_used`
+
+Property returning the total spend in USD so far.
+
+```python
+print(f"Budget used: ${client.budget_used:.2f}")
 ```
 
 ## Types

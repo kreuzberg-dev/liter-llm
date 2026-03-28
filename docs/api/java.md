@@ -28,6 +28,8 @@ var client = LlmClient.builder()
     .baseUrl("https://api.openai.com/v1")  // default
     .maxRetries(2)                          // default
     .timeout(Duration.ofSeconds(60))        // default
+    .cacheConfig(new CacheConfig(256, 300))
+    .budgetConfig(new BudgetConfig(10.0, Map.of(), "hard"))
     .build();
 ```
 
@@ -45,6 +47,31 @@ try (var client = LlmClient.builder().apiKey("sk-...").build()) {
 | `baseUrl(url)` | `https://api.openai.com/v1` | Provider base URL |
 | `maxRetries(n)` | `2` | Retry count for 429/5xx |
 | `timeout(d)` | 60s | Connection timeout |
+| `cacheConfig(cfg)` | `null` | Enable response caching with `CacheConfig(maxEntries, ttlSeconds)` |
+| `budgetConfig(cfg)` | `null` | Enable cost budgeting with `BudgetConfig(globalLimit, modelLimits, enforcement)` |
+
+### Hook Interface
+
+Hooks let you observe or modify requests and responses:
+
+```java
+client.addHook(new LlmHook() {
+    @Override
+    public void onRequest(HookRequest request) {
+        System.out.println("Request to model: " + request.model());
+    }
+
+    @Override
+    public void onResponse(HookResponse response) {
+        System.out.println("Tokens used: " + response.totalTokens());
+    }
+
+    @Override
+    public void onError(LlmException error) {
+        System.err.println("Error: " + error.getMessage());
+    }
+});
+```
 
 ### Methods
 
@@ -52,126 +79,239 @@ All methods throw `LlmException` on failure.
 
 #### `chat(request)`
 
+Send a chat completion request.
+
 ```java
-public ChatCompletionResponse chat(ChatCompletionRequest request) throws LlmException
+var request = Types.ChatCompletionRequest.builder(
+    "gpt-4o-mini",
+    List.of(new Types.UserMessage("Hello!"))
+).maxTokens(256L).build();
+
+var response = client.chat(request);
+System.out.println(response.choices().getFirst().message().content());
+```
+
+#### `chatStream(request, handler)`
+
+Send a streaming chat completion request. The handler is invoked once per chunk.
+
+```java
+client.chatStream(request, chunk -> {
+    var choices = chunk.choices();
+    if (!choices.isEmpty() && choices.getFirst().delta().content() != null) {
+        System.out.print(choices.getFirst().delta().content());
+    }
+});
 ```
 
 #### `embed(request)`
 
+Send an embedding request.
+
 ```java
-public EmbeddingResponse embed(EmbeddingRequest request) throws LlmException
+var response = client.embed(new EmbeddingRequest(
+    "text-embedding-3-small",
+    List.of("Hello, world!")
+));
+List<Double> vector = response.data().getFirst().embedding();
 ```
 
 #### `listModels()`
 
+List available models.
+
 ```java
-public ModelsListResponse listModels() throws LlmException
+var response = client.listModels();
+for (var model : response.data()) {
+    System.out.println(model.id());
+}
 ```
 
 #### `imageGenerate(request)`
 
+Generate images from a text prompt.
+
 ```java
-public ImagesResponse imageGenerate(CreateImageRequest request) throws LlmException
+var response = client.imageGenerate(new CreateImageRequest(
+    "A sunset over mountains",
+    "dall-e-3",
+    1,
+    "1024x1024"
+));
 ```
 
 #### `speech(request)`
 
-Returns raw audio bytes.
+Generate speech audio from text. Returns raw audio bytes.
 
 ```java
-public byte[] speech(CreateSpeechRequest request) throws LlmException
+byte[] audio = client.speech(new CreateSpeechRequest(
+    "tts-1", "Hello, world!", "alloy"
+));
+Files.write(Path.of("output.mp3"), audio);
 ```
 
 #### `transcribe(request)`
 
+Transcribe audio into text.
+
 ```java
-public TranscriptionResponse transcribe(CreateTranscriptionRequest request) throws LlmException
+var response = client.transcribe(new CreateTranscriptionRequest(
+    "whisper-1", audioBytes
+));
+System.out.println(response.text());
 ```
 
 #### `moderate(request)`
 
+Classify content for policy violations.
+
 ```java
-public ModerationResponse moderate(ModerationRequest request) throws LlmException
+var response = client.moderate(new ModerationRequest(
+    "Some text to check", "text-moderation-latest"
+));
 ```
 
 #### `rerank(request)`
 
+Rerank documents by relevance to a query.
+
 ```java
-public RerankResponse rerank(RerankRequest request) throws LlmException
+var response = client.rerank(new RerankRequest(
+    "rerank-english-v3.0",
+    "What is the capital of France?",
+    List.of("Paris is the capital of France.", "Berlin is in Germany."),
+    2
+));
 ```
 
 #### `createFile(request)`
 
+Upload a file.
+
 ```java
-public FileObject createFile(CreateFileRequest request) throws LlmException
+var file = client.createFile(new CreateFileRequest(
+    fileBytes, "batch", "input.jsonl"
+));
 ```
 
 #### `retrieveFile(fileId)`
 
+Retrieve metadata about an uploaded file.
+
 ```java
-public FileObject retrieveFile(String fileId) throws LlmException
+var file = client.retrieveFile("file-abc123");
 ```
 
 #### `deleteFile(fileId)`
 
+Delete an uploaded file.
+
 ```java
-public DeleteResponse deleteFile(String fileId) throws LlmException
+var response = client.deleteFile("file-abc123");
 ```
 
 #### `listFiles(query)`
 
-```java
-public FileListResponse listFiles(FileListQuery query) throws LlmException
-```
+List uploaded files. Pass `null` to list all files.
 
-Pass `null` to list all files.
+```java
+var response = client.listFiles(new FileListQuery("batch", null, null));
+```
 
 #### `fileContent(fileId)`
 
+Download the content of an uploaded file.
+
 ```java
-public byte[] fileContent(String fileId) throws LlmException
+byte[] content = client.fileContent("file-abc123");
 ```
 
 #### `createBatch(request)`
 
+Create a new batch.
+
 ```java
-public BatchObject createBatch(CreateBatchRequest request) throws LlmException
+var batch = client.createBatch(new CreateBatchRequest(
+    "file-abc123", "/v1/chat/completions", "24h"
+));
 ```
 
 #### `retrieveBatch(batchId)`
 
+Retrieve a batch by ID.
+
 ```java
-public BatchObject retrieveBatch(String batchId) throws LlmException
+var batch = client.retrieveBatch("batch-abc123");
 ```
 
 #### `listBatches(query)`
 
+List batches. Pass `null` to list all.
+
 ```java
-public BatchListResponse listBatches(BatchListQuery query) throws LlmException
+var response = client.listBatches(null);
 ```
 
 #### `cancelBatch(batchId)`
 
+Cancel a batch.
+
 ```java
-public BatchObject cancelBatch(String batchId) throws LlmException
+var batch = client.cancelBatch("batch-abc123");
 ```
 
 #### `createResponse(request)`
 
+Create a new response via the Responses API.
+
 ```java
-public ResponseObject createResponse(CreateResponseRequest request) throws LlmException
+var response = client.createResponse(new CreateResponseRequest(
+    "gpt-4", "Summarize this text..."
+));
 ```
 
 #### `retrieveResponse(responseId)`
 
+Retrieve a response by ID.
+
 ```java
-public ResponseObject retrieveResponse(String responseId) throws LlmException
+var response = client.retrieveResponse("resp-abc123");
 ```
 
 #### `cancelResponse(responseId)`
 
+Cancel a response.
+
 ```java
-public ResponseObject cancelResponse(String responseId) throws LlmException
+var response = client.cancelResponse("resp-abc123");
+```
+
+#### `registerProvider(config)`
+
+Register a custom provider at runtime.
+
+```java
+client.registerProvider(new ProviderConfig(
+    "custom", "https://api.custom-llm.com/v1", "Authorization"
+));
+```
+
+#### `unregisterProvider(prefix)`
+
+Remove a previously registered provider.
+
+```java
+client.unregisterProvider("custom");
+```
+
+#### `getBudgetUsed()`
+
+Return the total cost consumed so far (when budget tracking is enabled).
+
+```java
+double used = client.getBudgetUsed();
+System.out.printf("Budget used: $%.4f%n", used);
 ```
 
 ## Types
@@ -206,6 +346,43 @@ var request = Types.ChatCompletionRequest.builder(
 | `model()` | `String` | Model used |
 | `choices()` | `List<Choice>` | Completion choices |
 | `usage()` | `Usage` | Token usage |
+
+### `Usage`
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `promptTokens()` | `int` | Tokens consumed by the prompt |
+| `completionTokens()` | `int` | Tokens consumed by the completion |
+| `totalTokens()` | `int` | Total tokens |
+
+### `EmbeddingResponse`
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `data()` | `List<EmbeddingObject>` | Embedding vectors |
+| `model()` | `String` | Model used |
+| `usage()` | `Usage` | Token usage |
+
+### `ModelsListResponse`
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `data()` | `List<ModelObject>` | Available models |
+
+### `CacheConfig`
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `maxEntries` | `int` | Maximum number of cached responses |
+| `ttlSeconds` | `int` | Time-to-live in seconds for cache entries |
+
+### `BudgetConfig`
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `globalLimit` | `double` | Maximum total cost in dollars |
+| `modelLimits` | `Map<String, Double>` | Per-model cost limits |
+| `enforcement` | `String` | `"hard"` (reject) or `"soft"` (warn) |
 
 ## Error Handling
 
@@ -244,6 +421,7 @@ try (var client = LlmClient.builder()
         .apiKey(System.getenv("OPENAI_API_KEY"))
         .build()) {
 
+    // Non-streaming
     var request = ChatCompletionRequest.builder(
         "gpt-4o-mini",
         List.of(new UserMessage("Hello!"))
@@ -251,5 +429,13 @@ try (var client = LlmClient.builder()
 
     var response = client.chat(request);
     System.out.println(response.choices().getFirst().message().content());
+
+    // Streaming
+    client.chatStream(request, chunk -> {
+        var choices = chunk.choices();
+        if (!choices.isEmpty() && choices.getFirst().delta().content() != null) {
+            System.out.print(choices.getFirst().delta().content());
+        }
+    });
 }
 ```

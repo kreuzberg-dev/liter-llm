@@ -1,40 +1,218 @@
 # liter-llm
 
-> Universal LLM API client for 100+ LLM providers with polyglot bindings.
+> Universal LLM API client for 142+ providers with native bindings for 11 languages.
 
 ## About
 
-liter-llm provides unified access to 100+ LLM providers with a single API. Built in Rust with thin bindings for every major platform.
-
-API keys are configured once at client construction and provider routing is automatic based on model name prefixes.
+liter-llm provides unified access to 142+ LLM providers through a single API.
+Built in Rust with native bindings for Python, TypeScript, Go, Java, Ruby, PHP,
+C#, Elixir, WebAssembly, and C/FFI. Provider routing is automatic based on
+model name prefixes (e.g. "openai/gpt-4o" routes to OpenAI).
 
 ## Organization
 
 Part of the kreuzberg.dev ecosystem:
-- **Kreuzberg** — Document intelligence: https://github.com/kreuzberg-dev/kreuzberg
+- **kreuzberg.dev** — Organization: https://kreuzberg.dev
+- **Kreuzberg** — Document intelligence for 91+ formats: https://github.com/kreuzberg-dev/kreuzberg
+  - Kreuzberg docs: https://docs.kreuzberg.dev
 - **html-to-markdown** — HTML to Markdown converter: https://github.com/kreuzberg-dev/html-to-markdown
-- **liter-llm** — Universal LLM API client (this repo): https://github.com/kreuzberg-dev/liter-llm
+- **tree-sitter-language-pack** — Multi-language parsing: https://github.com/kreuzberg-dev/tree-sitter-language-pack
+- **liter-llm** — Universal LLM API client (this project): https://github.com/kreuzberg-dev/liter-llm
 
 ## Links
 
 - Website: https://kreuzberg.dev
 - Documentation: https://docs.liter-llm.kreuzberg.dev
+- GitHub: https://github.com/kreuzberg-dev/liter-llm
 - Discord: https://discord.gg/xt9WY3GnKR
 - Contact: naaman@kreuzberg.dev
 
-## Key APIs
+## Capabilities
 
-- `chat(messages, config)` — Send a chat request and receive a response
-- `chat_stream(messages, config)` — Stream a chat response
-- `embeddings(texts, config)` — Generate embeddings
+### Chat Completions
+- `chat(request)` — Single-turn and multi-turn chat completions
+- `chat_stream(request)` — Streaming chat completions (SSE)
+- Tool calling with JSON schema validation and parallel tool execution
+- System messages, developer messages, multi-turn conversation history
+
+### Embeddings
+- `embed(request)` — Generate text embeddings
+- Batch embedding of multiple texts in a single request
+- Multiple embedding models and providers supported
+
+### Reranking
+- `rerank(request)` — Rerank documents by relevance to a query
+
+### Image Generation
+- `image_generate(request)` — Generate images from text prompts
+
+### Audio
+- `speech(request)` — Text-to-speech audio generation
+- `transcribe(request)` — Speech-to-text transcription
+
+### Content Moderation
+- `moderate(request)` — Classify content for policy violations
+
+### Model Discovery
 - `list_models()` — List available models for the configured provider
-- `ChatConfig` — Configure model, temperature, max tokens, tools, etc.
-- `ClientConfig` — Configure API key, base URL, timeouts, retry logic
 
-## Available From
+### File Operations
+- `create_file(request)` — Upload a file
+- `retrieve_file(file_id)` — Get file metadata
+- `delete_file(file_id)` — Delete a file
+- `list_files(query)` — List uploaded files
+- `file_content(file_id)` — Download file content
 
-Rust (crates.io), Python (PyPI), Node.js (npm), Go (pkg.go.dev), Java (Maven Central), C# (NuGet), Ruby (RubyGems), Elixir (Hex.pm), PHP (Packagist), WebAssembly (npm), C FFI
+### Batch Operations
+- `create_batch(request)` — Create a batch processing job
+- `retrieve_batch(batch_id)` — Get batch status
+- `list_batches(query)` — List batches
+- `cancel_batch(batch_id)` — Cancel a batch
 
-## Supported Providers
+### Responses API
+- `create_response(request)` — Create a response
+- `retrieve_response(id)` — Retrieve a response
+- `cancel_response(id)` — Cancel a response
 
-100+ providers including: OpenAI, Anthropic, Groq, Mistral, Cohere, Together AI, Fireworks, Perplexity, DeepSeek, Google Gemini, and many more.
+### Configuration
+- API key, base URL, timeouts, retries, custom headers
+- Provider auto-detection via model prefix (e.g. "openai/gpt-4o")
+- model_hint for pre-resolving provider at construction time
+- Cache configuration (max entries, TTL)
+- Budget tracking (global limit, per-model limits, enforcement)
+- Hook system for request/response/error lifecycle events
+- Custom provider registration
+
+## Supported Languages
+
+| Language | Package | Install |
+|----------|---------|---------|
+| Rust | crates.io/crates/liter-llm | `cargo add liter-llm` |
+| Python | pypi.org/project/liter-llm | `pip install liter-llm` |
+| TypeScript/Node.js | npmjs.com/package/@kreuzberg/liter-llm | `pnpm add @kreuzberg/liter-llm` |
+| Go | github.com/kreuzberg-dev/liter-llm/packages/go | `go get github.com/kreuzberg-dev/liter-llm/packages/go` |
+| Java | dev.kreuzberg:liter-llm (Maven) | `implementation("dev.kreuzberg:liter-llm:0.1.0")` |
+| C# / .NET | NuGet: LiterLlm | `dotnet add package LiterLlm` |
+| Ruby | RubyGems: liter_llm | `gem install liter_llm` |
+| Elixir | Hex: liter_llm | `{:liter_llm, "~> 0.1"}` in mix.exs |
+| PHP | Packagist: kreuzberg/liter-llm | `composer require kreuzberg/liter-llm` |
+| WebAssembly | npmjs.com/package/@kreuzberg/liter-llm-wasm | `pnpm add @kreuzberg/liter-llm-wasm` |
+| C / FFI | Build from source | `cargo build --release -p liter-llm-ffi` |
+
+## Supported Providers (142+)
+
+OpenAI, Anthropic, Google Gemini, Google Vertex AI, AWS Bedrock, Azure OpenAI,
+Groq, Mistral, Cohere, Together AI, Fireworks AI, Perplexity, DeepSeek,
+Cerebras, Cloudflare Workers AI, Ollama, Voyage AI, Jina AI, Hugging Face,
+Anyscale, Replicate, AI21, NLP Cloud, SambaNova, xAI, and 100+ more.
+
+Provider routing is automatic. Use model prefixes to switch providers:
+- `openai/gpt-4o` → OpenAI
+- `anthropic/claude-sonnet-4-20250514` → Anthropic
+- `groq/llama3-70b` → Groq
+- `google/gemini-2.0-flash` → Google AI
+
+## Usage Examples
+
+### Python — Basic Chat
+
+```python
+import asyncio
+import os
+from liter_llm import LlmClient
+
+async def main() -> None:
+    client = LlmClient(api_key=os.environ["OPENAI_API_KEY"])
+    response = await client.chat(
+        model="openai/gpt-4o",
+        messages=[{"role": "user", "content": "Hello!"}],
+    )
+    print(response.choices[0].message.content)
+
+asyncio.run(main())
+```
+
+### TypeScript — Streaming
+
+```typescript
+import { LlmClient } from "@kreuzberg/liter-llm";
+
+const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
+const chunks = await client.chatStream({
+  model: "openai/gpt-4o",
+  messages: [{ role: "user", content: "Tell me a story" }],
+});
+
+for (const chunk of chunks) {
+  process.stdout.write(chunk.choices[0]?.delta?.content ?? "");
+}
+console.log();
+```
+
+### Python — Tool Calling
+
+```python
+import asyncio
+import os
+from liter_llm import LlmClient
+
+async def main() -> None:
+    client = LlmClient(api_key=os.environ["OPENAI_API_KEY"])
+
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the current weather for a location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string", "description": "City name"},
+                    },
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
+
+    response = await client.chat(
+        model="openai/gpt-4o",
+        messages=[{"role": "user", "content": "What is the weather in Berlin?"}],
+        tools=tools,
+    )
+
+    choice = response.choices[0]
+    if choice.message.tool_calls:
+        for call in choice.message.tool_calls:
+            print(f"Tool: {call.function.name}, Args: {call.function.arguments}")
+
+asyncio.run(main())
+```
+
+### Go — Embeddings
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	llm "github.com/kreuzberg-dev/liter-llm/packages/go"
+)
+
+func main() {
+	client := llm.NewClient(llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
+	resp, err := client.Embed(context.Background(), &llm.EmbeddingRequest{
+		Model: "openai/text-embedding-3-small",
+		Input: llm.NewEmbeddingInputMultiple([]string{"The quick brown fox jumps over the lazy dog"}),
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Dimensions: %d\n", len(resp.Data[0].Embedding))
+	fmt.Printf("First 5 values: %v\n", resp.Data[0].Embedding[:5])
+}
+```

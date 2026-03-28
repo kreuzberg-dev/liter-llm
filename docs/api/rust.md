@@ -41,6 +41,8 @@ let client = DefaultClient::new(config, Some("gpt-4"))?;
 | `timeout(duration)` | Set request timeout (default: 60s) |
 | `credential_provider(provider)` | Set dynamic credential provider (Azure AD, Vertex OAuth2) |
 | `header(key, value)` | Add a custom header (native-http only) |
+| `cache(config)` | Enable response caching: `CacheConfig { max_entries: 256, ttl_seconds: 300 }` |
+| `budget(config)` | Enable budget tracking: `BudgetConfig { global_limit: Some(10.0), .. }` |
 | `build()` | Consume builder, return `ClientConfig` |
 
 ### `DefaultClient`
@@ -102,6 +104,54 @@ pub trait ResponseClient: Send + Sync {
     fn retrieve_response(&self, id: &str) -> BoxFuture<'_, ResponseObject>;
     fn cancel_response(&self, id: &str) -> BoxFuture<'_, ResponseObject>;
 }
+```
+
+### Provider Registration
+
+```rust
+use liter_llm::{register_custom_provider, unregister_custom_provider, CustomProviderConfig};
+
+register_custom_provider(CustomProviderConfig {
+    name: "my-provider".into(),
+    base_url: "https://my-llm.example.com/v1".into(),
+    auth_header: "Authorization".into(),
+    model_prefixes: vec!["my-provider/".into()],
+})?;
+
+// Remove later
+unregister_custom_provider("my-provider");
+```
+
+### Hooks
+
+Implement the `LlmHook` trait for lifecycle callbacks:
+
+```rust
+use liter_llm::LlmHook;
+
+struct LoggingHook;
+
+impl LlmHook for LoggingHook {
+    fn on_request(&self, request: &ChatCompletionRequest) -> Result<()> {
+        println!("Sending: {}", request.model);
+        Ok(())
+    }
+    fn on_response(&self, _request: &ChatCompletionRequest, response: &ChatCompletionResponse) {
+        if let Some(usage) = &response.usage {
+            println!("Tokens: {}", usage.total_tokens);
+        }
+    }
+    fn on_error(&self, _request: &ChatCompletionRequest, error: &LiterLlmError) {
+        eprintln!("Error: {error}");
+    }
+}
+```
+
+### Budget Tracking
+
+```rust
+let used = client.budget_used();
+println!("Budget used: ${used:.2}");
 ```
 
 ### Type Aliases

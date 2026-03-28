@@ -1,12 +1,12 @@
 ---
-description: "How to use chat completions, multi-turn conversations, and sampling parameters with liter-llm."
+description: "Chat completions, streaming, multi-turn conversations, and tool calling with liter-llm."
 ---
 
-# Chat Completions
-
-The `chat` method sends a list of messages to an LLM and returns a single response. This is the primary API for most use cases.
+# Chat & Streaming
 
 ## Basic Chat
+
+Send a message and get a response:
 
 === "Python"
 
@@ -16,13 +16,13 @@ The `chat` method sends a list of messages to an LLM and returns a single respon
 
     --8<-- "snippets/typescript/getting-started/basic_chat.md"
 
+=== "Rust"
+
+    --8<-- "snippets/rust/getting-started/basic_chat.md"
+
 === "Go"
 
     --8<-- "snippets/go/getting-started/basic_chat.md"
-
-=== "Ruby"
-
-    --8<-- "snippets/ruby/getting-started/basic_chat.md"
 
 === "Java"
 
@@ -32,29 +32,50 @@ The `chat` method sends a list of messages to an LLM and returns a single respon
 
     --8<-- "snippets/csharp/getting-started/basic_chat.md"
 
-=== "Elixir"
+=== "Ruby"
 
-    --8<-- "snippets/elixir/getting-started/basic_chat.md"
+    --8<-- "snippets/ruby/getting-started/basic_chat.md"
 
 === "PHP"
 
     --8<-- "snippets/php/getting-started/basic_chat.md"
 
-## Message Roles
+=== "Elixir"
 
-Messages use the OpenAI-compatible role system:
+    --8<-- "snippets/elixir/getting-started/basic_chat.md"
+
+=== "WASM"
+
+    --8<-- "snippets/wasm/getting-started/basic_chat.md"
+
+## Provider Routing
+
+liter-llm uses a `provider/model` prefix convention. The prefix determines which API endpoint, auth header, and parameter mappings to use:
+
+```text
+openai/gpt-4o            -> OpenAI
+anthropic/claude-sonnet-4-20250514  -> Anthropic
+groq/llama3-70b          -> Groq
+google/gemini-2.0-flash  -> Google AI
+mistral/mistral-large    -> Mistral
+bedrock/anthropic.claude-v2 -> AWS Bedrock
+```
+
+Switch providers by changing the model string -- no other code changes needed.
+
+## Message Roles
 
 | Role | Purpose |
 | --- | --- |
-| `system` | Sets the assistant's behavior and persona. Sent once at the start. |
-| `user` | User input -- questions, instructions, data to process. |
-| `assistant` | Previous assistant responses. Include these for multi-turn context. |
-| `tool` | Results from tool calls. Sent after the assistant requests a tool invocation. |
-| `developer` | Developer-level instructions (supported by some providers). |
+| `system` | Sets the assistant's behavior. Sent once at the start. |
+| `user` | User input -- questions, instructions, data. |
+| `assistant` | Previous assistant responses for multi-turn context. |
+| `tool` | Results from tool calls. |
+| `developer` | Developer-level instructions (some providers). |
 
 ## Multi-Turn Conversations
 
-To continue a conversation, append the assistant's response and the next user message to the messages list, then call `chat` again.
+Append the assistant's response and the next user message, then call `chat` again:
 
 === "Python"
 
@@ -64,83 +85,131 @@ To continue a conversation, append the assistant's response and the next user me
 
     --8<-- "snippets/typescript/guides/chat_multiturn.md"
 
+=== "Rust"
+
+    --8<-- "snippets/rust/usage/chat_multiturn.md"
+
 === "Go"
 
     --8<-- "snippets/go/guides/chat_multiturn.md"
 
-## Sampling Parameters
+=== "Java"
 
-Control response generation with these parameters:
+    --8<-- "snippets/java/usage/chat_multiturn.md"
 
-| Parameter | Type | Default | Description |
-| --- | --- | --- | --- |
-| `temperature` | float | 1.0 | Randomness. 0 = deterministic, 2 = very random. |
-| `top_p` | float | 1.0 | Nucleus sampling. 0.1 = only top 10% probability mass. |
-| `max_tokens` | int | model default | Maximum tokens in the response. |
-| `n` | int | 1 | Number of completions to generate. |
-| `stop` | string/list | none | Stop sequences. Generation stops when any is encountered. |
-| `presence_penalty` | float | 0 | Penalize tokens that have appeared. Range: -2.0 to 2.0. |
-| `frequency_penalty` | float | 0 | Penalize tokens by frequency. Range: -2.0 to 2.0. |
-| `seed` | int | none | For deterministic outputs (provider support varies). |
-| `reasoning_effort` | string | none | Hint for reasoning models (e.g. `"low"`, `"medium"`, `"high"`). |
+=== "C#"
 
-```python
-response = await client.chat(
-    model="openai/gpt-4o",
-    messages=[{"role": "user", "content": "Write a haiku about Rust"}],
-    temperature=0.7,
-    max_tokens=100,
-    top_p=0.9,
-)
-print(response.choices[0].message.content)
-```
+    --8<-- "snippets/csharp/usage/chat_multiturn.md"
 
-!!! note "Parameter support varies by provider"
-    Not all providers support all parameters. Unsupported parameters are silently ignored by most providers. Check your provider's documentation for specifics.
+=== "Ruby"
 
-## Token Usage
+    --8<-- "snippets/ruby/usage/chat_multiturn.md"
 
-Every `ChatCompletionResponse` includes a `usage` field with token counts:
+=== "PHP"
 
-```python
-response = await client.chat(
-    model="openai/gpt-4o",
-    messages=[{"role": "user", "content": "Hello!"}],
-)
-if response.usage:
-    print(f"Prompt tokens:     {response.usage.prompt_tokens}")
-    print(f"Completion tokens: {response.usage.completion_tokens}")
-    print(f"Total tokens:      {response.usage.total_tokens}")
-```
+    --8<-- "snippets/php/usage/chat_multiturn.md"
 
-## Cost Estimation
+=== "Elixir"
 
-In Rust, the response includes an `estimated_cost()` method that calculates the approximate USD cost based on embedded pricing data for the provider and model:
+    --8<-- "snippets/elixir/usage/chat_multiturn.md"
 
-```rust
-if let Some(cost) = response.estimated_cost() {
-    println!("Estimated cost: ${cost:.6}");
-}
-```
+=== "WASM"
 
-!!! tip "Cost tracking at scale"
-    For production cost tracking, use the [CostTrackingLayer](../concepts/architecture.md#tower-middleware-stack) Tower middleware, which emits cost data as OpenTelemetry span attributes.
+    --8<-- "snippets/wasm/usage/chat_multiturn.md"
 
-## Response Format
+## Streaming
 
-Use `response_format` to request structured output:
+Stream tokens as they arrive instead of waiting for the full response:
 
-```python
-response = await client.chat(
-    model="openai/gpt-4o",
-    messages=[{"role": "user", "content": "List 3 colors as JSON"}],
-    response_format={"type": "json_object"},
-)
-```
+=== "Python"
+
+    --8<-- "snippets/python/getting-started/streaming.md"
+
+=== "TypeScript"
+
+    --8<-- "snippets/typescript/getting-started/streaming.md"
+
+=== "Rust"
+
+    --8<-- "snippets/rust/getting-started/streaming.md"
+
+=== "Go"
+
+    --8<-- "snippets/go/getting-started/streaming.md"
+
+=== "Java"
+
+    --8<-- "snippets/java/getting-started/streaming.md"
+
+=== "C#"
+
+    --8<-- "snippets/csharp/getting-started/streaming.md"
+
+=== "Ruby"
+
+    --8<-- "snippets/ruby/getting-started/streaming.md"
+
+=== "PHP"
+
+    --8<-- "snippets/php/getting-started/streaming.md"
+
+=== "Elixir"
+
+    --8<-- "snippets/elixir/getting-started/streaming.md"
+
+=== "WASM"
+
+    --8<-- "snippets/wasm/getting-started/streaming.md"
+
+Each chunk contains `choices[].delta.content` with incremental text. The final chunk includes `finish_reason: "stop"`.
+
+### Collecting the Full Response
+
+Accumulate deltas to get both real-time output and the complete text:
+
+=== "Python"
+
+    --8<-- "snippets/python/guides/stream_collect.md"
+
+=== "TypeScript"
+
+    --8<-- "snippets/typescript/guides/stream_collect.md"
+
+=== "Rust"
+
+    --8<-- "snippets/rust/usage/stream_collect.md"
+
+=== "Go"
+
+    --8<-- "snippets/go/guides/stream_collect.md"
+
+=== "Java"
+
+    --8<-- "snippets/java/usage/stream_collect.md"
+
+=== "C#"
+
+    --8<-- "snippets/csharp/usage/stream_collect.md"
+
+=== "Ruby"
+
+    --8<-- "snippets/ruby/usage/stream_collect.md"
+
+=== "PHP"
+
+    --8<-- "snippets/php/usage/stream_collect.md"
+
+=== "Elixir"
+
+    --8<-- "snippets/elixir/usage/stream_collect.md"
+
+=== "WASM"
+
+    --8<-- "snippets/wasm/usage/stream_collect.md"
 
 ## Tool Calling
 
-Pass tools to let the model invoke functions. See the tool calling example:
+Define tools as JSON schema functions. The model can request tool calls, which you execute and return results for:
 
 === "Python"
 
@@ -149,3 +218,55 @@ Pass tools to let the model invoke functions. See the tool calling example:
 === "TypeScript"
 
     --8<-- "snippets/typescript/getting-started/tool_calling.md"
+
+=== "Rust"
+
+    --8<-- "snippets/rust/usage/tool_calling.md"
+
+=== "Go"
+
+    --8<-- "snippets/go/usage/tool_calling.md"
+
+=== "Java"
+
+    --8<-- "snippets/java/usage/tool_calling.md"
+
+=== "C#"
+
+    --8<-- "snippets/csharp/usage/tool_calling.md"
+
+=== "Ruby"
+
+    --8<-- "snippets/ruby/usage/tool_calling.md"
+
+=== "PHP"
+
+    --8<-- "snippets/php/usage/tool_calling.md"
+
+=== "Elixir"
+
+    --8<-- "snippets/elixir/usage/tool_calling.md"
+
+=== "WASM"
+
+    --8<-- "snippets/wasm/usage/tool_calling.md"
+
+## Chat Parameters
+
+All chat parameters work with both `chat` and `chat_stream`:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `model` | string | Provider/model identifier (e.g. `"openai/gpt-4o"`) |
+| `messages` | array | Conversation messages |
+| `temperature` | float | Sampling temperature (0.0-2.0) |
+| `max_tokens` | int | Maximum tokens to generate |
+| `top_p` | float | Nucleus sampling threshold |
+| `n` | int | Number of completions to generate |
+| `stop` | string/array | Stop sequences |
+| `tools` | array | Tool/function definitions |
+| `tool_choice` | string/object | Tool selection strategy |
+| `response_format` | object | Force JSON output (`{"type": "json_object"}`) |
+| `seed` | int | Deterministic sampling seed |
+| `presence_penalty` | float | Penalize new topics (-2.0 to 2.0) |
+| `frequency_penalty` | float | Penalize repetition (-2.0 to 2.0) |

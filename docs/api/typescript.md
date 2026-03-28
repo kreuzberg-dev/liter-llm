@@ -35,6 +35,9 @@ const client = new LlmClient({
 | `modelHint` | `string \| undefined` | `undefined` | Hint for provider auto-detection (e.g. `"groq/llama3-70b"`) |
 | `maxRetries` | `number \| undefined` | `3` | Retries on 429 / 5xx responses |
 | `timeoutSecs` | `number \| undefined` | `60` | Request timeout in seconds |
+| `cache` | `CacheOptions \| undefined` | `undefined` | Cache config: `{ maxEntries: 256, ttlSeconds: 300 }` |
+| `budget` | `BudgetOptions \| undefined` | `undefined` | Budget config: `{ globalLimit: 10.0, modelLimits: {}, enforcement: "hard" }` |
+| `extraHeaders` | `Record<string, string> \| undefined` | `undefined` | Additional HTTP headers |
 
 ### Methods
 
@@ -226,6 +229,49 @@ Cancel an in-progress response.
 async cancelResponse(id: string): Promise<object>
 ```
 
+#### `registerProvider(config)`
+
+Register a custom provider for self-hosted or unsupported LLM endpoints.
+
+```typescript
+client.registerProvider({
+  name: "my-provider",
+  baseUrl: "https://my-llm.example.com/v1",
+  authHeader: "Authorization",
+  modelPrefixes: ["my-provider/"],
+});
+```
+
+#### `unregisterProvider(name)`
+
+Remove a previously registered custom provider. Returns `true` if found and removed.
+
+```typescript
+const removed = client.unregisterProvider("my-provider");
+```
+
+#### `addHook(hook)`
+
+Register a lifecycle hook for request/response/error events.
+
+```typescript
+client.addHook({
+  onRequest(req) { console.log(`Sending: ${req.model}`); },
+  onResponse(req, res) { console.log(`Tokens: ${res.usage?.totalTokens}`); },
+  onError(req, err) { console.error(`Error: ${err}`); },
+});
+```
+
+All callbacks are optional, fire-and-forget, and can be sync or async.
+
+#### `budgetUsed`
+
+Getter returning the total spend in USD so far.
+
+```typescript
+console.log(`Budget used: $${client.budgetUsed.toFixed(2)}`);
+```
+
 ### Module Functions
 
 #### `version()`
@@ -260,6 +306,44 @@ Response objects are plain JavaScript objects with camelCase keys.
 | `choices` | `StreamChoice[]` | Stream choices with deltas |
 | `usage` | `Usage \| undefined` | Token usage (final chunk only) |
 
+### Choice
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `index` | `number` | Choice index |
+| `message` | `AssistantMessage` | The assistant's message |
+| `finishReason` | `string \| null` | Why generation stopped (`stop`, `length`, `tool_calls`) |
+
+### AssistantMessage
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `content` | `string \| null` | Text content |
+| `toolCalls` | `ToolCall[] \| undefined` | Tool calls made by the assistant |
+| `refusal` | `string \| null` | Refusal message |
+
+### Usage
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `promptTokens` | `number` | Tokens consumed by the prompt |
+| `completionTokens` | `number` | Tokens consumed by the completion |
+| `totalTokens` | `number` | Total tokens |
+
+### EmbeddingResponse
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | `EmbeddingObject[]` | Embedding vectors |
+| `model` | `string` | Model used |
+| `usage` | `Usage` | Token usage |
+
+### ModelsListResponse
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | `ModelObject[]` | Available models |
+
 ## Error Handling
 
 Errors are thrown as JavaScript `Error` objects. The message includes a bracketed label for the error category:
@@ -275,7 +359,22 @@ try {
 }
 ```
 
-Error categories: `Authentication`, `RateLimited`, `BadRequest`, `ContextWindowExceeded`, `ContentPolicy`, `NotFound`, `ServerError`, `ServiceUnavailable`, `Timeout`, `Network`, `Streaming`, `EndpointNotSupported`, `InvalidHeader`, `Serialization`.
+| Category | Trigger |
+|----------|---------|
+| `Authentication` | API key rejected (HTTP 401/403) |
+| `RateLimited` | Rate limit exceeded (HTTP 429) |
+| `BadRequest` | Malformed request (HTTP 400) |
+| `ContextWindowExceeded` | Prompt exceeds context window |
+| `ContentPolicy` | Content policy violation |
+| `NotFound` | Model/resource not found (HTTP 404) |
+| `ServerError` | Provider 5xx error |
+| `ServiceUnavailable` | Provider temporarily unavailable (HTTP 502/503) |
+| `Timeout` | Request timed out |
+| `Network` | Network-level failure |
+| `Streaming` | Error reading streaming response |
+| `EndpointNotSupported` | Provider does not support the endpoint |
+| `InvalidHeader` | Custom header name or value is invalid |
+| `Serialization` | JSON serialization/deserialization failure |
 
 ## Example
 
