@@ -1474,15 +1474,17 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - uses: kreuzberg-dev/actions/setup-maven@v1
+      - name: Patch legacy Maven GPG arguments
+        run: scripts/publish/patch-maven-gpg-args.sh packages/java/pom.xml
+        shell: bash
       - uses: kreuzberg-dev/actions/publish-maven@v1
         with:
           pom-file: packages/java/pom.xml
           dry-run: ${{ needs.prepare.outputs.dry_run }}
         env:
-          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
-          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
   publish-hex:
     name: Publish Hex.pm
