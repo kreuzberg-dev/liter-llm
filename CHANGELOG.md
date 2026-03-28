@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc.6] - 2026-03-28
+
+### Added
+
+- **Documentation: full API coverage** — search/OCR usage page, 20 new snippets, 6 new configuration sections (cache backends, cooldown, rate limiting, health checks, cost tracking, tracing) with all 10 language tabs
+- All 11 API reference docs updated with `search()`, `ocr()` methods and 5 new constructor params
+- Rust crate README generated from Jinja templates — fixes missing README on crates.io
+- Version sync script now updates `readme_config.yaml` and auto-regenerates all READMEs
+- `readme_config.yaml` Rust language entry with full feature set
+
+### Changed
+
+- `llms.txt` updated with search, OCR, OpenDAL cache, and middleware capabilities
+
 ## [1.0.0-rc.5] - 2026-03-28
 
 ### Added
