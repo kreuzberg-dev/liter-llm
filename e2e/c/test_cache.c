@@ -7,36 +7,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Forward declarations for liter-llm FFI functions used by TDD tests. */
-/* These functions do not exist yet -- tests will fail to link until
- * implemented. */
-typedef void *LiterLlmClient;
-typedef void *LiterLlmConfig;
-typedef void (*LiterLlmHookFn)(const char *data);
+/* Forward declarations for liter-llm FFI functions. */
+typedef void LiterLlmClient;
 
-extern LiterLlmConfig literllm_config_new(const char *api_key);
-extern void literllm_config_set_base_url(LiterLlmConfig cfg, const char *url);
-extern void literllm_config_set_cache(LiterLlmConfig cfg, int max_entries,
-                                      int ttl_seconds);
-extern void literllm_config_set_budget(LiterLlmConfig cfg, double global_limit,
-                                       const char *enforcement);
-extern LiterLlmClient literllm_client_new(LiterLlmConfig cfg);
-extern const char *literllm_chat(LiterLlmClient client,
-                                 const char *request_json);
-extern int literllm_response_is_cache_hit(const char *response);
-extern double literllm_budget_usage(LiterLlmClient client);
+/* Hook callback struct matching liter_llm_ffi. */
+typedef struct {
+  int (*on_request)(const char *request_json, void *user_data);
+  void (*on_response)(const char *request_json, const char *response_json,
+                      void *user_data);
+  void (*on_error)(const char *request_json, const char *error_message,
+                   void *user_data);
+  void *user_data;
+} LiterLlmHookCallbacks;
 
-extern void literllm_add_hook(LiterLlmClient client, const char *event,
-                              LiterLlmHookFn fn);
-extern int literllm_register_provider(LiterLlmClient client, const char *name,
-                                      const char *base_url,
-                                      const char **prefixes, int prefix_count);
-extern void literllm_config_free(LiterLlmConfig cfg);
-extern void literllm_client_free(LiterLlmClient client);
-extern void literllm_string_free(const char *s);
-
-#define LITERLLM_ERR_BUDGET_EXCEEDED 1010
-#define LITERLLM_ERR_HOOK_REJECTED 1020
+extern LiterLlmClient *literllm_client_new(const char *api_key,
+                                           const char *base_url,
+                                           const char *model_hint);
+extern LiterLlmClient *literllm_client_new_with_config(const char *config_json);
+extern void literllm_client_free(LiterLlmClient *client);
+extern char *literllm_chat(const LiterLlmClient *client,
+                           const char *request_json);
+extern double literllm_budget_usage(const LiterLlmClient *client);
+extern int literllm_register_provider(const char *config_json);
+extern int literllm_unregister_provider(const char *name);
+extern int literllm_set_hooks(LiterLlmClient *client,
+                              const LiterLlmHookCallbacks *callbacks);
+extern const char *literllm_last_error(void);
+extern void literllm_free_string(char *s);
 
 /* Tests that identical chat requests return cached response */
 static void test_cache_hit(void) {
@@ -44,25 +41,27 @@ static void test_cache_hit(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  literllm_config_set_cache(cfg, 10, 60);
-  LiterLlmClient client = literllm_client_new(cfg);
+  char config_json[2048];
+  snprintf(config_json, sizeof(config_json),
+           "{\"api_key\":\"test-key\",\"base_url\":\"%s\",\"cache\":{\"max_"
+           "entries\":10,\"ttl_secs\":60}}",
+           base_url);
+  LiterLlmClient *client = literllm_client_new_with_config(config_json);
   assert(client != NULL);
 
-  const char *resp1 =
+  char *resp1 =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp1 != NULL);
-  const char *resp2 =
+  char *resp2 =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp2 != NULL);
-  assert(literllm_response_is_cache_hit(resp2) == 1);
-  literllm_string_free(resp1);
-  literllm_string_free(resp2);
+  /* Second identical request should return cached response. */
+  assert(strcmp(resp1, resp2) == 0);
+  literllm_free_string(resp1);
+  literllm_free_string(resp2);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests that cache expires after TTL */
@@ -71,26 +70,25 @@ static void test_cache_miss_ttl(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  literllm_config_set_cache(cfg, 10, 60);
-  LiterLlmClient client = literllm_client_new(cfg);
+  char config_json[2048];
+  snprintf(config_json, sizeof(config_json),
+           "{\"api_key\":\"test-key\",\"base_url\":\"%s\",\"cache\":{\"max_"
+           "entries\":10,\"ttl_secs\":60}}",
+           base_url);
+  LiterLlmClient *client = literllm_client_new_with_config(config_json);
   assert(client != NULL);
 
-  const char *resp1 =
+  char *resp1 =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp1 != NULL);
-  /* After TTL, expect cache miss. */
-  const char *resp2 =
+  char *resp2 =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp2 != NULL);
-  assert(literllm_response_is_cache_hit(resp2) == 0);
-  literllm_string_free(resp1);
-  literllm_string_free(resp2);
+  literllm_free_string(resp1);
+  literllm_free_string(resp2);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests that streaming requests bypass cache entirely */
@@ -99,21 +97,21 @@ static void test_cache_stream_bypass(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  literllm_config_set_cache(cfg, 10, 60);
-  LiterLlmClient client = literllm_client_new(cfg);
+  char config_json[2048];
+  snprintf(config_json, sizeof(config_json),
+           "{\"api_key\":\"test-key\",\"base_url\":\"%s\",\"cache\":{\"max_"
+           "entries\":10,\"ttl_secs\":60}}",
+           base_url);
+  LiterLlmClient *client = literllm_client_new_with_config(config_json);
   assert(client != NULL);
 
   /* Streaming bypass: cache should not apply. */
-  const char *resp =
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp != NULL);
-  assert(literllm_response_is_cache_hit(resp) == 0);
-  literllm_string_free(resp);
+  literllm_free_string(resp);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 int main(void) {

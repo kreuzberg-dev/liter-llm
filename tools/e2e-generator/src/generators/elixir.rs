@@ -693,7 +693,7 @@ fn write_budget_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
                 writeln!(out, "    # Verify cost was tracked after the request").unwrap();
                 writeln!(
                     out,
-                    "    assert LiterLlm.total_cost(client) > 0, \"Expected cost to be tracked\""
+                    "    assert LiterLlm.Budget.global_spend() > 0, \"Expected cost to be tracked\""
                 )
                 .unwrap();
             }

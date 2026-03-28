@@ -840,7 +840,11 @@ fn write_budget_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
             writeln!(out, "    assert response is not None").unwrap();
             if fixture.assertions.cost_tracked == Some(true) {
                 writeln!(out, "    # Verify cost was tracked after the request").unwrap();
-                writeln!(out, "    assert client.total_cost > 0, \"Expected cost to be tracked\"").unwrap();
+                writeln!(
+                    out,
+                    "    assert client.budget_used > 0, \"Expected cost to be tracked\""
+                )
+                .unwrap();
             }
         }
 
@@ -1072,6 +1076,16 @@ fn write_custom_provider_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
         if let Some(model) = fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()) {
             writeln!(out, "    assert response.model == {model:?}, \"model mismatch\"").unwrap();
         }
+
+        // Cleanup: unregister the custom provider.
+        let provider_name = fixture
+            .client_config
+            .custom_provider
+            .as_ref()
+            .and_then(|v| v.get("name"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("my-provider");
+        writeln!(out, "    client.unregister_provider({provider_name:?})").unwrap();
 
         writeln!(out).unwrap();
     }

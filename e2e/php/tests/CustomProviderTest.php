@@ -12,7 +12,6 @@ require_once __DIR__ . '/Helpers.php';
 
 final class CustomProviderTest extends TestCase
 {
-
     /** Tests custom provider with custom auth header */
     public function testProviderAuth(): void
     {
@@ -29,21 +28,15 @@ final class CustomProviderTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        // TDD: Custom provider tests -- will fail until custom provider registration is implemented.
-        $config = new LlmClient(
-            'api_key' => 'test-key',
-        ]);
-        $client = new LlmClient($config);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $client->registerProvider([
-            'name' => 'my-auth-provider',
-            'base_url' => $mockUrl,
-            'model_prefixes' => ['my-auth-'],
-        ]);
+        $providerJson = str_replace('"PLACEHOLDER"', json_encode($mockUrl), '{"auth_header":"api-key:X-Custom-Key","base_url":"PLACEHOLDER","model_prefixes":["my-auth-"],"name":"my-auth-provider"}');
+        \liter_llm_register_provider($providerJson);
 
-        $request = '{"messages":[{"content":"Hello","role":"user"}],"model":"my-auth-model-v1"}';
-        $resp = $client->chat($request);
+        $resp = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"my-auth-model-v1"}');
         $this->assertNotNull($resp, 'Expected response from custom provider');
+
+        \liter_llm_unregister_provider('my-auth-provider');
         $server->stop();
     }
 
@@ -63,21 +56,15 @@ final class CustomProviderTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        // TDD: Custom provider tests -- will fail until custom provider registration is implemented.
-        $config = new LlmClient(
-            'api_key' => 'test-key',
-        ]);
-        $client = new LlmClient($config);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $client->registerProvider([
-            'name' => 'my-provider',
-            'base_url' => $mockUrl,
-            'model_prefixes' => ['my-'],
-        ]);
+        $providerJson = str_replace('"PLACEHOLDER"', json_encode($mockUrl), '{"base_url":"PLACEHOLDER","model_prefixes":["my-"],"name":"my-provider"}');
+        \liter_llm_register_provider($providerJson);
 
-        $request = '{"messages":[{"content":"Hello","role":"user"}],"model":"my-model-v1"}';
-        $resp = $client->chat($request);
+        $resp = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"my-model-v1"}');
         $this->assertNotNull($resp, 'Expected response from custom provider');
+
+        \liter_llm_unregister_provider('my-provider');
         $server->stop();
     }
 }

@@ -5,6 +5,8 @@ import static dev.kreuzberg.literllm.Types.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 /**
  * HTTP client for the liter-llm unified LLM API.
@@ -88,27 +91,33 @@ public final class LlmClient implements AutoCloseable {
 
 	// ─── Budget State ─────────────────────────────────────────────────────────
 
-	/** Global spend tracked in microcents (1 USD = 100_000_000 microcents) for precision. */
+	/**
+	 * Global spend tracked in microcents (1 USD = 100_000_000 microcents) for
+	 * precision.
+	 */
 	private final AtomicLong globalSpendMicrocents = new AtomicLong();
 
 	/** Per-model spend in microcents. */
-	private final ConcurrentHashMap<String, AtomicLong> modelSpendMicrocents = new ConcurrentHashMap<>();
+	private final Map<String, AtomicLong> modelSpendMicrocents = new ConcurrentHashMap<>();
 
-	/** Approximate pricing in USD per million tokens: [promptPer1M, completionPer1M]. */
+	/**
+	 * Approximate pricing in USD per million tokens: [promptPer1M,
+	 * completionPer1M].
+	 */
 	private static final Map<String, double[]> MODEL_PRICING = Map.ofEntries(
-			Map.entry("gpt-4o", new double[] { 2.50, 10.00 }),
-			Map.entry("gpt-4o-mini", new double[] { 0.15, 0.60 }),
-			Map.entry("gpt-4-turbo", new double[] { 10.00, 30.00 }),
-			Map.entry("gpt-4", new double[] { 30.00, 60.00 }),
-			Map.entry("gpt-3.5-turbo", new double[] { 0.50, 1.50 }),
-			Map.entry("claude-3-opus", new double[] { 15.00, 75.00 }),
-			Map.entry("claude-3-sonnet", new double[] { 3.00, 15.00 }),
-			Map.entry("claude-3-haiku", new double[] { 0.25, 1.25 }));
+			Map.entry("gpt-4o", new double[]{2.50, 10.00}), Map.entry("gpt-4o-mini", new double[]{0.15, 0.60}),
+			Map.entry("gpt-4-turbo", new double[]{10.00, 30.00}), Map.entry("gpt-4", new double[]{30.00, 60.00}),
+			Map.entry("gpt-3.5-turbo", new double[]{0.50, 1.50}),
+			Map.entry("claude-3-opus", new double[]{15.00, 75.00}),
+			Map.entry("claude-3-sonnet", new double[]{3.00, 15.00}),
+			Map.entry("claude-3-haiku", new double[]{0.25, 1.25}));
 
-	private static final double[] FALLBACK_PRICING = { 1.00, 2.00 };
+	private static final double[] FALLBACK_PRICING = {1.00, 2.00};
 
 	/** Microcents per USD. */
 	private static final long MICROCENTS_PER_USD = 100_000_000L;
+	private static final float LRU_LOAD_FACTOR = 0.75f;
+	private static final double TOKENS_PER_MILLION = 1_000_000.0;
 
 	private LlmClient(Builder builder) {
 		this.apiKey = builder.apiKey;
@@ -124,12 +133,13 @@ public final class LlmClient implements AutoCloseable {
 		// Initialize LRU cache if caching is enabled.
 		if (cacheConfig != null) {
 			final int maxEntries = cacheConfig.maxEntries();
-			this.responseCache = java.util.Collections.synchronizedMap(new LinkedHashMap<>(maxEntries, 0.75f, true) {
-				@Override
-				protected boolean removeEldestEntry(Map.Entry<String, CacheEntry> eldest) {
-					return size() > maxEntries;
-				}
-			});
+			this.responseCache = java.util.Collections
+					.synchronizedMap(new LinkedHashMap<>(maxEntries, LRU_LOAD_FACTOR, true) {
+						@Override
+						protected boolean removeEldestEntry(Map.Entry<String, CacheEntry> eldest) {
+							return size() > maxEntries;
+						}
+					});
 		} else {
 			this.responseCache = null;
 		}
@@ -173,6 +183,60 @@ public final class LlmClient implements AutoCloseable {
 
 			runOnResponse(request, response);
 			return response;
+		} catch (LlmException e) {
+			runOnError(request, e);
+			throw e;
+		}
+	}
+
+	/**
+	 * Sends a streaming chat completion request, invoking the callback for each
+	 * chunk received via server-sent events (SSE).
+	 *
+	 * <p>
+	 * The {@code stream} field on the request is forced to {@code true}. Streaming
+	 * bypasses the response cache.
+	 *
+	 * <h2>Example</h2>
+	 *
+	 * <pre>{@code
+	 * var request = ChatCompletionRequest.builder("gpt-4o-mini", List.of(new Types.UserMessage("Hello!"))).maxTokens(256L)
+	 * 		.build();
+	 * client.chatStream(request, chunk -> {
+	 * 	for (var choice : chunk.choices()) {
+	 * 		if (choice.delta().content() != null) {
+	 * 			System.out.print(choice.delta().content());
+	 * 		}
+	 * 	}
+	 * });
+	 * }</pre>
+	 *
+	 * @param request
+	 *            the chat completion request
+	 * @param onChunk
+	 *            callback invoked for each {@link ChatCompletionChunk} received;
+	 *            must not be {@code null}
+	 * @throws LlmException
+	 *             if the request fails or the stream cannot be parsed
+	 * @throws IllegalArgumentException
+	 *             if {@code onChunk} is {@code null}
+	 */
+	public void chatStream(ChatCompletionRequest request, Consumer<ChatCompletionChunk> onChunk) throws LlmException {
+		if (onChunk == null) {
+			throw new IllegalArgumentException("onChunk callback must not be null");
+		}
+		checkBudget(request.model());
+		runOnRequest(request);
+		try {
+			// Force stream=true by creating a copy with the stream flag set.
+			ChatCompletionRequest streamRequest = new ChatCompletionRequest(request.model(), request.messages(),
+					request.temperature(), request.topP(), request.n(), Boolean.TRUE, request.stop(),
+					request.maxTokens(), request.presencePenalty(), request.frequencyPenalty(), request.logitBias(),
+					request.user(), request.tools(), request.toolChoice(), request.parallelToolCalls(),
+					request.responseFormat(), request.streamOptions(), request.seed());
+			String body = serialize(streamRequest);
+			postStream("/chat/completions", body, onChunk);
+			runOnResponse(request, null);
 		} catch (LlmException e) {
 			runOnError(request, e);
 			throw e;
@@ -791,8 +855,8 @@ public final class LlmClient implements AutoCloseable {
 				if (modelMicrocents != null) {
 					double modelSpendUsd = modelMicrocents.get() / (double) MICROCENTS_PER_USD;
 					if (modelSpendUsd >= modelLimit) {
-						throw new BudgetExceededException(String.format("model \"%s\" spend $%.6f >= limit $%.6f", model,
-								modelSpendUsd, modelLimit));
+						throw new BudgetExceededException(String.format("model \"%s\" spend $%.6f >= limit $%.6f",
+								model, modelSpendUsd, modelLimit));
 					}
 				}
 			}
@@ -817,8 +881,8 @@ public final class LlmClient implements AutoCloseable {
 
 	private static double estimateCost(String model, Usage usage) {
 		double[] pricing = lookupPricing(model);
-		double promptCost = usage.promptTokens() * pricing[0] / 1_000_000.0;
-		double completionCost = usage.completionTokens() * pricing[1] / 1_000_000.0;
+		double promptCost = usage.promptTokens() * pricing[0] / TOKENS_PER_MILLION;
+		double completionCost = usage.completionTokens() * pricing[1] / TOKENS_PER_MILLION;
 		return promptCost + completionCost;
 	}
 
@@ -909,9 +973,50 @@ public final class LlmClient implements AutoCloseable {
 		return executeWithRetryBytes(request);
 	}
 
+	/**
+	 * Sends a POST request and processes the response as an SSE stream, parsing
+	 * each {@code data:} line as a {@link ChatCompletionChunk} and forwarding it to
+	 * the callback.
+	 */
+	private void postStream(String path, String body, Consumer<ChatCompletionChunk> onChunk) throws LlmException {
+		var request = HttpRequest.newBuilder().uri(URI.create(baseUrl + path))
+				.header("Authorization", "Bearer " + apiKey).header("Content-Type", "application/json")
+				.header("Accept", "text/event-stream").POST(HttpRequest.BodyPublishers.ofString(body)).build();
+
+		try {
+			var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+			int status = response.statusCode();
+			if (status < HTTP_OK_MIN || status >= HTTP_OK_MAX) {
+				String errorBody = new String(response.body().readAllBytes(), StandardCharsets.UTF_8);
+				throw classifyHttpError(status, errorBody);
+			}
+			try (var reader = new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					if (!line.startsWith("data:")) {
+						continue;
+					}
+					String payload = line.substring("data:".length()).trim();
+					if ("[DONE]".equals(payload)) {
+						break;
+					}
+					ChatCompletionChunk chunk = deserialize(payload, ChatCompletionChunk.class);
+					onChunk.accept(chunk);
+				}
+			}
+		} catch (LlmException e) {
+			throw e;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new LlmException.StreamException("stream interrupted", e);
+		} catch (java.io.IOException e) {
+			throw new LlmException.StreamException("stream I/O error: " + e.getMessage(), e);
+		}
+	}
+
 	private byte[] executeWithRetryBytes(HttpRequest request) throws LlmException {
 		return executeWithRetry(request, HttpResponse.BodyHandlers.ofByteArray(),
-				body -> new String(body, java.nio.charset.StandardCharsets.UTF_8));
+				body -> new String(body, StandardCharsets.UTF_8));
 	}
 
 	private String executeWithRetry(HttpRequest request) throws LlmException {
@@ -1096,7 +1201,7 @@ public final class LlmClient implements AutoCloseable {
 		 * Sets the connection timeout.
 		 *
 		 * <p>
-		 * Defaults to {@value} 60 seconds.
+		 * Defaults to 60 seconds.
 		 *
 		 * @param timeout
 		 *            positive duration

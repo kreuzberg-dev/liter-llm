@@ -38,6 +38,7 @@ web-sys = { version = "0.3", features = [
     "Response",
     "Window",
     "ReadableStream",
+    "ReadableStreamDefaultReader",
 ] }
 
 [dev-dependencies]

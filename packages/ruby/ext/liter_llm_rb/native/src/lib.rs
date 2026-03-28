@@ -36,7 +36,7 @@ use std::sync::{Arc, LazyLock, Mutex};
 use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement, LlmHook, LlmRequest, LlmResponse};
 use liter_llm::{
     AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, FileClient, LiterLlmError,
-    LlmClient, ManagedClient, ResponseClient, register_custom_provider,
+    LlmClient, ManagedClient, ResponseClient, register_custom_provider, unregister_custom_provider,
 };
 use magnus::{Error, RHash, Ruby, TryConvert, function, method, prelude::*};
 
@@ -824,6 +824,83 @@ impl RubyLlmClient {
         })
     }
 
+    /// Stream a chat completion request, collecting all chunks.
+    ///
+    /// Returns a JSON array of serialised `ChatCompletionChunk` objects.
+    /// Each element is the JSON for one SSE chunk. Ruby callers can iterate
+    /// with `JSON.parse(result).each { |chunk| ... }`.
+    ///
+    /// @param request_json [String] JSON-encoded OpenAI-compatible chat request.
+    /// @return [String] JSON-encoded array of chat completion chunks.
+    fn chat_stream(&self, request_json: String) -> Result<String, Error> {
+        use futures_core::Stream;
+        use std::pin::Pin;
+
+        let ruby = unsafe { Ruby::get_unchecked() };
+
+        let req: liter_llm::ChatCompletionRequest =
+            serde_json::from_str(&request_json).map_err(|e| {
+                Error::new(
+                    ruby.exception_arg_error(),
+                    format!("invalid chat request JSON: {e}"),
+                )
+            })?;
+
+        let rt = runtime(&ruby)?;
+        let chunks: Vec<liter_llm::ChatCompletionChunk> = rt
+            .block_on(async {
+                let mut stream = self.inner.chat_stream(req).await.map_err(|e| {
+                    Error::new(ruby.exception_runtime_error(), e.to_string())
+                })?;
+
+                let mut collected = Vec::new();
+                loop {
+                    let next =
+                        std::future::poll_fn(|cx| Pin::new(&mut stream).poll_next(cx)).await;
+                    match next {
+                        None => break,
+                        Some(Err(e)) => {
+                            return Err(Error::new(
+                                ruby.exception_runtime_error(),
+                                e.to_string(),
+                            ));
+                        }
+                        Some(Ok(chunk)) => collected.push(chunk),
+                    }
+                }
+                Ok(collected)
+            })?;
+
+        serde_json::to_string(&chunks).map_err(|e| {
+            Error::new(
+                ruby.exception_runtime_error(),
+                format!("serialization error: {e}"),
+            )
+        })
+    }
+
+    /// Unregister a previously registered custom provider by name.
+    ///
+    /// @param name [String] The provider name to unregister.
+    /// @return [Boolean] `true` if the provider was found and removed, `false` otherwise.
+    fn rb_unregister_provider(name: String) -> Result<bool, Error> {
+        let ruby = unsafe { Ruby::get_unchecked() };
+        unregister_custom_provider(&name)
+            .map_err(|e| Error::new(ruby.exception_runtime_error(), e.to_string()))
+    }
+
+    /// Return the total budget spend so far (in USD).
+    ///
+    /// Returns `0.0` if no budget is configured.
+    ///
+    /// @return [Float] The cumulative global spend tracked by the budget layer.
+    fn budget_used(&self) -> f64 {
+        self.inner
+            .budget_state()
+            .map(|s| s.global_spend())
+            .unwrap_or(0.0)
+    }
+
     /// Return a human-readable string representation.
     fn inspect(&self) -> String {
         "#<LiterLlm::LlmClient>".to_string()
@@ -847,9 +924,12 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     // Hook and provider registration.
     client_class.define_method("add_hook", method!(RubyLlmClient::add_hook, 1))?;
     client_class.define_singleton_method("register_provider", function!(RubyLlmClient::rb_register_provider, 1))?;
+    client_class.define_singleton_method("unregister_provider", function!(RubyLlmClient::rb_unregister_provider, 1))?;
 
     // Instance methods.
     client_class.define_method("chat", method!(RubyLlmClient::chat, 1))?;
+    client_class.define_method("chat_stream", method!(RubyLlmClient::chat_stream, 1))?;
+    client_class.define_method("budget_used", method!(RubyLlmClient::budget_used, 0))?;
     client_class.define_method("embed", method!(RubyLlmClient::embed, 1))?;
     client_class.define_method("list_models", method!(RubyLlmClient::list_models, 0))?;
 

@@ -22,6 +22,10 @@
 //! const response = await client.chat({ model: 'gpt-4', messages: [...] });
 //! ```
 
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
+
 use js_sys::Promise;
 use serde::Deserialize;
 use wasm_bindgen::prelude::*;
@@ -35,6 +39,24 @@ use wasm_bindgen_futures::JsFuture;
 /// These mirror the Rust types in `crates/liter-llm/src/types/` exactly.
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &str = r#"
+/** Cache configuration for response caching. */
+export interface CacheOptions {
+  /** Maximum number of cached entries (default: 256). */
+  maxEntries?: number;
+  /** Time-to-live for cached entries in seconds (default: 300). */
+  ttlSeconds?: number;
+}
+
+/** Budget configuration for spending limits. */
+export interface BudgetOptions {
+  /** Maximum total spend across all models in USD. */
+  globalLimit?: number;
+  /** Per-model spending limits in USD, keyed by model name. */
+  modelLimits?: Record<string, number>;
+  /** Enforcement mode: `"soft"` (warn via console.warn) or `"hard"` (reject with error). Default: `"hard"`. */
+  enforcement?: "soft" | "hard";
+}
+
 /** Options accepted by the {@link LlmClient} constructor. */
 export interface LlmClientOptions {
   /** API key for authentication.  Pass an empty string for providers that
@@ -51,6 +73,10 @@ export interface LlmClientOptions {
    *  `"x-api-key abc123"`, or a custom scheme).  When omitted the client
    *  generates `"Bearer {apiKey}"` automatically. */
   authHeader?: string;
+  /** Response cache configuration. */
+  cache?: CacheOptions;
+  /** Budget enforcement configuration. */
+  budget?: BudgetOptions;
 }
 
 // ── Shared ────────────────────────────────────────────────────────────────────
@@ -506,6 +532,34 @@ struct ClientOptions {
     /// When absent the client generates `"Bearer {api_key}"`.
     #[serde(default)]
     auth_header: Option<String>,
+    /// Response cache configuration.
+    #[serde(default)]
+    cache: Option<CacheOptionsConfig>,
+    /// Budget enforcement configuration.
+    #[serde(default)]
+    budget: Option<BudgetOptionsConfig>,
+}
+
+/// Deserialized cache configuration from JS.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CacheOptionsConfig {
+    #[serde(default = "default_cache_max_entries")]
+    max_entries: usize,
+    #[serde(default = "default_cache_ttl_seconds")]
+    ttl_seconds: u32,
+}
+
+/// Deserialized budget configuration from JS.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BudgetOptionsConfig {
+    #[serde(default)]
+    global_limit: Option<f64>,
+    #[serde(default)]
+    model_limits: Option<HashMap<String, f64>>,
+    #[serde(default = "default_enforcement")]
+    enforcement: String,
 }
 
 fn default_max_retries() -> u32 {
@@ -514,6 +568,225 @@ fn default_max_retries() -> u32 {
 
 fn default_timeout_secs() -> u64 {
     60
+}
+
+fn default_cache_max_entries() -> usize {
+    256
+}
+
+fn default_cache_ttl_seconds() -> u32 {
+    300
+}
+
+fn default_enforcement() -> String {
+    "hard".to_string()
+}
+
+// ─── Budget state ────────────────────────────────────────────────────────────
+
+/// Budget enforcement mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Enforcement {
+    Hard,
+    Soft,
+}
+
+/// Tracks spending for budget enforcement.  All values are in USD.
+///
+/// WASM is single-threaded, so simple `f64` fields suffice (no atomics needed).
+#[derive(Debug)]
+struct BudgetState {
+    global_spend: f64,
+    model_spend: HashMap<String, f64>,
+}
+
+impl BudgetState {
+    fn new() -> Self {
+        Self {
+            global_spend: 0.0,
+            model_spend: HashMap::new(),
+        }
+    }
+
+    /// Record a cost against the global and per-model counters.
+    fn record(&mut self, model: &str, usd: f64) {
+        self.global_spend += usd;
+        *self.model_spend.entry(model.to_owned()).or_insert(0.0) += usd;
+    }
+}
+
+/// Budget configuration stored on the client.
+#[derive(Debug, Clone)]
+struct BudgetConfig {
+    global_limit: Option<f64>,
+    model_limits: HashMap<String, f64>,
+    enforcement: Enforcement,
+}
+
+/// Check budget limits before a request.  Returns `Err(JsValue)` for hard
+/// enforcement when the budget is exceeded, or calls `console.warn` for soft.
+fn check_budget(config: &BudgetConfig, state: &BudgetState, model: &str) -> Result<(), JsValue> {
+    // Global limit check.
+    if let Some(limit) = config.global_limit
+        && state.global_spend >= limit
+    {
+        let msg = format!(
+            "global budget exceeded: spent ${:.6}, limit ${:.6}",
+            state.global_spend, limit,
+        );
+        if config.enforcement == Enforcement::Hard {
+            return Err(js_err(&msg));
+        }
+        console_warn(&msg);
+    }
+
+    // Per-model limit check.
+    if let Some(&limit) = config.model_limits.get(model) {
+        let spent = state.model_spend.get(model).copied().unwrap_or(0.0);
+        if spent >= limit {
+            let msg = format!(
+                "model {model} budget exceeded: spent ${:.6}, limit ${:.6}",
+                spent, limit,
+            );
+            if config.enforcement == Enforcement::Hard {
+                return Err(js_err(&msg));
+            }
+            console_warn(&msg);
+        }
+    }
+
+    Ok(())
+}
+
+/// Record the cost from a response's usage data against the budget state.
+///
+/// Extracts `usage.prompt_tokens` and `usage.completion_tokens` from the JS
+/// response object and uses `liter_llm::cost::completion_cost` to estimate
+/// the USD cost.
+fn record_budget_cost(state: &mut BudgetState, model: &str, response: &JsValue) {
+    // Try to extract usage from the response JS object.
+    let usage = js_sys::Reflect::get(response, &"usage".into()).ok();
+    if let Some(usage_val) = usage {
+        if usage_val.is_undefined() || usage_val.is_null() {
+            return;
+        }
+        let prompt = js_sys::Reflect::get(&usage_val, &"prompt_tokens".into())
+            .ok()
+            .and_then(|v| v.as_f64())
+            .map(|f| f as u64)
+            .unwrap_or(0);
+        let completion = js_sys::Reflect::get(&usage_val, &"completion_tokens".into())
+            .ok()
+            .and_then(|v| v.as_f64())
+            .map(|f| f as u64)
+            .unwrap_or(0);
+
+        if let Some(usd) = liter_llm::cost::completion_cost(model, prompt, completion) {
+            state.record(model, usd);
+        }
+    }
+}
+
+/// Call `console.warn(msg)` in the JS runtime.
+fn console_warn(msg: &str) {
+    let console = js_sys::Reflect::get(&js_sys::global(), &"console".into()).ok();
+    if let Some(c) = console {
+        let warn_fn = js_sys::Reflect::get(&c, &"warn".into())
+            .ok()
+            .and_then(|f| f.dyn_into::<js_sys::Function>().ok());
+        if let Some(f) = warn_fn {
+            let _ = f.call1(&c, &JsValue::from_str(msg));
+        }
+    }
+}
+
+// ─── LRU cache ───────────────────────────────────────────────────────────────
+
+/// A simple LRU cache entry with TTL.
+#[derive(Debug, Clone)]
+struct CacheEntry {
+    /// The cached JS response serialized as JSON string (for cloning across
+    /// async boundaries).
+    response_json: String,
+    /// Timestamp (ms since epoch) when this entry was inserted.
+    inserted_at: f64,
+}
+
+/// Simple LRU cache backed by an ordered `Vec`.
+///
+/// WASM is single-threaded, so no synchronization is needed.
+#[derive(Debug)]
+struct LruCache {
+    max_entries: usize,
+    ttl_ms: f64,
+    /// Ordered from least-recently-used (front) to most-recently-used (back).
+    entries: Vec<(String, CacheEntry)>,
+}
+
+impl LruCache {
+    fn new(max_entries: usize, ttl_seconds: u32) -> Self {
+        Self {
+            max_entries,
+            ttl_ms: f64::from(ttl_seconds) * 1000.0,
+            entries: Vec::with_capacity(max_entries),
+        }
+    }
+
+    /// Look up a cache entry by key.  Returns `Some(json_string)` if found
+    /// and not expired, promoting it to most-recently-used.
+    fn get(&mut self, key: &str) -> Option<String> {
+        let now = js_sys::Date::now();
+        let pos = self.entries.iter().position(|(k, _)| k == key)?;
+        let (_, entry) = &self.entries[pos];
+
+        if now - entry.inserted_at > self.ttl_ms {
+            // Expired — remove it.
+            self.entries.remove(pos);
+            return None;
+        }
+
+        // Promote to most-recently-used (move to back).
+        let item = self.entries.remove(pos);
+        let json = item.1.response_json.clone();
+        self.entries.push(item);
+        Some(json)
+    }
+
+    /// Insert a response into the cache, evicting the LRU entry if at capacity.
+    fn insert(&mut self, key: String, response_json: String) {
+        let now = js_sys::Date::now();
+
+        // Remove existing entry for this key if present.
+        if let Some(pos) = self.entries.iter().position(|(k, _)| k == &key) {
+            self.entries.remove(pos);
+        }
+
+        // Evict LRU if at capacity.
+        if self.entries.len() >= self.max_entries {
+            self.entries.remove(0);
+        }
+
+        self.entries.push((
+            key,
+            CacheEntry {
+                response_json,
+                inserted_at: now,
+            },
+        ));
+    }
+}
+
+/// Create a deterministic cache key by hashing the request body JSON string.
+///
+/// Uses a simple FNV-1a hash since we don't need cryptographic strength.
+fn cache_key(url: &str, body: &serde_json::Value) -> String {
+    let input = format!("{url}:{body}");
+    let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
+    for byte in input.as_bytes() {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x0100_0000_01b3);
+    }
+    format!("{hash:016x}")
 }
 
 // ─── LlmClient ────────────────────────────────────────────────────────────────
@@ -528,6 +801,8 @@ fn default_timeout_secs() -> u64 {
 /// - `maxRetries` (number, optional, default 3)
 /// - `timeoutSecs` (number, optional, default 60)
 /// - `authHeader` (string, optional) — override the `Authorization` header value
+/// - `cache` (object, optional) — LRU cache config with `maxEntries` and `ttlSeconds`
+/// - `budget` (object, optional) — budget enforcement with `globalLimit`, `modelLimits`, `enforcement`
 ///
 /// # Security note
 ///
@@ -548,13 +823,20 @@ pub struct LlmClient {
     /// Registered lifecycle hook objects.  Each hook is a JS object with
     /// optional `onRequest`, `onResponse`, and `onError` async methods.
     hooks: Vec<JsValue>,
+    /// Optional budget configuration and state.
+    budget_config: Option<BudgetConfig>,
+    /// Budget state is wrapped in `Rc<RefCell>` so it can be shared with async
+    /// futures.  WASM is single-threaded so `RefCell` is safe.
+    budget_state: Rc<RefCell<BudgetState>>,
+    /// Optional LRU response cache, wrapped in `Rc<RefCell>` for the same reason.
+    cache: Rc<RefCell<Option<LruCache>>>,
 }
 
 #[wasm_bindgen]
 impl LlmClient {
     /// Create a new `LlmClient`.
     ///
-    /// Accepts a plain JS object `{ apiKey, baseUrl?, maxRetries?, timeoutSecs? }`.
+    /// Accepts a plain JS object `{ apiKey, baseUrl?, maxRetries?, timeoutSecs?, cache?, budget? }`.
     #[wasm_bindgen(constructor)]
     pub fn new(options: JsValue) -> Result<LlmClient, JsValue> {
         let opts: ClientOptions =
@@ -562,12 +844,27 @@ impl LlmClient {
 
         let base_url = opts.base_url.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
 
+        let budget_config = opts.budget.map(|b| BudgetConfig {
+            global_limit: b.global_limit,
+            model_limits: b.model_limits.unwrap_or_default(),
+            enforcement: if b.enforcement == "soft" {
+                Enforcement::Soft
+            } else {
+                Enforcement::Hard
+            },
+        });
+
+        let cache = opts.cache.map(|c| LruCache::new(c.max_entries, c.ttl_seconds));
+
         Ok(Self {
             api_key: opts.api_key,
             base_url,
             max_retries: opts.max_retries,
             auth_header_override: opts.auth_header,
             hooks: Vec::new(),
+            budget_config,
+            budget_state: Rc::new(RefCell::new(BudgetState::new())),
+            cache: Rc::new(RefCell::new(cache)),
         })
     }
 
@@ -583,18 +880,79 @@ impl LlmClient {
     ///
     /// Accepts a JS object matching the OpenAI Chat Completions request shape.
     /// Returns a `Promise` that resolves to the parsed response object.
+    ///
+    /// When a cache is configured, non-streaming responses are cached by
+    /// request body hash and returned from cache on subsequent identical
+    /// requests within the TTL window.
+    ///
+    /// When a budget is configured, spending is checked before the request
+    /// and recorded after a successful response.
     pub fn chat(&self, request: JsValue) -> Promise {
         let auth_header = self.effective_auth_header();
         let base_url = self.base_url.clone();
         let max_retries = self.max_retries;
         let hooks = self.hooks.clone();
+        let budget_config = self.budget_config.clone();
+        let budget_state_rc = Rc::clone(&self.budget_state);
+        let cache_rc = Rc::clone(&self.cache);
 
         wasm_bindgen_futures::future_to_promise(async move {
             invoke_hooks(&hooks, "onRequest", std::slice::from_ref(&request)).await;
             let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/chat/completions");
+
+            // Extract model name for budget tracking.
+            let model = req_json
+                .get("model")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown")
+                .to_owned();
+
+            // Budget pre-flight check.
+            if let Some(ref cfg) = budget_config {
+                let state = budget_state_rc.borrow();
+                check_budget(cfg, &state, &model)?;
+            }
+
+            // Cache lookup.
+            let cache_key_str = cache_key(&url, &req_json);
+            let cached_hit = {
+                let mut cache_guard = cache_rc.borrow_mut();
+                if let Some(ref mut lru) = *cache_guard {
+                    lru.get(&cache_key_str)
+                } else {
+                    None
+                }
+            };
+            if let Some(cached_json) = cached_hit {
+                // Parse the cached JSON string back into a JsValue.
+                let parsed: serde_json::Value = serde_json::from_str(&cached_json).map_err(js_err)?;
+                let js_val = serde_wasm_bindgen::to_value(&parsed).map_err(js_err)?;
+                invoke_hooks(&hooks, "onResponse", &[request, js_val.clone()]).await;
+                return Ok(js_val);
+            }
+
             match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
                 Ok(resp_json) => {
+                    // Budget post-flight: record cost.
+                    if budget_config.is_some() {
+                        let mut state = budget_state_rc.borrow_mut();
+                        record_budget_cost(&mut state, &model, &resp_json);
+                    }
+
+                    // Cache the response.
+                    {
+                        let mut cache_guard = cache_rc.borrow_mut();
+                        if let Some(ref mut lru) = *cache_guard {
+                            // Serialize the JS response to a JSON string for caching.
+                            if let Ok(val) = serde_wasm_bindgen::from_value::<serde_json::Value>(resp_json.clone())
+                                && let Ok(json_str) = serde_json::to_string(&val)
+                            {
+                                lru.insert(cache_key_str, json_str);
+                            }
+                        }
+                    }
+
                     invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
                     Ok(resp_json)
                 }
@@ -608,21 +966,101 @@ impl LlmClient {
 
     /// Stream a chat completion request.
     ///
-    /// **Not yet implemented in the WASM binding.**
+    /// Returns a `Promise` that resolves to a `ReadableStream` of parsed SSE
+    /// chunks.  Each chunk is a `ChatCompletionChunk` object (parsed JSON).
     ///
-    /// Returns a `Promise` that always rejects with an error message explaining
-    /// that streaming is not yet supported in WASM.  This stub makes the
-    /// absence of the feature explicit rather than causing a "method not found"
-    /// error at runtime.
+    /// The implementation uses the JS `fetch` API with streaming response body
+    /// reading, parses Server-Sent Events (SSE) `data:` lines, and enqueues
+    /// the parsed JSON objects into a new `ReadableStream` that the caller can
+    /// consume with `getReader()` or `for await...of`.
     ///
-    /// TODO: implement using the WASM Streams API (`ReadableStream`) once
-    /// `wasm-streams` stabilises for this use-case.
+    /// Budget pre-flight checks are applied before the request.  Budget cost
+    /// is **not** recorded for streaming responses because usage data is only
+    /// available in the final chunk (if `stream_options.include_usage` is set)
+    /// and the stream is consumed asynchronously by the caller.
     #[wasm_bindgen(js_name = "chatStream")]
-    pub fn chat_stream(&self, _request: JsValue) -> Promise {
-        wasm_bindgen_futures::future_to_promise(async {
-            Err(JsValue::from_str(
-                "chat_stream is not yet supported in the WASM binding",
-            ))
+    pub fn chat_stream(&self, request: JsValue) -> Promise {
+        let auth_header = self.effective_auth_header();
+        let base_url = self.base_url.clone();
+        let hooks = self.hooks.clone();
+        let budget_config = self.budget_config.clone();
+        let budget_state_rc = Rc::clone(&self.budget_state);
+
+        wasm_bindgen_futures::future_to_promise(async move {
+            invoke_hooks(&hooks, "onRequest", std::slice::from_ref(&request)).await;
+            let mut req_json = js_to_json(request.clone())?;
+
+            // Extract model name for budget tracking.
+            let model = req_json
+                .get("model")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown")
+                .to_owned();
+
+            // Budget pre-flight check.
+            if let Some(ref cfg) = budget_config {
+                let state = budget_state_rc.borrow();
+                check_budget(cfg, &state, &model)?;
+            }
+
+            // Force stream: true on the request.
+            if let serde_json::Value::Object(ref mut map) = req_json {
+                map.insert("stream".to_string(), serde_json::Value::Bool(true));
+            }
+
+            // Make the fetch request and get the response object (not parsed as JSON).
+            let response = do_fetch_raw(
+                "POST",
+                &format!("{base_url}/chat/completions"),
+                &auth_header,
+                Some(&serde_json::to_string(&req_json).map_err(js_err)?),
+            )
+            .await?;
+
+            // Check HTTP status.
+            let status = js_sys::Reflect::get(&response, &"status".into())
+                .ok()
+                .and_then(|v| v.as_f64())
+                .map(|f| f as u16)
+                .unwrap_or(0);
+
+            if status >= 400 {
+                let text_method: js_sys::Function = js_sys::Reflect::get(&response, &"text".into())
+                    .map_err(|_| js_err("response.text is missing"))?
+                    .dyn_into()
+                    .map_err(|_| js_err("response.text is not a function"))?;
+                let text_promise: Promise = text_method
+                    .call0(&response)
+                    .map_err(|e| js_err(format!("response.text() failed: {e:?}")))?
+                    .dyn_into()
+                    .map_err(|_| js_err("response.text() did not return a Promise"))?;
+                let raw_text: String = JsFuture::from(text_promise).await?.as_string().unwrap_or_default();
+                let message = serde_json::from_str::<serde_json::Value>(&raw_text)
+                    .ok()
+                    .as_ref()
+                    .and_then(|v| v.pointer("/error/message"))
+                    .and_then(|v| v.as_str())
+                    .map(ToString::to_string)
+                    .unwrap_or(raw_text);
+                invoke_hooks(&hooks, "onError", &[request, JsValue::from_str(&message)]).await;
+                return Err(js_err(format!("HTTP {status}: {message}")));
+            }
+
+            // Get the response body as a ReadableStream.
+            let body =
+                js_sys::Reflect::get(&response, &"body".into()).map_err(|_| js_err("response.body is missing"))?;
+            if body.is_null() || body.is_undefined() {
+                return Err(js_err(
+                    "response.body is null — streaming not supported in this environment",
+                ));
+            }
+
+            // Create a TransformStream that parses SSE lines into JSON objects.
+            // We use JS to create the readable stream that wraps the SSE parsing.
+            let readable_stream =
+                create_sse_transform_stream(&body, budget_config, budget_state_rc, &model, hooks.clone(), request)?;
+
+            Ok(readable_stream)
         })
     }
 
@@ -1260,6 +1698,16 @@ impl LlmClient {
         self.hooks.push(hook);
         Ok(())
     }
+
+    // ── Budget introspection ────────────────────────────────────────────────
+
+    /// Return the current total global spend in USD.
+    ///
+    /// Returns `0.0` if no budget is configured or no requests have been made.
+    #[wasm_bindgen(getter, js_name = "budgetUsed")]
+    pub fn budget_used(&self) -> f64 {
+        self.budget_state.borrow().global_spend
+    }
 }
 
 /// Invoke a named method on each hook object, passing the given arguments.
@@ -1457,6 +1905,180 @@ async fn do_fetch(method: &str, url: &str, auth_header: &str, body: Option<&str>
 
     let response = JsFuture::from(response_promise).await?;
     extract_json_from_response(response).await
+}
+
+/// Shared inner fetch implementation that returns the raw `Response` object
+/// without consuming the body.  Used for streaming where we need to read the
+/// response body as a `ReadableStream`.
+async fn do_fetch_raw(method: &str, url: &str, auth_header: &str, body: Option<&str>) -> Result<JsValue, JsValue> {
+    use js_sys::Reflect;
+    use wasm_bindgen::JsCast;
+
+    let headers = js_sys::Object::new();
+    if body.is_some() {
+        Reflect::set(&headers, &"Content-Type".into(), &"application/json".into())?;
+    }
+    Reflect::set(&headers, &"Authorization".into(), &auth_header.into())?;
+
+    let init = js_sys::Object::new();
+    Reflect::set(&init, &"method".into(), &method.into())?;
+    Reflect::set(&init, &"headers".into(), &headers.into())?;
+    if let Some(b) = body {
+        Reflect::set(&init, &"body".into(), &JsValue::from_str(b))?;
+    }
+
+    let global = js_sys::global();
+
+    let fetch_fn =
+        Reflect::get(&global, &"fetch".into()).map_err(|_| js_err("fetch is not available in this environment"))?;
+    let fetch_fn: js_sys::Function = fetch_fn
+        .dyn_into()
+        .map_err(|_| js_err("global.fetch is not a function"))?;
+
+    let response_promise = fetch_fn
+        .call2(&global, &JsValue::from_str(url), &init.into())
+        .map_err(|e| js_err(format!("fetch call failed: {e:?}")))?;
+    let response_promise: Promise = response_promise
+        .dyn_into()
+        .map_err(|_| js_err("fetch did not return a Promise"))?;
+
+    JsFuture::from(response_promise).await
+}
+
+/// Create a `ReadableStream` that reads SSE chunks from the fetch response
+/// body and enqueues parsed JSON objects.
+///
+/// The implementation:
+/// 1. Gets a reader from the response body `ReadableStream`
+/// 2. Reads `Uint8Array` chunks, decodes them to text
+/// 3. Splits on `\n` boundaries, looks for `data: ` prefixed lines
+/// 4. Parses the JSON payload and enqueues it into the output stream
+/// 5. Stops on `data: [DONE]`
+///
+/// If a budget is configured, the final chunk's usage data (if present) is
+/// used to record cost.
+fn create_sse_transform_stream(
+    body: &JsValue,
+    budget_config: Option<BudgetConfig>,
+    budget_state_rc: Rc<RefCell<BudgetState>>,
+    model: &str,
+    hooks: Vec<JsValue>,
+    request: JsValue,
+) -> Result<JsValue, JsValue> {
+    use wasm_bindgen::JsCast;
+
+    // Get a reader from the response body.
+    let get_reader: js_sys::Function = js_sys::Reflect::get(body, &"getReader".into())
+        .map_err(|_| js_err("response.body.getReader is missing"))?
+        .dyn_into()
+        .map_err(|_| js_err("response.body.getReader is not a function"))?;
+    let reader = get_reader
+        .call0(body)
+        .map_err(|e| js_err(format!("getReader() failed: {e:?}")))?;
+
+    let model = model.to_owned();
+
+    // Use JS to create a ReadableStream with a pull-based source that reads
+    // from the SSE reader.  This is done via inline JS evaluation because
+    // creating a ReadableStream with an async pull function from Rust/wasm-bindgen
+    // is extremely verbose otherwise.
+    //
+    // The approach: we store the reader and parsing state in a closure, and
+    // create a ReadableStream whose `pull` method reads from the reader,
+    // parses SSE lines, and enqueues JSON objects.
+    let js_code = js_sys::Function::new_with_args(
+        "reader, onChunk, onDone",
+        r#"
+        let buffer = '';
+        return new ReadableStream({
+            async pull(controller) {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        onDone();
+                        controller.close();
+                        return;
+                    }
+                    const text = new TextDecoder().decode(value);
+                    buffer += text;
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || trimmed.startsWith(':')) continue;
+                        if (trimmed.startsWith('data: ')) {
+                            const data = trimmed.slice(6);
+                            if (data === '[DONE]') {
+                                onDone();
+                                controller.close();
+                                return;
+                            }
+                            try {
+                                const parsed = JSON.parse(data);
+                                onChunk(parsed);
+                                controller.enqueue(parsed);
+                            } catch (e) {
+                                // Skip malformed JSON lines.
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        "#,
+    );
+
+    // Create the onChunk callback that records budget cost from the last chunk.
+    let budget_config_clone = budget_config.clone();
+    let model_clone = model.clone();
+    let on_chunk = Closure::wrap(Box::new(move |chunk: JsValue| {
+        // If this chunk has usage data, record it for budget tracking.
+        if budget_config_clone.is_some() {
+            let usage = js_sys::Reflect::get(&chunk, &"usage".into()).ok();
+            if let Some(ref u) = usage
+                && !u.is_undefined()
+                && !u.is_null()
+            {
+                let prompt = js_sys::Reflect::get(u, &"prompt_tokens".into())
+                    .ok()
+                    .and_then(|v| v.as_f64())
+                    .map(|f| f as u64)
+                    .unwrap_or(0);
+                let completion = js_sys::Reflect::get(u, &"completion_tokens".into())
+                    .ok()
+                    .and_then(|v| v.as_f64())
+                    .map(|f| f as u64)
+                    .unwrap_or(0);
+                if let Some(usd) = liter_llm::cost::completion_cost(&model_clone, prompt, completion) {
+                    let mut state = budget_state_rc.borrow_mut();
+                    state.record(&model_clone, usd);
+                }
+            }
+        }
+    }) as Box<dyn FnMut(JsValue)>);
+
+    // Create the onDone callback that invokes hooks.
+    let on_done = Closure::wrap(Box::new(move || {
+        // Fire-and-forget: we cannot await from a sync closure, but the hooks
+        // are advisory anyway.
+        let hooks_ref = hooks.clone();
+        let req_ref = request.clone();
+        wasm_bindgen_futures::spawn_local(async move {
+            invoke_hooks(&hooks_ref, "onResponse", &[req_ref, JsValue::from_str("stream_done")]).await;
+        });
+    }) as Box<dyn FnMut()>);
+
+    let stream = js_code
+        .call3(&JsValue::UNDEFINED, &reader, on_chunk.as_ref(), on_done.as_ref())
+        .map_err(|e| js_err(format!("failed to create SSE stream: {e:?}")))?;
+
+    // Leak the closures so they remain alive for the lifetime of the stream.
+    // In WASM, the stream is consumed by JS which holds references to these
+    // callbacks; dropping them would cause a use-after-free.
+    on_chunk.forget();
+    on_done.forget();
+
+    Ok(stream)
 }
 
 /// Inner POST implementation using `web_sys::Request` / `fetch`.
@@ -1723,5 +2345,64 @@ mod tests {
     fn test_default_options() {
         assert_eq!(default_max_retries(), 3);
         assert_eq!(default_timeout_secs(), 60);
+    }
+
+    // ── Budget state tests ──────────────────────────────────────────────────
+
+    #[test]
+    fn budget_state_records_spend() {
+        let mut state = BudgetState::new();
+        assert_eq!(state.global_spend, 0.0);
+
+        state.record("gpt-4", 0.05);
+        assert!((state.global_spend - 0.05).abs() < 1e-10);
+        assert!((state.model_spend["gpt-4"] - 0.05).abs() < 1e-10);
+
+        state.record("gpt-4", 0.03);
+        assert!((state.global_spend - 0.08).abs() < 1e-10);
+        assert!((state.model_spend["gpt-4"] - 0.08).abs() < 1e-10);
+    }
+
+    #[test]
+    fn budget_state_tracks_multiple_models() {
+        let mut state = BudgetState::new();
+        state.record("gpt-4", 0.05);
+        state.record("gpt-3.5-turbo", 0.01);
+
+        assert!((state.global_spend - 0.06).abs() < 1e-10);
+        assert!((state.model_spend["gpt-4"] - 0.05).abs() < 1e-10);
+        assert!((state.model_spend["gpt-3.5-turbo"] - 0.01).abs() < 1e-10);
+    }
+
+    // Note: `check_budget` tests cannot run on native targets because
+    // the function returns `Result<(), JsValue>` and `JsValue` panics
+    // on non-wasm32 platforms.  These are tested via the wasm-bindgen-test
+    // suite instead.
+
+    // ── Cache key tests ─────────────────────────────────────────────────────
+
+    #[test]
+    fn cache_key_deterministic() {
+        let body = serde_json::json!({"model": "gpt-4", "messages": [{"role": "user", "content": "hello"}]});
+        let key1 = cache_key("https://api.openai.com/v1/chat/completions", &body);
+        let key2 = cache_key("https://api.openai.com/v1/chat/completions", &body);
+        assert_eq!(key1, key2, "same input should produce same key");
+    }
+
+    #[test]
+    fn cache_key_differs_for_different_inputs() {
+        let body1 = serde_json::json!({"model": "gpt-4"});
+        let body2 = serde_json::json!({"model": "gpt-3.5-turbo"});
+        let key1 = cache_key("https://api.openai.com/v1/chat/completions", &body1);
+        let key2 = cache_key("https://api.openai.com/v1/chat/completions", &body2);
+        assert_ne!(key1, key2, "different inputs should produce different keys");
+    }
+
+    #[test]
+    fn cache_key_differs_for_different_urls() {
+        let body = serde_json::json!({"model": "gpt-4"});
+        let key1 = cache_key("https://api.openai.com/v1/chat/completions", &body);
+        let key2 = cache_key("https://api.example.com/v1/chat/completions", &body);
+        assert_ne!(key1, key2, "different URLs should produce different keys");
     }
 }

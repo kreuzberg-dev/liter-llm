@@ -26,6 +26,7 @@ async def test_provider_auth(mock_server: MockServerInfo) -> None:
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
     assert response.choices[0].message.content == "Hello with custom auth!", "message content mismatch"
     assert response.model == "my-auth-model-v1", "model mismatch"
+    client.unregister_provider("my-auth-provider")
 
 
 @pytest.mark.asyncio
@@ -44,3 +45,4 @@ async def test_register_provider(mock_server: MockServerInfo) -> None:
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
     assert response.choices[0].message.content == "Hello from custom provider!", "message content mismatch"
     assert response.model == "my-model-v1", "model mismatch"
+    client.unregister_provider("my-provider")

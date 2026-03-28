@@ -12,7 +12,6 @@ require_once __DIR__ . '/Helpers.php';
 
 final class HooksTest extends TestCase
 {
-
     /** Tests that on_request hook can reject a request */
     public function testHookGuardrail(): void
     {
@@ -29,20 +28,19 @@ final class HooksTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        // TDD: Hook tests -- will fail until hooks feature is implemented.
-        $config = new LlmClient(
-            'api_key' => 'test-key',
-            'base_url' => $mockUrl,
-        ]);
-        $client = new LlmClient($config);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $client->addHook('on_request', function ($req) {
-            throw new HookRejectedException('Blocked by guardrail');
+            throw new \RuntimeException('Blocked by guardrail');
         });
 
-        $request = '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}';
-        $this->expectException(HookRejectedException::class);
-        $client->chat($request);
+        $threw = false;
+        try {
+            $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
+        } catch (\Throwable $e) {
+            $threw = true;
+        }
+        $this->assertTrue($threw, 'Expected guardrail hook to reject request');
         $server->stop();
     }
 
@@ -62,20 +60,17 @@ final class HooksTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        // TDD: Hook tests -- will fail until hooks feature is implemented.
-        $config = new LlmClient(
-            'api_key' => 'test-key',
-            'base_url' => $mockUrl,
-        ]);
-        $client = new LlmClient($config);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $hookCalled = false;
         $client->addHook('on_error', function ($err) use (&$hookCalled) {
             $hookCalled = true;
         });
 
-        $request = '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}';
-        try { $client->chat($request); } catch (\Throwable $e) { }
+        try {
+            $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
+        } catch (\Throwable $e) {
+        }
         $this->assertTrue($hookCalled, 'Expected on_error hook to be called');
         $server->stop();
     }
@@ -96,20 +91,14 @@ final class HooksTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        // TDD: Hook tests -- will fail until hooks feature is implemented.
-        $config = new LlmClient(
-            'api_key' => 'test-key',
-            'base_url' => $mockUrl,
-        ]);
-        $client = new LlmClient($config);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $hookCalled = false;
         $client->addHook('on_request', function ($req) use (&$hookCalled) {
             $hookCalled = true;
         });
 
-        $request = '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}';
-        $client->chat($request);
+        $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
         $this->assertTrue($hookCalled, 'Expected on_request hook to be called');
         $server->stop();
     }
@@ -130,20 +119,14 @@ final class HooksTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        // TDD: Hook tests -- will fail until hooks feature is implemented.
-        $config = new LlmClient(
-            'api_key' => 'test-key',
-            'base_url' => $mockUrl,
-        ]);
-        $client = new LlmClient($config);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $hookCalled = false;
         $client->addHook('on_response', function ($resp) use (&$hookCalled) {
             $hookCalled = true;
         });
 
-        $request = '{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}';
-        $client->chat($request);
+        $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
         $this->assertTrue($hookCalled, 'Expected on_response hook to be called');
         $server->stop();
     }

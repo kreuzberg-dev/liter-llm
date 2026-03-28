@@ -6,10 +6,7 @@ use std::sync::{Arc, Mutex};
 use liter_llm::LlmClient as LlmClientTrait;
 use liter_llm::{BatchClient, ClientConfigBuilder, FileClient, ManagedClient, ResponseClient};
 use napi::bindgen_prelude::*;
-// Hook invocation is handled at the TypeScript wrapper layer (packages/typescript),
-// not in the NAPI Rust layer, because NAPI v3 ThreadsafeFunction API doesn't support
-// the callback patterns needed for hooks. The NAPI layer provides addHook/registerProvider
-// stubs that validate and store configuration for the TS layer to consume.
+use napi::threadsafe_function::ThreadsafeFunction;
 use napi_derive::napi;
 
 // ─── camelCase conversion ─────────────────────────────────────────────────────
@@ -110,6 +107,129 @@ fn error_kind_label(e: &liter_llm::LiterLlmError) -> &'static str {
     }
 }
 
+// ─── NAPI Hook Bridge ────────────────────────────────────────────────────────
+
+/// Concrete type alias for a `ThreadsafeFunction` that accepts a `String`
+/// argument and returns `Promise<()>`.  The `false` const generic means
+/// this is a strong (prevent-GC) reference.
+type HookTsfn = ThreadsafeFunction<String, Promise<()>, String, napi::Status, false>;
+
+/// A bridge that wraps JS hook callbacks as `ThreadsafeFunction`s so they can
+/// be invoked from Rust async code running on the tokio/NAPI worker thread.
+///
+/// The JS hook object may define any combination of:
+///   - `onRequest(requestJson: string): void | Promise<void>` — may throw to reject
+///   - `onResponse(payloadJson: string): void | Promise<void>` — advisory
+///   - `onError(payloadJson: string): void | Promise<void>` — advisory
+///
+/// Missing methods are silently ignored (no-op).
+#[derive(Clone)]
+struct NapiHookBridge {
+    on_request: Option<Arc<HookTsfn>>,
+    on_response: Option<Arc<HookTsfn>>,
+    on_error: Option<Arc<HookTsfn>>,
+}
+
+impl NapiHookBridge {
+    /// Create a new `NapiHookBridge` by extracting optional callback functions
+    /// from a JS object.  Each callback is converted to a `ThreadsafeFunction`
+    /// so it can be called from any thread.
+    fn from_object(hook: &Object) -> napi::Result<Self> {
+        let on_request = Self::extract_tsfn(hook, "onRequest")?;
+        let on_response = Self::extract_tsfn(hook, "onResponse")?;
+        let on_error = Self::extract_tsfn(hook, "onError")?;
+
+        if on_request.is_none() && on_response.is_none() && on_error.is_none() {
+            return Err(napi::Error::new(
+                Status::InvalidArg,
+                "hook object must define at least one of onRequest, onResponse, or onError",
+            ));
+        }
+
+        Ok(Self {
+            on_request: on_request.map(Arc::new),
+            on_response: on_response.map(Arc::new),
+            on_error: on_error.map(Arc::new),
+        })
+    }
+
+    /// Try to extract a named function property from a JS object and convert it
+    /// to a `ThreadsafeFunction<String, Promise<()>>`.  Returns `Ok(None)` if
+    /// the property does not exist or is not a function.
+    fn extract_tsfn(obj: &Object, name: &str) -> napi::Result<Option<HookTsfn>> {
+        // Attempt to get the property as a Function.  If the property is missing
+        // or not a function, return None rather than an error.
+        let func: Function<String, Promise<()>> = match obj.get_named_property(name) {
+            Ok(f) => f,
+            Err(_) => return Ok(None),
+        };
+        let tsfn = func
+            .build_threadsafe_function()
+            .build_callback(|ctx| Ok(ctx.value))
+            .map_err(|e| {
+                napi::Error::new(
+                    Status::GenericFailure,
+                    format!("failed to build ThreadsafeFunction for hook '{name}': {e}"),
+                )
+            })?;
+        Ok(Some(tsfn))
+    }
+
+    /// Invoke the `onRequest` hook.  Returns `Err` if the JS callback throws
+    /// (enabling guardrail rejection patterns).  Returns `Ok(())` if no
+    /// `onRequest` callback is registered.
+    async fn invoke_on_request(&self, request_json: &str) -> napi::Result<()> {
+        if let Some(ref tsfn) = self.on_request {
+            let promise = tsfn.call_async(request_json.to_owned()).await?;
+            promise.await?;
+        }
+        Ok(())
+    }
+
+    /// Invoke the `onResponse` hook.  Errors are silently ignored since
+    /// response hooks are advisory.
+    async fn invoke_on_response(&self, payload_json: &str) {
+        if let Some(ref tsfn) = self.on_response
+            && let Ok(promise) = tsfn.call_async(payload_json.to_owned()).await
+        {
+            let _ = promise.await;
+        }
+    }
+
+    /// Invoke the `onError` hook.  Errors are silently ignored since
+    /// error hooks are advisory.
+    async fn invoke_on_error(&self, payload_json: &str) {
+        if let Some(ref tsfn) = self.on_error
+            && let Ok(promise) = tsfn.call_async(payload_json.to_owned()).await
+        {
+            let _ = promise.await;
+        }
+    }
+}
+
+/// Invoke `onRequest` on all hooks sequentially.  Short-circuits on first error
+/// (JS callback threw), enabling guardrail rejection.
+async fn invoke_hooks_on_request(hooks: &[NapiHookBridge], request_json: &str) -> napi::Result<()> {
+    for hook in hooks {
+        hook.invoke_on_request(request_json).await?;
+    }
+    Ok(())
+}
+
+/// Invoke `onResponse` on all hooks sequentially.  Errors are silently ignored.
+async fn invoke_hooks_on_response(hooks: &[NapiHookBridge], payload_json: &str) {
+    for hook in hooks {
+        hook.invoke_on_response(payload_json).await;
+    }
+}
+
+/// Invoke `onError` on all hooks sequentially.  Errors are silently ignored.
+async fn invoke_hooks_on_error(hooks: &[NapiHookBridge], payload_json: &str) {
+    for hook in hooks {
+        hook.invoke_on_error(payload_json).await;
+    }
+}
+
 // ─── JS config objects ────────────────────────────────────────────────────────
 
 /// Cache configuration for response caching.
@@ -177,14 +297,13 @@ pub struct LlmClientOptions {
 
 /// Node.js-accessible LLM client wrapping `liter_llm::ManagedClient`.
 ///
-/// Lifecycle hooks (addHook) are accepted and stored as hook count for validation.
-/// Actual hook invocation is delegated to the TypeScript wrapper layer in
-/// packages/typescript, since NAPI v3 ThreadsafeFunction limitations make
-/// cross-thread JS callback invocation unreliable for this use case.
+/// Lifecycle hooks (`addHook`) are stored and invoked at the binding layer
+/// (before/after each API call) using `ThreadsafeFunction` to bridge back
+/// into JavaScript.  Hooks are invoked sequentially in registration order.
 #[napi]
 pub struct LlmClient {
     inner: Arc<ManagedClient>,
-    hook_count: Arc<Mutex<u32>>,
+    hooks: Arc<Mutex<Vec<NapiHookBridge>>>,
 }
 
 #[napi]
@@ -244,7 +363,7 @@ impl LlmClient {
         let client = ManagedClient::new(config, options.model_hint.as_deref()).map_err(to_napi_err)?;
         Ok(Self {
             inner: Arc::new(client),
-            hook_count: Arc::new(Mutex::new(0)),
+            hooks: Arc::new(Mutex::new(Vec::new())),
         })
     }
 
@@ -255,26 +374,47 @@ impl LlmClient {
     ///
     /// ```js
     /// client.addHook({
-    ///   onRequest(req) { console.log("sending", req); },
-    ///   onResponse(req, resp) { console.log("received", resp); },
-    ///   onError(req, errMsg) { console.error("error", errMsg); },
+    ///   onRequest(req) { console.log("sending", JSON.parse(req)); },
+    ///   onResponse(payload) { console.log("received", JSON.parse(payload)); },
+    ///   onError(payload) { console.error("error", JSON.parse(payload)); },
     /// });
     /// ```
     ///
     /// Hooks are invoked in registration order around each API call.
-    /// Hook errors are silently ignored — hooks are advisory.
-    /// Register a lifecycle hook.
     ///
-    /// Hook invocation is handled by the TypeScript wrapper layer.
-    /// This method validates and counts registered hooks.
+    /// - `onRequest` receives a JSON string of the request.  Throw to reject
+    ///   the request (guardrail pattern).
+    /// - `onResponse` receives a JSON string with `{ request, response }`.
+    ///   Errors are silently ignored.
+    /// - `onError` receives a JSON string with `{ request, error }`.
+    ///   Errors are silently ignored.
+    ///
+    /// All callbacks may be sync or async (returning a Promise).
     #[napi(js_name = "addHook")]
-    pub fn add_hook(&self) -> napi::Result<()> {
-        let mut count = self
-            .hook_count
+    pub fn add_hook(&self, hook: Object) -> napi::Result<()> {
+        let bridge = NapiHookBridge::from_object(&hook)?;
+        let mut hooks = self
+            .hooks
             .lock()
             .map_err(|e| napi::Error::new(Status::GenericFailure, format!("hook lock poisoned: {e}")))?;
-        *count += 1;
+        hooks.push(bridge);
         Ok(())
+    }
+
+    /// Return the total spend tracked by the budget middleware (USD).
+    ///
+    /// Returns `0.0` if no budget configuration was provided at construction.
+    #[napi(getter, js_name = "budgetUsed")]
+    pub fn budget_used(&self) -> f64 {
+        self.inner.budget_state().map(|s| s.global_spend()).unwrap_or(0.0)
+    }
+
+    /// Return a snapshot of the current hooks for use in async methods.
+    ///
+    /// We take a snapshot (clone) so that the `Mutex` is not held across
+    /// `.await` points.
+    fn snapshot_hooks(&self) -> Vec<NapiHookBridge> {
+        self.hooks.lock().unwrap_or_else(|e| e.into_inner()).clone()
     }
 
     /// Send a chat completion request.
@@ -291,13 +431,23 @@ impl LlmClient {
         let req: liter_llm::ChatCompletionRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.chat(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -320,11 +470,17 @@ impl LlmClient {
         let req: liter_llm::ChatCompletionRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
 
         let stream = match client.chat_stream(req).await {
             Ok(s) => s,
             Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
                 return Err(to_napi_err(e));
             }
         };
@@ -332,11 +488,16 @@ impl LlmClient {
             Ok(chunks) => {
                 let js_chunks: napi::Result<Vec<_>> = chunks.into_iter().map(to_js_value).collect();
                 let js_chunks = js_chunks?;
-                // Fire on_response with the array of chunks as a JSON array.
-                let _resp_val = serde_json::Value::Array(js_chunks.clone());
+                let resp_val = serde_json::Value::Array(js_chunks.clone());
+                let payload = serde_json::json!({ "request": request, "response": resp_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_chunks)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -354,13 +515,23 @@ impl LlmClient {
         let req: liter_llm::EmbeddingRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.embed(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -374,15 +545,25 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "listModels")]
     pub async fn list_models(&self) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "listModels"});
+        let req_marker = serde_json::json!({"action": "listModels"});
+
+        let hooks = self.snapshot_hooks();
+        let req_json = req_marker.to_string();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
 
         let client = Arc::clone(&self.inner);
         match client.list_models().await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -402,13 +583,23 @@ impl LlmClient {
         let req: liter_llm::CreateImageRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.image_generate(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -426,13 +617,23 @@ impl LlmClient {
         let req: liter_llm::CreateSpeechRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.speech(req).await {
             Ok(result) => {
-                let _resp_marker = serde_json::json!({"bytes_length": result.len()});
+                let resp_marker = serde_json::json!({"bytes_length": result.len()});
+                let payload = serde_json::json!({ "request": request, "response": resp_marker });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(result.to_vec().into())
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -450,13 +651,23 @@ impl LlmClient {
         let req: liter_llm::CreateTranscriptionRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.transcribe(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -474,13 +685,23 @@ impl LlmClient {
         let req: liter_llm::ModerationRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.moderate(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -498,13 +719,23 @@ impl LlmClient {
         let req: liter_llm::RerankRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.rerank(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -525,13 +756,23 @@ impl LlmClient {
         let req: liter_llm::CreateFileRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.create_file(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -545,15 +786,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "retrieveFile")]
     pub async fn retrieve_file(&self, file_id: String) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "retrieveFile", "fileId": &file_id});
+        let req_marker = serde_json::json!({"action": "retrieveFile", "fileId": &file_id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.retrieve_file(&file_id).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -567,15 +817,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "deleteFile")]
     pub async fn delete_file(&self, file_id: String) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "deleteFile", "fileId": &file_id});
+        let req_marker = serde_json::json!({"action": "deleteFile", "fileId": &file_id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.delete_file(&file_id).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -590,7 +849,10 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "listFiles")]
     pub async fn list_files(&self, query: Option<serde_json::Value>) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "listFiles", "query": &query});
+        let req_marker = serde_json::json!({"action": "listFiles", "query": &query});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let parsed: Option<liter_llm::FileListQuery> = query
             .map(|v| serde_json::from_value(v).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string())))
@@ -599,10 +861,16 @@ impl LlmClient {
         let client = Arc::clone(&self.inner);
         match client.list_files(parsed).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -616,15 +884,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "fileContent")]
     pub async fn file_content(&self, file_id: String) -> napi::Result<Buffer> {
-        let _req_marker = serde_json::json!({"action": "fileContent", "fileId": &file_id});
+        let req_marker = serde_json::json!({"action": "fileContent", "fileId": &file_id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.file_content(&file_id).await {
             Ok(result) => {
-                let _resp_marker = serde_json::json!({"bytes_length": result.len()});
+                let resp_marker = serde_json::json!({"bytes_length": result.len()});
+                let payload = serde_json::json!({ "request": req_marker, "response": resp_marker });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(result.to_vec().into())
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -644,13 +921,23 @@ impl LlmClient {
         let req: liter_llm::CreateBatchRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.create_batch(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -664,15 +951,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "retrieveBatch")]
     pub async fn retrieve_batch(&self, batch_id: String) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "retrieveBatch", "batchId": &batch_id});
+        let req_marker = serde_json::json!({"action": "retrieveBatch", "batchId": &batch_id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.retrieve_batch(&batch_id).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -687,7 +983,10 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "listBatches")]
     pub async fn list_batches(&self, query: Option<serde_json::Value>) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "listBatches", "query": &query});
+        let req_marker = serde_json::json!({"action": "listBatches", "query": &query});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let parsed: Option<liter_llm::BatchListQuery> = query
             .map(|v| serde_json::from_value(v).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string())))
@@ -696,10 +995,16 @@ impl LlmClient {
         let client = Arc::clone(&self.inner);
         match client.list_batches(parsed).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -713,15 +1018,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "cancelBatch")]
     pub async fn cancel_batch(&self, batch_id: String) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "cancelBatch", "batchId": &batch_id});
+        let req_marker = serde_json::json!({"action": "cancelBatch", "batchId": &batch_id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.cancel_batch(&batch_id).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -741,13 +1055,23 @@ impl LlmClient {
         let req: liter_llm::CreateResponseRequest =
             serde_json::from_value(request.clone()).map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
 
+        let hooks = self.snapshot_hooks();
+        let req_json = serde_json::to_string(&request).unwrap_or_default();
+        invoke_hooks_on_request(&hooks, &req_json).await?;
+
         let client = Arc::clone(&self.inner);
         match client.create_response(req).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": request, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": request, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -761,15 +1085,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "retrieveResponse")]
     pub async fn retrieve_response(&self, id: String) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "retrieveResponse", "id": &id});
+        let req_marker = serde_json::json!({"action": "retrieveResponse", "id": &id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.retrieve_response(&id).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -783,15 +1116,24 @@ impl LlmClient {
     /// ```
     #[napi(js_name = "cancelResponse")]
     pub async fn cancel_response(&self, id: String) -> napi::Result<serde_json::Value> {
-        let _req_marker = serde_json::json!({"action": "cancelResponse", "id": &id});
+        let req_marker = serde_json::json!({"action": "cancelResponse", "id": &id});
+
+        let hooks = self.snapshot_hooks();
+        invoke_hooks_on_request(&hooks, &req_marker.to_string()).await?;
 
         let client = Arc::clone(&self.inner);
         match client.cancel_response(&id).await {
             Ok(result) => {
-                let js_val = to_js_value(result)?;
+                let js_val = to_js_value(&result)?;
+                let payload = serde_json::json!({ "request": req_marker, "response": js_val });
+                invoke_hooks_on_response(&hooks, &payload.to_string()).await;
                 Ok(js_val)
             }
-            Err(e) => Err(to_napi_err(e)),
+            Err(e) => {
+                let payload = serde_json::json!({ "request": req_marker, "error": e.to_string() });
+                invoke_hooks_on_error(&hooks, &payload.to_string()).await;
+                Err(to_napi_err(e))
+            }
         }
     }
 
@@ -842,8 +1184,6 @@ impl LlmClient {
         liter_llm::unregister_custom_provider(&name).map_err(to_napi_err)
     }
 }
-
-// ─── Hook invocation helpers ──────────────────────────────────────────────────
 
 /// Returns the version of the liter-llm library.
 #[napi]

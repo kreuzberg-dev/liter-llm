@@ -59,7 +59,7 @@ RSpec.describe "budget" do
     response = client.chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     expect(response).not_to be_nil
     # Verify cost was tracked after the request
-    expect(client.total_cost).to be > 0
+    expect(client.budget_used).to be > 0
 
   ensure
     server&.stop

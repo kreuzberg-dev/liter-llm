@@ -29,6 +29,7 @@ RSpec.describe "custom_provider" do
     expect(body['choices'].size).to eq(1)
     expect(body.dig('choices', 0, 'message', 'content')).to eq('Hello with custom auth!')
     expect(body['model']).to eq('my-auth-model-v1')
+    client.unregister_provider('my-auth-provider')
 
   ensure
     server&.stop
@@ -58,6 +59,7 @@ RSpec.describe "custom_provider" do
     expect(body['choices'].size).to eq(1)
     expect(body.dig('choices', 0, 'message', 'content')).to eq('Hello from custom provider!')
     expect(body['model']).to eq('my-model-v1')
+    client.unregister_provider('my-provider')
 
   ensure
     server&.stop

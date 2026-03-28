@@ -30,6 +30,6 @@
 	},
 	"tags": ["budget"],
 	"skip": {
-		"languages": ["wasm", "typescript", "node"]
+		"languages": []
 	}
 }

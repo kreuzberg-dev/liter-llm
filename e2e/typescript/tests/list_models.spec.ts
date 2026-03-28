@@ -51,7 +51,7 @@ describe("list-models", () => {
         await client.listModels();
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.listModels to throw").toBe(true);
     } finally {

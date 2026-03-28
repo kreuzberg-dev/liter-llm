@@ -21,7 +21,7 @@ describe("custom_provider", () => {
     try {
       const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
 
-      client.registerProvider({ name: "my-auth-provider", baseUrl: server.url, modelPrefixes: ["my-auth-"] });
+      LlmClient.registerProvider({ name: "my-auth-provider", baseUrl: server.url, modelPrefixes: ["my-auth-"] });
 
       const response = await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"my-auth-model-v1"}`));
       expect(response).toBeTruthy();
@@ -47,7 +47,7 @@ describe("custom_provider", () => {
     try {
       const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url });
 
-      client.registerProvider({ name: "my-provider", baseUrl: server.url, modelPrefixes: ["my-"] });
+      LlmClient.registerProvider({ name: "my-provider", baseUrl: server.url, modelPrefixes: ["my-"] });
 
       const response = await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"my-model-v1"}`));
       expect(response).toBeTruthy();

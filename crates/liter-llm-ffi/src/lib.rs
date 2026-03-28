@@ -1636,6 +1636,33 @@ pub unsafe extern "C" fn literllm_cancel_response(
 }
 
 // ---------------------------------------------------------------------------
+// Budget
+// ---------------------------------------------------------------------------
+
+/// Read the cumulative global spend tracked by the budget layer.
+///
+/// Returns the spend in USD.  If no budget is configured on the client,
+/// returns `0.0`.
+///
+/// # Safety
+///
+/// - `client` must be a valid, non-null pointer returned by
+///   `literllm_client_new` or `literllm_client_new_with_config`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn literllm_budget_usage(client: *const LiterLlmClient) -> f64 {
+    if client.is_null() {
+        return 0.0;
+    }
+    // SAFETY: caller guarantees `client` is non-null and valid.
+    let client_handle = unsafe { &(*client) };
+    client_handle
+        .inner
+        .budget_state()
+        .map(|s| s.global_spend())
+        .unwrap_or(0.0)
+}
+
+// ---------------------------------------------------------------------------
 // Utility
 // ---------------------------------------------------------------------------
 
