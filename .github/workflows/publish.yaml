@@ -823,7 +823,7 @@ jobs:
       - name: Setup Rust
         uses: kreuzberg-dev/actions/setup-rust@v1
         with:
-          targets: ${{ matrix.target }}
+          target: ${{ matrix.target }}
       - name: Build FFI
         shell: bash
         run: cargo build -p liter-llm-ffi --release --target ${{ matrix.target }}
