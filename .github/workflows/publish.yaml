@@ -752,30 +752,15 @@ jobs:
           --target ${{ matrix.target }}
           --manifest-path crates/liter-llm-php/Cargo.toml
         shell: bash
-      - name: Package PHP extension
+      - name: Build PIE package
+        shell: bash
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
-          TARGET: ${{ matrix.target }}
-          OS: ${{ matrix.os }}
-          ARCH: ${{ matrix.arch }}
-        run: |
-          mkdir -p php-pkg
-          if [ "$OS" = "windows" ]; then
-            cp "target/${TARGET}/release/liter_llm_php.dll" php-pkg/
-          elif [ "$OS" = "macos" ]; then
-            # PHP loads extensions as .so on all platforms
-            cp "target/${TARGET}/release/libliter_llm_php.dylib" "php-pkg/liter_llm_php.so"
-          else
-            cp "target/${TARGET}/release/libliter_llm_php.so" "php-pkg/liter_llm_php.so"
-          fi
-          TARBALL="liter_llm_php-v${VERSION}-php82-nts-${OS}-${ARCH}.tar.gz"
-          tar -czf "$TARBALL" -C php-pkg .
-          echo "Created: $TARBALL"
-        shell: bash
+        run: scripts/publish/php/build-pie-package.sh "${{ matrix.label }}" "dist/php"
       - uses: actions/upload-artifact@v7
         with:
-          name: php-ext-${{ matrix.label }}
-          path: liter_llm_php-*.tar.gz
+          name: php-pie-${{ matrix.label }}
+          path: dist/php/liter-llm-*.tar.gz*
           retention-days: 14
 
   # ── Rust FFI (shared for Go / Java / C# / C consumers) ────────────────────
@@ -1050,14 +1035,24 @@ jobs:
         shell: bash
       - uses: actions/download-artifact@v7
         with:
-          pattern: php-ext-*
-          path: php-ext-artifacts
+          pattern: php-pie-*
+          path: php-pie-artifacts
           merge-multiple: true
-      - name: Upload to GitHub Release
+      - name: List PHP artifacts
+        run: ls -lah php-pie-artifacts/
+        shell: bash
+      - name: Upload PIE packages to GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.prepare.outputs.tag }}
-        run: gh release upload "$TAG" php-ext-artifacts/*.tar.gz --clobber --repo ${{ github.repository }}
+        run: |
+          echo "Uploading PHP PIE packages to GitHub release ${TAG}..."
+          for file in php-pie-artifacts/liter-llm-*.tar.gz*; do
+            if [ -f "$file" ]; then
+              echo "Uploading: $file"
+              gh release upload "$TAG" "$file" --clobber --repo ${{ github.repository }}
+            fi
+          done
         shell: bash
 
   # ─────────────────────────────────────────────────────────────────────────
