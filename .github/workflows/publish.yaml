@@ -1084,7 +1084,7 @@ jobs:
       - uses: kreuzberg-dev/actions/setup-rust@v1
       - uses: kreuzberg-dev/actions/publish-crates@v1
         with:
-          crates: liter-llm-bindings-core liter-llm liter-llm-ffi
+          crates: liter-llm liter-llm-bindings-core liter-llm-ffi
           version: ${{ needs.prepare.outputs.version }}
           dry-run: ${{ needs.prepare.outputs.dry_run }}
 
