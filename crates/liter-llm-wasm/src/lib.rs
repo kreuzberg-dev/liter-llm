@@ -55,6 +55,16 @@ export interface BudgetOptions {
   enforcement?: "soft" | "hard";
 }
 
+/** Rate limit configuration for request throttling. */
+export interface RateLimitOptions {
+  /** Maximum requests per minute. */
+  rpm?: number;
+  /** Maximum tokens per minute. */
+  tpm?: number;
+  /** Window size in seconds (default: 60). */
+  windowSeconds?: number;
+}
+
 /** Options accepted by the {@link LlmClient} constructor. */
 export interface LlmClientOptions {
   /** API key for authentication.  Pass an empty string for providers that
@@ -75,6 +85,16 @@ export interface LlmClientOptions {
   cache?: CacheOptions;
   /** Budget enforcement configuration. */
   budget?: BudgetOptions;
+  /** Cooldown period in seconds between requests after errors. */
+  cooldown?: number;
+  /** Rate limit configuration for request throttling. */
+  rateLimit?: RateLimitOptions;
+  /** Health check interval in seconds. */
+  healthCheck?: number;
+  /** Enable cost tracking middleware. */
+  costTracking?: boolean;
+  /** Enable tracing middleware. */
+  tracing?: boolean;
 }
 
 // ── Shared ────────────────────────────────────────────────────────────────────
@@ -579,6 +599,31 @@ fn parse_provider_config_from_json(val: &serde_json::Value) -> Result<liter_llm:
 
 // ─── Client options ───────────────────────────────────────────────────────────
 
+/// Rate limit configuration for request throttling.
+///
+/// Fields are accepted for forward compatibility and deserialized from JS
+/// options, but not yet consumed in the WASM binding (which uses direct
+/// `fetch` calls instead of the Rust-core middleware stack).
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
+struct RateLimitOptionsConfig {
+    /// Maximum requests per minute.
+    #[serde(default)]
+    rpm: Option<u32>,
+    /// Maximum tokens per minute.
+    #[serde(default)]
+    tpm: Option<u64>,
+    /// Window size in seconds (default: 60).
+    #[serde(default = "default_rate_limit_window")]
+    #[serde(alias = "windowSeconds")]
+    window_seconds: u64,
+}
+
+fn default_rate_limit_window() -> u64 {
+    60
+}
+
 /// Options accepted by the `LlmClient` constructor from JavaScript.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -601,6 +646,31 @@ struct ClientOptions {
     /// Budget enforcement configuration.
     #[serde(default)]
     budget: Option<BudgetOptionsConfig>,
+    /// Cooldown period in seconds between requests after errors.
+    /// Accepted for forward compatibility; not yet consumed in WASM binding.
+    #[serde(default)]
+    #[allow(dead_code)]
+    cooldown: Option<u64>,
+    /// Rate limit configuration for request throttling.
+    /// Accepted for forward compatibility; not yet consumed in WASM binding.
+    #[serde(default)]
+    #[allow(dead_code)]
+    rate_limit: Option<RateLimitOptionsConfig>,
+    /// Health check interval in seconds.
+    /// Accepted for forward compatibility; not yet consumed in WASM binding.
+    #[serde(default)]
+    #[allow(dead_code)]
+    health_check: Option<u64>,
+    /// Enable cost tracking middleware.
+    /// Accepted for forward compatibility; not yet consumed in WASM binding.
+    #[serde(default)]
+    #[allow(dead_code)]
+    cost_tracking: Option<bool>,
+    /// Enable tracing middleware.
+    /// Accepted for forward compatibility; not yet consumed in WASM binding.
+    #[serde(default)]
+    #[allow(dead_code)]
+    tracing: Option<bool>,
 }
 
 /// Deserialized cache configuration from JS.
@@ -1315,6 +1385,60 @@ impl LlmClient {
             invoke_hooks(&hooks, "onRequest", std::slice::from_ref(&request)).await?;
             let req_json = js_to_json(request.clone())?;
             let url = format!("{base_url}/rerank");
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    let _ = invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    let _ = invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
+        })
+    }
+
+    /// Perform a web/document search.
+    ///
+    /// Accepts a JS object matching the search API format.
+    /// Returns a `Promise` that resolves to the parsed search response object.
+    pub fn search(&self, request: JsValue) -> Promise {
+        let auth_header = self.effective_auth_header();
+        let base_url = self.base_url.clone();
+        let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
+
+        wasm_bindgen_futures::future_to_promise(async move {
+            invoke_hooks(&hooks, "onRequest", std::slice::from_ref(&request)).await?;
+            let req_json = js_to_json(request.clone())?;
+            let url = format!("{base_url}/search");
+            match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
+                Ok(resp_json) => {
+                    let _ = invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;
+                    Ok(resp_json)
+                }
+                Err(err) => {
+                    let _ = invoke_hooks(&hooks, "onError", &[request, err.clone()]).await;
+                    Err(err)
+                }
+            }
+        })
+    }
+
+    /// Extract text from a document via OCR.
+    ///
+    /// Accepts a JS object matching the OCR API format.
+    /// Returns a `Promise` that resolves to the parsed OCR response object.
+    pub fn ocr(&self, request: JsValue) -> Promise {
+        let auth_header = self.effective_auth_header();
+        let base_url = self.base_url.clone();
+        let max_retries = self.max_retries;
+        let hooks = self.hooks.clone();
+
+        wasm_bindgen_futures::future_to_promise(async move {
+            invoke_hooks(&hooks, "onRequest", std::slice::from_ref(&request)).await?;
+            let req_json = js_to_json(request.clone())?;
+            let url = format!("{base_url}/ocr");
             match fetch_json_post_with_auth(&url, &auth_header, req_json, max_retries).await {
                 Ok(resp_json) => {
                     let _ = invoke_hooks(&hooks, "onResponse", &[request, resp_json.clone()]).await;

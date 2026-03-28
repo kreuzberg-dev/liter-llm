@@ -33,7 +33,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, LazyLock, Mutex};
 
-use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement, LlmHook, LlmRequest, LlmResponse};
+use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement, LlmHook, LlmRequest, LlmResponse, RateLimitConfig};
 use liter_llm::{
     AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, FileClient, LiterLlmError,
     LlmClient, ManagedClient, ResponseClient, register_custom_provider, unregister_custom_provider,
@@ -285,6 +285,58 @@ impl RubyLlmClient {
             }
         }
 
+        // Apply optional cooldown configuration.
+        if let Some(cooldown_val) = kw.get(ruby.to_symbol("cooldown"))
+            && let Ok(secs) = u64::try_convert(cooldown_val)
+        {
+            builder = builder.cooldown(std::time::Duration::from_secs(secs));
+        }
+
+        // Apply optional rate limit configuration.
+        if let Some(rl_val) = kw.get(ruby.to_symbol("rate_limit"))
+            && let Ok(rl_hash) = magnus::RHash::try_convert(rl_val)
+        {
+            let rpm: Option<u32> = rl_hash
+                .get(ruby.to_symbol("rpm"))
+                .and_then(|v| u32::try_convert(v).ok());
+            let tpm: Option<u64> = rl_hash
+                .get(ruby.to_symbol("tpm"))
+                .and_then(|v| u64::try_convert(v).ok());
+            let window_seconds: u64 = rl_hash
+                .get(ruby.to_symbol("window_seconds"))
+                .and_then(|v| u64::try_convert(v).ok())
+                .unwrap_or(60);
+            let rl_config = RateLimitConfig {
+                rpm,
+                tpm,
+                window: std::time::Duration::from_secs(window_seconds),
+            };
+            builder = builder.rate_limit(rl_config);
+        }
+
+        // Apply optional health check interval.
+        if let Some(hc_val) = kw.get(ruby.to_symbol("health_check"))
+            && let Ok(secs) = u64::try_convert(hc_val)
+        {
+            builder = builder.health_check(std::time::Duration::from_secs(secs));
+        }
+
+        // Apply cost tracking flag.
+        if let Some(ct_val) = kw.get(ruby.to_symbol("cost_tracking"))
+            && let Ok(enabled) = bool::try_convert(ct_val)
+            && enabled
+        {
+            builder = builder.cost_tracking(true);
+        }
+
+        // Apply tracing flag.
+        if let Some(tr_val) = kw.get(ruby.to_symbol("tracing"))
+            && let Ok(enabled) = bool::try_convert(tr_val)
+            && enabled
+        {
+            builder = builder.tracing(true);
+        }
+
         let config = builder.build();
         let client = ManagedClient::new(config, model_hint.as_deref())
             .map_err(|e| Error::new(ruby.exception_runtime_error(), e.to_string()))?;
@@ -527,6 +579,62 @@ impl RubyLlmClient {
 
         let rt = runtime(&ruby)?;
         let response = rt.block_on(self.inner.rerank(req)).map_err(|e| {
+            Error::new(ruby.exception_runtime_error(), e.to_string())
+        })?;
+
+        serde_json::to_string(&response).map_err(|e| {
+            Error::new(
+                ruby.exception_runtime_error(),
+                format!("serialization error: {e}"),
+            )
+        })
+    }
+
+    /// Perform a web/document search.
+    ///
+    /// @param request_json [String] JSON-encoded search request.
+    /// @return [String] JSON-encoded search response.
+    fn search(&self, request_json: String) -> Result<String, Error> {
+        let ruby = unsafe { Ruby::get_unchecked() };
+
+        let req: liter_llm::SearchRequest =
+            serde_json::from_str(&request_json).map_err(|e| {
+                Error::new(
+                    ruby.exception_arg_error(),
+                    format!("invalid search request JSON: {e}"),
+                )
+            })?;
+
+        let rt = runtime(&ruby)?;
+        let response = rt.block_on(self.inner.search(req)).map_err(|e| {
+            Error::new(ruby.exception_runtime_error(), e.to_string())
+        })?;
+
+        serde_json::to_string(&response).map_err(|e| {
+            Error::new(
+                ruby.exception_runtime_error(),
+                format!("serialization error: {e}"),
+            )
+        })
+    }
+
+    /// Extract text from a document via OCR.
+    ///
+    /// @param request_json [String] JSON-encoded OCR request.
+    /// @return [String] JSON-encoded OCR response.
+    fn ocr(&self, request_json: String) -> Result<String, Error> {
+        let ruby = unsafe { Ruby::get_unchecked() };
+
+        let req: liter_llm::OcrRequest =
+            serde_json::from_str(&request_json).map_err(|e| {
+                Error::new(
+                    ruby.exception_arg_error(),
+                    format!("invalid OCR request JSON: {e}"),
+                )
+            })?;
+
+        let rt = runtime(&ruby)?;
+        let response = rt.block_on(self.inner.ocr(req)).map_err(|e| {
             Error::new(ruby.exception_runtime_error(), e.to_string())
         })?;
 
@@ -940,6 +1048,8 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     client_class.define_method("transcribe", method!(RubyLlmClient::transcribe, 1))?;
     client_class.define_method("moderate", method!(RubyLlmClient::moderate, 1))?;
     client_class.define_method("rerank", method!(RubyLlmClient::rerank, 1))?;
+    client_class.define_method("search", method!(RubyLlmClient::search, 1))?;
+    client_class.define_method("ocr", method!(RubyLlmClient::ocr, 1))?;
 
     // File management methods.
     client_class.define_method("create_file", method!(RubyLlmClient::create_file, 1))?;

@@ -18,8 +18,10 @@ use liter_llm::types::batch::{BatchListQuery, CreateBatchRequest};
 use liter_llm::types::files::{CreateFileRequest, FileListQuery};
 use liter_llm::types::image::CreateImageRequest;
 use liter_llm::types::moderation::ModerationRequest;
+use liter_llm::types::ocr::OcrRequest;
 use liter_llm::types::rerank::RerankRequest;
 use liter_llm::types::responses::CreateResponseRequest;
+use liter_llm::types::search::SearchRequest;
 use liter_llm::{ChatCompletionChunk, ChatCompletionRequest, ClientConfig, DefaultClient, EmbeddingRequest};
 use liter_llm_bindings_core::runtime::current_thread_runtime;
 use rustler::{Error as NifError, NifResult, OwnedBinary};
@@ -33,6 +35,17 @@ fn runtime() -> &'static tokio::runtime::Runtime {
 
 // ─── Client construction helpers ─────────────────────────────────────────────
 
+/// Rate limit configuration for request throttling.
+#[derive(Deserialize)]
+struct RateLimitOptions {
+    #[serde(default)]
+    rpm: Option<u32>,
+    #[serde(default)]
+    tpm: Option<u64>,
+    #[serde(default)]
+    window_seconds: Option<u64>,
+}
+
 /// Client options accepted as the first argument to every NIF.
 #[derive(Deserialize)]
 struct ClientOptions {
@@ -43,6 +56,16 @@ struct ClientOptions {
     max_retries: Option<u32>,
     #[serde(default)]
     timeout_secs: Option<u64>,
+    #[serde(default)]
+    cooldown_secs: Option<u64>,
+    #[serde(default)]
+    rate_limit: Option<RateLimitOptions>,
+    #[serde(default)]
+    health_check_secs: Option<u64>,
+    #[serde(default)]
+    cost_tracking: Option<bool>,
+    #[serde(default)]
+    tracing: Option<bool>,
 }
 
 fn build_client(config_json: &str, model_hint: Option<&str>) -> NifResult<DefaultClient> {
@@ -56,6 +79,25 @@ fn build_client(config_json: &str, model_hint: Option<&str>) -> NifResult<Defaul
     }
     if let Some(t) = opts.timeout_secs {
         config.timeout = Duration::from_secs(t);
+    }
+    if let Some(secs) = opts.cooldown_secs {
+        config.cooldown_duration = Some(Duration::from_secs(secs));
+    }
+    if let Some(rl) = opts.rate_limit {
+        config.rate_limit_config = Some(liter_llm::tower::RateLimitConfig {
+            rpm: rl.rpm,
+            tpm: rl.tpm,
+            window: Duration::from_secs(rl.window_seconds.unwrap_or(60)),
+        });
+    }
+    if let Some(secs) = opts.health_check_secs {
+        config.health_check_interval = Some(Duration::from_secs(secs));
+    }
+    if opts.cost_tracking.unwrap_or(false) {
+        config.enable_cost_tracking = true;
+    }
+    if opts.tracing.unwrap_or(false) {
+        config.enable_tracing = true;
     }
 
     DefaultClient::new(config, model_hint).map_err(|e| nif_err(e.to_string()))
@@ -348,6 +390,32 @@ fn cancel_response(config_json: String, response_id: String) -> NifResult<String
     let client = build_client(&config_json, None)?;
     let resp = runtime()
         .block_on(async move { client.cancel_response(&response_id).await })
+        .map_err(|e| nif_err(e.to_string()))?;
+    to_json(&resp)
+}
+
+// ─── Search & OCR NIFs ───────────────────────────────────────────────────────
+
+/// Perform a web/document search.
+#[rustler::nif(schedule = "DirtyIo")]
+fn search(config_json: String, request_json: String) -> NifResult<String> {
+    let model = extract_model(&request_json);
+    let client = build_client(&config_json, model.as_deref())?;
+    let req: SearchRequest = from_json(&request_json, "search request")?;
+    let resp = runtime()
+        .block_on(async move { client.search(req).await })
+        .map_err(|e| nif_err(e.to_string()))?;
+    to_json(&resp)
+}
+
+/// Extract text from a document via OCR.
+#[rustler::nif(schedule = "DirtyIo")]
+fn ocr(config_json: String, request_json: String) -> NifResult<String> {
+    let model = extract_model(&request_json);
+    let client = build_client(&config_json, model.as_deref())?;
+    let req: OcrRequest = from_json(&request_json, "ocr request")?;
+    let resp = runtime()
+        .block_on(async move { client.ocr(req).await })
         .map_err(|e| nif_err(e.to_string()))?;
     to_json(&resp)
 }

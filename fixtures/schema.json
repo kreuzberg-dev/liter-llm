@@ -39,7 +39,8 @@
 				"custom_provider",
 				"parity",
 				"search",
-				"ocr"
+				"ocr",
+				"contract"
 			],
 			"description": "Category grouping for the fixture"
 		},

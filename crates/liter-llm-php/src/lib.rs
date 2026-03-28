@@ -272,9 +272,23 @@ impl PhpLlmClient {
         timeout_secs: Option<u64>,
         cache_json: Option<String>,
         budget_json: Option<String>,
+        cooldown_secs: Option<u64>,
+        rate_limit_json: Option<String>,
+        health_check_secs: Option<u64>,
+        cost_tracking: Option<bool>,
+        tracing: Option<bool>,
     ) -> PhpResult<Self> {
         let cache_config = cache_json.as_deref().map(parse_cache_config_json).transpose()?;
         let budget_config = budget_json.as_deref().map(parse_budget_config_json).transpose()?;
+
+        let rate_limit_config = rate_limit_json
+            .as_deref()
+            .map(|json| {
+                let val: serde_json::Value = serde_json::from_str(json)
+                    .map_err(|e| PhpException::from(format!("invalid rate limit config JSON: {e}")))?;
+                config::parse_rate_limit_config(&val).map_err(PhpException::from)
+            })
+            .transpose()?;
 
         let opts = config::ClientOptions {
             api_key,
@@ -285,7 +299,11 @@ impl PhpLlmClient {
             cache_config,
             budget_config,
             hooks: Vec::new(),
-            ..Default::default()
+            cooldown_secs,
+            rate_limit_config,
+            health_check_secs,
+            enable_cost_tracking: cost_tracking.unwrap_or(false),
+            enable_tracing: tracing.unwrap_or(false),
         };
 
         let client = config::build_managed_client(opts).map_err(|e| PhpException::from(error::format_error(&e)))?;

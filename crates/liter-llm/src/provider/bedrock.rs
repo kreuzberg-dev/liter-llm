@@ -904,6 +904,8 @@ fn sigv4_sign(method: &str, url: &str, body: &[u8], region: &str) -> Result<Vec<
 mod tests {
     use serde_json::json;
 
+    use serial_test::serial;
+
     use super::*;
     use crate::provider::Provider;
     use crate::types::chat::FinishReason;
@@ -1487,10 +1489,9 @@ mod tests {
     // ── Cross-region inference ───────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn apply_cross_region_prefix_when_set() {
-        // SAFETY: env vars are process-global; this test should not run in parallel
-        // with other tests that rely on BEDROCK_CROSS_REGION. The test runner
-        // serialises tests in this module by default.
+        // SAFETY: env vars are process-global; `#[serial]` ensures no parallel mutation.
         unsafe { std::env::set_var("BEDROCK_CROSS_REGION", "us") };
         let result = super::apply_cross_region_prefix("anthropic.claude-3-sonnet-20240229-v1:0");
         assert_eq!(result, "us.anthropic.claude-3-sonnet-20240229-v1:0");
@@ -1498,8 +1499,9 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn apply_cross_region_prefix_no_double_prefix() {
-        // SAFETY: see apply_cross_region_prefix_when_set.
+        // SAFETY: env vars are process-global; `#[serial]` ensures no parallel mutation.
         unsafe { std::env::set_var("BEDROCK_CROSS_REGION", "eu") };
         let result = super::apply_cross_region_prefix("eu.anthropic.claude-3-sonnet-20240229-v1:0");
         assert_eq!(
@@ -1510,8 +1512,9 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn apply_cross_region_prefix_unset() {
-        // SAFETY: see apply_cross_region_prefix_when_set.
+        // SAFETY: env vars are process-global; `#[serial]` ensures no parallel mutation.
         unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
         let result = super::apply_cross_region_prefix("anthropic.claude-3-sonnet-20240229-v1:0");
         assert_eq!(result, "anthropic.claude-3-sonnet-20240229-v1:0");

@@ -1,0 +1,36 @@
+{
+	"id": "contract_ocr",
+	"category": "contract",
+	"description": "Verify ocr() method exists in all bindings",
+	"client_config": {
+		"api_key": "test-key",
+		"base_url": "{{mock_url}}"
+	},
+	"api": {
+		"method": "ocr",
+		"request": {
+			"model": "mistral/mistral-ocr-latest",
+			"document": {
+				"type": "document_url",
+				"url": "https://example.com/contract-test.pdf"
+			}
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"pages": [
+					{
+						"index": 0,
+						"markdown": "# Contract Test\n\nThis verifies OCR method exists."
+					}
+				],
+				"model": "mistral/mistral-ocr-latest"
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true
+	},
+	"tags": ["contract", "parity"],
+	"skip": {}
+}

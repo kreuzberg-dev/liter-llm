@@ -6,7 +6,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 
-use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement};
+use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement, RateLimitConfig};
 use liter_llm::tower::{LlmHook, LlmRequest, LlmResponse};
 use liter_llm::{
     AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, FileClient, LiterLlmError, LlmClient,
@@ -352,8 +352,14 @@ impl PyLlmClient {
     ///         ``model_limits``, and ``enforcement`` keys.
     ///     extra_headers: Optional dict of additional HTTP headers to include
     ///         in every request.
+    ///     cooldown: Cooldown period in seconds between requests after errors.
+    ///     rate_limit: Optional rate limit configuration dict with ``rpm``
+    ///         (requests per minute) and/or ``tpm`` (tokens per minute) keys.
+    ///     health_check: Health check interval in seconds.
+    ///     cost_tracking: Enable cost tracking middleware.  Defaults to ``False``.
+    ///     tracing: Enable tracing middleware.  Defaults to ``False``.
     #[new]
-    #[pyo3(signature = (*, api_key, base_url = None, model_hint = None, max_retries = 3, timeout = 60, cache = None, budget = None, extra_headers = None))]
+    #[pyo3(signature = (*, api_key, base_url = None, model_hint = None, max_retries = 3, timeout = 60, cache = None, budget = None, extra_headers = None, cooldown = None, rate_limit = None, health_check = None, cost_tracking = false, tracing = false))]
     #[allow(clippy::too_many_arguments)]
     fn new(
         api_key: String,
@@ -364,6 +370,11 @@ impl PyLlmClient {
         cache: Option<Bound<'_, PyDict>>,
         budget: Option<Bound<'_, PyDict>>,
         extra_headers: Option<Bound<'_, PyDict>>,
+        cooldown: Option<u64>,
+        rate_limit: Option<Bound<'_, PyDict>>,
+        health_check: Option<u64>,
+        cost_tracking: bool,
+        tracing: bool,
     ) -> PyResult<Self> {
         let mut builder = ClientConfigBuilder::new(api_key);
         if let Some(ref url) = base_url {
@@ -395,6 +406,41 @@ impl PyLlmClient {
                     .map_err(|_| PyValueError::new_err("extra_headers values must be strings"))?;
                 builder = builder.header(key, value).map_err(to_py_err)?;
             }
+        }
+
+        // Apply optional cooldown.
+        if let Some(secs) = cooldown {
+            builder = builder.cooldown(std::time::Duration::from_secs(secs));
+        }
+
+        // Apply optional rate limit configuration.
+        if let Some(ref rl_dict) = rate_limit {
+            let rpm: Option<u32> = rl_dict.get_item("rpm")?.map(|v| v.extract::<u32>()).transpose()?;
+            let tpm: Option<u64> = rl_dict.get_item("tpm")?.map(|v| v.extract::<u64>()).transpose()?;
+            let window_seconds: u64 = rl_dict
+                .get_item("window_seconds")?
+                .map(|v| v.extract::<u64>())
+                .transpose()?
+                .unwrap_or(60);
+            let rl_config = RateLimitConfig {
+                rpm,
+                tpm,
+                window: std::time::Duration::from_secs(window_seconds),
+            };
+            builder = builder.rate_limit(rl_config);
+        }
+
+        // Apply optional health check interval.
+        if let Some(secs) = health_check {
+            builder = builder.health_check(std::time::Duration::from_secs(secs));
+        }
+
+        // Apply cost tracking and tracing flags.
+        if cost_tracking {
+            builder = builder.cost_tracking(true);
+        }
+        if tracing {
+            builder = builder.tracing(true);
         }
 
         let config = builder.build();

@@ -70,32 +70,3 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: task rust:lint:check
         shell: bash
-
-  coverage:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Rust
-        uses: kreuzberg-dev/actions/setup-rust@v1
-        with:
-          components: rustfmt, clippy, llvm-tools-preview
-
-      - name: Install Task
-        uses: go-task/setup-task@v2
-        with:
-          version: 3.46.4
-
-      - name: Generate Rust Coverage
-        run: cargo llvm-cov --workspace --lcov --output-path rust-coverage.lcov
-        shell: bash
-
-      - name: Upload Coverage Artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-report-${{ github.sha }}
-          path: rust-coverage.lcov
-          retention-days: 7

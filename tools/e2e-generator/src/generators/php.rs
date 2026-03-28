@@ -749,21 +749,22 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 !fixture.assertions.expect_success && fixture.assertions.error_type.as_deref() == Some("HookRejected");
 
             if fixture.assertions.hook_on_request_called == Some(true) {
-                writeln!(out, "        $hookCalled = false;").unwrap();
+                writeln!(out, "        $hookState = new \\stdClass();").unwrap();
+                writeln!(out, "        $hookState->called = false;").unwrap();
                 writeln!(
                     out,
-                    "        $client->addHook(new class(&$hookCalled) implements \\LiterLlm\\LlmHook {{"
+                    "        $client->addHook(new class($hookState) implements \\LiterLlm\\LlmHook {{"
                 )
                 .unwrap();
-                writeln!(out, "            private bool $called;").unwrap();
+                writeln!(out, "            private \\stdClass $state;").unwrap();
                 writeln!(
                     out,
-                    "            public function __construct(bool &$called) {{ $this->called = &$called; }}"
+                    "            public function __construct(\\stdClass $state) {{ $this->state = $state; }}"
                 )
                 .unwrap();
                 writeln!(
                     out,
-                    "            public function onRequest(mixed $request): void {{ $this->called = true; }}"
+                    "            public function onRequest(mixed $request): void {{ $this->state->called = true; }}"
                 )
                 .unwrap();
                 writeln!(
@@ -781,24 +782,25 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 writeln!(out, "        $client->chat('{req_php}');").unwrap();
                 writeln!(
                     out,
-                    "        $this->assertTrue($hookCalled, 'Expected on_request hook to be called');"
+                    "        $this->assertTrue($hookState->called, 'Expected on_request hook to be called');"
                 )
                 .unwrap();
             } else if fixture.assertions.hook_on_response_called == Some(true) {
-                writeln!(out, "        $hookCalled = false;").unwrap();
+                writeln!(out, "        $hookState = new \\stdClass();").unwrap();
+                writeln!(out, "        $hookState->called = false;").unwrap();
                 writeln!(
                     out,
-                    "        $client->addHook(new class(&$hookCalled) implements \\LiterLlm\\LlmHook {{"
+                    "        $client->addHook(new class($hookState) implements \\LiterLlm\\LlmHook {{"
                 )
                 .unwrap();
-                writeln!(out, "            private bool $called;").unwrap();
+                writeln!(out, "            private \\stdClass $state;").unwrap();
                 writeln!(
                     out,
-                    "            public function __construct(bool &$called) {{ $this->called = &$called; }}"
+                    "            public function __construct(\\stdClass $state) {{ $this->state = $state; }}"
                 )
                 .unwrap();
                 writeln!(out, "            public function onRequest(mixed $request): void {{}}").unwrap();
-                writeln!(out, "            public function onResponse(mixed $request, mixed $response): void {{ $this->called = true; }}").unwrap();
+                writeln!(out, "            public function onResponse(mixed $request, mixed $response): void {{ $this->state->called = true; }}").unwrap();
                 writeln!(
                     out,
                     "            public function onError(mixed $request, \\Throwable $error): void {{}}"
@@ -809,20 +811,21 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 writeln!(out, "        $client->chat('{req_php}');").unwrap();
                 writeln!(
                     out,
-                    "        $this->assertTrue($hookCalled, 'Expected on_response hook to be called');"
+                    "        $this->assertTrue($hookState->called, 'Expected on_response hook to be called');"
                 )
                 .unwrap();
             } else if fixture.assertions.hook_on_error_called == Some(true) {
-                writeln!(out, "        $hookCalled = false;").unwrap();
+                writeln!(out, "        $hookState = new \\stdClass();").unwrap();
+                writeln!(out, "        $hookState->called = false;").unwrap();
                 writeln!(
                     out,
-                    "        $client->addHook(new class(&$hookCalled) implements \\LiterLlm\\LlmHook {{"
+                    "        $client->addHook(new class($hookState) implements \\LiterLlm\\LlmHook {{"
                 )
                 .unwrap();
-                writeln!(out, "            private bool $called;").unwrap();
+                writeln!(out, "            private \\stdClass $state;").unwrap();
                 writeln!(
                     out,
-                    "            public function __construct(bool &$called) {{ $this->called = &$called; }}"
+                    "            public function __construct(\\stdClass $state) {{ $this->state = $state; }}"
                 )
                 .unwrap();
                 writeln!(out, "            public function onRequest(mixed $request): void {{}}").unwrap();
@@ -831,7 +834,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                     "            public function onResponse(mixed $request, mixed $response): void {{}}"
                 )
                 .unwrap();
-                writeln!(out, "            public function onError(mixed $request, \\Throwable $error): void {{ $this->called = true; }}").unwrap();
+                writeln!(out, "            public function onError(mixed $request, \\Throwable $error): void {{ $this->state->called = true; }}").unwrap();
                 writeln!(out, "        }});").unwrap();
                 writeln!(out).unwrap();
                 writeln!(
@@ -841,7 +844,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 .unwrap();
                 writeln!(
                     out,
-                    "        $this->assertTrue($hookCalled, 'Expected on_error hook to be called');"
+                    "        $this->assertTrue($hookState->called, 'Expected on_error hook to be called');"
                 )
                 .unwrap();
             } else if is_guardrail {

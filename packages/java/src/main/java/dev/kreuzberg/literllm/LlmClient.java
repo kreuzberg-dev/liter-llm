@@ -738,6 +738,12 @@ public final class LlmClient implements AutoCloseable {
 		private CacheConfig cacheConfig;
 		private BudgetConfig budgetConfig;
 		private Map<String, String> extraHeaders;
+		private Integer cooldownSeconds;
+		private Integer rateLimitRpm;
+		private Integer rateLimitTpm;
+		private Integer healthCheckSeconds;
+		private boolean costTracking;
+		private boolean tracing;
 
 		private Builder() {
 		}
@@ -845,6 +851,70 @@ public final class LlmClient implements AutoCloseable {
 		}
 
 		/**
+		 * Sets the cooldown period in seconds after a provider error before retrying
+		 * that provider.
+		 *
+		 * @param seconds
+		 *            cooldown duration in seconds
+		 * @return this builder
+		 */
+		public Builder cooldown(int seconds) {
+			this.cooldownSeconds = seconds;
+			return this;
+		}
+
+		/**
+		 * Sets the rate limit for requests per minute and tokens per minute.
+		 *
+		 * @param rpm
+		 *            maximum requests per minute
+		 * @param tpm
+		 *            maximum tokens per minute
+		 * @return this builder
+		 */
+		public Builder rateLimit(int rpm, int tpm) {
+			this.rateLimitRpm = rpm;
+			this.rateLimitTpm = tpm;
+			return this;
+		}
+
+		/**
+		 * Sets the interval in seconds for provider health checks.
+		 *
+		 * @param seconds
+		 *            health check interval in seconds
+		 * @return this builder
+		 */
+		public Builder healthCheck(int seconds) {
+			this.healthCheckSeconds = seconds;
+			return this;
+		}
+
+		/**
+		 * Enables or disables cost tracking for requests.
+		 *
+		 * @param enabled
+		 *            whether cost tracking is enabled
+		 * @return this builder
+		 */
+		public Builder costTracking(boolean enabled) {
+			this.costTracking = enabled;
+			return this;
+		}
+
+		/**
+		 * Enables or disables distributed tracing for requests.
+		 *
+		 * @param enabled
+		 *            whether tracing is enabled
+		 * @return this builder
+		 */
+		public Builder tracing(boolean enabled) {
+			this.tracing = enabled;
+			return this;
+		}
+
+		/**
 		 * Builds the {@link LlmClient}.
 		 *
 		 * @return a configured client instance
@@ -889,6 +959,24 @@ public final class LlmClient implements AutoCloseable {
 					budget.put("enforcement", budgetConfig.enforcement());
 				}
 				config.put("budget", budget);
+			}
+			if (cooldownSeconds != null) {
+				config.put("cooldown_secs", cooldownSeconds);
+			}
+			if (rateLimitRpm != null && rateLimitTpm != null) {
+				var rateLimit = new LinkedHashMap<String, Object>();
+				rateLimit.put("rpm", rateLimitRpm);
+				rateLimit.put("tpm", rateLimitTpm);
+				config.put("rate_limit", rateLimit);
+			}
+			if (healthCheckSeconds != null) {
+				config.put("health_check_secs", healthCheckSeconds);
+			}
+			if (costTracking) {
+				config.put("cost_tracking", true);
+			}
+			if (tracing) {
+				config.put("tracing", true);
 			}
 			return config;
 		}

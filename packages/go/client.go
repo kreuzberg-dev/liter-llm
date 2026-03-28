@@ -30,7 +30,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"runtime"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -186,24 +188,41 @@ type LlmClient interface {
 
 // ffiConfig is the JSON schema accepted by literllm_client_new_with_config.
 type ffiConfig struct {
-	APIKey       string            `json:"api_key"`
-	BaseURL      string            `json:"base_url,omitempty"`
-	ModelHint    string            `json:"model_hint,omitempty"`
-	MaxRetries   *int              `json:"max_retries,omitempty"`
-	TimeoutSecs  *int              `json:"timeout_secs,omitempty"`
-	ExtraHeaders map[string]string `json:"extra_headers,omitempty"`
-	Cache        *CacheConfig      `json:"cache,omitempty"`
-	Budget       *BudgetConfig     `json:"budget,omitempty"`
+	APIKey          string            `json:"api_key"`
+	BaseURL         string            `json:"base_url,omitempty"`
+	ModelHint       string            `json:"model_hint,omitempty"`
+	MaxRetries      *int              `json:"max_retries,omitempty"`
+	TimeoutSecs     *int              `json:"timeout_secs,omitempty"`
+	ExtraHeaders    map[string]string `json:"extra_headers,omitempty"`
+	Cache           *CacheConfig      `json:"cache,omitempty"`
+	Budget          *BudgetConfig     `json:"budget,omitempty"`
+	CooldownSecs    *int              `json:"cooldown_secs,omitempty"`
+	RateLimit       *ffiRateLimit     `json:"rate_limit,omitempty"`
+	HealthCheckSecs *int              `json:"health_check_secs,omitempty"`
+	CostTracking    bool              `json:"cost_tracking,omitempty"`
+	Tracing         bool              `json:"tracing,omitempty"`
+}
+
+// ffiRateLimit is the rate-limit sub-object inside ffiConfig.
+type ffiRateLimit struct {
+	RPM int `json:"rpm"`
+	TPM int `json:"tpm"`
 }
 
 // ClientConfig holds all options for constructing a [Client].
 // Use individual With* option functions.
 type ClientConfig struct {
-	apiKey    string
-	baseURL   string
-	modelHint string
-	cache     *CacheConfig
-	budget    *BudgetConfig
+	apiKey          string
+	baseURL         string
+	modelHint       string
+	cache           *CacheConfig
+	budget          *BudgetConfig
+	cooldownSecs    *int
+	rateLimitRPM    *int
+	rateLimitTPM    *int
+	healthCheckSecs *int
+	costTracking    bool
+	tracing         bool
 }
 
 // Option is a functional option for [NewClient].
@@ -247,6 +266,44 @@ func WithBudget(cfg BudgetConfig) Option {
 	}
 }
 
+// WithCooldown sets the cooldown period in seconds after a provider error
+// before retrying that provider.
+func WithCooldown(seconds int) Option {
+	return func(c *ClientConfig) {
+		c.cooldownSecs = &seconds
+	}
+}
+
+// WithRateLimit sets the rate limit for requests per minute (RPM) and
+// tokens per minute (TPM).
+func WithRateLimit(rpm, tpm int) Option {
+	return func(c *ClientConfig) {
+		c.rateLimitRPM = &rpm
+		c.rateLimitTPM = &tpm
+	}
+}
+
+// WithHealthCheck sets the interval in seconds for provider health checks.
+func WithHealthCheck(seconds int) Option {
+	return func(c *ClientConfig) {
+		c.healthCheckSecs = &seconds
+	}
+}
+
+// WithCostTracking enables or disables cost tracking for requests.
+func WithCostTracking(enabled bool) Option {
+	return func(c *ClientConfig) {
+		c.costTracking = enabled
+	}
+}
+
+// WithTracing enables or disables distributed tracing for requests.
+func WithTracing(enabled bool) Option {
+	return func(c *ClientConfig) {
+		c.tracing = enabled
+	}
+}
+
 // ─── Client ──────────────────────────────────────────────────────────────────
 
 // Client wraps an opaque FFI handle to the Rust liter-llm core library.
@@ -280,13 +337,20 @@ func NewClient(opts ...Option) (*Client, error) {
 	}
 
 	fCfg := ffiConfig{
-		APIKey:  cfg.apiKey,
-		BaseURL: cfg.baseURL,
-		Cache:   cfg.cache,
-		Budget:  cfg.budget,
+		APIKey:          cfg.apiKey,
+		BaseURL:         cfg.baseURL,
+		Cache:           cfg.cache,
+		Budget:          cfg.budget,
+		CooldownSecs:    cfg.cooldownSecs,
+		HealthCheckSecs: cfg.healthCheckSecs,
+		CostTracking:    cfg.costTracking,
+		Tracing:         cfg.tracing,
 	}
 	if cfg.modelHint != "" {
 		fCfg.ModelHint = cfg.modelHint
+	}
+	if cfg.rateLimitRPM != nil && cfg.rateLimitTPM != nil {
+		fCfg.RateLimit = &ffiRateLimit{RPM: *cfg.rateLimitRPM, TPM: *cfg.rateLimitTPM}
 	}
 
 	configJSON, err := json.Marshal(fCfg)
@@ -354,13 +418,67 @@ func (c *Client) Close() {
 
 // ─── Error helpers ───────────────────────────────────────────────────────────
 
+// ffiLabelMapping maps the [Label] prefix produced by the Rust FFI
+// format_error function to a Go sentinel error and a default HTTP status code.
+var ffiLabelMapping = map[string]struct {
+	sentinel   error
+	statusCode int
+	// displayPrefix is the thiserror Display prefix that precedes the raw
+	// provider message (e.g. "server error: ").  We strip it so that
+	// APIError.Message contains the provider-originated text only.
+	displayPrefix string
+}{
+	"Authentication":     {ErrAuthentication, http.StatusUnauthorized, "authentication failed: "},
+	"RateLimited":        {ErrRateLimit, http.StatusTooManyRequests, "rate limited: "},
+	"BadRequest":         {ErrInvalidRequest, http.StatusBadRequest, "bad request: "},
+	"NotFound":           {ErrNotFound, http.StatusNotFound, "not found: "},
+	"ServerError":        {ErrProviderError, http.StatusInternalServerError, "server error: "},
+	"ServiceUnavailable": {ErrProviderError, http.StatusServiceUnavailable, "service unavailable: "},
+	"BudgetExceeded":     {ErrBudgetExceeded, 0, "budget exceeded: "},
+	"HookRejected":       {ErrHookRejected, 0, "hook rejected: "},
+}
+
+// parseFFIError inspects the raw FFI error string for a [Label] prefix and
+// returns a typed *APIError when a known label is found.  Falls back to a
+// plain error otherwise.
+func parseFFIError(raw string) error {
+	// Find the [Label] block anywhere in the string.
+	start := strings.Index(raw, "[")
+	if start == -1 {
+		return fmt.Errorf("literllm: %s", raw)
+	}
+	end := strings.Index(raw[start:], "]")
+	if end == -1 {
+		return fmt.Errorf("literllm: %s", raw)
+	}
+	label := raw[start+1 : start+end]
+
+	mapping, ok := ffiLabelMapping[label]
+	if !ok {
+		return fmt.Errorf("literllm: %s", raw)
+	}
+
+	// Everything after "[Label] " is the Rust Display output of the error.
+	msg := raw[start+end+1:]
+	msg = strings.TrimPrefix(msg, " ")
+
+	// Strip the thiserror Display prefix to recover the raw provider message.
+	msg = strings.TrimPrefix(msg, mapping.displayPrefix)
+
+	return &APIError{
+		StatusCode: mapping.statusCode,
+		Message:    msg,
+		sentinel:   mapping.sentinel,
+	}
+}
+
 // lastError retrieves the last error message from the FFI layer.
 func lastError() error {
 	errPtr := C.literllm_last_error()
 	if errPtr == nil {
 		return fmt.Errorf("literllm: unknown error")
 	}
-	return fmt.Errorf("literllm: %s", C.GoString(errPtr))
+	return parseFFIError(C.GoString(errPtr))
 }
 
 // checkHandle returns an error if the client handle is nil or closed.
@@ -510,7 +628,7 @@ func (c *Client) ChatStream(_ context.Context, req *ChatCompletionRequest, handl
 	result := C.call_chat_stream(
 		c.handle,
 		cReq,
-		unsafe.Pointer(callbackID), //nolint:govet // integer smuggled through void* (not a real pointer)
+		unsafe.Pointer(uintptr(callbackID)), //nolint:govet // integer smuggled through void* (not a real pointer)
 	)
 	c.mu.Unlock()
 

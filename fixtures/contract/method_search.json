@@ -1,0 +1,34 @@
+{
+	"id": "contract_search",
+	"category": "contract",
+	"description": "Verify search() method exists in all bindings",
+	"client_config": {
+		"api_key": "test-key",
+		"base_url": "{{mock_url}}"
+	},
+	"api": {
+		"method": "search",
+		"request": {
+			"model": "brave/web-search",
+			"query": "contract test query"
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"results": [
+					{
+						"title": "Test",
+						"url": "https://example.com",
+						"snippet": "Test result"
+					}
+				],
+				"model": "brave/web-search"
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true
+	},
+	"tags": ["contract", "parity"],
+	"skip": {}
+}

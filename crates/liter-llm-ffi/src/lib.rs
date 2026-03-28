@@ -1998,6 +1998,36 @@ pub unsafe extern "C" fn literllm_client_new_with_config(config_json: *const c_c
         builder = builder.budget(budget_config);
     }
 
+    // Cooldown configuration.
+    if let Some(secs) = parsed.cooldown_secs {
+        builder = builder.cooldown(std::time::Duration::from_secs(secs));
+    }
+
+    // Rate limit configuration.
+    if let Some(rl) = parsed.rate_limit {
+        let rl_config = liter_llm::tower::RateLimitConfig {
+            rpm: rl.rpm,
+            tpm: rl.tpm,
+            window: std::time::Duration::from_secs(rl.window_seconds.unwrap_or(60)),
+        };
+        builder = builder.rate_limit(rl_config);
+    }
+
+    // Health check configuration.
+    if let Some(secs) = parsed.health_check_secs {
+        builder = builder.health_check(std::time::Duration::from_secs(secs));
+    }
+
+    // Cost tracking.
+    if parsed.cost_tracking.unwrap_or(false) {
+        builder = builder.cost_tracking(true);
+    }
+
+    // Tracing.
+    if parsed.tracing.unwrap_or(false) {
+        builder = builder.tracing(true);
+    }
+
     let config: ClientConfig = builder.build();
 
     match ManagedClient::new(config, parsed.model_hint.as_deref()) {
@@ -2034,6 +2064,16 @@ struct FfiClientConfig {
     cache: Option<FfiCacheConfig>,
     #[serde(default)]
     budget: Option<FfiBudgetConfig>,
+    #[serde(default)]
+    cooldown_secs: Option<u64>,
+    #[serde(default)]
+    rate_limit: Option<FfiRateLimitConfig>,
+    #[serde(default)]
+    health_check_secs: Option<u64>,
+    #[serde(default)]
+    cost_tracking: Option<bool>,
+    #[serde(default)]
+    tracing: Option<bool>,
 }
 
 #[derive(serde::Deserialize)]
@@ -2049,6 +2089,14 @@ struct FfiBudgetConfig {
     global_limit: Option<f64>,
     model_limits: Option<std::collections::HashMap<String, f64>>,
     enforcement: Option<String>,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FfiRateLimitConfig {
+    rpm: Option<u32>,
+    tpm: Option<u64>,
+    window_seconds: Option<u64>,
 }
 
 // ---------------------------------------------------------------------------

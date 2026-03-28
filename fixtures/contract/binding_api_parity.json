@@ -1,0 +1,74 @@
+{
+	"id": "binding_api_parity",
+	"category": "contract",
+	"description": "Verify all bindings expose the full API surface — constructor accepts all config options and every method exists",
+	"client_config": {
+		"api_key": "test-contract-key",
+		"base_url": "{{mock_url}}",
+		"model_hint": "openai",
+		"max_retries": 1,
+		"timeout_secs": 10,
+		"cache": {
+			"max_entries": 10,
+			"ttl_seconds": 60
+		},
+		"budget": {
+			"global_limit": 100.0,
+			"enforcement": "soft"
+		},
+		"cooldown_secs": 5,
+		"rate_limit": {
+			"rpm": 100,
+			"tpm": 50000
+		},
+		"health_check_secs": 30,
+		"cost_tracking": true,
+		"tracing": true
+	},
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "openai/gpt-4o",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Contract test"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-contract",
+				"object": "chat.completion",
+				"created": 1234567890,
+				"model": "gpt-4o",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "OK"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 5,
+					"completion_tokens": 1,
+					"total_tokens": 6
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_content": "OK",
+		"first_choice_finish_reason": "stop",
+		"usage_total_tokens": 6,
+		"model": "gpt-4o"
+	},
+	"tags": ["contract", "parity"],
+	"skip": {}
+}

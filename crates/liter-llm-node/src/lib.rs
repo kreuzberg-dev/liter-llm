@@ -195,6 +195,17 @@ pub struct CustomProviderOptions {
     pub model_prefixes: Vec<String>,
 }
 
+/// Rate limit configuration for request throttling.
+#[napi(object)]
+pub struct RateLimitOptions {
+    /// Maximum requests per minute.
+    pub rpm: Option<u32>,
+    /// Maximum tokens per minute.
+    pub tpm: Option<f64>,
+    /// Window size in seconds (default: 60).
+    pub window_seconds: Option<u32>,
+}
+
 /// Options accepted by the `LlmClient` constructor.
 #[napi(object)]
 pub struct LlmClientOptions {
@@ -219,6 +230,16 @@ pub struct LlmClientOptions {
     pub budget: Option<BudgetOptions>,
     /// Extra headers sent on every request, as key-value pairs.
     pub extra_headers: Option<HashMap<String, String>>,
+    /// Cooldown period in seconds between requests after errors.
+    pub cooldown: Option<u32>,
+    /// Rate limit configuration for request throttling.
+    pub rate_limit: Option<RateLimitOptions>,
+    /// Health check interval in seconds.
+    pub health_check: Option<u32>,
+    /// Enable cost tracking middleware.
+    pub cost_tracking: Option<bool>,
+    /// Enable tracing middleware.
+    pub tracing: Option<bool>,
 }
 
 // ─── LlmClient ────────────────────────────────────────────────────────────────
@@ -286,6 +307,36 @@ impl LlmClient {
                     .header(key, value)
                     .map_err(|e| napi::Error::new(Status::InvalidArg, e.to_string()))?;
             }
+        }
+
+        // Cooldown configuration.
+        if let Some(secs) = options.cooldown {
+            builder = builder.cooldown(std::time::Duration::from_secs(u64::from(secs)));
+        }
+
+        // Rate limit configuration.
+        if let Some(rl) = options.rate_limit {
+            let rl_config = liter_llm::tower::RateLimitConfig {
+                rpm: rl.rpm,
+                tpm: rl.tpm.map(|v| v as u64),
+                window: std::time::Duration::from_secs(u64::from(rl.window_seconds.unwrap_or(60))),
+            };
+            builder = builder.rate_limit(rl_config);
+        }
+
+        // Health check configuration.
+        if let Some(secs) = options.health_check {
+            builder = builder.health_check(std::time::Duration::from_secs(u64::from(secs)));
+        }
+
+        // Cost tracking.
+        if options.cost_tracking.unwrap_or(false) {
+            builder = builder.cost_tracking(true);
+        }
+
+        // Tracing.
+        if options.tracing.unwrap_or(false) {
+            builder = builder.tracing(true);
         }
 
         let config = builder.build();

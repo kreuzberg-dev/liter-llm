@@ -232,7 +232,7 @@ wheels = [
 
 [[package]]
 name = "liter-llm"
-version = "1.0.0rc3"
+version = "1.0.0rc6"
 source = { virtual = "." }
 
 [package.dev-dependencies]

@@ -63,6 +63,31 @@ final class CacheTest extends TestCase
         $server->stop();
     }
 
+    /** Cache hit with OpenDAL memory backend returns cached response on repeat request */
+    public function testCacheOpendalMemory(): void
+    {
+        $routes = [
+            new MockRoute(
+                path: '/chat/completions',
+                method: 'POST',
+                status: 200,
+                body: '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hi there!","role":"assistant"}}],"created":1711000000,"id":"chatcmpl-opendal-mem-001","model":"gpt-4o","object":"chat.completion","usage":{"completion_tokens":2,"prompt_tokens":5,"total_tokens":7}}',
+                streamChunks: [],
+            ),
+        ];
+
+        $server = new MockServer($routes);
+        $mockUrl = $server->url;
+
+        $cacheConfig = new \LiterLlm\CacheConfig(maxEntries: 10, ttlSeconds: 60);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, cacheConfig: $cacheConfig);
+
+        $resp1 = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"openai/gpt-4o"}');
+        $resp2 = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"openai/gpt-4o"}');
+        $this->assertEquals($resp1, $resp2, 'Expected cache hit on second call');
+        $server->stop();
+    }
+
     /** Tests that streaming requests bypass cache entirely */
     public function testCacheStreamBypass(): void
     {

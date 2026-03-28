@@ -12,7 +12,6 @@ require_once __DIR__ . '/Helpers.php';
 
 final class HooksTest extends TestCase
 {
-
     /** Tests that on_request hook can reject a request */
     public function testHookGuardrail(): void
     {
@@ -31,10 +30,17 @@ final class HooksTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $client->addHook(new class implements \LiterLlm\LlmHook {
-            public function onRequest(mixed $request): void { throw new \LiterLlm\HookRejectedException('Blocked by guardrail'); }
-            public function onResponse(mixed $request, mixed $response): void {}
-            public function onError(mixed $request, \Throwable $error): void {}
+        $client->addHook(new class () implements \LiterLlm\LlmHook {
+            public function onRequest(mixed $request): void
+            {
+                throw new \LiterLlm\HookRejectedException('Blocked by guardrail');
+            }
+            public function onResponse(mixed $request, mixed $response): void
+            {
+            }
+            public function onError(mixed $request, \Throwable $error): void
+            {
+            }
         });
 
         $threw = false;
@@ -65,17 +71,31 @@ final class HooksTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $hookCalled = false;
-        $client->addHook(new class(&$hookCalled) implements \LiterLlm\LlmHook {
-            private bool $called;
-            public function __construct(bool &$called) { $this->called = &$called; }
-            public function onRequest(mixed $request): void {}
-            public function onResponse(mixed $request, mixed $response): void {}
-            public function onError(mixed $request, \Throwable $error): void { $this->called = true; }
+        $hookState = new \stdClass();
+        $hookState->called = false;
+        $client->addHook(new class ($hookState) implements \LiterLlm\LlmHook {
+            private \stdClass $state;
+            public function __construct(\stdClass $state)
+            {
+                $this->state = $state;
+            }
+            public function onRequest(mixed $request): void
+            {
+            }
+            public function onResponse(mixed $request, mixed $response): void
+            {
+            }
+            public function onError(mixed $request, \Throwable $error): void
+            {
+                $this->state->called = true;
+            }
         });
 
-        try { $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}'); } catch (\Throwable $e) { }
-        $this->assertTrue($hookCalled, 'Expected on_error hook to be called');
+        try {
+            $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
+        } catch (\Throwable $e) {
+        }
+        $this->assertTrue($hookState->called, 'Expected on_error hook to be called');
         $server->stop();
     }
 
@@ -97,17 +117,28 @@ final class HooksTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $hookCalled = false;
-        $client->addHook(new class(&$hookCalled) implements \LiterLlm\LlmHook {
-            private bool $called;
-            public function __construct(bool &$called) { $this->called = &$called; }
-            public function onRequest(mixed $request): void { $this->called = true; }
-            public function onResponse(mixed $request, mixed $response): void {}
-            public function onError(mixed $request, \Throwable $error): void {}
+        $hookState = new \stdClass();
+        $hookState->called = false;
+        $client->addHook(new class ($hookState) implements \LiterLlm\LlmHook {
+            private \stdClass $state;
+            public function __construct(\stdClass $state)
+            {
+                $this->state = $state;
+            }
+            public function onRequest(mixed $request): void
+            {
+                $this->state->called = true;
+            }
+            public function onResponse(mixed $request, mixed $response): void
+            {
+            }
+            public function onError(mixed $request, \Throwable $error): void
+            {
+            }
         });
 
         $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
-        $this->assertTrue($hookCalled, 'Expected on_request hook to be called');
+        $this->assertTrue($hookState->called, 'Expected on_request hook to be called');
         $server->stop();
     }
 
@@ -129,17 +160,28 @@ final class HooksTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $hookCalled = false;
-        $client->addHook(new class(&$hookCalled) implements \LiterLlm\LlmHook {
-            private bool $called;
-            public function __construct(bool &$called) { $this->called = &$called; }
-            public function onRequest(mixed $request): void {}
-            public function onResponse(mixed $request, mixed $response): void { $this->called = true; }
-            public function onError(mixed $request, \Throwable $error): void {}
+        $hookState = new \stdClass();
+        $hookState->called = false;
+        $client->addHook(new class ($hookState) implements \LiterLlm\LlmHook {
+            private \stdClass $state;
+            public function __construct(\stdClass $state)
+            {
+                $this->state = $state;
+            }
+            public function onRequest(mixed $request): void
+            {
+            }
+            public function onResponse(mixed $request, mixed $response): void
+            {
+                $this->state->called = true;
+            }
+            public function onError(mixed $request, \Throwable $error): void
+            {
+            }
         });
 
         $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
-        $this->assertTrue($hookCalled, 'Expected on_response hook to be called');
+        $this->assertTrue($hookState->called, 'Expected on_response hook to be called');
         $server->stop();
     }
 }

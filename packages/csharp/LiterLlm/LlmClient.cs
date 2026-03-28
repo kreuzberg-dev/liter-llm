@@ -65,6 +65,15 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
     /// <param name="extraHeaders">Additional HTTP headers to send with every request.</param>
     /// <param name="cacheConfig">Optional response caching configuration.</param>
     /// <param name="budgetConfig">Optional cost budget enforcement configuration.</param>
+    /// <param name="cooldownSeconds">
+    /// Cooldown period in seconds after a provider error before retrying that provider.
+    /// Pass <c>null</c> to use the default.
+    /// </param>
+    /// <param name="rateLimitRpm">Maximum requests per minute. Must be set together with <paramref name="rateLimitTpm"/>.</param>
+    /// <param name="rateLimitTpm">Maximum tokens per minute. Must be set together with <paramref name="rateLimitRpm"/>.</param>
+    /// <param name="healthCheckSeconds">Interval in seconds for provider health checks. Pass <c>null</c> to disable.</param>
+    /// <param name="costTracking">Whether to enable cost tracking for requests.</param>
+    /// <param name="tracing">Whether to enable distributed tracing for requests.</param>
     public LlmClient(
         string apiKey,
         string? baseUrl = null,
@@ -73,7 +82,13 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         int? timeoutSeconds = null,
         IReadOnlyDictionary<string, string>? extraHeaders = null,
         CacheConfig? cacheConfig = null,
-        BudgetConfig? budgetConfig = null)
+        BudgetConfig? budgetConfig = null,
+        int? cooldownSeconds = null,
+        int? rateLimitRpm = null,
+        int? rateLimitTpm = null,
+        int? healthCheckSeconds = null,
+        bool costTracking = false,
+        bool tracing = false)
     {
         ArgumentNullException.ThrowIfNull(apiKey);
 
@@ -103,6 +118,19 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
             budget["enforcement"] = budgetConfig.Enforcement;
             configDict["budget"] = budget;
         }
+
+        if (cooldownSeconds is not null) configDict["cooldown_secs"] = cooldownSeconds.Value;
+        if (rateLimitRpm is not null && rateLimitTpm is not null)
+        {
+            configDict["rate_limit"] = new Dictionary<string, object>
+            {
+                ["rpm"] = rateLimitRpm.Value,
+                ["tpm"] = rateLimitTpm.Value,
+            };
+        }
+        if (healthCheckSeconds is not null) configDict["health_check_secs"] = healthCheckSeconds.Value;
+        if (costTracking) configDict["cost_tracking"] = true;
+        if (tracing) configDict["tracing"] = true;
 
         var configJson = JsonSerializer.Serialize(configDict, LiterLlmJson.SerializerOptions);
         var cConfig = Marshal.StringToCoTaskMemUTF8(configJson);
