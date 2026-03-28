@@ -22,6 +22,115 @@ All client configuration options in one place.
 | `enable_cost_tracking` | `bool` | `false` | Record `gen_ai.usage.cost` on tracing spans. |
 | `enable_tracing` | `bool` | `false` | OpenTelemetry GenAI semantic convention spans. |
 
+## File-Based Configuration
+
+Instead of passing options to the constructor, create a `liter-llm.toml` file. The client auto-discovers it by searching the current directory and parent directories.
+
+### Full TOML Schema
+
+```toml
+# Required -- provider API key
+api_key = "sk-..."
+
+# Optional -- override provider base URL
+base_url = "https://api.openai.com/v1"
+
+# Optional -- pre-resolve provider (skip prefix lookup)
+model_hint = "openai"
+
+# Optional -- request timeout in seconds (default: 60)
+timeout_secs = 120
+
+# Optional -- retries on 429/5xx (default: 3)
+max_retries = 5
+
+# Optional -- circuit breaker cooldown in seconds
+cooldown_secs = 30
+
+# Optional -- background health check interval in seconds
+health_check_secs = 60
+
+# Optional -- enable per-request cost tracking
+cost_tracking = true
+
+# Optional -- enable OpenTelemetry tracing spans
+tracing = true
+
+# Optional -- response cache settings
+[cache]
+max_entries = 512
+ttl_seconds = 600
+
+# Optional -- OpenDAL cache backend (overrides in-memory default)
+# [cache]
+# backend = "redis"
+# ttl_seconds = 3600
+# [cache.backend_config]
+# connection_string = "redis://localhost"
+
+# Optional -- spending budget enforcement
+[budget]
+global_limit = 50.0
+enforcement = "hard"  # "hard" (reject) or "soft" (warn)
+
+# Optional -- per-model spend limits
+[budget.model_limits]
+"openai/gpt-4o" = 25.0
+"anthropic/claude-sonnet-4-20250514" = 15.0
+
+# Optional -- client-side rate limiting
+[rate_limit]
+rpm = 60      # requests per minute
+tpm = 100000  # tokens per minute
+
+# Optional -- custom providers (repeatable)
+[[providers]]
+name = "my-provider"
+base_url = "https://my-llm.example.com/v1"
+auth_header = "Authorization"
+model_prefixes = ["my-provider/"]
+
+[[providers]]
+name = "local-ollama"
+base_url = "http://localhost:11434/v1"
+model_prefixes = ["ollama/"]
+```
+
+### Loading the Config File
+
+```python
+# Python -- auto-discover liter-llm.toml
+from liter_llm import LlmClient
+client = LlmClient.from_config()
+# Or explicit path
+client = LlmClient.from_config("path/to/config.toml")
+```
+
+```typescript
+// TypeScript -- auto-discover
+import { LlmClient } from "@kreuzberg/liter-llm";
+const client = await LlmClient.fromConfig();
+// Or explicit path
+const client2 = await LlmClient.fromConfig("path/to/config.toml");
+```
+
+```rust
+// Rust -- auto-discover
+use liter_llm::{FileConfig, ManagedClient};
+if let Some(config) = FileConfig::discover()? {
+    let client = ManagedClient::new(config.into_builder().build(), None)?;
+}
+// Or explicit path
+let config = FileConfig::from_toml_file("liter-llm.toml")?;
+```
+
+### Discovery Order
+
+1. Current working directory: `./liter-llm.toml`
+2. Parent directories (walking up to filesystem root)
+
+The first `liter-llm.toml` found is used. If no file is found, `discover()` returns `None` (Rust) or raises an error (other languages).
+
 ## API Key Management
 
 | Provider | Environment Variable |

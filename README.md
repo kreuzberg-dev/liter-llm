@@ -84,11 +84,11 @@ An honest look at where things stand. We're newer and leaner -- litellm has brea
 | **API key safety** | `secrecy::SecretString` (zeroed, redacted) | Plain strings |
 | **Middleware** | Composable Tower stack | Built-in callback system |
 | **Proxy / Gateway** | -- | Yes |
-| **Guardrails** | -- | 10+ integrations, 4 execution modes |
+| **Guardrails** | -- | 10+ integrations, 4 execution modes (advanced: enterprise) |
 | **Semantic caching** | -- | Redis + Qdrant backends |
-| **Virtual key mgmt** | -- | Yes |
-| **Management API** | -- | Multi-tenant (teams, budgets, keys) |
-| **Fine-tuning API** | -- | Yes |
+| **Virtual key mgmt** | -- | Yes (key rotation: enterprise) |
+| **Management API** | -- | Multi-tenant (teams, budgets, keys; tiers + reporting: enterprise) |
+| **Fine-tuning API** | -- | Enterprise only |
 | **Load balancer** | Fallback middleware | Full router with strategies |
 | **Cost tracking** | Embedded pricing + OTEL spans | Per-key/team/model budgets |
 | **Rate limiting** | Per-model RPM/TPM (Tower layer) | Per-key/user/team/model |

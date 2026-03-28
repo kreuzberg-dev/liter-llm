@@ -262,6 +262,64 @@ const client = new LlmClient({
 | `cost_tracking` | bool | false | Enable per-request cost tracking. |
 | `tracing` | bool | false | Enable OpenTelemetry tracing spans. |
 
+### Configuration File
+
+Instead of passing all options to the constructor, create a `liter-llm.toml` file in your project directory. liter-llm auto-discovers it by searching the current directory and parent directories.
+
+```toml
+api_key = "sk-..."
+base_url = "https://api.openai.com/v1"
+model_hint = "openai"
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[budget.model_limits]
+"openai/gpt-4o" = 25.0
+
+[rate_limit]
+rpm = 60
+tpm = 100000
+
+cooldown_secs = 30
+health_check_secs = 60
+cost_tracking = true
+tracing = true
+
+[[providers]]
+name = "my-provider"
+base_url = "https://my-llm.example.com/v1"
+model_prefixes = ["my-provider/"]
+```
+
+Load from code:
+
+```python
+# Python -- auto-discover
+client = LlmClient.from_config()
+# Or explicit path
+client = LlmClient.from_config("path/to/config.toml")
+```
+
+```typescript
+// TypeScript -- auto-discover
+const client = await LlmClient.fromConfig();
+```
+
+```rust
+// Rust -- auto-discover
+if let Some(config) = FileConfig::discover()? {
+    let client = ManagedClient::new(config.into_builder().build(), None)?;
+}
+```
+
 ### API Key Environment Variables
 
 | Provider | Environment Variable |
