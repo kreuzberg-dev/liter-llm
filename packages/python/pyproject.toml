@@ -4,7 +4,7 @@ requires = [ "maturin>=1,<2" ]
 
 [project]
 name = "liter-llm"
-version = "1.0.0rc7"
+version = "1.0.0rc8"
 description = """\
   Universal LLM API client for Python. Unified interface for streaming, tool calling, and provider routing across 142+ \
   LLM providers. Rust-powered.\

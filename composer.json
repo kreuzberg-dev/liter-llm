@@ -1,7 +1,7 @@
 {
 	"name": "kreuzberg/liter-llm",
 	"description": "High-performance LLM client for PHP. Unified interface for streaming, tool calling, and provider routing across OpenAI, Anthropic, and 142+ providers. Powered by Rust core.",
-	"version": "1.0.0-rc.7",
+	"version": "1.0.0-rc.8",
 	"type": "php-ext",
 	"license": "MIT",
 	"keywords": [

@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-native-linux-arm64-gnu",
-	"version": "1.0.0-rc.7",
+	"version": "1.0.0-rc.8",
 	"cpu": [
 		"arm64"
 	],

@@ -1,6 +1,6 @@
 [package]
 name = "liter-llm-rb"
-version = "1.0.0-rc.7"
+version = "1.0.0-rc.8"
 edition = "2024"
 authors = ["Na'aman Hirschfeld <naaman@kreuzberg.dev>"]
 license = "MIT"

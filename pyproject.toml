@@ -1,6 +1,6 @@
 [project]
 name = "liter-llm"
-version = "1.0.0rc7"
+version = "1.0.0rc8"
 description = "A universal LM API client with polyglot bindings — fast, type-safe, compiled"
 readme = "README.md"
 keywords = [
