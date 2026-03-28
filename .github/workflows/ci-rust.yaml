@@ -102,4 +102,5 @@ jobs:
           --test routing_integration
           --test operations_integration
           --test concurrency
+          -- --include-ignored
         shell: bash

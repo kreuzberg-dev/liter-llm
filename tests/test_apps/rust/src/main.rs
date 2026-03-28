@@ -157,9 +157,9 @@ async fn test_chat_gemini() -> Result<Option<String>, Box<dyn std::error::Error>
         None => return Ok(None),
     };
     let config = ClientConfigBuilder::new().api_key(key).build();
-    let client = ManagedClient::new(config, Some("google/gemini-2.0-flash"))?;
+    let client = ManagedClient::new(config, Some("google/gemini-2.5-flash-lite"))?;
     let req = ChatCompletionRequest {
-        model: "google/gemini-2.0-flash".into(),
+        model: "google/gemini-2.5-flash-lite".into(),
         messages: vec![Message::User(UserMessage {
             content: "Say hello in one word.".into(),
             name: None,
@@ -329,7 +329,7 @@ async fn main() {
     println!("Chat Completions:");
     suite.run("OpenAI gpt-4o-mini", test_chat_openai).await;
     suite.run("Anthropic claude-3-5-haiku", test_chat_anthropic).await;
-    suite.run("Google gemini-2.0-flash", test_chat_gemini).await;
+    suite.run("Google gemini-2.5-flash-lite", test_chat_gemini).await;
 
     suite.run("OpenAI streaming", test_streaming_openai).await;
     suite.run("OpenAI text-embedding-3-small", test_embed_openai).await;

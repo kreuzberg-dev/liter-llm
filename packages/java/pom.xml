@@ -6,7 +6,7 @@
 
     <groupId>dev.kreuzberg</groupId>
     <artifactId>liter-llm</artifactId>
-    <version>1.0.0-rc.9</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>LiterLlm Java</name>

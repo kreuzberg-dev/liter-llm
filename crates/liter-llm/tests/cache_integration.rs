@@ -171,6 +171,7 @@ mod opendal_tests {
     ///
     /// Requires Redis on localhost:6379 (see docker-compose.yml).
     #[tokio::test]
+    #[ignore = "requires Redis on localhost:6379"]
     async fn redis_cache_put_get_ttl_remove() {
         let mut config = HashMap::new();
         config.insert("connection_string".into(), "redis://localhost:6379".into());

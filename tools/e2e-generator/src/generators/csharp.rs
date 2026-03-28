@@ -300,7 +300,7 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
 
     writeln!(out).unwrap();
     writeln!(out, "    /// <summary>{}</summary>", fixture.description).unwrap();
@@ -309,7 +309,7 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
     writeln!(out, "    {{").unwrap();
 
     // Build mock route.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let escaped_body = body_json.replace('\\', "\\\\").replace('"', "\\\"");
 
     writeln!(out, "        var routes = new[]").unwrap();
@@ -320,12 +320,12 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
     writeln!(out, "                Status: {status},").unwrap();
     writeln!(out, "                Body: \"{escaped_body}\",").unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "                StreamChunks: Array.Empty<string>()").unwrap();
     } else {
         writeln!(out, "                StreamChunks: new[]").unwrap();
         writeln!(out, "                {{").unwrap();
-        for chunk in &fixture.api.mock_response.stream_chunks {
+        for chunk in &fixture.api.mock_response().stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             let escaped_chunk = chunk_json.replace('\\', "\\\\").replace('"', "\\\"");
             writeln!(out, "                    \"{escaped_chunk}\",").unwrap();
@@ -373,7 +373,7 @@ fn emit_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, http_meth
     }
 
     if is_error {
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         writeln!(out, "        Assert.Equal({status}, (int)response.StatusCode);").unwrap();
     } else {
         writeln!(out, "        response.EnsureSuccessStatusCode();").unwrap();
@@ -400,7 +400,7 @@ fn emit_stream_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, is
     .unwrap();
 
     if is_error {
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         writeln!(out, "        Assert.Equal({status}, (int)response.StatusCode);").unwrap();
         return;
     }
@@ -422,12 +422,12 @@ fn emit_stream_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, is
     writeln!(out, "        }}").unwrap();
     writeln!(out).unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "        Assert.Equal(0, chunks.Count);").unwrap();
     } else {
         let meaningful: usize = fixture
             .api
-            .mock_response
+            .mock_response()
             .stream_chunks
             .iter()
             .filter(|c| {
@@ -454,7 +454,13 @@ fn emit_json_assertions(out: &mut String, fixture: &Fixture) {
 
     match method {
         "chat" => {
-            if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+            if let Some(choices_arr) = fixture
+                .api
+                .mock_response()
+                .body
+                .get("choices")
+                .and_then(|v| v.as_array())
+            {
                 let count = choices_arr.len();
                 writeln!(
                     out,
@@ -487,7 +493,7 @@ fn emit_json_assertions(out: &mut String, fixture: &Fixture) {
                 }
             }
 
-            if let Some(usage) = fixture.api.mock_response.body.get("usage").filter(|v| !v.is_null())
+            if let Some(usage) = fixture.api.mock_response().body.get("usage").filter(|v| !v.is_null())
                 && let Some(total) = usage.get("total_tokens").and_then(|v| v.as_u64())
             {
                 writeln!(
@@ -500,7 +506,7 @@ fn emit_json_assertions(out: &mut String, fixture: &Fixture) {
                 .assertions
                 .model
                 .as_deref()
-                .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()));
+                .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()));
             if let Some(model) = model {
                 writeln!(
                     out,
@@ -510,7 +516,7 @@ fn emit_json_assertions(out: &mut String, fixture: &Fixture) {
             }
         }
         "embed" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len();
                 writeln!(
                     out,
@@ -520,7 +526,7 @@ fn emit_json_assertions(out: &mut String, fixture: &Fixture) {
             }
         }
         "list_models" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len();
                 writeln!(
                     out,
@@ -593,10 +599,10 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
     writeln!(out, "    {{").unwrap();
 
     // Build mock server with routes for categories that need it.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let escaped_body = body_json.replace('\\', "\\\\").replace('"', "\\\"");
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
 
     writeln!(out, "        var routes = new[]").unwrap();
     writeln!(out, "        {{").unwrap();

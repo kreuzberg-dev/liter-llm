@@ -7,7 +7,7 @@
 		"test": "npx tsx main.ts"
 	},
 	"dependencies": {
-		"@kreuzberg/liter-llm": "1.0.0-rc.8",
+		"@kreuzberg/liter-llm": "1.0.0-rc.9",
 		"dotenv": "^16"
 	},
 	"devDependencies": {

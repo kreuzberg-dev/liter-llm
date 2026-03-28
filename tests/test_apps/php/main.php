@@ -148,7 +148,7 @@ function testChatGemini(): ?string
     $client = new LlmClient($key);
     /** @var array<string, mixed> $resp */
     $resp = json_decode($client->chat(json_encode([
-        'model' => 'gemini/gemini-2.5-flash-preview-05-20',
+        'model' => 'gemini/gemini-2.5-flash-lite',
         'messages' => [['role' => 'user', 'content' => 'Say hello in one word.']],
         'max_tokens' => 10,
     ], JSON_THROW_ON_ERROR)), true, 512, JSON_THROW_ON_ERROR);
@@ -295,7 +295,7 @@ $suite = new SmokeTest();
 echo "Chat Completions:\n";
 $suite->run('OpenAI gpt-4o-mini', testChatOpenAI(...));
 $suite->run('Anthropic claude-3-5-haiku', testChatAnthropic(...));
-$suite->run('Google gemini-2.0-flash', testChatGemini(...));
+$suite->run('Google gemini-2.5-flash-lite', testChatGemini(...));
 
 $suite->run('OpenAI streaming', testStreamingOpenAI(...));
 $suite->run('OpenAI text-embedding-3-small', testEmbedOpenAI(...));

@@ -15,8 +15,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 futures-core = { workspace = true }
-liter-llm = { path = "../liter-llm", version = "1.0.0-rc.9", features = ["full"] }
-liter-llm-bindings-core = { path = "../liter-llm-bindings-core", version = "1.0.0-rc.9" }
+liter-llm = { path = "../liter-llm", version = "1.0.0", features = ["full"] }
+liter-llm-bindings-core = { path = "../liter-llm-bindings-core", version = "1.0.0" }
 napi = { workspace = true }
 napi-derive = { workspace = true }
 serde = { workspace = true }

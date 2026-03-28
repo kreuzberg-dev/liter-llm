@@ -117,7 +117,7 @@ def test_chat_gemini
 
   client = LiterLlm::LlmClient.new(key)
   resp = JSON.parse(client.chat(JSON.generate({
-    model: "gemini/gemini-2.5-flash-preview-05-20",
+    model: "gemini/gemini-2.5-flash-lite",
     messages: [{ role: "user", content: "Say hello in one word." }],
     max_tokens: 10
   })))
@@ -223,7 +223,7 @@ suite = SmokeTest.new
 puts "Chat Completions:"
 suite.run("OpenAI gpt-4o-mini") { test_chat_openai }
 suite.run("Anthropic claude-3-5-haiku") { test_chat_anthropic }
-suite.run("Google gemini-2.0-flash") { test_chat_gemini }
+suite.run("Google gemini-2.5-flash-lite") { test_chat_gemini }
 
 suite.run("OpenAI streaming") { test_streaming_openai }
 suite.run("OpenAI text-embedding-3-small") { test_embed_openai }

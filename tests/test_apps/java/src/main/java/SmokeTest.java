@@ -137,7 +137,7 @@ public final class SmokeTest {
         if (key == null) return null;
         try (var client = LlmClient.builder().apiKey(key).build()) {
             var resp = client.chat(ChatCompletionRequest.builder(
-                    "google/gemini-2.0-flash",
+                    "google/gemini-2.5-flash-lite",
                     List.of(new Types.UserMessage("Say hello in one word."))
             ).maxTokens(10L).build());
             if (resp.choices().isEmpty()) throw new AssertionError("no choices");
@@ -248,7 +248,7 @@ public final class SmokeTest {
         System.out.println("Chat Completions:");
         suite.run("OpenAI gpt-4o-mini", SmokeTest::testChatOpenAI);
         suite.run("Anthropic claude-3-5-haiku", SmokeTest::testChatAnthropic);
-        suite.run("Google gemini-2.0-flash", SmokeTest::testChatGemini);
+        suite.run("Google gemini-2.5-flash-lite", SmokeTest::testChatGemini);
 
         suite.run("OpenAI streaming", SmokeTest::testStreamingOpenAI);
         suite.run("OpenAI text-embedding-3-small", SmokeTest::testEmbedOpenAI);

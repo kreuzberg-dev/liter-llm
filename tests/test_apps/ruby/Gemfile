@@ -2,4 +2,4 @@
 
 source "https://rubygems.org"
 
-gem "liter_llm", "1.0.0.pre.rc.8"
+gem "liter_llm", "1.0.0.pre.rc.9"

@@ -1,25 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Property LiterLlm\\LlmClient\:\:\$apiKey is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/LlmClient.php
-
-		-
-			message: '#^Property LiterLlm\\LlmClient\:\:\$baseUrl is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/LlmClient.php
-
-		-
-			message: '#^Property LiterLlm\\LlmClient\:\:\$maxRetries is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/LlmClient.php
-
-		-
-			message: '#^Property LiterLlm\\LlmClient\:\:\$timeoutSecs is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
+			identifier: constructor.unusedParameter
+			count: 12
 			path: src/LlmClient.php

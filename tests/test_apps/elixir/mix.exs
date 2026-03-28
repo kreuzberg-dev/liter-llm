@@ -19,7 +19,7 @@ defmodule LiterLlmSmokeTest.MixProject do
 
   defp deps do
     [
-      {:liter_llm, "~> 1.0.0-rc.8"},
+      {:liter_llm, "~> 1.0.0-rc.9"},
       {:jason, "~> 1.4"}
     ]
   end

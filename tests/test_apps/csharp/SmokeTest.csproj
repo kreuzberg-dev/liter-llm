@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiterLlm" Version="1.0.0-rc.8" />
+    <PackageReference Include="LiterLlm" Version="1.0.0-rc.9" />
   </ItemGroup>
 
 </Project>

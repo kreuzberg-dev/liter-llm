@@ -214,13 +214,13 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
 
     writeln!(out, "  // {}", fixture.description).unwrap();
     writeln!(out, r#"  it("{}", async () => {{"#, fixture.id).unwrap();
 
     // Build the mock route.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     // Escape backticks and backslashes for template literal safety.
     let body_escaped = body_json
         .replace('\\', "\\\\")
@@ -234,11 +234,11 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
     writeln!(out, "        status: {status},").unwrap();
     writeln!(out, "        body: `{body_escaped}`,").unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "        streamChunks: [],").unwrap();
     } else {
         writeln!(out, "        streamChunks: [").unwrap();
-        for chunk in &fixture.api.mock_response.stream_chunks {
+        for chunk in &fixture.api.mock_response().stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             let chunk_escaped = chunk_json
                 .replace('\\', "\\\\")
@@ -285,7 +285,7 @@ fn emit_chat_test(out: &mut String, fixture: &Fixture) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let req_escaped = req_json.replace('\\', "\\\\").replace('`', "\\`").replace("${", "\\${");
 
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "      let threw = false;").unwrap();
@@ -315,7 +315,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let req_escaped = req_json.replace('\\', "\\\\").replace('`', "\\`").replace("${", "\\${");
 
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "      let threw = false;").unwrap();
@@ -351,7 +351,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
 
     let meaningful_count: usize = fixture
         .api
-        .mock_response
+        .mock_response()
         .stream_chunks
         .iter()
         .filter(|c| {
@@ -365,7 +365,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
         })
         .count();
 
-    let total_count = fixture.api.mock_response.stream_chunks.len();
+    let total_count = fixture.api.mock_response().stream_chunks.len();
 
     if meaningful_count > 0 {
         writeln!(
@@ -384,7 +384,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
     // Collect concatenated content.
     let expected_content: String = fixture
         .api
-        .mock_response
+        .mock_response()
         .stream_chunks
         .iter()
         .filter_map(|c| {
@@ -419,7 +419,7 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let req_escaped = req_json.replace('\\', "\\\\").replace('`', "\\`").replace("${", "\\${");
 
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "      let threw = false;").unwrap();
@@ -454,7 +454,7 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
         .unwrap();
     }
 
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -480,7 +480,7 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "      let threw = false;").unwrap();
@@ -511,7 +511,7 @@ fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
         .unwrap();
     }
 
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -526,7 +526,13 @@ fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
 fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
     let assertions = &fixture.assertions;
 
-    if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+    if let Some(choices_arr) = fixture
+        .api
+        .mock_response()
+        .body
+        .get("choices")
+        .and_then(|v| v.as_array())
+    {
         let count = choices_arr.len();
         writeln!(
             out,
@@ -594,7 +600,7 @@ fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
     }
 
     // usage
-    if let Some(usage) = fixture.api.mock_response.body.get("usage").filter(|v| !v.is_null()) {
+    if let Some(usage) = fixture.api.mock_response().body.get("usage").filter(|v| !v.is_null()) {
         writeln!(
             out,
             "      expect(response.usage, \"Expected usage object\").toBeTruthy();"
@@ -613,7 +619,7 @@ fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
     if let Some(model) = assertions
         .model
         .as_deref()
-        .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()))
+        .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()))
     {
         writeln!(out, "      expect(response.model, \"model mismatch\").toBe({model:?});").unwrap();
     }
@@ -631,7 +637,7 @@ fn emit_error_assertions(out: &mut String, fixture: &Fixture) {
     }
 
     // Fall back to generic status-based matching.
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     match status {
         401 => writeln!(
             out,
@@ -682,8 +688,8 @@ fn write_specialized_test_case(out: &mut String, fixture: &Fixture, category: &s
 
 fn emit_ts_cache_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_escaped = body_json
         .replace('\\', "\\\\")
         .replace('`', "\\`")
@@ -786,8 +792,8 @@ fn emit_ts_cache_test(out: &mut String, fixture: &Fixture) {
 
 fn emit_ts_budget_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_escaped = body_json
         .replace('\\', "\\\\")
         .replace('`', "\\`")
@@ -883,8 +889,8 @@ fn emit_ts_budget_test(out: &mut String, fixture: &Fixture) {
 
 fn emit_ts_hooks_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_escaped = body_json
         .replace('\\', "\\\\")
         .replace('`', "\\`")
@@ -1001,8 +1007,8 @@ fn emit_ts_hooks_test(out: &mut String, fixture: &Fixture) {
 
 fn emit_ts_custom_provider_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_escaped = body_json
         .replace('\\', "\\\\")
         .replace('`', "\\`")
@@ -1070,7 +1076,7 @@ fn emit_ts_custom_provider_test(out: &mut String, fixture: &Fixture) {
     // If the mock body has choices, assert on content.
     if let Some(content) = fixture
         .api
-        .mock_response
+        .mock_response()
         .body
         .get("choices")
         .and_then(|v| v.as_array())

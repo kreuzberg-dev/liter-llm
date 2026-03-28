@@ -1,7 +1,7 @@
 {
 	"name": "kreuzberg/liter-llm",
 	"description": "Universal LLM API client for PHP. Unified interface for streaming, tool calling, and provider routing across 142+ providers. Rust-powered.",
-	"version": "1.0.0-rc.9",
+	"version": "1.0.0",
 	"type": "php-ext",
 	"license": "MIT",
 	"keywords": [

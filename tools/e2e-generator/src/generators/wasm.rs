@@ -219,7 +219,7 @@ fn write_describe_block(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     let is_error = status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(out).unwrap();
@@ -230,9 +230,9 @@ fn write_describe_block(out: &mut String, fixture: &Fixture) {
     // beforeAll: start mock server.
     writeln!(out, "  beforeAll(async () => {{").unwrap();
 
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(
             out,
             "    server = await startMockServer([{{ path: {endpoint:?}, method: {http_method:?}, status: {status}, body: {body_json:?}, streamChunks: [] }}]);"
@@ -244,7 +244,7 @@ fn write_describe_block(out: &mut String, fixture: &Fixture) {
         writeln!(out, "      status: {status},").unwrap();
         writeln!(out, "      body: {body_json:?},").unwrap();
         writeln!(out, "      streamChunks: [").unwrap();
-        for chunk in &fixture.api.mock_response.stream_chunks {
+        for chunk in &fixture.api.mock_response().stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             writeln!(out, "        {chunk_json:?},").unwrap();
         }
@@ -301,12 +301,12 @@ fn write_describe_block(out: &mut String, fixture: &Fixture) {
                 writeln!(out, "    }}").unwrap();
                 writeln!(out).unwrap();
 
-                if fixture.api.mock_response.stream_chunks.is_empty() {
+                if fixture.api.mock_response().stream_chunks.is_empty() {
                     writeln!(out, "    expect(chunks.length).toBe(0);").unwrap();
                 } else {
                     let meaningful: usize = fixture
                         .api
-                        .mock_response
+                        .mock_response()
                         .stream_chunks
                         .iter()
                         .filter(|c| {
@@ -352,7 +352,13 @@ fn write_describe_block(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_wasm_chat_assertions(out: &mut String, fixture: &Fixture) {
-    if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+    if let Some(choices_arr) = fixture
+        .api
+        .mock_response()
+        .body
+        .get("choices")
+        .and_then(|v| v.as_array())
+    {
         let count = choices_arr.len();
         writeln!(
             out,
@@ -377,7 +383,7 @@ fn emit_wasm_chat_assertions(out: &mut String, fixture: &Fixture) {
         .assertions
         .model
         .as_deref()
-        .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()));
+        .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()));
     if let Some(model) = model {
         writeln!(
             out,
@@ -388,7 +394,7 @@ fn emit_wasm_chat_assertions(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_wasm_embed_assertions(out: &mut String, fixture: &Fixture) {
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -399,7 +405,7 @@ fn emit_wasm_embed_assertions(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_wasm_list_models_assertions(out: &mut String, fixture: &Fixture) {
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -423,8 +429,8 @@ fn write_specialized_wasm_test(out: &mut String, fixture: &Fixture, category: &s
 
 fn emit_wasm_cache_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
 
     let expects_hit = fixture.assertions.cache_hit == Some(true);
@@ -470,8 +476,8 @@ fn emit_wasm_cache_test(out: &mut String, fixture: &Fixture) {
 
 fn emit_wasm_budget_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let is_error = !fixture.assertions.expect_success;
 
@@ -520,8 +526,8 @@ fn emit_wasm_budget_test(out: &mut String, fixture: &Fixture) {
 
 fn emit_wasm_hooks_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
 
     let on_req = fixture.assertions.hook_on_request_called == Some(true);
@@ -605,8 +611,8 @@ fn emit_wasm_hooks_test(out: &mut String, fixture: &Fixture) {
 
 fn emit_wasm_custom_provider_test(out: &mut String, fixture: &Fixture) {
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let status = fixture.api.mock_response().status;
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
 
     let provider_config = fixture.client_config.custom_provider.as_ref();
@@ -653,7 +659,7 @@ fn emit_wasm_custom_provider_test(out: &mut String, fixture: &Fixture) {
 
     if let Some(content) = fixture
         .api
-        .mock_response
+        .mock_response()
         .body
         .get("choices")
         .and_then(|v| v.as_array())

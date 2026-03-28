@@ -7,214 +7,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc.9] - 2026-03-28
+## [1.0.0] - 2026-03-28
 
-### Added
+Initial stable release. Universal LLM API client with native bindings for 11 languages and 142+ providers.
 
-- Live provider integration tests for 7 providers (OpenAI, Anthropic, Google AI, Vertex AI, Mistral, Azure OpenAI, AWS Bedrock)
-- Cross-provider parity test validating response shape consistency across all providers
-- Anthropic tests covering tool calling, streaming tool calls, multi-turn, system messages, max token truncation
-- TOML config file integration tests with 31 test cases and fixture files
-- Vertex AI embedding support via `:predict` endpoint transform
-- Google AI embedding, list_models response transforms to OpenAI-compatible format
-- PHP CI script for loading native extension via generated php.ini
-- Mistral and Azure OpenAI client factories and test infrastructure
+### Core
 
-### Fixed
-
-- **Anthropic streaming**: `stream` field was incorrectly stripped from request body, causing zero chunks returned
-- **AWS Bedrock streaming**: EventStream parser used CRC32C instead of standard CRC32, causing frame CRC mismatches on every streaming response
-- **Google AI embeddings**: `transform_gemini_request` applied chat-only transform to embedding requests
-- **Google AI list_models**: response format mismatch (`{"models":[...]}` vs OpenAI `{"object":"list","data":[...]}`)
-- **Vertex AI embeddings**: added `transform_vertex_embed_request` for `:predict` endpoint format and response transform
-- **Provider routing regression**: per-request provider re-detection bypassed `base_url` overrides, breaking mock server tests
-- **Usage deserialization**: `completion_tokens` field now defaults to 0 when absent (fixes OpenAI embedding responses)
-- **PHP CI**: native extension not loaded in e2e tests (missing php.ini generation)
-- **README feature comparison**: corrected litellm feature claims (streaming, caching backends, guardrails, observability counts)
-- **README feature comparison**: updated liter-llm caching description to reflect 40+ OpenDAL backends
-
-## [1.0.0-rc.7] - 2026-03-28
-
-### Added
-
-- All 10 bindings now accept full middleware config (cooldown, rate_limit, health_check, cost_tracking, tracing)
-- search() and ocr() added to WASM, Elixir, Ruby (were missing)
-- Contract test fixtures for binding API parity verification
-- Skills directory: SKILL.md + 7 reference files (4,072 lines)
-- PHP PIE package build script (matching kreuzberg pattern)
-- `prefer-gpg2-binary.sh` and `patch-maven-gpg-args.sh` publish scripts
-
-### Fixed
-
-- PHP publish: build-php decoupled from Packagist idempotency check
-- Crate publish order: liter-llm before liter-llm-bindings-core
-- `setup-rust` input typo: `targets` → `target`
-- Maven publish: Java 25 + Maven 3.9.11 setup, GPG pinentry, env vars aligned with kreuzberg
-- Missing `scripts/ci/ruby/install-ruby-deps.sh`
-
-## [1.0.0-rc.6] - 2026-03-28
-
-### Added
-
-- **Documentation: full API coverage** — search/OCR usage page, 20 new snippets, 6 new configuration sections (cache backends, cooldown, rate limiting, health checks, cost tracking, tracing) with all 10 language tabs
-- All 11 API reference docs updated with `search()`, `ocr()` methods and 5 new constructor params
-- Rust crate README generated from Jinja templates — fixes missing README on crates.io
-- Version sync script now updates `readme_config.yaml` and auto-regenerates all READMEs
-- `readme_config.yaml` Rust language entry with full feature set
-
-### Changed
-
-- `llms.txt` updated with search, OCR, OpenDAL cache, and middleware capabilities
-
-## [1.0.0-rc.5] - 2026-03-28
-
-### Added
-
-- **OpenDAL cache backend** (`opendal-cache` feature): pluggable `CacheStore` implementation supporting 40+ storage backends (S3, Redis, GCS, local filesystem, Memcached, etc.) via Apache OpenDAL. Configure with `cache: { backend: "redis", backend_config: { connection_string: "..." } }`
-- **`search()` endpoint**: web/document search across 12 providers (Brave, Tavily, Google PSE, etc.) with `SearchRequest`/`SearchResponse` types
-- **`ocr()` endpoint**: document OCR across 4 providers (Mistral, Azure Doc Intelligence, etc.) with `OcrRequest`/`OcrResponse` types
-- **Full Tower middleware wiring** in `ManagedClient`: all 8 layers now configurable via `ClientConfig`:
-  - `cooldown_duration` — circuit breaker after transient errors
-  - `rate_limit_config` — per-model RPM/TPM rate limiting
-  - `health_check_interval` — background health probing
-  - `enable_cost_tracking` — per-request cost calculation
-  - `enable_tracing` — OpenTelemetry GenAI semantic convention spans
-  - (previously only cache, budget, hooks were wired)
-- `#[serde(deny_unknown_fields)]` on all request/config types for strict input validation
-- `param_mappings` wired into `ConfigDrivenProvider` — 8 providers now apply field renaming (e.g. `max_completion_tokens` → `max_tokens`)
-- Post-generation formatting in e2e-generator: runs language-native formatters (cargo fmt, ruff, biome, gofmt, rubocop, etc.) after code generation
-- Go/Java/C# bindings rewritten as FFI wrappers around `libliter_llm_ffi` (replacing pure HTTP reimplementations)
-- Go bindings use cgo with build tags matching kreuzberg pattern (`liter_llm_dev` for monorepo, `go:generate` for production)
-
-### Fixed
-
-- Python/PHP hook serialization: Debug format replaced with proper JSON via `serde_json`
-- PHP hook registry memory leak: cleanup on drop
-- `managed.rs` expect() replaced with proper error propagation
-- Version sync script: regex updated to match `liter-llm-bindings-core` deps, all binding Cargo.toml files added to sync targets
-- FFI Cargo.toml: added missing `version` on `liter-llm-bindings-core` dep (crates.io publish fix)
-- All path deps now include `version` field for crates.io publishing
-- PHP e2e composer.json: added `minimum-stability: dev` for RC versions
-- Java javadoc: fixed heading level error
-- Node pnpm lockfile updated
-- Stale WASM doc comment removed (networking is complete)
-
-### Changed
-
-- Documentation overhaul: simple nav (Installation → Usage → API Reference), 150 snippets across 10 languages, all 11 API docs expanded to full parity, comprehensive llms.txt (218 lines)
-- `CacheConfig` extended with `CacheBackend` enum (`Memory` | `OpenDal`)
-- `ClientConfig` extended with 5 new middleware fields
-- Removed unused workspace dependencies (`tokio-stream`, `url`)
-
-### Removed
-
-- Pure HTTP reimplementations in Go (3,419 LOC), Java (3,027 LOC), C# (2,881 LOC) — replaced with thin FFI wrappers
-
-## [1.0.0-rc.4] - 2026-03-28
-
-### Added
-
-- Shared `liter-llm-bindings-core` crate: case conversion, config parsing, error formatting, runtime management, JSON helpers
-- Bidirectional snake_case ↔ camelCase key conversion for Node.js and WASM bindings (inputs and outputs)
-- Node.js: accept camelCase request keys (e.g. `maxTokens`) — automatically normalized to snake_case
-- WASM: full camelCase output (e.g. `promptTokens`, `finishReason`) and camelCase input support
-- Real `chat_stream` across all bindings: Ruby (Enumerator), Elixir (NIF), Java (SSE callback), C# (IAsyncEnumerable), WASM (ReadableStream)
-- Real hooks in Node.js via `NapiHookBridge` + `ThreadsafeFunction` (replaces stub)
-- PHP: full ManagedClient integration — hooks, budget, cache, custom providers
-- `budget_used` / `budgetUsed` getter across all bindings (Python, Node, WASM, PHP, Ruby, C FFI)
-- `unregister_provider` across all bindings (Python, Node, WASM, PHP, Ruby, C FFI)
-- Documentation: hooks, budget, cache, custom provider sections added to all package READMEs
-- Documentation: streaming examples for Java, C#, Ruby, Elixir, WASM (replaced "not yet supported" notes)
-
-### Changed
-
-- All fixture skip conditions removed — every binding runs every E2E test (zero skips)
-- E2E generators rewritten for correct error assertions using `fixture.assertions.error_type`
-- Node/WASM custom provider tests use static `registerProvider` with `authHeader` field
-- PHP binding switched from `DefaultClient` to `ManagedClient` with Tower middleware
-- Replaced `markdownlint-cli` with `rumdl-fmt` in pre-commit config
-- Java Maven plugins aligned with kreuzberg (3.x stable, not 4.x beta)
-
-### Fixed
-
-- WASM budget/cache config: accept both snake_case and camelCase via serde aliases
-- Node budget tests: fixture `global_limit` set to `0.0` for immediate pre-flight rejection
-- Error type fixtures: `forbidden_403` → `Authentication`, `service_unavailable_502`/`gateway_timeout_504` → `ServiceUnavailable`
-- Rust Bedrock test: updated stream URL expectation for cross-region `us.` prefix
-- Elixir: extracted `do_cached_call` helper to fix Credo nesting depth warning
-- Ruby: added `futures-core` dependency for `chat_stream`
-- PHP E2E generator: use wrapper classes with Composer path dependency for autoloading
-
-## [1.0.0-rc.3] - 2026-03-27
-
-### Added
-
-- Pluggable cache backends via `CacheStore` trait with `InMemoryStore` default
-- Budget enforcement middleware (`BudgetLayer`) with hard/soft modes, per-model limits
-- Callback hooks middleware (`HooksLayer`) with on_request/on_response/on_error + guardrails
-- Custom provider registration at runtime (`register_custom_provider`)
-- `HookRejected` and `BudgetExceeded` error types
-- Extended `ClientConfigBuilder` with `.cache()`, `.budget()`, `.hook()` methods
-- Cache, budget, hooks, and custom provider support across all 11 language bindings
-- TDD e2e test fixtures for cache, budget, hooks, custom providers, and API surface parity
-- E2e test generators updated for all 11 languages with new feature tests
-- Hooks wired into ALL 21 API methods in Go, Java, C#, Elixir, WASM, C FFI
-- All 17 missing Python method stubs (image, speech, transcribe, moderate, rerank, files, batches, responses)
-
-### Fixed
-
-- Hook panic isolation via `catch_unwind` (panicking hooks don't crash the service)
-- Custom provider validation (whitespace-only names, empty-string prefixes rejected)
-- Node NAPI: missing `#[napi]` attributes on 6 methods
-- WASM e2e: skip empty streaming test file, use pnpm for workspace link protocol
-- Java: Maven 3.x-compatible plugin versions
-- TypeScript: fix ESM/CJS exports map for tsup dual output
-- Generators: stop overwriting package.json (preserve workspace-managed deps)
-
-## [1.0.0-rc.2] - 2026-03-27
-
-### Fixed
-
-- Embed `schemas/` inside liter-llm crate for crates.io packaging
-- Ruby vendoring: copy schemas into vendor tree for cross-compilation
-- Elixir NIF tarball naming (lib prefix, .so extension, tag in download URL)
-- Elixir publish: generate NIF checksums from release assets before compile
-- Node NAPI: add platform `npm/<target>/package.json` packages for publish
-- Node TypeScript wrapper: add tsup entry config for build
-- Publish workflow: inline Ruby gem build and FFI build (fix Windows path mangling)
-- Publish workflow: fix `gh release upload` without git repo context
-- Publish workflow: artifact action versions (v8 does not exist, use v7)
-- Publish workflow: add `republish` input for retag + full republish
-- CI: fix `snake_to_camel` trailing underscore handling in NAPI bindings
-- CI: fix WASM e2e tests (skip unimplemented `chat_stream`, build nodejs target)
-- CI: fix Go golangci-lint install (build from source for Go 1.26 compat)
-- CI: fix Python e2e generator unused imports
-- CI: fix Windows auth test Duration underflow panic
-- Metadata: update all READMEs and package descriptions to 142+ providers
-
-## [1.0.0-rc.1] - 2026-03-27
-
-### Added
-
-- Core Rust crate with `LlmClient` trait, `DefaultClient`, SSE streaming, retry with backoff
+- `LlmClient` trait with chat, chat_stream, embed, list_models, image_generate, speech, transcribe, moderate, rerank, search, ocr
+- `FileClient`, `BatchClient`, `ResponseClient` traits for file/batch/response operations
+- `DefaultClient` with reqwest + tokio, SSE streaming, retry with exponential backoff
+- `ManagedClient` with composable Tower middleware stack
 - 142 LLM providers embedded at compile time from `schemas/providers.json`
-- Strong OpenAI-compatible types with `FinishReason` enum, `SecretString`, `memchr` SSE parsing
-- Provider auto-detection from model name prefix
-- Python binding (PyO3) with async/streaming, TypedDict+Unpack typed kwargs, full .pyi stubs
-- TypeScript binding (NAPI-RS) with full interface types
-- C FFI binding with cbindgen header, callback-based streaming
-- Go binding with typed structs, pure HTTP client, 22 tests
-- Java binding with records and sealed interfaces, 13 tests
-- C# binding with records and async HttpClient, 18 tests
-- Elixir binding with @type/@spec, Req client, 31 tests
-- Ruby binding (Magnus) with RBS type signatures and steep validation
-- PHP binding (ext-php-rs) with PHPDoc stubs
-- WASM binding (wasm-bindgen) with TypeScript custom section types
-- E2E test generator for all 11 languages from JSON fixtures
-- 11 fixtures across smoke, streaming, error-handling, tool-calling, types
+- Per-request provider routing from model name prefix (e.g. `anthropic/claude-sonnet-4-20250514`)
+- `secrecy::SecretString` for API keys (zeroized on drop, never logged)
+- TOML configuration file loading with auto-discovery (`liter-llm.toml`)
+- Custom provider registration at runtime
 
-[Unreleased]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.4...HEAD
-[1.0.0-rc.4]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.3...v1.0.0-rc.4
-[1.0.0-rc.3]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.2...v1.0.0-rc.3
-[1.0.0-rc.2]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0-rc.1...v1.0.0-rc.2
-[1.0.0-rc.1]: https://github.com/kreuzberg-dev/liter-llm/releases/tag/v1.0.0-rc.1
+### Middleware (Tower)
+
+- **CacheLayer** — in-memory LRU + pluggable backends via `CacheStore` trait
+- **OpenDAL cache** — 40+ storage backends (Redis, S3, GCS, filesystem, etc.) via Apache OpenDAL
+- **BudgetLayer** — global + per-model spending limits with hard/soft enforcement
+- **HooksLayer** — request/response/error lifecycle callbacks with guardrail pattern
+- **CooldownLayer** — circuit breaker after transient errors
+- **ModelRateLimitLayer** — per-model RPM/TPM rate limiting
+- **HealthCheckLayer** — background health probing
+- **CostTrackingLayer** — per-request cost calculation from embedded pricing registry
+- **TracingLayer** — OpenTelemetry GenAI semantic convention spans
+- **FallbackLayer** — automatic failover to backup provider
+- **RouterLayer** — multi-deployment load balancing (round-robin, latency, cost, weighted)
+
+### Language Bindings
+
+All bindings expose the full API surface with language-idiomatic conventions:
+
+- **Python** (PyO3) — async/await, typed kwargs, full .pyi stubs
+- **TypeScript / Node.js** (NAPI-RS) — camelCase, .d.ts types, Promise-based
+- **Rust** — native, zero-cost
+- **Go** (cgo) — FFI wrapper with build tags, `context.Context` support
+- **Java** (Panama FFM) — JDK 25+, `AutoCloseable`, builder pattern
+- **C# / .NET** (P/Invoke) — async/await, `IAsyncEnumerable` streaming, `IDisposable`
+- **Ruby** (Magnus) — RBS type signatures, Enumerator streaming
+- **Elixir** (Rustler NIF) — `{:ok, result}` tuples, OTP-compatible
+- **PHP** (ext-php-rs) — PHP 8.2+, JSON in/out, PIE packages
+- **WebAssembly** (wasm-bindgen) — browser + Node.js, Fetch API
+- **C / FFI** (cbindgen) — `extern "C"` with opaque handles
+
+### Authentication
+
+- Static API keys (Bearer, x-api-key)
+- Azure AD OAuth2 client credentials
+- Vertex AI service account JWT
+- AWS STS Web Identity (EKS/IRSA)
+- AWS SigV4 signing for Bedrock
+
+### Provider Transforms
+
+- Anthropic: message format, tool use v1, thinking blocks, max_tokens default
+- AWS Bedrock: Converse API, EventStream binary framing, cross-region routing
+- Vertex AI: Gemini format, embedding `:predict` endpoint
+- Google AI: embedding/list_models response transforms
+- Cohere: citation handling
+- Mistral: API compatibility
+- `param_mappings` for config-driven field renaming (8 providers)
+
+### Documentation
+
+- MkDocs Material site at docs.liter-llm.kreuzberg.dev
+- 170+ code snippets across 10 languages
+- 11 API reference docs with full method coverage
+- Usage pages: Chat & Streaming, Embeddings & Rerank, Media, Search & OCR, Files & Batches, Configuration
+- TOML configuration reference
+- llms.txt (218 lines) with capabilities, examples, provider list
+- Skills directory (4,072 lines) for Claude Code integration
+- README generation from Jinja templates via `scripts/generate_readme.py`
+
+### Testing
+
+- 500+ unit and integration tests
+- Middleware stack composition tests (cache + budget + hooks + rate limit + cooldown)
+- Per-request provider routing tests
+- File/batch/response CRUD operation tests
+- Concurrency tests (budget atomicity, cache contention, rate limit fairness)
+- Redis cache backend integration tests (Docker Compose)
+- Live provider tests for 7 providers (OpenAI, Anthropic, Google AI, Vertex AI, Mistral, Azure, Bedrock)
+- Smoke test apps for all 10 languages against real APIs
+- E2E test generation from JSON fixtures across all languages
+- Contract test fixtures for binding API parity
+
+### CI/CD
+
+- Multi-platform publish pipeline: crates.io, PyPI, npm, RubyGems, Hex.pm, Maven Central, NuGet, Packagist, Go FFI, PHP PIE
+- Pre-commit hooks: 43 linters across all languages
+- Post-generation formatting in e2e-generator
+- Version sync script across 27+ manifests with README regeneration
+
+### Previous RC Releases
+
+<details>
+<summary>Release candidate history (rc.1 through rc.9)</summary>
+
+- **rc.1** (2026-03-27): Initial release — core crate, 11 bindings, e2e generator
+- **rc.2** (2026-03-27): Packaging fixes for crates.io, RubyGems, Elixir NIF, Node NAPI, publish workflow
+- **rc.3** (2026-03-27): Cache, budget, hooks middleware; custom providers; TDD e2e fixtures
+- **rc.4** (2026-03-28): Shared bindings-core crate; camelCase conversion; real streaming across all bindings
+- **rc.5** (2026-03-28): OpenDAL cache; search/OCR endpoints; full middleware wiring; Go/Java/C# FFI rewrites; serde deny_unknown_fields; documentation overhaul
+- **rc.6** (2026-03-28): Full API documentation coverage; Rust crate README; version sync improvements
+- **rc.7** (2026-03-28): Binding parity (5 middleware params + search/ocr in all 10); contract test fixtures; skills directory; PHP PIE packages
+- **rc.8** (2026-03-28): CI fixes (PHP publish, crate order, Maven GPG, Ruby deps, Bedrock test)
+- **rc.9** (2026-03-28): Live provider tests; Anthropic/Bedrock/Google streaming fixes; TOML config loading; per-request provider routing; integration test suite
+
+</details>
+
+[Unreleased]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/kreuzberg-dev/liter-llm/releases/tag/v1.0.0

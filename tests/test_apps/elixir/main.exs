@@ -169,7 +169,7 @@ defmodule Tests do
     {:ok, resp} =
       LiterLlm.chat(
         %{
-          model: "gemini/gemini-2.5-flash-preview-05-20",
+          model: "gemini/gemini-2.5-flash-lite",
           messages: [LiterLlm.Types.user_message("Say hello in one word.")],
           max_tokens: 10
         },
@@ -326,7 +326,7 @@ IO.puts("Chat Completions:")
 suite = %SmokeTest{}
 suite = SmokeTest.run(suite, "OpenAI gpt-4o-mini", &Tests.test_chat_openai/0)
 suite = SmokeTest.run(suite, "Anthropic claude-3-5-haiku", &Tests.test_chat_anthropic/0)
-suite = SmokeTest.run(suite, "Google gemini-2.0-flash", &Tests.test_chat_gemini/0)
+suite = SmokeTest.run(suite, "Google gemini-2.5-flash-lite", &Tests.test_chat_gemini/0)
 
 suite = SmokeTest.run(suite, "OpenAI streaming", &Tests.test_streaming_openai/0)
 suite = SmokeTest.run(suite, "OpenAI text-embedding-3-small", &Tests.test_embed_openai/0)

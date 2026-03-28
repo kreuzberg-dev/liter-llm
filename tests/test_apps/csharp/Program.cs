@@ -121,7 +121,7 @@ async Task<string?> TestChatGemini()
     if (key is null) return null;
     await using var client = new LlmClient(apiKey: key);
     var request = new ChatCompletionRequest(
-        Model: "google/gemini-2.0-flash",
+        Model: "google/gemini-2.5-flash-lite",
         Messages: [new UserMessage("Say hello in one word.")],
         MaxTokens: 10);
     var r = await client.ChatAsync(request);
@@ -220,7 +220,7 @@ Console.WriteLine();
 Console.WriteLine("Chat Completions:");
 await Run("OpenAI gpt-4o-mini", TestChatOpenAI);
 await Run("Anthropic claude-3-5-haiku", TestChatAnthropic);
-await Run("Google gemini-2.0-flash", TestChatGemini);
+await Run("Google gemini-2.5-flash-lite", TestChatGemini);
 
 await Run("OpenAI streaming", TestStreamingOpenAI);
 await Run("OpenAI text-embedding-3-small", TestEmbedOpenAI);

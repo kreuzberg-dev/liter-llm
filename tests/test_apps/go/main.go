@@ -161,7 +161,7 @@ func testChatGemini() (string, error) {
 	defer client.Close()
 
 	resp, err := client.Chat(context.Background(), &literllm.ChatCompletionRequest{
-		Model:    "gemini/gemini-2.5-flash-preview-05-20",
+		Model:    "gemini/gemini-2.5-flash-lite",
 		Messages: []literllm.Message{{Role: literllm.RoleUser, Content: "Say hello in one word."}},
 		MaxTokens: intPtr(10),
 	})
@@ -366,7 +366,7 @@ func main() {
 	fmt.Println("Chat Completions:")
 	suite.run("OpenAI gpt-4o-mini", testChatOpenAI)
 	suite.run("Anthropic claude-3-5-haiku", testChatAnthropic)
-	suite.run("Google gemini-2.0-flash", testChatGemini)
+	suite.run("Google gemini-2.5-flash-lite", testChatGemini)
 
 	suite.run("OpenAI streaming", testStreamingOpenAI)
 	suite.run("OpenAI text-embedding-3-small", testEmbedOpenAI)

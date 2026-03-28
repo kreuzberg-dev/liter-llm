@@ -28,8 +28,7 @@ final class BudgetTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        $budgetConfig = new \LiterLlm\BudgetConfig(globalLimit: 0, enforcement: 'hard');
-        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, budgetConfig: $budgetConfig);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, null, null, null, null, '{"global_limit":0,"enforcement":"hard"}');
 
         $threw = false;
         try {
@@ -57,8 +56,7 @@ final class BudgetTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        $budgetConfig = new \LiterLlm\BudgetConfig(enforcement: 'hard');
-        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, budgetConfig: $budgetConfig);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, null, null, null, null, '{"enforcement":"hard"}');
 
         $threw = false;
         try {
@@ -86,12 +84,11 @@ final class BudgetTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        $budgetConfig = new \LiterLlm\BudgetConfig(enforcement: 'strict');
-        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, budgetConfig: $budgetConfig);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, null, null, null, null, '{"enforcement":"strict"}');
 
         $resp = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
         $this->assertNotNull($resp);
-        $this->assertGreaterThan(0.0, $client->getGlobalSpend(), 'Expected cost to be tracked');
+        $this->assertGreaterThan(0.0, $client->budgetUsed(), 'Expected cost to be tracked');
         $server->stop();
     }
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-wasm",
-	"version": "1.0.0-rc.9",
+	"version": "1.0.0",
 	"description": "WebAssembly bindings for liter-llm \u2014 high-performance LLM client powered by Rust",
 	"type": "module",
 	"main": "pkg/liter_llm_wasm.js",

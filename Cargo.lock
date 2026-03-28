@@ -957,7 +957,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "e2e-generator"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "camino",
@@ -1977,7 +1977,7 @@ checksum = "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77"
 
 [[package]]
 name = "liter-llm"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "aws-credential-types",
  "aws-sigv4",
@@ -2009,7 +2009,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-bindings-core"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "liter-llm",
  "pretty_assertions",
@@ -2020,7 +2020,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-ffi"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -2035,7 +2035,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-node"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -2049,7 +2049,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-php"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "ext-php-rs",
  "futures-core",
@@ -2060,7 +2060,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-py"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -2073,7 +2073,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-wasm"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "js-sys",
  "liter-llm",
@@ -2089,7 +2089,7 @@ dependencies = [
 
 [[package]]
 name = "liter_llm_rustler"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -3573,7 +3573,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "snippet-runner"
-version = "1.0.0-rc.9"
+version = "1.0.0"
 dependencies = [
  "clap",
  "rayon",

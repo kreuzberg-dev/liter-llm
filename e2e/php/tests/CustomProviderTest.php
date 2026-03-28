@@ -30,13 +30,7 @@ final class CustomProviderTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $provider = new \LiterLlm\ProviderConfig(
-            name: 'my-auth-provider',
-            baseUrl: $mockUrl,
-            authHeader: 'api-key:X-Custom-Key',
-            modelPrefixes: ['my-auth-'],
-        );
-        $client->registerProvider($provider);
+        $client->registerProvider(json_encode(['name' => 'my-auth-provider', 'base_url' => $mockUrl, 'auth_header' => 'api-key:X-Custom-Key', 'model_prefixes' => ['my-auth-']]));
 
         $resp = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"my-auth-model-v1"}');
         $this->assertNotNull($resp, 'Expected response from custom provider');
@@ -61,13 +55,7 @@ final class CustomProviderTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $provider = new \LiterLlm\ProviderConfig(
-            name: 'my-provider',
-            baseUrl: $mockUrl,
-            authHeader: 'Bearer',
-            modelPrefixes: ['my-'],
-        );
-        $client->registerProvider($provider);
+        $client->registerProvider(json_encode(['name' => 'my-provider', 'base_url' => $mockUrl, 'auth_header' => 'Bearer', 'model_prefixes' => ['my-']]));
 
         $resp = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"my-model-v1"}');
         $this->assertNotNull($resp, 'Expected response from custom provider');

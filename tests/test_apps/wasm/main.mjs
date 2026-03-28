@@ -96,7 +96,7 @@ async function testChatGemini() {
 	if (!key) return null;
 	const client = new LlmClient({ apiKey: key });
 	const r = await client.chat({
-		model: "gemini/gemini-2.5-flash-preview-05-20",
+		model: "gemini/gemini-2.5-flash-lite",
 		messages: [{ role: "user", content: "Say hello in one word." }],
 		max_tokens: 10,
 	});
@@ -200,7 +200,7 @@ async function main() {
 	process.stdout.write("Chat Completions:\n");
 	await run("OpenAI gpt-4o-mini", testChatOpenAI);
 	await run("Anthropic claude-3-5-haiku", testChatAnthropic);
-	await run("Google gemini-2.0-flash", testChatGemini);
+	await run("Google gemini-2.5-flash-lite", testChatGemini);
 
 	await run("OpenAI streaming", testStreamingOpenAI);
 	await run("OpenAI text-embedding-3-small", testEmbedOpenAI);

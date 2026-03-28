@@ -373,7 +373,7 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     let is_error = status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(out).unwrap();
@@ -382,7 +382,7 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
     writeln!(out, "    {{").unwrap();
 
     // Build mock route.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_php = php_string_escape(&body_json);
 
     writeln!(out, "        $routes = [").unwrap();
@@ -392,11 +392,11 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
     writeln!(out, "                status: {status},").unwrap();
     writeln!(out, "                body: '{body_php}',").unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "                streamChunks: [],").unwrap();
     } else {
         writeln!(out, "                streamChunks: [").unwrap();
-        for chunk in &fixture.api.mock_response.stream_chunks {
+        for chunk in &fixture.api.mock_response().stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             let chunk_php = php_string_escape(&chunk_json);
             writeln!(out, "                    '{chunk_php}',").unwrap();
@@ -426,14 +426,14 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
             // at all (e.g. an error response or an empty stream fixture) the
             // expected count is 0, not 1, because the mock returns a regular
             // JSON body rather than SSE data lines.
-            let total_chunks = fixture.api.mock_response.stream_chunks.len();
+            let total_chunks = fixture.api.mock_response().stream_chunks.len();
             let min_chunks = if total_chunks == 0 {
                 0_usize
             } else {
                 // At least one SSE data line is expected when chunks exist.
                 let meaningful: usize = fixture
                     .api
-                    .mock_response
+                    .mock_response()
                     .stream_chunks
                     .iter()
                     .filter(|c| {
@@ -496,7 +496,13 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
 fn emit_php_assertions(out: &mut String, fixture: &Fixture, method: &str) {
     match method {
         "chat" => {
-            if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+            if let Some(choices_arr) = fixture
+                .api
+                .mock_response()
+                .body
+                .get("choices")
+                .and_then(|v| v.as_array())
+            {
                 let count = choices_arr.len();
                 writeln!(out, "        $this->assertCount({count}, $doc['choices']);").unwrap();
 
@@ -529,7 +535,7 @@ fn emit_php_assertions(out: &mut String, fixture: &Fixture, method: &str) {
                 }
             }
 
-            if let Some(usage) = fixture.api.mock_response.body.get("usage").filter(|v| !v.is_null())
+            if let Some(usage) = fixture.api.mock_response().body.get("usage").filter(|v| !v.is_null())
                 && let Some(total) = usage.get("total_tokens").and_then(|v| v.as_u64())
             {
                 writeln!(
@@ -543,20 +549,20 @@ fn emit_php_assertions(out: &mut String, fixture: &Fixture, method: &str) {
                 .assertions
                 .model
                 .as_deref()
-                .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()));
+                .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()));
             if let Some(model) = model {
                 let m_php = php_string_escape(model);
                 writeln!(out, "        $this->assertEquals('{m_php}', $doc['model']);").unwrap();
             }
         }
         "embed" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len();
                 writeln!(out, "        $this->assertCount({count}, $doc['data']);").unwrap();
             }
         }
         "list_models" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len();
                 writeln!(out, "        $this->assertCount({count}, $doc['data']);").unwrap();
             }
@@ -627,10 +633,10 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
     let req_php = php_string_escape(&req_json);
 
     // Build mock server for real response body.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_php = php_string_escape(&body_json);
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
 
     writeln!(out).unwrap();
     writeln!(out, "    /** {} */", fixture.description).unwrap();
@@ -655,12 +661,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
         "cache" => {
             writeln!(
                 out,
-                "        $cacheConfig = new \\LiterLlm\\CacheConfig(maxEntries: 10, ttlSeconds: 60);"
-            )
-            .unwrap();
-            writeln!(
-                out,
-                "        $client = new \\LiterLlm\\LlmClient('test-key', $mockUrl, cacheConfig: $cacheConfig);"
+                "        $client = new \\LiterLlm\\LlmClient('test-key', $mockUrl, null, null, null, '{{\"max_entries\":10,\"ttl_seconds\":60}}');"
             )
             .unwrap();
             writeln!(out).unwrap();
@@ -696,21 +697,16 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
             if let Some(limit) = global_limit {
                 writeln!(
                     out,
-                    "        $budgetConfig = new \\LiterLlm\\BudgetConfig(globalLimit: {limit}, enforcement: '{enforcement_php}');"
+                    "        $client = new \\LiterLlm\\LlmClient('test-key', $mockUrl, null, null, null, null, '{{\"global_limit\":{limit},\"enforcement\":\"{enforcement_php}\"}}');"
                 )
                 .unwrap();
             } else {
                 writeln!(
                     out,
-                    "        $budgetConfig = new \\LiterLlm\\BudgetConfig(enforcement: '{enforcement_php}');"
+                    "        $client = new \\LiterLlm\\LlmClient('test-key', $mockUrl, null, null, null, null, '{{\"enforcement\":\"{enforcement_php}\"}}');"
                 )
                 .unwrap();
             }
-            writeln!(
-                out,
-                "        $client = new \\LiterLlm\\LlmClient('test-key', $mockUrl, budgetConfig: $budgetConfig);"
-            )
-            .unwrap();
             writeln!(out).unwrap();
 
             if is_error {
@@ -731,7 +727,7 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 if fixture.assertions.cost_tracked == Some(true) {
                     writeln!(
                         out,
-                        "        $this->assertGreaterThan(0.0, $client->getGlobalSpend(), 'Expected cost to be tracked');"
+                        "        $this->assertGreaterThan(0.0, $client->budgetUsed(), 'Expected cost to be tracked');"
                     )
                     .unwrap();
                 }
@@ -912,13 +908,11 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 )
                 .unwrap();
                 writeln!(out).unwrap();
-                writeln!(out, "        $provider = new \\LiterLlm\\ProviderConfig(").unwrap();
-                writeln!(out, "            name: '{name_php}',").unwrap();
-                writeln!(out, "            baseUrl: $mockUrl,").unwrap();
-                writeln!(out, "            authHeader: '{auth_php}',").unwrap();
-                writeln!(out, "            modelPrefixes: [{prefixes_php}],").unwrap();
-                writeln!(out, "        );").unwrap();
-                writeln!(out, "        $client->registerProvider($provider);").unwrap();
+                writeln!(
+                    out,
+                    "        $client->registerProvider(json_encode(['name' => '{name_php}', 'base_url' => $mockUrl, 'auth_header' => '{auth_php}', 'model_prefixes' => [{prefixes_php}]]));"
+                )
+                .unwrap();
                 writeln!(out).unwrap();
                 writeln!(out, "        $resp = $client->chat('{req_php}');").unwrap();
                 writeln!(

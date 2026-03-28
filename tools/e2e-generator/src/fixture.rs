@@ -50,7 +50,22 @@ pub struct ApiSpec {
     #[serde(default)]
     pub request: serde_json::Value,
     /// The mock HTTP response the test server returns.
-    pub mock_response: MockResponse,
+    /// `None` for live/smoke test fixtures that hit real APIs — these are
+    /// filtered out during loading and never reach generators.
+    #[serde(default)]
+    pub mock_response: Option<MockResponse>,
+}
+
+impl ApiSpec {
+    /// Access the mock response, panicking if absent.
+    ///
+    /// Live/smoke fixtures (without `mock_response`) are filtered out during
+    /// loading, so this is safe to call in generators.
+    pub fn mock_response(&self) -> &MockResponse {
+        self.mock_response
+            .as_ref()
+            .expect("mock_response is required for generated tests (live fixtures should be filtered)")
+    }
 }
 
 /// Mock HTTP response configuration for the test server.
@@ -330,6 +345,13 @@ pub fn load_fixtures(fixtures_dir: &Utf8Path) -> Result<Vec<Fixture>> {
         let mut fixture: Fixture = serde_json::from_str(&contents).with_context(|| format!("Parsing {path}"))?;
 
         fixture.source = path;
+
+        // Skip live/smoke fixtures that don't have mock responses —
+        // they are for integration tests, not generated e2e tests.
+        if fixture.api.mock_response.is_none() {
+            continue;
+        }
+
         fixtures.push(fixture);
     }
 

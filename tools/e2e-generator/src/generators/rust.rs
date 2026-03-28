@@ -297,7 +297,7 @@ fn emit_mock_server_start(out: &mut String, fixture: &Fixture, endpoint: &str, m
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
 
     writeln!(out, "    let server = mock_server::MockServer::start(vec![").unwrap();
     writeln!(out, "        mock_server::MockRoute {{").unwrap();
@@ -306,15 +306,15 @@ fn emit_mock_server_start(out: &mut String, fixture: &Fixture, endpoint: &str, m
     writeln!(out, "            status: {status},").unwrap();
 
     // body
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     writeln!(out, "            body: r#\"{}\"#.to_string(),", body_json).unwrap();
 
     // stream_chunks
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "            stream_chunks: vec![],").unwrap();
     } else {
         writeln!(out, "            stream_chunks: vec![").unwrap();
-        for chunk in &fixture.api.mock_response.stream_chunks {
+        for chunk in &fixture.api.mock_response().stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             writeln!(out, "                r#\"{chunk_json}\"#.to_string(),").unwrap();
         }
@@ -340,7 +340,7 @@ fn emit_chat_test(out: &mut String, fixture: &Fixture) {
 
     // An error test is one where the mock response is a non-2xx status or the
     // fixture explicitly marks expect_success = false.
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "    let result = client.chat(req).await;").unwrap();
@@ -367,7 +367,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
 
     // Stream initiation errors (non-2xx status with a body, no stream_chunks) are
     // returned as Err from chat_stream itself rather than from the stream items.
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
     if is_error {
         writeln!(out, "    let result = client.chat_stream(req).await;").unwrap();
         writeln!(out, "    assert!(result.is_err(), \"Expected error but got Ok\");").unwrap();
@@ -409,7 +409,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
     }
 
     // Collect concatenated content for content assertions.
-    let needs_content = fixture.api.mock_response.stream_chunks.iter().any(|c| {
+    let needs_content = fixture.api.mock_response().stream_chunks.iter().any(|c| {
         c.get("choices")
             .and_then(|ch| ch.as_array())
             .and_then(|arr| arr.first())
@@ -428,12 +428,12 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
 
     // stream_chunk_count_min (stored in the raw assertions JSON we don't have a typed field for;
     // but we can infer from stream_chunks length in the mock response)
-    let chunk_count = fixture.api.mock_response.stream_chunks.len();
+    let chunk_count = fixture.api.mock_response().stream_chunks.len();
     if chunk_count > 0 {
         // Check that we received at least the number of meaningful (non-empty) chunks.
         let meaningful: usize = fixture
             .api
-            .mock_response
+            .mock_response()
             .stream_chunks
             .iter()
             .filter(|c| {
@@ -466,7 +466,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture) {
     if needs_content {
         let expected_content: String = fixture
             .api
-            .mock_response
+            .mock_response()
             .stream_chunks
             .iter()
             .filter_map(|c| {
@@ -500,7 +500,7 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
     .unwrap();
     writeln!(out).unwrap();
 
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "    let result = client.embed(req).await;").unwrap();
@@ -527,7 +527,7 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
     }
 
     // Derive embedding count and dimension from mock response body.
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -554,7 +554,7 @@ fn emit_embed_test(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     if is_error {
         writeln!(out, "    let result = client.list_models().await;").unwrap();
@@ -581,7 +581,7 @@ fn emit_list_models_test(out: &mut String, fixture: &Fixture) {
     }
 
     // Derive model count from mock response body.
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -597,7 +597,13 @@ fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
     let assertions = &fixture.assertions;
 
     // choices count derived from mock response body (more reliable than assertion fields).
-    if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+    if let Some(choices_arr) = fixture
+        .api
+        .mock_response()
+        .body
+        .get("choices")
+        .and_then(|v| v.as_array())
+    {
         let count = choices_arr.len();
         writeln!(
             out,
@@ -667,7 +673,7 @@ fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
     }
 
     // usage
-    if let Some(usage) = fixture.api.mock_response.body.get("usage").filter(|v| !v.is_null()) {
+    if let Some(usage) = fixture.api.mock_response().body.get("usage").filter(|v| !v.is_null()) {
         writeln!(out, "    assert!(response.usage.is_some(), \"Expected usage object\");").unwrap();
         if let Some(total) = usage.get("total_tokens").and_then(|v| v.as_u64()) {
             writeln!(
@@ -682,14 +688,14 @@ fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
     if let Some(model) = assertions
         .model
         .as_deref()
-        .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()))
+        .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()))
     {
         writeln!(out, "    assert_eq!(response.model, {model:?}, \"model mismatch\");").unwrap();
     }
 }
 
 fn emit_error_assertions(out: &mut String, fixture: &Fixture) {
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     match status {
         401 => writeln!(
             out,
@@ -729,7 +735,7 @@ fn emit_error_assertions(out: &mut String, fixture: &Fixture) {
 /// `result.unwrap_err()` because `BoxStream` does not implement `Debug`, so
 /// `Result<BoxStream, E>::unwrap_err()` fails to compile.
 fn emit_stream_error_assertions(out: &mut String, fixture: &Fixture) {
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     match status {
         401 => writeln!(
             out,
@@ -1149,7 +1155,12 @@ fn write_new_category_test_fn(out: &mut String, fixture: &Fixture, category: &st
                 )
                 .unwrap();
 
-                if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array())
+                if let Some(choices_arr) = fixture
+                    .api
+                    .mock_response()
+                    .body
+                    .get("choices")
+                    .and_then(|v| v.as_array())
                     && let Some(content) = choices_arr
                         .first()
                         .and_then(|c| c.get("message"))

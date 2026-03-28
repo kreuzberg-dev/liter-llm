@@ -315,7 +315,7 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     let is_error = status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(out).unwrap();
@@ -326,7 +326,7 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
     // quotes and escapes inner `"` as `\"`, which Elixir string literals decode
     // correctly to the original JSON.  Calling elixir_string_escape first would
     // produce double-escaped backslashes that Jason cannot parse.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
 
     writeln!(out, "    routes = [").unwrap();
     writeln!(out, "      %{{").unwrap();
@@ -335,11 +335,11 @@ fn write_test_case(out: &mut String, fixture: &Fixture) {
     writeln!(out, "        status: {status},").unwrap();
     writeln!(out, "        body: {:?},", body_json).unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "        stream_chunks: []").unwrap();
     } else {
         writeln!(out, "        stream_chunks: [").unwrap();
-        for chunk in &fixture.api.mock_response.stream_chunks {
+        for chunk in &fixture.api.mock_response().stream_chunks {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             writeln!(out, "          {:?},", chunk_json).unwrap();
         }
@@ -384,7 +384,7 @@ fn emit_http_test(out: &mut String, fixture: &Fixture, endpoint: &str, http_meth
         writeln!(
             out,
             "    assert resp.status == {status}",
-            status = fixture.api.mock_response.status
+            status = fixture.api.mock_response().status
         )
         .unwrap();
     } else {
@@ -408,7 +408,7 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str, is_erro
     ).unwrap();
 
     if is_error {
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         writeln!(out, "    assert resp.status == {status}").unwrap();
         return;
     }
@@ -417,12 +417,12 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str, is_erro
     writeln!(out).unwrap();
     writeln!(out, "    chunks = LiterLlmE2E.Helpers.collect_sse_chunks(resp.body)").unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(out, "    assert length(chunks) == 0").unwrap();
     } else {
         let meaningful: usize = fixture
             .api
-            .mock_response
+            .mock_response()
             .stream_chunks
             .iter()
             .filter(|c| {
@@ -447,7 +447,13 @@ fn emit_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str, is_erro
 fn emit_elixir_assertions(out: &mut String, fixture: &Fixture, method: &str) {
     match method {
         "chat" => {
-            if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+            if let Some(choices_arr) = fixture
+                .api
+                .mock_response()
+                .body
+                .get("choices")
+                .and_then(|v| v.as_array())
+            {
                 let count = choices_arr.len();
                 writeln!(
                     out,
@@ -484,7 +490,7 @@ fn emit_elixir_assertions(out: &mut String, fixture: &Fixture, method: &str) {
                 }
             }
 
-            if let Some(usage) = fixture.api.mock_response.body.get("usage").filter(|v| !v.is_null())
+            if let Some(usage) = fixture.api.mock_response().body.get("usage").filter(|v| !v.is_null())
                 && let Some(total) = usage.get("total_tokens").and_then(|v| v.as_u64())
             {
                 writeln!(out, "    assert get_in(doc, [\"usage\", \"total_tokens\"]) == {total}").unwrap();
@@ -494,19 +500,19 @@ fn emit_elixir_assertions(out: &mut String, fixture: &Fixture, method: &str) {
                 .assertions
                 .model
                 .as_deref()
-                .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()));
+                .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()));
             if let Some(model) = model {
                 writeln!(out, "    assert doc[\"model\"] == {:?}", model).unwrap();
             }
         }
         "embed" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len();
                 writeln!(out, "    assert length(doc[\"data\"]) == {count}").unwrap();
             }
         }
         "list_models" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len();
                 writeln!(out, "    assert length(doc[\"data\"]) == {count}").unwrap();
             }
@@ -530,9 +536,9 @@ fn write_cache_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
 
     for fixture in fixtures {
         let test_name = fixture.description.replace('"', "'");
-        let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+        let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
         let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
         let http_method = if fixture.api.method == "list_models" {
             "GET"
@@ -553,9 +559,9 @@ fn write_cache_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
         writeln!(out, "        status: {status},").unwrap();
         writeln!(out, "        body: {:?},", body_json).unwrap();
 
-        if is_stream && !fixture.api.mock_response.stream_chunks.is_empty() {
+        if is_stream && !fixture.api.mock_response().stream_chunks.is_empty() {
             writeln!(out, "        stream_chunks: [").unwrap();
-            for chunk in &fixture.api.mock_response.stream_chunks {
+            for chunk in &fixture.api.mock_response().stream_chunks {
                 let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
                 writeln!(out, "          {:?},", chunk_json).unwrap();
             }
@@ -631,9 +637,9 @@ fn write_budget_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
 
     for fixture in fixtures {
         let test_name = fixture.description.replace('"', "'");
-        let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+        let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
         let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
@@ -764,9 +770,9 @@ fn write_hooks_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
 
     for fixture in fixtures {
         let test_name = fixture.description.replace('"', "'");
-        let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+        let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
         let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
@@ -866,9 +872,9 @@ fn write_custom_provider_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
 
     for fixture in fixtures {
         let test_name = fixture.description.replace('"', "'");
-        let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+        let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
         let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-        let status = fixture.api.mock_response.status;
+        let status = fixture.api.mock_response().status;
         let endpoint = endpoint_for_method(fixture.api.method.as_str());
 
         writeln!(out).unwrap();
@@ -933,7 +939,13 @@ fn write_custom_provider_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
             writeln!(out, "    doc = Jason.decode!(resp.body)").unwrap();
             writeln!(out).unwrap();
 
-            if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+            if let Some(choices_arr) = fixture
+                .api
+                .mock_response()
+                .body
+                .get("choices")
+                .and_then(|v| v.as_array())
+            {
                 let count = choices_arr.len();
                 writeln!(
                     out,
@@ -956,7 +968,7 @@ fn write_custom_provider_tests(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
                 }
             }
 
-            if let Some(model) = fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()) {
+            if let Some(model) = fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()) {
                 writeln!(out, "    assert doc[\"model\"] == {:?}", model).unwrap();
             }
         }

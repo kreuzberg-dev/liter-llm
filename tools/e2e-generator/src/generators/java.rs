@@ -324,14 +324,14 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
 
     writeln!(out).unwrap();
     writeln!(out, "  /** {} */", fixture.description).unwrap();
     writeln!(out, "  @Test").unwrap();
     writeln!(out, "  void {method_name}() throws Exception {{").unwrap();
 
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
 
     // Build mock server.
     writeln!(
@@ -340,7 +340,7 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
     )
     .unwrap();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(
             out,
             "        new Helpers.MockRoute({:?}, {:?}, {status}, {})",
@@ -359,8 +359,8 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
         )
         .unwrap();
         writeln!(out, "            List.of(").unwrap();
-        let last = fixture.api.mock_response.stream_chunks.len() - 1;
-        for (i, chunk) in fixture.api.mock_response.stream_chunks.iter().enumerate() {
+        let last = fixture.api.mock_response().stream_chunks.len() - 1;
+        for (i, chunk) in fixture.api.mock_response().stream_chunks.iter().enumerate() {
             let chunk_json = serde_json::to_string(chunk).unwrap_or_default();
             let comma = if i < last { "," } else { "" };
             writeln!(out, "                {}{comma}", java_string(&chunk_json)).unwrap();
@@ -388,7 +388,7 @@ fn write_test_method(out: &mut String, fixture: &Fixture) {
 
 fn emit_java_chat_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -403,7 +403,7 @@ fn emit_java_chat_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         writeln!(
             out,
             "      assertEquals({}, resp.statusCode(), \"error status code\");",
-            fixture.api.mock_response.status
+            fixture.api.mock_response().status
         )
         .unwrap();
         writeln!(
@@ -415,7 +415,7 @@ fn emit_java_chat_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         writeln!(
             out,
             "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-            fixture.api.mock_response.status
+            fixture.api.mock_response().status
         )
         .unwrap();
         writeln!(out).unwrap();
@@ -428,7 +428,7 @@ fn emit_java_chat_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
 fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -443,7 +443,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         writeln!(
             out,
             "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-            fixture.api.mock_response.status
+            fixture.api.mock_response().status
         )
         .unwrap();
         writeln!(
@@ -457,7 +457,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     writeln!(
         out,
         "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-        fixture.api.mock_response.status
+        fixture.api.mock_response().status
     )
     .unwrap();
     writeln!(out).unwrap();
@@ -465,7 +465,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
     let meaningful: usize = fixture
         .api
-        .mock_response
+        .mock_response()
         .stream_chunks
         .iter()
         .filter(|c| {
@@ -479,7 +479,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         })
         .count();
 
-    if fixture.api.mock_response.stream_chunks.is_empty() {
+    if fixture.api.mock_response().stream_chunks.is_empty() {
         writeln!(
             out,
             "      assertTrue(chunks.isEmpty(), \"expected 0 chunks for empty stream\");"
@@ -496,7 +496,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
     let expected_content: String = fixture
         .api
-        .mock_response
+        .mock_response()
         .stream_chunks
         .iter()
         .filter_map(|c| {
@@ -543,7 +543,7 @@ fn emit_java_stream_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 
 fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -558,7 +558,7 @@ fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
         writeln!(
             out,
             "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-            fixture.api.mock_response.status
+            fixture.api.mock_response().status
         )
         .unwrap();
         writeln!(
@@ -572,13 +572,13 @@ fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
     writeln!(
         out,
         "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-        fixture.api.mock_response.status
+        fixture.api.mock_response().status
     )
     .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "      JsonNode body = Helpers.MAPPER.readTree(resp.body());").unwrap();
 
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -589,7 +589,7 @@ fn emit_java_embed_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
 }
 
 fn emit_java_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &str) {
-    let is_error = fixture.api.mock_response.status >= 400 || !fixture.assertions.expect_success;
+    let is_error = fixture.api.mock_response().status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(
         out,
@@ -603,7 +603,7 @@ fn emit_java_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &st
         writeln!(
             out,
             "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-            fixture.api.mock_response.status
+            fixture.api.mock_response().status
         )
         .unwrap();
         writeln!(
@@ -617,13 +617,13 @@ fn emit_java_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &st
     writeln!(
         out,
         "      assertEquals({}, resp.statusCode(), \"HTTP status code\");",
-        fixture.api.mock_response.status
+        fixture.api.mock_response().status
     )
     .unwrap();
     writeln!(out).unwrap();
     writeln!(out, "      JsonNode body = Helpers.MAPPER.readTree(resp.body());").unwrap();
 
-    if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+    if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
         let count = data_arr.len();
         writeln!(
             out,
@@ -634,7 +634,13 @@ fn emit_java_list_models_test(out: &mut String, fixture: &Fixture, endpoint: &st
 }
 
 fn emit_java_chat_assertions(out: &mut String, fixture: &Fixture) {
-    if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+    if let Some(choices_arr) = fixture
+        .api
+        .mock_response()
+        .body
+        .get("choices")
+        .and_then(|v| v.as_array())
+    {
         let count = choices_arr.len();
         writeln!(
             out,
@@ -671,7 +677,7 @@ fn emit_java_chat_assertions(out: &mut String, fixture: &Fixture) {
         }
     }
 
-    if let Some(model) = fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()) {
+    if let Some(model) = fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()) {
         writeln!(
             out,
             "      assertEquals({}, body.get(\"model\").asText(), \"model\");",
@@ -680,7 +686,7 @@ fn emit_java_chat_assertions(out: &mut String, fixture: &Fixture) {
         .unwrap();
     }
 
-    if let Some(usage) = fixture.api.mock_response.body.get("usage").filter(|v| !v.is_null()) {
+    if let Some(usage) = fixture.api.mock_response().body.get("usage").filter(|v| !v.is_null()) {
         writeln!(out, "      assertNotNull(body.get(\"usage\"), \"usage object\");").unwrap();
         if let Some(total) = usage.get("total_tokens").and_then(|v| v.as_u64()) {
             writeln!(
@@ -768,9 +774,9 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
     writeln!(out, "  void {method_name}() throws Exception {{").unwrap();
 
     // Build mock server for fixtures that have a real mock response body.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let endpoint = endpoint_for_method(fixture.api.method.as_str());
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
 
     writeln!(
@@ -1029,7 +1035,12 @@ fn write_new_category_test_method(out: &mut String, fixture: &Fixture, category:
                 )
                 .unwrap();
 
-                if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array())
+                if let Some(choices_arr) = fixture
+                    .api
+                    .mock_response()
+                    .body
+                    .get("choices")
+                    .and_then(|v| v.as_array())
                     && let Some(content) = choices_arr
                         .first()
                         .and_then(|c| c.get("message"))

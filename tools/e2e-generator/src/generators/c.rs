@@ -600,7 +600,7 @@ fn write_test_fn(out: &mut String, fixture: &Fixture) {
         "delete_file" | "cancel_batch" | "cancel_response" => "POST",
         _ => "POST",
     };
-    let status = fixture.api.mock_response.status;
+    let status = fixture.api.mock_response().status;
     let is_error = status >= 400 || !fixture.assertions.expect_success;
 
     writeln!(out, "/* {} */", fixture.description).unwrap();
@@ -610,7 +610,7 @@ fn write_test_fn(out: &mut String, fixture: &Fixture) {
     // For C, we use pre-recorded JSON (the mock response body) instead of a live mock server.
     // The test makes a real HTTP call only if a LITER_LLM_TEST_BASE_URL env var is set;
     // otherwise it performs a unit-style assertion against the pre-recorded body.
-    let body_json = serde_json::to_string(&fixture.api.mock_response.body).unwrap_or_default();
+    let body_json = serde_json::to_string(&fixture.api.mock_response().body).unwrap_or_default();
     let body_c = c_string_escape(&body_json);
 
     writeln!(out, "    /* Pre-recorded mock response body. */").unwrap();
@@ -652,12 +652,12 @@ fn write_test_fn(out: &mut String, fixture: &Fixture) {
             )
             .unwrap();
 
-            if fixture.api.mock_response.stream_chunks.is_empty() {
+            if fixture.api.mock_response().stream_chunks.is_empty() {
                 writeln!(out, "        assert(n == 0);").unwrap();
             } else {
                 let meaningful: usize = fixture
                     .api
-                    .mock_response
+                    .mock_response()
                     .stream_chunks
                     .iter()
                     .filter(|c| {
@@ -744,7 +744,13 @@ fn emit_c_json_assertions(out: &mut String, fixture: &Fixture, body_var: &str, t
 
     match method {
         "chat" => {
-            if let Some(choices_arr) = fixture.api.mock_response.body.get("choices").and_then(|v| v.as_array()) {
+            if let Some(choices_arr) = fixture
+                .api
+                .mock_response()
+                .body
+                .get("choices")
+                .and_then(|v| v.as_array())
+            {
                 let count = choices_arr.len() as i64;
                 writeln!(
                     out,
@@ -771,7 +777,7 @@ fn emit_c_json_assertions(out: &mut String, fixture: &Fixture, body_var: &str, t
                 .assertions
                 .model
                 .as_deref()
-                .or_else(|| fixture.api.mock_response.body.get("model").and_then(|v| v.as_str()));
+                .or_else(|| fixture.api.mock_response().body.get("model").and_then(|v| v.as_str()));
             if let Some(model) = model {
                 let m_escaped = c_string_escape(model);
                 writeln!(
@@ -782,7 +788,7 @@ fn emit_c_json_assertions(out: &mut String, fixture: &Fixture, body_var: &str, t
             }
         }
         "embed" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len() as i64;
                 writeln!(
                     out,
@@ -792,7 +798,7 @@ fn emit_c_json_assertions(out: &mut String, fixture: &Fixture, body_var: &str, t
             }
         }
         "list_models" => {
-            if let Some(data_arr) = fixture.api.mock_response.body.get("data").and_then(|v| v.as_array()) {
+            if let Some(data_arr) = fixture.api.mock_response().body.get("data").and_then(|v| v.as_array()) {
                 let count = data_arr.len() as i64;
                 writeln!(
                     out,

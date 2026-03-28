@@ -12,5 +12,8 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "liter-llm==1.0.0rc8",
+  "liter-llm==1.0.0rc9",
 ]
+
+[tool.uv]
+prerelease = "allow"

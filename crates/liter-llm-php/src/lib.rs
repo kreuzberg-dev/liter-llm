@@ -359,6 +359,20 @@ impl PhpLlmClient {
         Ok(())
     }
 
+    /// Register a custom LLM provider at runtime.
+    ///
+    /// @param string $configJson JSON-encoded provider config.
+    ///   Required: `name`, `base_url`, `model_prefixes`.
+    ///   Optional: `auth_header` — `"bearer"` (default), `"none"`, or `"api-key:X-Header-Name"`.
+    #[php(name = "registerProvider")]
+    pub fn register_provider(&self, config_json: String) -> PhpResult<()> {
+        let val: serde_json::Value = serde_json::from_str(&config_json)
+            .map_err(|e| PhpException::from(format!("invalid provider config JSON: {e}")))?;
+        let provider_config = config::parse_provider_config(&val)
+            .map_err(|e| PhpException::from(format!("invalid provider config: {e}")))?;
+        register_custom_provider(provider_config).map_err(|e| PhpException::from(e.to_string()))
+    }
+
     /// Return the total budget spend in USD.
     ///
     /// Returns 0.0 if no budget middleware is configured.

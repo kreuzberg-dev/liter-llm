@@ -4,7 +4,7 @@
 	"type": "project",
 	"require": {
 		"php": ">=8.2",
-		"kreuzberg/liter-llm": "1.0.0-rc.8"
+		"kreuzberg/liter-llm": "1.0.0-rc.9"
 	},
 	"config": {
 		"sort-packages": true
