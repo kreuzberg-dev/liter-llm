@@ -1,7 +1,36 @@
-version: "1.0.0-rc.1"
+version: "1.0.0-rc.6"
 license: "MIT"
 
 languages:
+  rust:
+    name: Rust
+    template: language_package.md.jinja
+    output_path: crates/liter-llm/README.md
+    package_manager:
+      - cargo
+    package_name: liter-llm
+    badge_url: https://img.shields.io/crates/v/liter-llm?label=Rust&color=007ec6
+    docs_url: https://docs.liter-llm.kreuzberg.dev
+    description: |
+      Universal LLM API client for Rust. Access 142+ LLM providers — OpenAI, Anthropic, Groq, Mistral, and more — through a single unified interface. Async/await with Tokio, streaming via BoxStream, composable Tower middleware stack, and compile-time type safety.
+    features:
+      streaming: true
+      async: true
+      tool_calling: true
+      provider_routing: true
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
+    optional_sections:
+      - async_support
+      - streaming_support
+      - tool_calling
+      - middleware_stack
+    snippets:
+      basic_chat: getting-started/basic_chat.md
+      streaming: getting-started/streaming.md
+
   python:
     name: Python
     template: language_package.md.jinja
@@ -17,7 +46,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - async_support
       - streaming_support
@@ -45,7 +77,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - async_support
       - streaming_support
@@ -71,7 +106,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - ffi_build_instructions
     snippets:
@@ -94,7 +132,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - maven_gradle_setup
       - async_support
@@ -117,7 +158,10 @@ languages:
       async: false
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections: []
     snippets:
       basic_chat: getting-started/basic_chat.md
@@ -138,7 +182,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - async_support
       - streaming_support
@@ -161,7 +208,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - async_support
       - streaming_support
@@ -184,7 +234,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - async_support
       - streaming_support
@@ -210,7 +263,10 @@ languages:
       async: true
       tool_calling: true
       provider_routing: true
-      cost_tracking: false
+      cost_tracking: true
+      search: true
+      ocr: true
+      caching: true
     optional_sections:
       - async_support
       - streaming_support

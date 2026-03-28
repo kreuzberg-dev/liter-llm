@@ -43,6 +43,11 @@ let client = DefaultClient::new(config, Some("gpt-4"))?;
 | `header(key, value)` | Add a custom header (native-http only) |
 | `cache(config)` | Enable response caching: `CacheConfig { max_entries: 256, ttl_seconds: 300 }` |
 | `budget(config)` | Enable budget tracking: `BudgetConfig { global_limit: Some(10.0), .. }` |
+| `cooldown(duration)` | Set cooldown period after transient errors |
+| `rate_limit(config)` | Set rate limiting: `RateLimitConfig { rpm: Some(60), tpm: Some(100_000) }` |
+| `health_check(interval)` | Set health check interval |
+| `cost_tracking(enabled)` | Enable per-request cost tracking |
+| `tracing(enabled)` | Enable OpenTelemetry tracing spans |
 | `build()` | Consume builder, return `ClientConfig` |
 
 ### `DefaultClient`
@@ -70,6 +75,8 @@ pub trait LlmClient: Send + Sync {
     fn transcribe(&self, req: CreateTranscriptionRequest) -> BoxFuture<'_, TranscriptionResponse>;
     fn moderate(&self, req: ModerationRequest) -> BoxFuture<'_, ModerationResponse>;
     fn rerank(&self, req: RerankRequest) -> BoxFuture<'_, RerankResponse>;
+    fn search(&self, req: SearchRequest) -> BoxFuture<'_, SearchResponse>;
+    fn ocr(&self, req: OcrRequest) -> BoxFuture<'_, OcrResponse>;
 }
 ```
 

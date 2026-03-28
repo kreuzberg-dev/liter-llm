@@ -21,7 +21,7 @@ extension-module = ["pyo3/extension-module"]
 
 [dependencies]
 futures-core = { workspace = true }
-liter-llm = { path = "../liter-llm", version = "1.0.0-rc.5", features = ["full"] }
+liter-llm = { path = "../liter-llm", version = "1.0.0-rc.6", features = ["full"] }
 pyo3 = { workspace = true }
 pyo3-async-runtimes = { workspace = true }
 serde = { workspace = true }

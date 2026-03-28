@@ -366,6 +366,31 @@ def update_go_mod(file_path: Path, version: str) -> tuple[bool, str, str]:
     return False, old_version, version
 
 
+def update_readme_config_yaml(file_path: Path, version: str) -> tuple[bool, str, str]:
+    """Update the version field in readme_config.yaml."""
+    content = file_path.read_text(encoding="utf-8")
+
+    match = re.search(r'^version:\s*"([^"]+)"', content, re.MULTILINE)
+    old_version = match.group(1) if match else "NOT FOUND"
+
+    if old_version == version:
+        return False, old_version, version
+
+    new_content = re.sub(
+        r'^(version:\s*)"[^"]+"',
+        rf'\1"{version}"',
+        content,
+        count=1,
+        flags=re.MULTILINE,
+    )
+
+    if new_content != content:
+        file_path.write_text(new_content, encoding="utf-8")
+        return True, old_version, version
+
+    return False, old_version, version
+
+
 # ---------------------------------------------------------------------------
 # Normalisation helpers
 # ---------------------------------------------------------------------------
@@ -463,6 +488,8 @@ def build_targets(
     Files that do not exist are still listed; _process_file handles the skip.
     """
     return [
+        # README generation config
+        (repo_root / "scripts" / "readme_config.yaml", update_readme_config_yaml),
         # Root manifests
         (repo_root / "pyproject.toml", update_python_pyproject_toml),
         (repo_root / "composer.json", update_composer_json),
@@ -594,9 +621,42 @@ def run(
     # Print summary and determine exit code
     _print_summary(results, version, dry_run, check_mode)
 
-    # Return exit code (1 if check mode and files would change, else 0)
+    # Regenerate READMEs from templates (only in sync mode, not check/dry-run)
     updated = [r for r in results if r.changed]
+    if updated and not dry_run and not check_mode:
+        _regenerate_readmes(repo_root)
+
+    # Return exit code (1 if check mode and files would change, else 0)
     return 1 if (check_mode and updated) else 0
+
+
+def _regenerate_readmes(repo_root: Path) -> None:
+    """Regenerate READMEs from Jinja templates after version sync."""
+    import subprocess
+
+    generate_script = repo_root / "scripts" / "generate_readme.py"
+    if not generate_script.exists():
+        warn("generate_readme.py not found — skipping README regeneration")
+        return
+
+    print(_color("\nRegenerating READMEs from templates...", BOLD))
+    try:
+        result = subprocess.run(
+            ["uv", "run", "--no-sync", "python", str(generate_script)],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+        if result.returncode == 0:
+            ok("READMEs regenerated successfully")
+        else:
+            warn(f"README generation failed: {result.stderr.strip()}")
+    except FileNotFoundError:
+        warn("uv not found — skipping README regeneration")
+    except subprocess.TimeoutExpired:
+        warn("README generation timed out")
 
 
 # ---------------------------------------------------------------------------

@@ -14,8 +14,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 futures-core = { workspace = true }
-liter-llm = { path = "../../../../crates/liter-llm", version = "1.0.0-rc.5", features = ["full"] }
-liter-llm-bindings-core = { path = "../../../../crates/liter-llm-bindings-core", version = "1.0.0-rc.5" }
+liter-llm = { path = "../../../../crates/liter-llm", version = "1.0.0-rc.6", features = ["full"] }
+liter-llm-bindings-core = { path = "../../../../crates/liter-llm-bindings-core", version = "1.0.0-rc.6" }
 rustler = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

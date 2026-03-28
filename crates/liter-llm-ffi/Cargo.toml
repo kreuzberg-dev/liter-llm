@@ -20,8 +20,8 @@ default = []
 base64.workspace = true
 bytes.workspace = true
 futures-core.workspace = true
-liter-llm = { path = "../liter-llm", version = "1.0.0-rc.5", features = ["full"] }
-liter-llm-bindings-core = { path = "../liter-llm-bindings-core", version = "1.0.0-rc.5" }
+liter-llm = { path = "../liter-llm", version = "1.0.0-rc.6", features = ["full"] }
+liter-llm-bindings-core = { path = "../liter-llm-bindings-core", version = "1.0.0-rc.6" }
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true

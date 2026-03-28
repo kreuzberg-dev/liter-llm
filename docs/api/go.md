@@ -38,6 +38,11 @@ client := literllm.NewClient(
 | `WithHTTPClient(hc)` | Replace the default `*http.Client` |
 | `WithCache(cfg)` | Enable response caching with `CacheConfig{MaxEntries, TTLSeconds}` |
 | `WithBudget(cfg)` | Enable cost budgeting with `BudgetConfig{GlobalLimit, ModelLimits, Enforcement}` |
+| `WithCooldown(d)` | Cooldown period after transient errors |
+| `WithRateLimit(cfg)` | Rate limiting with `RateLimitConfig{RPM, TPM}` |
+| `WithHealthCheck(d)` | Background health check interval |
+| `WithCostTracking()` | Enable per-request cost tracking |
+| `WithTracing()` | Enable OpenTelemetry tracing spans |
 | `WithHook(h)` | Register a lifecycle hook (implements `LlmHook` interface) |
 
 The `Client` is safe for concurrent use.
@@ -214,6 +219,30 @@ resp, err := client.Rerank(ctx, &literllm.RerankRequest{
     Query:     "What is the capital of France?",
     Documents: []string{"Paris is the capital of France.", "Berlin is in Germany."},
     TopN:      2,
+})
+```
+
+#### `Search(ctx, req)`
+
+Perform a web or document search across supported providers.
+
+```go
+resp, err := client.Search(ctx, &literllm.SearchRequest{
+    Model:      "brave/search",
+    Query:      "latest AI news",
+    MaxResults: 10,
+})
+```
+
+#### `Ocr(ctx, req)`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```go
+resp, err := client.Ocr(ctx, &literllm.OcrRequest{
+    Model:    "mistral/pixtral",
+    File:     fileBytes,
+    MimeType: "application/pdf",
 })
 ```
 

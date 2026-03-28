@@ -44,6 +44,11 @@ client = LiterLlm::LlmClient.new('sk-...',
 | `timeout_secs:` | `Integer` | `60` | Request timeout in seconds |
 | `cache:` | `Hash?` | `nil` | Cache config (`max_entries`, `ttl_seconds`) |
 | `budget:` | `Hash?` | `nil` | Budget config (`global_limit`, `model_limits`, `enforcement`) |
+| `cooldown_secs:` | `Integer?` | `nil` | Cooldown period in seconds after transient errors |
+| `rate_limit:` | `Hash?` | `nil` | Rate limit config (`rpm`, `tpm`) |
+| `health_check_secs:` | `Integer?` | `nil` | Health check interval in seconds |
+| `cost_tracking:` | `Boolean` | `false` | Enable per-request cost tracking |
+| `tracing:` | `Boolean` | `false` | Enable OpenTelemetry tracing spans |
 
 The client is immutable after construction and safe to share across threads.
 
@@ -179,6 +184,38 @@ puts response.dig('results', 0, 'document', 'text')
 ```
 
 Accepts `model`, `query`, `documents`, `top_n`.
+
+#### `search(request_json)`
+
+Perform a web or document search across supported providers.
+
+```ruby
+response_json = client.search(JSON.generate(
+  model: 'brave/search',
+  query: 'latest AI news',
+  max_results: 10
+))
+response = JSON.parse(response_json)
+response['results'].each { |r| puts r['title'] }
+```
+
+Accepts `model`, `query`, `max_results`, `search_type`.
+
+#### `ocr(request_json)`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```ruby
+response_json = client.ocr(JSON.generate(
+  model: 'mistral/pixtral',
+  file: Base64.encode64(File.binread('document.pdf')),
+  mime_type: 'application/pdf'
+))
+response = JSON.parse(response_json)
+puts response['content']
+```
+
+Accepts `model`, `file`, `mime_type`, `pages`.
 
 #### `create_file(request_json)`
 

@@ -13,7 +13,7 @@ default = ["full"]
 full = ["dep:liter-llm", "dep:tokio"]
 
 [dependencies]
-liter-llm = { path = "../liter-llm", version = "1.0.0-rc.5", features = ["full"], optional = true }
+liter-llm = { path = "../liter-llm", version = "1.0.0-rc.6", features = ["full"], optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, optional = true }

@@ -48,11 +48,13 @@
   </a>
 </div>
 
+
 <div align="center" style="margin: 20px 0;">
   <picture>
     <img width="100%" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
   </picture>
 </div>
+
 
 <div align="center" style="margin-bottom: 20px;">
   <a href="https://discord.gg/xt9WY3GnKR">
@@ -60,18 +62,23 @@
   </a>
 </div>
 
+
 Universal LLM API client for Elixir. Access 142+ LLM providers through a single interface with native BEAM concurrency, OTP integration, and idiomatic Elixir API.
+
 
 ## Installation
 
 ### Package Installation
+
+
+
 
 Add to your `mix.exs` dependencies:
 
 ```elixir
 def deps do
   [
-    {:liter_llm, "~> 1.0.0-rc.1"}
+    {:liter_llm, "~> 1.0.0-rc.6"}
   ]
 end
 ```
@@ -82,10 +89,16 @@ Then run:
 mix deps.get
 ```
 
+
+
+
 ### System Requirements
+
 
 - **Elixir 1.14+** and **Erlang/OTP 25+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
+
+
 
 ## Quick Start
 
@@ -106,7 +119,9 @@ Send a message to any provider using the `provider/model` prefix:
 IO.puts(hd(response["choices"])["message"]["content"])
 ```
 
+
 ### Common Use Cases
+
 
 #### Streaming Responses
 
@@ -122,10 +137,16 @@ Stream tokens in real time:
 for chunk <- chunks, do: IO.inspect(chunk)
 ```
 
+
+
+
+
 ### Next Steps
 
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** - Full list of supported providers
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
+
+
 
 ## Features
 
@@ -154,6 +175,7 @@ Route to any provider using the `provider/model` prefix convention:
 
 - **Streaming** -- Real-time token streaming via `chat_stream`
 
+
 - **Tool Calling** -- Function calling and tool use across all supporting providers
 
 - **Type Safe** -- Schema-driven types compiled from JSON schemas
@@ -170,6 +192,8 @@ Built on a compiled Rust core for speed and safety:
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
 
+
+
 ## Provider Routing
 
 Route to 142+ providers using the `provider/model` prefix convention:
@@ -182,6 +206,8 @@ mistral/mistral-large-latest
 ```
 
 See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the full list.
+
+
 
 ## Documentation
 

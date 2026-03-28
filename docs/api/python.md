@@ -39,6 +39,11 @@ All parameters are keyword-only.
 | `cache` | `dict \| None` | `None` | Cache config: `{"max_entries": 256, "ttl_seconds": 300}` |
 | `budget` | `dict \| None` | `None` | Budget config: `{"global_limit": 10.0, "model_limits": {}, "enforcement": "hard"}` |
 | `extra_headers` | `dict \| None` | `None` | Additional HTTP headers |
+| `cooldown` | `int \| None` | `None` | Cooldown period in seconds after transient errors |
+| `rate_limit` | `dict \| None` | `None` | Rate limit config: `{"rpm": 60, "tpm": 100000}` |
+| `health_check` | `int \| None` | `None` | Health check interval in seconds |
+| `cost_tracking` | `bool` | `False` | Enable per-request cost tracking |
+| `tracing` | `bool` | `False` | Enable OpenTelemetry tracing spans |
 
 The client is immutable after construction and safe to share across tasks.
 
@@ -149,6 +154,26 @@ async def rerank(**kwargs) -> RerankResponse
 ```
 
 Accepts `model`, `query`, `documents`, `top_n`.
+
+#### `search(**kwargs)`
+
+Perform a web or document search across supported providers.
+
+```python
+async def search(**kwargs) -> SearchResponse
+```
+
+Accepts `model`, `query`, `max_results`, `search_type`.
+
+#### `ocr(**kwargs)`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```python
+async def ocr(**kwargs) -> OcrResponse
+```
+
+Accepts `model`, `file`, `mime_type`, `pages`.
 
 #### `create_file(**kwargs)`
 

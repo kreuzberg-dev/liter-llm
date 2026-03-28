@@ -150,6 +150,7 @@ nav:
       - Chat & Streaming: usage/chat.md
       - Embeddings & Rerank: usage/embeddings.md
       - Media (Images, Speech, Transcription): usage/media.md
+      - Search & OCR: usage/search-ocr.md
       - Files & Batches: usage/files.md
       - Configuration: usage/configuration.md
   - API Reference:

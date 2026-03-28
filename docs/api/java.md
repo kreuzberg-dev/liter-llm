@@ -49,6 +49,11 @@ try (var client = LlmClient.builder().apiKey("sk-...").build()) {
 | `timeout(d)` | 60s | Connection timeout |
 | `cacheConfig(cfg)` | `null` | Enable response caching with `CacheConfig(maxEntries, ttlSeconds)` |
 | `budgetConfig(cfg)` | `null` | Enable cost budgeting with `BudgetConfig(globalLimit, modelLimits, enforcement)` |
+| `cooldownSecs(n)` | `0` | Cooldown period in seconds after transient errors |
+| `rateLimitConfig(cfg)` | `null` | Rate limiting with `RateLimitConfig(rpm, tpm)` |
+| `healthCheckSecs(n)` | `0` | Health check interval in seconds |
+| `costTracking(b)` | `false` | Enable per-request cost tracking |
+| `tracing(b)` | `false` | Enable OpenTelemetry tracing spans |
 
 ### Hook Interface
 
@@ -182,6 +187,28 @@ var response = client.rerank(new RerankRequest(
     "What is the capital of France?",
     List.of("Paris is the capital of France.", "Berlin is in Germany."),
     2
+));
+```
+
+#### `search(request)`
+
+Perform a web or document search across supported providers.
+
+```java
+var response = client.search(new SearchRequest(
+    "brave/search",
+    "latest AI news",
+    10
+));
+```
+
+#### `ocr(request)`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```java
+var response = client.ocr(new OcrRequest(
+    "mistral/pixtral", fileBytes, "application/pdf"
 ));
 ```
 

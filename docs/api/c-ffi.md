@@ -46,6 +46,8 @@ All operations go through an opaque `LiterLlmClient*` handle. Never dereference 
 | `literllm_transcribe` | `char*` | Speech-to-text |
 | `literllm_moderate` | `char*` | Content moderation |
 | `literllm_rerank` | `char*` | Document reranking |
+| `literllm_search` | `char*` | Web/document search |
+| `literllm_ocr` | `char*` | Document OCR |
 | `literllm_set_hooks` | `int32_t` | Register hook callbacks |
 | `literllm_register_provider` | `int32_t` | Register a custom provider |
 | `literllm_unregister_provider` | `int32_t` | Remove a custom provider |
@@ -89,6 +91,12 @@ The optional `config_json` parameter accepts a JSON string with additional setti
 | `cache.ttl_seconds` | `int` | `300` | Cache entry time-to-live |
 | `budget.global_limit` | `float` | `none` | Maximum spend in USD |
 | `budget.enforcement` | `string` | `"soft"` | `"hard"` or `"soft"` |
+| `cooldown_secs` | `int` | `0` | Cooldown period in seconds after transient errors |
+| `rate_limit.rpm` | `int` | `none` | Requests per minute limit |
+| `rate_limit.tpm` | `int` | `none` | Tokens per minute limit |
+| `health_check_secs` | `int` | `0` | Health check interval in seconds |
+| `cost_tracking` | `bool` | `false` | Enable per-request cost tracking |
+| `tracing` | `bool` | `false` | Enable OpenTelemetry tracing spans |
 
 ### `literllm_client_free`
 
@@ -205,6 +213,40 @@ Rerank documents by relevance to a query. Returns JSON on success, `NULL` on fai
 
 ```c
 char *literllm_rerank(const LiterLlmClient *client, const char *request_json);
+```
+
+### `literllm_search`
+
+Perform a web or document search across supported providers. Returns JSON on success, `NULL` on failure.
+
+```c
+char *literllm_search(const LiterLlmClient *client, const char *request_json);
+```
+
+```c
+char *resp = literllm_search(client,
+    "{\"model\":\"brave/search\",\"query\":\"latest AI news\",\"max_results\":10}");
+if (resp) {
+    printf("%s\n", resp);
+    literllm_free_string(resp);
+}
+```
+
+### `literllm_ocr`
+
+Extract text from documents or images using OCR with Markdown output. Returns JSON on success, `NULL` on failure.
+
+```c
+char *literllm_ocr(const LiterLlmClient *client, const char *request_json);
+```
+
+```c
+char *resp = literllm_ocr(client,
+    "{\"model\":\"mistral/pixtral\",\"file\":\"<base64>\",\"mime_type\":\"application/pdf\"}");
+if (resp) {
+    printf("%s\n", resp);
+    literllm_free_string(resp);
+}
 ```
 
 ### File Management

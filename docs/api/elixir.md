@@ -38,6 +38,11 @@ client = LiterLlm.Client.new(
 | `:receive_timeout` | `pos_integer()` | `60_000` | Timeout in milliseconds |
 | `:cache` | `keyword()` | `nil` | Cache config (`max_entries`, `ttl_seconds`) |
 | `:budget` | `keyword()` | `nil` | Budget config (`global_limit`, `model_limits`, `enforcement`) |
+| `:cooldown_secs` | `non_neg_integer()` | `nil` | Cooldown period in seconds after transient errors |
+| `:rate_limit` | `keyword()` | `nil` | Rate limit config (`rpm`, `tpm`) |
+| `:health_check_secs` | `non_neg_integer()` | `nil` | Health check interval in seconds |
+| `:cost_tracking` | `boolean()` | `false` | Enable per-request cost tracking |
+| `:tracing` | `boolean()` | `false` | Enable OpenTelemetry tracing spans |
 
 The client struct is immutable and safe to share across processes.
 
@@ -185,6 +190,40 @@ top_doc = get_in(response, ["results", Access.at(0), "document", "text"])
 ```
 
 Accepts `model`, `query`, `documents`, `top_n`.
+
+#### `search(client, request, opts \\ [])`
+
+Perform a web or document search across supported providers.
+
+```elixir
+{:ok, response} = LiterLlm.Client.search(client, %{
+  model: "brave/search",
+  query: "latest AI news",
+  max_results: 10
+})
+
+for result <- response["results"] do
+  IO.puts(result["title"])
+end
+```
+
+Accepts `model`, `query`, `max_results`, `search_type`.
+
+#### `ocr(client, request, opts \\ [])`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```elixir
+{:ok, response} = LiterLlm.Client.ocr(client, %{
+  model: "mistral/pixtral",
+  file: File.read!("document.pdf"),
+  mime_type: "application/pdf"
+})
+
+IO.puts(response["content"])
+```
+
+Accepts `model`, `file`, `mime_type`, `pages`.
 
 #### `create_file(client, request, opts \\ [])`
 

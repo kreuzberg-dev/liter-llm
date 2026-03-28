@@ -619,3 +619,538 @@ Register custom providers for self-hosted or unsupported LLM endpoints:
       modelPrefixes: ["my-provider/"],
     });
     ```
+
+## Cache Backends
+
+Configure OpenDAL-backed cache backends (Redis, S3, filesystem, and 40+ more via Apache OpenDAL):
+
+=== "Python"
+
+    ```python
+    from liter_llm import LlmClient
+
+    client = LlmClient(
+        api_key="sk-...",
+        cache={"backend": "redis", "backend_config": {"connection_string": "redis://localhost"}, "ttl_seconds": 3600},
+    )
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    import { LlmClient } from "@kreuzberg/liter-llm";
+
+    const client = new LlmClient({
+      apiKey: process.env.OPENAI_API_KEY!,
+      cache: { backend: "redis", backendConfig: { connectionString: "redis://localhost" }, ttlSeconds: 3600 },
+    });
+    ```
+
+=== "Rust"
+
+    ```rust
+    use liter_llm::{ClientConfigBuilder, CacheConfig, CacheBackend};
+
+    let config = ClientConfigBuilder::new("sk-...")
+        .cache(CacheConfig {
+            backend: CacheBackend::Redis { connection_string: "redis://localhost".into() },
+            ttl_seconds: 3600,
+        })
+        .build();
+    ```
+
+=== "Go"
+
+    ```go
+    client := llm.NewClient(
+        llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+        llm.WithCache(llm.CacheConfig{
+            Backend:       "redis",
+            BackendConfig: map[string]string{"connection_string": "redis://localhost"},
+            TTLSeconds:    3600,
+        }),
+    )
+    ```
+
+=== "Java"
+
+    ```java
+    var client = LlmClient.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .cacheConfig(new CacheConfig("redis", Map.of("connection_string", "redis://localhost"), 3600))
+            .build();
+    ```
+
+=== "C#"
+
+    ```csharp
+    var client = new LlmClient(
+        apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+        cacheConfig: new CacheConfig(
+            Backend: "redis",
+            BackendConfig: new() { ["connection_string"] = "redis://localhost" },
+            TtlSeconds: 3600));
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"),
+      cache: { backend: "redis", backend_config: { connection_string: "redis://localhost" }, ttl_seconds: 3600 }
+    )
+    ```
+
+=== "PHP"
+
+    ```php
+    $client = new LlmClient(
+        apiKey: getenv('OPENAI_API_KEY') ?: '',
+        cacheConfig: [
+            'backend' => 'redis',
+            'backend_config' => ['connection_string' => 'redis://localhost'],
+            'ttl_seconds' => 3600,
+        ],
+    );
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    client = LiterLlm.Client.new(
+      api_key: System.fetch_env!("OPENAI_API_KEY"),
+      cache: [backend: "redis", backend_config: %{connection_string: "redis://localhost"}, ttl_seconds: 3600]
+    )
+    ```
+
+=== "WASM"
+
+    ```typescript
+    import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
+    await init();
+
+    const client = new LlmClient({
+      apiKey: "sk-...",
+      cache: { backend: "redis", backendConfig: { connectionString: "redis://localhost" }, ttlSeconds: 3600 },
+    });
+    ```
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `backend` | string | Backend type: `"redis"`, `"s3"`, `"fs"`, `"gcs"`, `"memory"`, etc. |
+| `backend_config` | map | Backend-specific config (connection strings, bucket names, paths) |
+| `ttl_seconds` | int | Time-to-live in seconds for cache entries |
+
+## Cooldown
+
+Enable a cooldown (circuit breaker) period after transient errors:
+
+=== "Python"
+
+    ```python
+    client = LlmClient(api_key="sk-...", cooldown_secs=30)
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", cooldown: 30 });
+    ```
+
+=== "Rust"
+
+    ```rust
+    let config = ClientConfigBuilder::new("sk-...")
+        .cooldown(Duration::from_secs(30))
+        .build();
+    ```
+
+=== "Go"
+
+    ```go
+    client := llm.NewClient(
+        llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+        llm.WithCooldown(30 * time.Second),
+    )
+    ```
+
+=== "Java"
+
+    ```java
+    var client = LlmClient.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .cooldownSecs(30)
+            .build();
+    ```
+
+=== "C#"
+
+    ```csharp
+    var client = new LlmClient(
+        apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+        cooldownSecs: 30);
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"),
+      cooldown_secs: 30
+    )
+    ```
+
+=== "PHP"
+
+    ```php
+    $client = new LlmClient(
+        apiKey: getenv('OPENAI_API_KEY') ?: '',
+        cooldownSecs: 30,
+    );
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    client = LiterLlm.Client.new(
+      api_key: System.fetch_env!("OPENAI_API_KEY"),
+      cooldown_secs: 30
+    )
+    ```
+
+=== "WASM"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", cooldown: 30 });
+    ```
+
+## Rate Limiting
+
+Configure per-model rate limits (requests per minute and tokens per minute):
+
+=== "Python"
+
+    ```python
+    client = LlmClient(api_key="sk-...", rate_limit={"rpm": 60, "tpm": 100000})
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", rateLimit: { rpm: 60, tpm: 100000 } });
+    ```
+
+=== "Rust"
+
+    ```rust
+    let config = ClientConfigBuilder::new("sk-...")
+        .rate_limit(RateLimitConfig { rpm: Some(60), tpm: Some(100_000) })
+        .build();
+    ```
+
+=== "Go"
+
+    ```go
+    client := llm.NewClient(
+        llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+        llm.WithRateLimit(llm.RateLimitConfig{RPM: 60, TPM: 100000}),
+    )
+    ```
+
+=== "Java"
+
+    ```java
+    var client = LlmClient.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .rateLimitConfig(new RateLimitConfig(60, 100000))
+            .build();
+    ```
+
+=== "C#"
+
+    ```csharp
+    var client = new LlmClient(
+        apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+        rateLimit: new RateLimitConfig(Rpm: 60, Tpm: 100000));
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"),
+      rate_limit: { rpm: 60, tpm: 100000 }
+    )
+    ```
+
+=== "PHP"
+
+    ```php
+    $client = new LlmClient(
+        apiKey: getenv('OPENAI_API_KEY') ?: '',
+        rateLimit: ['rpm' => 60, 'tpm' => 100000],
+    );
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    client = LiterLlm.Client.new(
+      api_key: System.fetch_env!("OPENAI_API_KEY"),
+      rate_limit: [rpm: 60, tpm: 100_000]
+    )
+    ```
+
+=== "WASM"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", rateLimit: { rpm: 60, tpm: 100000 } });
+    ```
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `rpm` | int | Maximum requests per minute |
+| `tpm` | int | Maximum tokens per minute |
+
+## Health Checks
+
+Enable background health checks to proactively detect provider availability:
+
+=== "Python"
+
+    ```python
+    client = LlmClient(api_key="sk-...", health_check_secs=60)
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", healthCheck: 60 });
+    ```
+
+=== "Rust"
+
+    ```rust
+    let config = ClientConfigBuilder::new("sk-...")
+        .health_check(Duration::from_secs(60))
+        .build();
+    ```
+
+=== "Go"
+
+    ```go
+    client := llm.NewClient(
+        llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+        llm.WithHealthCheck(60 * time.Second),
+    )
+    ```
+
+=== "Java"
+
+    ```java
+    var client = LlmClient.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .healthCheckSecs(60)
+            .build();
+    ```
+
+=== "C#"
+
+    ```csharp
+    var client = new LlmClient(
+        apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+        healthCheckSecs: 60);
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"),
+      health_check_secs: 60
+    )
+    ```
+
+=== "PHP"
+
+    ```php
+    $client = new LlmClient(
+        apiKey: getenv('OPENAI_API_KEY') ?: '',
+        healthCheckSecs: 60,
+    );
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    client = LiterLlm.Client.new(
+      api_key: System.fetch_env!("OPENAI_API_KEY"),
+      health_check_secs: 60
+    )
+    ```
+
+=== "WASM"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", healthCheck: 60 });
+    ```
+
+## Cost Tracking
+
+Enable per-request cost tracking to monitor spend in real time:
+
+=== "Python"
+
+    ```python
+    client = LlmClient(api_key="sk-...", cost_tracking=True)
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", costTracking: true });
+    ```
+
+=== "Rust"
+
+    ```rust
+    let config = ClientConfigBuilder::new("sk-...")
+        .cost_tracking(true)
+        .build();
+    ```
+
+=== "Go"
+
+    ```go
+    client := llm.NewClient(
+        llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+        llm.WithCostTracking(),
+    )
+    ```
+
+=== "Java"
+
+    ```java
+    var client = LlmClient.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .costTracking(true)
+            .build();
+    ```
+
+=== "C#"
+
+    ```csharp
+    var client = new LlmClient(
+        apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+        costTracking: true);
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"),
+      cost_tracking: true
+    )
+    ```
+
+=== "PHP"
+
+    ```php
+    $client = new LlmClient(
+        apiKey: getenv('OPENAI_API_KEY') ?: '',
+        costTracking: true,
+    );
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    client = LiterLlm.Client.new(
+      api_key: System.fetch_env!("OPENAI_API_KEY"),
+      cost_tracking: true
+    )
+    ```
+
+=== "WASM"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", costTracking: true });
+    ```
+
+## Tracing
+
+Enable OpenTelemetry tracing spans for all LLM requests:
+
+=== "Python"
+
+    ```python
+    client = LlmClient(api_key="sk-...", tracing=True)
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", tracing: true });
+    ```
+
+=== "Rust"
+
+    ```rust
+    let config = ClientConfigBuilder::new("sk-...")
+        .tracing(true)
+        .build();
+    ```
+
+=== "Go"
+
+    ```go
+    client := llm.NewClient(
+        llm.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+        llm.WithTracing(),
+    )
+    ```
+
+=== "Java"
+
+    ```java
+    var client = LlmClient.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .tracing(true)
+            .build();
+    ```
+
+=== "C#"
+
+    ```csharp
+    var client = new LlmClient(
+        apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+        tracing: true);
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    client = LiterLlm::LlmClient.new(ENV.fetch("OPENAI_API_KEY"),
+      tracing: true
+    )
+    ```
+
+=== "PHP"
+
+    ```php
+    $client = new LlmClient(
+        apiKey: getenv('OPENAI_API_KEY') ?: '',
+        tracing: true,
+    );
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    client = LiterLlm.Client.new(
+      api_key: System.fetch_env!("OPENAI_API_KEY"),
+      tracing: true
+    )
+    ```
+
+=== "WASM"
+
+    ```typescript
+    const client = new LlmClient({ apiKey: "sk-...", tracing: true });
+    ```

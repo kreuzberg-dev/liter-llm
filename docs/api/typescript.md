@@ -38,6 +38,11 @@ const client = new LlmClient({
 | `cache` | `CacheOptions \| undefined` | `undefined` | Cache config: `{ maxEntries: 256, ttlSeconds: 300 }` |
 | `budget` | `BudgetOptions \| undefined` | `undefined` | Budget config: `{ globalLimit: 10.0, modelLimits: {}, enforcement: "hard" }` |
 | `extraHeaders` | `Record<string, string> \| undefined` | `undefined` | Additional HTTP headers |
+| `cooldown` | `number \| undefined` | `undefined` | Cooldown period in seconds after transient errors |
+| `rateLimit` | `RateLimitOptions \| undefined` | `undefined` | Rate limit config: `{ rpm: 60, tpm: 100000 }` |
+| `healthCheck` | `number \| undefined` | `undefined` | Health check interval in seconds |
+| `costTracking` | `boolean \| undefined` | `undefined` | Enable per-request cost tracking |
+| `tracing` | `boolean \| undefined` | `undefined` | Enable OpenTelemetry tracing spans |
 
 ### Methods
 
@@ -131,6 +136,38 @@ Rerank documents by relevance to a query.
 
 ```typescript
 async rerank(request: object): Promise<object>
+```
+
+#### `search(request)`
+
+Perform a web or document search across supported providers.
+
+```typescript
+async search(request: object): Promise<object>
+```
+
+```typescript
+const resp = await client.search({
+  model: "brave/search",
+  query: "latest AI news",
+  maxResults: 10,
+});
+```
+
+#### `ocr(request)`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```typescript
+async ocr(request: object): Promise<object>
+```
+
+```typescript
+const resp = await client.ocr({
+  model: "mistral/pixtral",
+  file: base64Content,
+  mimeType: "application/pdf",
+});
 ```
 
 #### `createFile(request)`

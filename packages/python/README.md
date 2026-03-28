@@ -48,11 +48,13 @@
   </a>
 </div>
 
+
 <div align="center" style="margin: 20px 0;">
   <picture>
     <img width="100%" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
   </picture>
 </div>
+
 
 <div align="center" style="margin-bottom: 20px;">
   <a href="https://discord.gg/xt9WY3GnKR">
@@ -60,11 +62,16 @@
   </a>
 </div>
 
+
 Universal LLM API client for Python. Access 142+ LLM providers — OpenAI, Anthropic, Groq, Mistral, and more — through a single unified interface. Native async/await support, streaming responses, tool calling, and type-safe API.
+
 
 ## Installation
 
 ### Package Installation
+
+
+
 
 Install via pip:
 
@@ -72,10 +79,16 @@ Install via pip:
 pip install liter-llm
 ```
 
+
+
+
 ### System Requirements
+
 
 - **Python 3.10+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
+
+
 
 ## Quick Start
 
@@ -99,7 +112,9 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
+
 ### Common Use Cases
+
 
 #### Streaming Responses
 
@@ -122,6 +137,9 @@ async def main() -> None:
 
 asyncio.run(main())
 ```
+
+
+
 
 #### Tool Calling
 
@@ -166,10 +184,15 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
+
+
+
 ### Next Steps
 
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** - Full list of supported providers
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
+
+
 
 ## Features
 
@@ -198,6 +221,7 @@ Route to any provider using the `provider/model` prefix convention:
 
 - **Streaming** -- Real-time token streaming via `chat_stream`
 
+
 - **Tool Calling** -- Function calling and tool use across all supporting providers
 
 - **Type Safe** -- Schema-driven types compiled from JSON schemas
@@ -214,6 +238,8 @@ Built on a compiled Rust core for speed and safety:
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
 
+
+
 ## Provider Routing
 
 Route to 142+ providers using the `provider/model` prefix convention:
@@ -226,6 +252,8 @@ mistral/mistral-large-latest
 ```
 
 See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the full list.
+
+
 
 ## Documentation
 

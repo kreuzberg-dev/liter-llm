@@ -48,11 +48,13 @@
   </a>
 </div>
 
+
 <div align="center" style="margin: 20px 0;">
   <picture>
     <img width="100%" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
   </picture>
 </div>
+
 
 <div align="center" style="margin-bottom: 20px;">
   <a href="https://discord.gg/xt9WY3GnKR">
@@ -60,11 +62,16 @@
   </a>
 </div>
 
+
 Universal LLM API client for PHP. Access 142+ LLM providers through a single interface with modern PHP 8.2+ support and a type-safe API.
+
 
 ## Installation
 
 ### Package Installation
+
+
+
 
 Install via Composer:
 
@@ -72,10 +79,16 @@ Install via Composer:
 composer require kreuzberg/liter-llm
 ```
 
+
+
+
 ### System Requirements
+
 
 - **PHP 8.2+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
+
+
 
 ## Quick Start
 
@@ -102,12 +115,18 @@ $response = json_decode($client->chat(json_encode([
 echo $response['choices'][0]['message']['content'] . PHP_EOL;
 ```
 
+
 ### Common Use Cases
+
+
+
 
 ### Next Steps
 
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** - Full list of supported providers
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
+
+
 
 ## Features
 
@@ -134,6 +153,7 @@ Route to any provider using the `provider/model` prefix convention:
 - **Provider Routing** -- Single client for 142+ LLM providers via `provider/model` prefix
 - **Unified API** -- Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
 
+
 - **Tool Calling** -- Function calling and tool use across all supporting providers
 
 - **Type Safe** -- Schema-driven types compiled from JSON schemas
@@ -150,6 +170,8 @@ Built on a compiled Rust core for speed and safety:
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
 
+
+
 ## Provider Routing
 
 Route to 142+ providers using the `provider/model` prefix convention:
@@ -162,6 +184,8 @@ mistral/mistral-large-latest
 ```
 
 See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the full list.
+
+
 
 ## Documentation
 

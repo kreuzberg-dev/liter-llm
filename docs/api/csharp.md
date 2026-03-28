@@ -43,6 +43,11 @@ await using var client = new LlmClient(apiKey: "sk-...");
 | `timeout` | `TimeSpan?` | 60s | Request timeout |
 | `cacheConfig` | `CacheConfig?` | `null` | Enable response caching with `CacheConfig(maxEntries, ttlSeconds)` |
 | `budgetConfig` | `BudgetConfig?` | `null` | Enable cost budgeting with `BudgetConfig(globalLimit, modelLimits, enforcement)` |
+| `cooldownSecs` | `int?` | `null` | Cooldown period in seconds after transient errors |
+| `rateLimit` | `RateLimitConfig?` | `null` | Rate limiting with `RateLimitConfig(Rpm, Tpm)` |
+| `healthCheckSecs` | `int?` | `null` | Health check interval in seconds |
+| `costTracking` | `bool` | `false` | Enable per-request cost tracking |
+| `tracing` | `bool` | `false` | Enable OpenTelemetry tracing spans |
 
 ### Hook Interface
 
@@ -198,6 +203,28 @@ var response = await client.RerankAsync(new RerankRequest(
     Query: "What is the capital of France?",
     Documents: ["Paris is the capital of France.", "Berlin is in Germany."],
     TopN: 2));
+```
+
+#### `SearchAsync(request, ct)`
+
+Perform a web or document search across supported providers.
+
+```csharp
+var response = await client.SearchAsync(new SearchRequest(
+    Model: "brave/search",
+    Query: "latest AI news",
+    MaxResults: 10));
+```
+
+#### `OcrAsync(request, ct)`
+
+Extract text from documents or images using OCR with Markdown output.
+
+```csharp
+var response = await client.OcrAsync(new OcrRequest(
+    Model: "mistral/pixtral",
+    File: fileBytes,
+    MimeType: "application/pdf"));
 ```
 
 #### `CreateFileAsync(request, ct)`

@@ -53,6 +53,12 @@ Part of the kreuzberg.dev ecosystem:
 ### Content Moderation
 - `moderate(request)` — Classify content for policy violations
 
+### Search
+- `search(request)` — Web/document search across 12 providers (Brave, Tavily, Google PSE, etc.)
+
+### OCR
+- `ocr(request)` — Document OCR with Markdown output across 4 providers (Mistral, Azure, etc.)
+
 ### Model Discovery
 - `list_models()` — List available models for the configured provider
 
@@ -82,6 +88,12 @@ Part of the kreuzberg.dev ecosystem:
 - Budget tracking (global limit, per-model limits, enforcement)
 - Hook system for request/response/error lifecycle events
 - Custom provider registration
+- OpenDAL cache backends (Redis, S3, GCS, filesystem, 40+ via Apache OpenDAL)
+- Cooldown / circuit breaker after transient errors
+- Per-model rate limiting (RPM/TPM)
+- Background health checks
+- Per-request cost tracking
+- OpenTelemetry tracing spans
 
 ## Supported Languages
 

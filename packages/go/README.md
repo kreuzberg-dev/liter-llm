@@ -48,11 +48,13 @@
   </a>
 </div>
 
+
 <div align="center" style="margin: 20px 0;">
   <picture>
     <img width="100%" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
   </picture>
 </div>
+
 
 <div align="center" style="margin-bottom: 20px;">
   <a href="https://discord.gg/xt9WY3GnKR">
@@ -60,9 +62,10 @@
   </a>
 </div>
 
+
 Universal LLM API client for Go. Access 142+ LLM providers through a single interface backed by the Rust core.
 
-> **Version 1.0.0-rc.1**
+> **Version 1.0.0-rc.6**
 > Report issues at [github.com/kreuzberg-dev/liter-llm](https://github.com/kreuzberg-dev/liter-llm/issues).
 
 ## Install
@@ -98,7 +101,7 @@ Download from [GitHub Releases](https://github.com/kreuzberg-dev/liter-llm/relea
 
 ```bash
 # Example: Linux x86_64
-curl -LO https://github.com/kreuzberg-dev/liter-llm/releases/download/v1.0.0-rc.1/go-ffi-linux-x86_64.tar.gz
+curl -LO https://github.com/kreuzberg-dev/liter-llm/releases/download/v1.0.0-rc.6/go-ffi-linux-x86_64.tar.gz
 tar -xzf go-ffi-linux-x86_64.tar.gz
 
 mkdir -p ~/liter-llm/lib
@@ -138,6 +141,7 @@ CGO_LDFLAGS="-L$HOME/liter-llm/lib -lliter_llm_ffi" go build
 
 ## Quickstart
 
+
 ```go
 package main
 
@@ -166,6 +170,7 @@ func main() {
 }
 ```
 
+
 Build and run:
 
 ```bash
@@ -176,6 +181,7 @@ CGO_LDFLAGS="-L$HOME/liter-llm/lib -lliter_llm_ffi" go build
 ## Examples
 
 ### Streaming Responses
+
 
 ```go
 stream, err := client.ChatStream(ctx, literllm.ChatRequest{
@@ -192,7 +198,9 @@ for chunk := range stream.Chunks() {
 }
 ```
 
+
 ### Multiple Providers
+
 
 ```go
 // OpenAI
@@ -205,7 +213,9 @@ resp, _ = client.Chat(ctx, literllm.ChatRequest{Model: "anthropic/claude-3-5-son
 resp, _ = client.Chat(ctx, literllm.ChatRequest{Model: "groq/llama-3.1-70b-versatile", Messages: msgs})
 ```
 
+
 ### Context-Aware Requests
+
 
 ```go
 ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -220,6 +230,7 @@ if err != nil {
 }
 fmt.Println(resp.Content)
 ```
+
 
 ## API Reference
 
