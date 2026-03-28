@@ -333,17 +333,17 @@ wheels = [
 
 [[package]]
 name = "liter-llm"
-version = "1.0.0rc4"
+version = "1.0.0rc5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/57/0c/8e3108e88337dcf3e7bd04f25e243020f8bce3069668bfc85e0f4569936f/liter_llm-1.0.0rc4.tar.gz", hash = "sha256:411e9ecfa77181ca7a77a1d67ca7c8fd3d2237924a468b2c366b9b481367ca6d", size = 210549, upload-time = "2026-03-28T13:12:52.701Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/83/2e24d9317afa272edba6dfcda216e16a80228886ad53dc0862effaca4bf1/liter_llm-1.0.0rc5.tar.gz", hash = "sha256:65ecf4f2092d41422279976214f5532aa9e008171c13c5934e7a4ffb86e37b58", size = 211289, upload-time = "2026-03-28T13:54:56.294Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/89/b86032c60e10e4f586a62a36a53b4e23af64df6cd475ac45527c973359f4/liter_llm-1.0.0rc4-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:92ed5bf926fc27f37401f35a9e8c5d30850273344bb7bf24183f2e5744f55844", size = 3137973, upload-time = "2026-03-28T13:12:46.659Z" },
-    { url = "https://files.pythonhosted.org/packages/e1/3a/163758e88b30e711c35d9673d7e3239c78500569d001d434ebb3ae0518bf/liter_llm-1.0.0rc4-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:f8723f0a2bc9ce36dcda9213ae3785c6c9d12230b47def4fc6b26a7d4df2e80f", size = 3178256, upload-time = "2026-03-28T13:12:48.423Z" },
-    { url = "https://files.pythonhosted.org/packages/1d/0d/066250148fca562f5f6fd9384f861cf1b66973d2fcfc6237bd583e669791/liter_llm-1.0.0rc4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:b668209d925da616ac9a6eeff3fb2cc2f67c830ee5c5e2a0ab4f422b6b6dd45e", size = 3449898, upload-time = "2026-03-28T13:12:49.782Z" },
-    { url = "https://files.pythonhosted.org/packages/c2/47/9cb28e494f6a8be644e3570c3a9d0449ce34af073ffe7e23cad9dfae9b0e/liter_llm-1.0.0rc4-cp310-abi3-win_amd64.whl", hash = "sha256:b2f787bfa7b3a81e287fc6100805a2f6581336f6bfeb0c61c317b0dd6e67e46c", size = 3435289, upload-time = "2026-03-28T13:12:51.324Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/2d/bd6a3cd5a4649160d1d6ee36a08003665b19c62b0f0b690b5f44e046fee8/liter_llm-1.0.0rc5-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:f227742e6fc10478d1cfd9094f84b8ecc02e81616492d4cf65811ae16196b3c0", size = 3151288, upload-time = "2026-03-28T13:54:48.411Z" },
+    { url = "https://files.pythonhosted.org/packages/65/0e/9a099039f58a142166a9edec39018228cfb209135c23942469054382351c/liter_llm-1.0.0rc5-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:9e2a91f15d5f4660abb2c011057f3e802c7c0d19057f0c47f3ed43eb8d406682", size = 3193862, upload-time = "2026-03-28T13:54:50.544Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/24/7784015476d49e81a05f647a2e6536b44fddeaa7a1eaeeb07e771543fd8e/liter_llm-1.0.0rc5-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:0e03145a7ebd6cc103fc2b866e2e978961b65adb213e7ff52b297b90b2121a4e", size = 3465509, upload-time = "2026-03-28T13:54:52.334Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/1a/4421a603f2559188bdf0cea2f79ce2caa7da3ecd7d73fcf369ee70d8a704/liter_llm-1.0.0rc5-cp310-abi3-win_amd64.whl", hash = "sha256:62debab05dde1b5a8c15172ea603d615fa875400cd9596462b231c008761131a", size = 3450223, upload-time = "2026-03-28T13:54:54.518Z" },
 ]
 
 [[package]]

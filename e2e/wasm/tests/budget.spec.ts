@@ -13,7 +13,7 @@ describe("budget", () => {
   it("Tests that a request is rejected when budget is exceeded", async () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"This should not be reached\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-budget-enforced-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":6,\"prompt_tokens\":8,\"total_tokens\":14}}", streamChunks: [] }]);
     try {
-      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse("{\"enforcement\":\"hard\",\"global_limit\":0.0}"), maxRetries: 0 });
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse("{\"enforcement\":\"hard\",\"globalLimit\":0.0}"), maxRetries: 0 });
       const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
 
       // Expect BudgetExceeded error.
@@ -26,7 +26,7 @@ describe("budget", () => {
   it("Tests per-model budget limit", async () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"This should not be reached\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-budget-per-model-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":6,\"prompt_tokens\":8,\"total_tokens\":14}}", streamChunks: [] }]);
     try {
-      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse("{\"enforcement\":\"hard\",\"model_limits\":{\"gpt-4\":0.0}}"), maxRetries: 0 });
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse("{\"enforcement\":\"hard\",\"modelLimits\":{\"gpt-4\":0.0}}"), maxRetries: 0 });
       const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
 
       // Expect BudgetExceeded error.

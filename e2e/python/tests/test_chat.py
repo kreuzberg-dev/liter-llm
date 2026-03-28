@@ -9,14 +9,28 @@ from liter_llm import LlmClient  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"s[::-1]\",\"role\":\"assistant\"}}],\"created\":1711000130,\"id\":\"chatcmpl-dev001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":5,\"prompt_tokens\":28,\"total_tokens\":33}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"s[::-1]","role":"assistant"}}],"created":1711000130,"id":"chatcmpl-dev001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":5,"prompt_tokens":28,"total_tokens":33}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_developer_message(mock_server: MockServerInfo) -> None:
     """Chat request that includes a developer role message alongside user messages"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"You are a coding assistant. Always respond with concise code examples.\",\"role\":\"developer\"},{\"content\":\"How do I reverse a string in Python?\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads(
+        '{"messages":[{"content":"You are a coding assistant. Always respond with concise code examples.","role":"developer"},{"content":"How do I reverse a string in Python?","role":"user"}],"model":"gpt-4"}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -28,14 +42,26 @@ async def test_developer_message(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"content_filter\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\"}}],\"created\":1711000100,\"id\":\"chatcmpl-filter001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":14,\"total_tokens\":14}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"content_filter","index":0,"message":{"content":null,"role":"assistant"}}],"created":1711000100,"id":"chatcmpl-filter001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":0,"prompt_tokens":14,"total_tokens":14}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_finish_reason_content_filter(mock_server: MockServerInfo) -> None:
     """Chat response stopped by content filter with finish_reason of content_filter and null content"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Tell me something controversial\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Tell me something controversial","role":"user"}],"model":"gpt-4"}')
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -46,14 +72,28 @@ async def test_finish_reason_content_filter(mock_server: MockServerInfo) -> None
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"length\",\"index\":0,\"message\":{\"content\":\"Once upon a time\",\"role\":\"assistant\"}}],\"created\":1711000090,\"id\":\"chatcmpl-length001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":5,\"prompt_tokens\":12,\"total_tokens\":17}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"length","index":0,"message":{"content":"Once upon a time","role":"assistant"}}],"created":1711000090,"id":"chatcmpl-length001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":5,"prompt_tokens":12,"total_tokens":17}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_finish_reason_length(mock_server: MockServerInfo) -> None:
     """Chat response truncated due to max_tokens limit with finish_reason of length"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"max_tokens\":5,\"messages\":[{\"content\":\"Tell me a long story\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads(
+        '{"max_tokens":5,"messages":[{"content":"Tell me a long story","role":"user"}],"model":"gpt-4"}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -65,14 +105,28 @@ async def test_finish_reason_length(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"4 + 4 equals 8.\",\"role\":\"assistant\"}}],\"created\":1711000030,\"id\":\"chatcmpl-multi001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":45,\"total_tokens\":54}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"4 + 4 equals 8.","role":"assistant"}}],"created":1711000030,"id":"chatcmpl-multi001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":9,"prompt_tokens":45,"total_tokens":54}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_multi_turn_conversation(mock_server: MockServerInfo) -> None:
     """Multi-turn conversation with system, user, assistant, and follow-up user messages"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"You are a helpful assistant.\",\"role\":\"system\"},{\"content\":\"What is 2 + 2?\",\"role\":\"user\"},{\"content\":\"2 + 2 equals 4.\",\"role\":\"assistant\"},{\"content\":\"And what is 4 + 4?\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads(
+        '{"messages":[{"content":"You are a helpful assistant.","role":"system"},{"content":"What is 2 + 2?","role":"user"},{"content":"2 + 2 equals 4.","role":"assistant"},{"content":"And what is 4 + 4?","role":"user"}],"model":"gpt-4"}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -84,14 +138,28 @@ async def test_multi_turn_conversation(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"New York\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_par001\",\"type\":\"function\"},{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"London\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_par002\",\"type\":\"function\"}]}}],\"created\":1711000060,\"id\":\"chatcmpl-parallel001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":30,\"prompt_tokens\":65,\"total_tokens\":95}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"location\\": \\"New York\\"}","name":"get_weather"},"id":"call_par001","type":"function"},{"function":{"arguments":"{\\"location\\": \\"London\\"}","name":"get_weather"},"id":"call_par002","type":"function"}]}}],"created":1711000060,"id":"chatcmpl-parallel001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":30,"prompt_tokens":65,"total_tokens":95}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_parallel_tool_calls(mock_server: MockServerInfo) -> None:
     """Chat request that results in parallel tool calls in the response"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"What is the weather in NYC and London?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"parallel_tool_calls\":true,\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city name\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
+    request = json.loads(
+        '{"messages":[{"content":"What is the weather in NYC and London?","role":"user"}],"model":"gpt-4","parallel_tool_calls":true,"tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city name","type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -104,18 +172,32 @@ async def test_parallel_tool_calls(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"{\\\"name\\\": \\\"Alice\\\", \\\"age\\\": 30}\",\"role\":\"assistant\"}}],\"created\":1711000070,\"id\":\"chatcmpl-json001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":12,\"prompt_tokens\":25,\"total_tokens\":37}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"{\\"name\\": \\"Alice\\", \\"age\\": 30}","role":"assistant"}}],"created":1711000070,"id":"chatcmpl-json001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":12,"prompt_tokens":25,"total_tokens":37}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_response_format_json_object(mock_server: MockServerInfo) -> None:
     """Chat request with response_format json_object that returns valid JSON content"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Respond with JSON only.\",\"role\":\"system\"},{\"content\":\"Give me a user object with name and age fields.\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"response_format\":{\"type\":\"json_object\"}}")
+    request = json.loads(
+        '{"messages":[{"content":"Respond with JSON only.","role":"system"},{"content":"Give me a user object with name and age fields.","role":"user"}],"model":"gpt-4","response_format":{"type":"json_object"}}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
-    assert response.choices[0].message.content == "{\"name\": \"Alice\", \"age\": 30}", "message content mismatch"
+    assert response.choices[0].message.content == '{"name": "Alice", "age": 30}', "message content mismatch"
     assert response.choices[0].finish_reason == "stop", "finish_reason mismatch"
     assert response.usage is not None, "Expected usage object"
     assert response.usage.total_tokens == 37, "total_tokens mismatch"
@@ -123,18 +205,32 @@ async def test_response_format_json_object(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"{\\\"temp\\\": 18.5}\",\"role\":\"assistant\"}}],\"created\":1711000080,\"id\":\"chatcmpl-schema001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":8,\"prompt_tokens\":30,\"total_tokens\":38}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"{\\"temp\\": 18.5}","role":"assistant"}}],"created":1711000080,"id":"chatcmpl-schema001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":8,"prompt_tokens":30,"total_tokens":38}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_response_format_json_schema(mock_server: MockServerInfo) -> None:
     """Chat request with response_format json_schema that validates the output structure"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"What is the temperature in Paris today?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"response_format\":{\"json_schema\":{\"name\":\"weather\",\"schema\":{\"properties\":{\"temp\":{\"type\":\"number\"}},\"required\":[\"temp\"],\"type\":\"object\"}},\"type\":\"json_schema\"}}")
+    request = json.loads(
+        '{"messages":[{"content":"What is the temperature in Paris today?","role":"user"}],"model":"gpt-4","response_format":{"json_schema":{"name":"weather","schema":{"properties":{"temp":{"type":"number"}},"required":["temp"],"type":"object"}},"type":"json_schema"}}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
-    assert response.choices[0].message.content == "{\"temp\": 18.5}", "message content mismatch"
+    assert response.choices[0].message.content == '{"temp": 18.5}', "message content mismatch"
     assert response.choices[0].finish_reason == "stop", "finish_reason mismatch"
     assert response.usage is not None, "Expected usage object"
     assert response.usage.total_tokens == 38, "total_tokens mismatch"
@@ -142,14 +238,26 @@ async def test_response_format_json_schema(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"7\",\"role\":\"assistant\"}}],\"created\":1711000120,\"id\":\"chatcmpl-seed001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"system_fingerprint\":\"fp_abc12345\",\"usage\":{\"completion_tokens\":1,\"prompt_tokens\":12,\"total_tokens\":13}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"7","role":"assistant"}}],"created":1711000120,"id":"chatcmpl-seed001","model":"gpt-4","object":"chat.completion","system_fingerprint":"fp_abc12345","usage":{"completion_tokens":1,"prompt_tokens":12,"total_tokens":13}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_seed_parameter(mock_server: MockServerInfo) -> None:
     """Chat request with seed parameter for deterministic output; response includes system_fingerprint"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Pick a random number\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"seed\":42}")
+    request = json.loads('{"messages":[{"content":"Pick a random number","role":"user"}],"model":"gpt-4","seed":42}')
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -161,14 +269,28 @@ async def test_seed_parameter(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Item 1\\nItem 2\\n\",\"role\":\"assistant\"}}],\"created\":1711000110,\"id\":\"chatcmpl-stop001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":7,\"prompt_tokens\":18,\"total_tokens\":25}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Item 1\\nItem 2\\n","role":"assistant"}}],"created":1711000110,"id":"chatcmpl-stop001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":7,"prompt_tokens":18,"total_tokens":25}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_stop_sequences(mock_server: MockServerInfo) -> None:
     """Chat request with custom stop sequences that terminates generation at a stop token"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"List items until you see STOP\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stop\":[\"STOP\",\"END\"]}")
+    request = json.loads(
+        '{"messages":[{"content":"List items until you see STOP","role":"user"}],"model":"gpt-4","stop":["STOP","END"]}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -180,14 +302,28 @@ async def test_stop_sequences(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"New York\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_req001\",\"type\":\"function\"}]}}],\"created\":1711000040,\"id\":\"chatcmpl-required001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":15,\"prompt_tokens\":60,\"total_tokens\":75}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"location\\": \\"New York\\"}","name":"get_weather"},"id":"call_req001","type":"function"}]}}],"created":1711000040,"id":"chatcmpl-required001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":15,"prompt_tokens":60,"total_tokens":75}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_tool_choice_required(mock_server: MockServerInfo) -> None:
     """Chat request with tool_choice set to required forces the model to call a tool"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"What is the weather today?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"tool_choice\":\"required\",\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city name\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
+    request = json.loads(
+        '{"messages":[{"content":"What is the weather today?","role":"user"}],"model":"gpt-4","tool_choice":"required","tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city name","type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -200,14 +336,28 @@ async def test_tool_choice_required(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"tool_calls\",\"index\":0,\"message\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"Paris\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_spec001\",\"type\":\"function\"}]}}],\"created\":1711000050,\"id\":\"chatcmpl-specific001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":12,\"prompt_tokens\":75,\"total_tokens\":87}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"location\\": \\"Paris\\"}","name":"get_weather"},"id":"call_spec001","type":"function"}]}}],"created":1711000050,"id":"chatcmpl-specific001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":12,"prompt_tokens":75,"total_tokens":87}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_tool_choice_specific(mock_server: MockServerInfo) -> None:
     """Chat request with tool_choice specifying a particular function to call"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"What is the weather in Paris?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"tool_choice\":{\"function\":{\"name\":\"get_weather\"},\"type\":\"function\"},\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city name\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"},{\"function\":{\"description\":\"Search the web for information\",\"name\":\"search_web\",\"parameters\":{\"properties\":{\"query\":{\"description\":\"The search query\",\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
+    request = json.loads(
+        '{"messages":[{"content":"What is the weather in Paris?","role":"user"}],"model":"gpt-4","tool_choice":{"function":{"name":"get_weather"},"type":"function"},"tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city name","type":"string"}},"required":["location"],"type":"object"}},"type":"function"},{"function":{"description":"Search the web for information","name":"search_web","parameters":{"properties":{"query":{"description":"The search query","type":"string"}},"required":["query"],"type":"object"}},"type":"function"}]}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"

@@ -475,11 +475,15 @@ fn emit_wasm_budget_test(out: &mut String, fixture: &Fixture) {
     let req_json = serde_json::to_string(&fixture.api.request).unwrap_or_default();
     let is_error = !fixture.assertions.expect_success;
 
+    // WASM bindings use wasm-bindgen which also expects camelCase keys.
     let budget_json = fixture
         .client_config
         .budget
         .as_ref()
-        .map(|v| serde_json::to_string(v).unwrap_or_default())
+        .map(|v| {
+            let camel = super::typescript::snake_keys_to_camel(v);
+            serde_json::to_string(&camel).unwrap_or_default()
+        })
         .unwrap_or_else(|| "{}".to_string());
 
     writeln!(out).unwrap();

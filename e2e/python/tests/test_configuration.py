@@ -9,14 +9,26 @@ from liter_llm import LlmClient  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hi there!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-local-001\",\"model\":\"local-model\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":4,\"prompt_tokens\":3,\"total_tokens\":7}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hi there!","role":"assistant"}}],"created":1711000000,"id":"chatcmpl-local-001","model":"local-model","object":"chat.completion","usage":{"completion_tokens":4,"prompt_tokens":3,"total_tokens":7}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_custom_base_url(mock_server: MockServerInfo) -> None:
     """Client configured with a custom base URL routes all requests to that endpoint"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"local-model\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"local-model"}')
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
@@ -28,14 +40,26 @@ async def test_custom_base_url(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you?\",\"role\":\"assistant\"}}],\"created\":1711000140,\"id\":\"chatcmpl-headers001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":8,\"prompt_tokens\":8,\"total_tokens\":16}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello! How can I help you?","role":"assistant"}}],"created":1711000140,"id":"chatcmpl-headers001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":8,"prompt_tokens":8,"total_tokens":16}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_extra_headers(mock_server: MockServerInfo) -> None:
     """Client configured with extra custom headers successfully completes a chat request"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"

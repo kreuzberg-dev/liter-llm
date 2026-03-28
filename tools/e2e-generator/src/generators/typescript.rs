@@ -812,11 +812,17 @@ fn emit_ts_budget_test(out: &mut String, fixture: &Fixture) {
     writeln!(out, "    try {{").unwrap();
 
     // Build budget config from fixture's client_config.
+    // NAPI-RS exposes #[napi(object)] fields as camelCase in JS, so we must
+    // convert the snake_case fixture keys (global_limit, model_limits) to
+    // camelCase (globalLimit, modelLimits).
     let budget_json = fixture
         .client_config
         .budget
         .as_ref()
-        .map(|v| serde_json::to_string(v).unwrap_or_default())
+        .map(|v| {
+            let camel = snake_keys_to_camel(v);
+            serde_json::to_string(&camel).unwrap_or_default()
+        })
         .unwrap_or_else(|| "{}".to_string());
     let budget_escaped = budget_json
         .replace('\\', "\\\\")
@@ -1116,4 +1122,45 @@ fn sanitize_name(name: &str) -> String {
         .map(|c| if c.is_alphanumeric() || c == '_' { c } else { '_' })
         .collect::<String>()
         .to_lowercase()
+}
+
+/// Recursively convert all object keys from `snake_case` to `camelCase`.
+///
+/// Used by both the TypeScript and WASM generators since both target JavaScript
+/// runtimes where NAPI-RS / wasm-bindgen expose Rust fields as camelCase.
+///
+/// NAPI-RS `#[napi(object)]` structs expose Rust snake_case fields as
+/// camelCase in JavaScript.  Fixture JSON uses snake_case, so we must
+/// convert keys before embedding in generated TypeScript code.
+pub fn snake_keys_to_camel(value: &serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Object(map) => {
+            let converted = map
+                .iter()
+                .map(|(k, v)| (snake_to_camel(k), snake_keys_to_camel(v)))
+                .collect();
+            serde_json::Value::Object(converted)
+        }
+        serde_json::Value::Array(arr) => {
+            serde_json::Value::Array(arr.iter().map(snake_keys_to_camel).collect())
+        }
+        other => other.clone(),
+    }
+}
+
+/// Convert a single `snake_case` key to `camelCase`.
+fn snake_to_camel(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut capitalize_next = false;
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.extend(c.to_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+    result
 }

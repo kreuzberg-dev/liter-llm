@@ -12,9 +12,15 @@ from liter_llm import (  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/models", "GET", 200, "{\"data\":[],\"object\":\"list\"}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute("/models", "GET", 200, '{"data":[],"object":"list"}'),
+        ]
+    ],
+    indirect=True,
+)
 async def test_empty_model_list(mock_server: MockServerInfo) -> None:
     """List models response returns an empty data array when no models are available"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
@@ -25,9 +31,20 @@ async def test_empty_model_list(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/models", "GET", 401, "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/models",
+                "GET",
+                401,
+                '{"error":{"code":"invalid_api_key","message":"Incorrect API key provided.","param":null,"type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_list_models_error_401(mock_server: MockServerInfo) -> None:
     """401 Unauthorized error on list models request when API key is invalid"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
