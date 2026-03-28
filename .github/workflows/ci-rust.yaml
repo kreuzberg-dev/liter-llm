@@ -41,6 +41,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     timeout-minutes: 60
+    services: ${{ matrix.os == 'ubuntu-latest' && fromJSON('{"redis":{"image":"redis:7-alpine","ports":["6379:6379"],"options":"--health-cmd \"redis-cli ping\" --health-interval 5s --health-timeout 3s --health-retries 5"}}') || fromJSON('{}') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -61,6 +62,15 @@ jobs:
         run: task rust:test
         shell: bash
 
+      - name: Run Integration Tests (with ignored)
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          RUST_BACKTRACE: full
+        run: >
+          cargo test -p liter-llm --features full
+          -- --include-ignored
+        shell: bash
+
       - name: Check Rust Formatting
         if: matrix.os == 'ubuntu-latest'
         run: task rust:format:check
@@ -69,38 +79,4 @@ jobs:
       - name: Run Clippy
         if: matrix.os == 'ubuntu-latest'
         run: task rust:lint:check
-        shell: bash
-
-  rust-integration:
-    name: Integration Tests (Redis)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Rust
-        uses: kreuzberg-dev/actions/setup-rust@v1
-
-      - name: Run Integration Tests
-        env:
-          RUST_BACKTRACE: full
-        run: >
-          cargo test -p liter-llm --features full
-          --test cache_integration
-          --test middleware_integration
-          --test routing_integration
-          --test operations_integration
-          --test concurrency
-          -- --include-ignored
         shell: bash
