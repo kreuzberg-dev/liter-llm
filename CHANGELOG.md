@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc.7] - 2026-03-28
+
+### Added
+
+- All 10 bindings now accept full middleware config (cooldown, rate_limit, health_check, cost_tracking, tracing)
+- search() and ocr() added to WASM, Elixir, Ruby (were missing)
+- Contract test fixtures for binding API parity verification
+- Skills directory: SKILL.md + 7 reference files (4,072 lines)
+- PHP PIE package build script (matching kreuzberg pattern)
+- `prefer-gpg2-binary.sh` and `patch-maven-gpg-args.sh` publish scripts
+
+### Fixed
+
+- PHP publish: build-php decoupled from Packagist idempotency check
+- Crate publish order: liter-llm before liter-llm-bindings-core
+- `setup-rust` input typo: `targets` → `target`
+- Maven publish: Java 25 + Maven 3.9.11 setup, GPG pinentry, env vars aligned with kreuzberg
+- Missing `scripts/ci/ruby/install-ruby-deps.sh`
+
 ## [1.0.0-rc.6] - 2026-03-28
 
 ### Added
