@@ -9,18 +9,34 @@ from liter_llm import LlmClient  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"The weather in Paris is currently 18°C and partly cloudy.\",\"role\":\"assistant\"}}],\"created\":1711000003,\"id\":\"chatcmpl-types001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":18,\"prompt_tokens\":95,\"total_tokens\":113}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"The weather in Paris is currently 18°C and partly cloudy.","role":"assistant"}}],"created":1711000003,"id":"chatcmpl-types001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":18,"prompt_tokens":95,"total_tokens":113}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_all_message_types(mock_server: MockServerInfo) -> None:
     """Request with all message role types (system, user, assistant, tool) to verify round-trip serialization"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"You are a helpful assistant.\",\"role\":\"system\"},{\"content\":\"What is the weather in Paris?\",\"role\":\"user\"},{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"location\\\": \\\"Paris, France\\\"}\",\"name\":\"get_weather\"},\"id\":\"call_xyz789\",\"type\":\"function\"}]},{\"content\":\"{\\\"temperature\\\": 18, \\\"unit\\\": \\\"celsius\\\", \\\"description\\\": \\\"Partly cloudy\\\"}\",\"role\":\"tool\",\"tool_call_id\":\"call_xyz789\"}],\"model\":\"gpt-4\"}")
+    request = json.loads(
+        '{"messages":[{"content":"You are a helpful assistant.","role":"system"},{"content":"What is the weather in Paris?","role":"user"},{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"location\\": \\"Paris, France\\"}","name":"get_weather"},"id":"call_xyz789","type":"function"}]},{"content":"{\\"temperature\\": 18, \\"unit\\": \\"celsius\\", \\"description\\": \\"Partly cloudy\\"}","role":"tool","tool_call_id":"call_xyz789"}],"model":"gpt-4"}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
-    assert response.choices[0].message.content == "The weather in Paris is currently 18°C and partly cloudy.", "message content mismatch"
+    assert response.choices[0].message.content == "The weather in Paris is currently 18°C and partly cloudy.", (
+        "message content mismatch"
+    )
     assert response.choices[0].finish_reason == "stop", "finish_reason mismatch"
     assert response.usage is not None, "Expected usage object"
     assert response.usage.total_tokens == 113, "total_tokens mismatch"
@@ -28,18 +44,34 @@ async def test_all_message_types(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"The image shows a transparent PNG demonstration with colored dice.\",\"role\":\"assistant\"}}],\"created\":1711000004,\"id\":\"chatcmpl-multi001\",\"model\":\"gpt-4o\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":14,\"prompt_tokens\":855,\"total_tokens\":869}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"The image shows a transparent PNG demonstration with colored dice.","role":"assistant"}}],"created":1711000004,"id":"chatcmpl-multi001","model":"gpt-4o","object":"chat.completion","usage":{"completion_tokens":14,"prompt_tokens":855,"total_tokens":869}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_multimodal_content(mock_server: MockServerInfo) -> None:
     """User message with mixed text and image_url content parts to verify multimodal serialization"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"max_tokens\":100,\"messages\":[{\"content\":[{\"text\":\"What is in this image?\",\"type\":\"text\"},{\"image_url\":{\"detail\":\"low\",\"url\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png\"},\"type\":\"image_url\"}],\"role\":\"user\"}],\"model\":\"gpt-4o\"}")
+    request = json.loads(
+        '{"max_tokens":100,"messages":[{"content":[{"text":"What is in this image?","type":"text"},{"image_url":{"detail":"low","url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png"},"type":"image_url"}],"role":"user"}],"model":"gpt-4o"}'
+    )
     response = await client.chat(**request)
 
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
-    assert response.choices[0].message.content == "The image shows a transparent PNG demonstration with colored dice.", "message content mismatch"
+    assert (
+        response.choices[0].message.content == "The image shows a transparent PNG demonstration with colored dice."
+    ), "message content mismatch"
     assert response.choices[0].finish_reason == "stop", "finish_reason mismatch"
     assert response.usage is not None, "Expected usage object"
     assert response.usage.total_tokens == 869, "total_tokens mismatch"

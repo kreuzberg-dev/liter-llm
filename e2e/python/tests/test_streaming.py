@@ -12,25 +12,34 @@ from liter_llm import (  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000200,\"id\":\"chatcmpl-anthropic-stream001\",\"model\":\"claude-3-5-sonnet-20241022\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000200,"id":"chatcmpl-anthropic-stream001","model":"claude-3-5-sonnet-20241022","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_anthropic_stream(mock_server: MockServerInfo) -> None:
     """Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\",\"stream\":true}")
+    request = json.loads(
+        '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022","stream":true}'
+    )
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -40,25 +49,34 @@ async def test_anthropic_stream(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-azure-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"1"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" 2"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" 3"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-azure-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_azure_stream(mock_server: MockServerInfo) -> None:
     """Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\",\"stream\":true,\"temperature\":0}")
+    request = json.loads(
+        '{"messages":[{"content":"Count to 3","role":"user"}],"model":"azure/gpt-4","stream":true,"temperature":0}'
+    )
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -68,25 +86,32 @@ async def test_azure_stream(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" 2\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" 3\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000000,\"id\":\"chatcmpl-stream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000000,"id":"chatcmpl-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"1"},"finish_reason":null,"index":0}],"created":1711000000,"id":"chatcmpl-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" 2"},"finish_reason":null,"index":0}],"created":1711000000,"id":"chatcmpl-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" 3"},"finish_reason":null,"index":0}],"created":1711000000,"id":"chatcmpl-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000000,"id":"chatcmpl-stream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_basic_stream(mock_server: MockServerInfo) -> None:
     """Streaming chat completion that produces content across multiple SSE chunks"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Count to 3\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
+    request = json.loads('{"messages":[{"content":"Count to 3","role":"user"}],"model":"gpt-4","stream":true}')
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -96,25 +121,34 @@ async def test_basic_stream(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000300,\"id\":\"chatcmpl-bedrock-stream001\",\"model\":\"anthropic.claude-3-sonnet-20240229-v1:0\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000300,"id":"chatcmpl-bedrock-stream001","model":"anthropic.claude-3-sonnet-20240229-v1:0","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_bedrock_stream(mock_server: MockServerInfo) -> None:
     """Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\",\"stream\":true}")
+    request = json.loads(
+        '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0","stream":true}'
+    )
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -124,14 +158,21 @@ async def test_bedrock_stream(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "null"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute("/chat/completions", "POST", 200, "null"),
+        ]
+    ],
+    indirect=True,
+)
 async def test_empty_stream(mock_server: MockServerInfo) -> None:
     """Streaming chat completion that produces no content chunks before the DONE signal"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Say nothing\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
+    request = json.loads('{"messages":[{"content":"Say nothing","role":"user"}],"model":"gpt-4","stream":true}')
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -139,23 +180,30 @@ async def test_empty_stream(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000001,\"id\":\"chatcmpl-done001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"Done\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000001,\"id\":\"chatcmpl-done001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000001,\"id\":\"chatcmpl-done001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000001,"id":"chatcmpl-done001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"Done"},"finish_reason":null,"index":0}],"created":1711000001,"id":"chatcmpl-done001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000001,"id":"chatcmpl-done001","model":"gpt-4","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_stream_done_signal(mock_server: MockServerInfo) -> None:
     """Verify that the [DONE] sentinel signal properly terminates the stream"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Say done\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
+    request = json.loads('{"messages":[{"content":"Say done","role":"user"}],"model":"gpt-4","stream":true}')
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -165,38 +213,59 @@ async def test_stream_done_signal(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                401,
+                '{"error":{"code":"invalid_api_key","message":"Incorrect API key provided.","param":null,"type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_stream_error_401(mock_server: MockServerInfo) -> None:
     """401 Unauthorized error on stream initiation before any chunks are received"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","stream":true}')
     with pytest.raises(AuthenticationError):
         async for _ in await client.chat_stream(**request):
             pass
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"role\":\"assistant\",\"tool_calls\":[{\"function\":{\"name\":\"get_weather\"},\"id\":\"call_1\",\"index\":0,\"type\":\"function\"}]},\"finish_reason\":null,\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"tool_calls\":[{\"function\":{\"arguments\":\"{\\\"loc\"},\"index\":0}]},\"finish_reason\":null,\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"tool_calls\":[{\"function\":{\"arguments\":\"ation\\\":\\\"NYC\\\"}\"},\"index\":0}]},\"finish_reason\":null,\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"tool_calls\",\"index\":0}],\"created\":1711000010,\"id\":\"chatcmpl-toolstream001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"role":"assistant","tool_calls":[{"function":{"name":"get_weather"},"id":"call_1","index":0,"type":"function"}]},"finish_reason":null,"index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"{\\"loc"},"index":0}]},"finish_reason":null,"index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"ation\\":\\"NYC\\"}"},"index":0}]},"finish_reason":null,"index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"tool_calls","index":0}],"created":1711000010,"id":"chatcmpl-toolstream001","model":"gpt-4","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_stream_with_tool_calls(mock_server: MockServerInfo) -> None:
     """Streaming chat completion where the assistant responds with a tool call across multiple chunks"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"What is the weather in NYC?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true,\"tools\":[{\"function\":{\"description\":\"Get the current weather for a given location\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"location\":{\"description\":\"The city and state, e.g. New York, NY\",\"type\":\"string\"}},\"required\":[\"location\"],\"type\":\"object\"}},\"type\":\"function\"}]}")
+    request = json.loads(
+        '{"messages":[{"content":"What is the weather in NYC?","role":"user"}],"model":"gpt-4","stream":true,"tools":[{"function":{"description":"Get the current weather for a given location","name":"get_weather","parameters":{"properties":{"location":{"description":"The city and state, e.g. New York, NY","type":"string"}},"required":["location"],"type":"object"}},"type":"function"}]}'
+    )
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -204,24 +273,33 @@ async def test_stream_with_tool_calls(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"Hi\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" there!\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000020,\"id\":\"chatcmpl-usage001\",\"model\":\"gpt-4\",\"object\":\"chat.completion.chunk\",\"usage\":{\"completion_tokens\":8,\"prompt_tokens\":10,\"total_tokens\":18}}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"Hi"},"finish_reason":null,"index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" there!"},"finish_reason":null,"index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000020,"id":"chatcmpl-usage001","model":"gpt-4","object":"chat.completion.chunk","usage":{"completion_tokens":8,"prompt_tokens":10,"total_tokens":18}}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_stream_with_usage(mock_server: MockServerInfo) -> None:
     """Streaming chat completion that includes a usage summary in the final chunk"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Say hi\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true,\"stream_options\":{\"include_usage\":true}}")
+    request = json.loads(
+        '{"messages":[{"content":"Say hi","role":"user"}],"model":"gpt-4","stream":true,"stream_options":{"include_usage":true}}'
+    )
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)
@@ -231,25 +309,34 @@ async def test_stream_with_usage(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute(
-        "/chat/completions",
-        "POST",
-        200,
-        stream_chunks=[
-            "{\"choices\":[{\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\"One\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" Two\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{\"content\":\" Three\"},\"finish_reason\":null,\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
-            "{\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\",\"index\":0}],\"created\":1711000400,\"id\":\"chatcmpl-vertex-stream001\",\"model\":\"gemini-2.0-flash\",\"object\":\"chat.completion.chunk\"}",
-        ],
-    ),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                stream_chunks=[
+                    '{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":"One"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Two"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{"content":" Three"},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                    '{"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1711000400,"id":"chatcmpl-vertex-stream001","model":"gemini-2.0-flash","object":"chat.completion.chunk"}',
+                ],
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_vertex_stream(mock_server: MockServerInfo) -> None:
     """Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"max_tokens\":32,\"messages\":[{\"content\":\"Count to three, one word per response.\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\",\"stream\":true}")
+    request = json.loads(
+        '{"max_tokens":32,"messages":[{"content":"Count to three, one word per response.","role":"user"}],"model":"vertex_ai/gemini-2.0-flash","stream":true}'
+    )
     chunks = []
     async for chunk in await client.chat_stream(**request):
         chunks.append(chunk)

@@ -11,17 +11,30 @@ from liter_llm import LlmClient
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello with custom auth!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-auth-001\",\"model\":\"my-auth-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":6,\"prompt_tokens\":8,\"total_tokens\":14}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello with custom auth!","role":"assistant"}}],"created":1711000000,"id":"chatcmpl-auth-001","model":"my-auth-model-v1","object":"chat.completion","usage":{"completion_tokens":6,"prompt_tokens":8,"total_tokens":14}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_provider_auth(mock_server: MockServerInfo) -> None:
     """Tests custom provider with custom auth header"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    provider_config = json.loads("{\"auth_header\":\"api-key:X-Custom-Key\",\"base_url\":\"http://localhost\",\"model_prefixes\":[\"my-auth-\"],\"name\":\"my-auth-provider\"}")
+    provider_config = json.loads(
+        '{"auth_header":"api-key:X-Custom-Key","base_url":"http://localhost","model_prefixes":["my-auth-"],"name":"my-auth-provider"}'
+    )
     # Override base_url to point at the mock server
     provider_config["base_url"] = mock_server.url
     client.register_provider(provider_config)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"my-auth-model-v1\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"my-auth-model-v1"}')
     response = await client.chat(**request)
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
     assert response.choices[0].message.content == "Hello with custom auth!", "message content mismatch"
@@ -30,17 +43,30 @@ async def test_provider_auth(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello from custom provider!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-custom-001\",\"model\":\"my-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":7,\"prompt_tokens\":8,\"total_tokens\":15}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello from custom provider!","role":"assistant"}}],"created":1711000000,"id":"chatcmpl-custom-001","model":"my-model-v1","object":"chat.completion","usage":{"completion_tokens":7,"prompt_tokens":8,"total_tokens":15}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_register_provider(mock_server: MockServerInfo) -> None:
     """Tests that a custom provider can be registered and routes requests"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    provider_config = json.loads("{\"auth_header\":\"Bearer\",\"base_url\":\"http://localhost\",\"model_prefixes\":[\"my-\"],\"name\":\"my-provider\"}")
+    provider_config = json.loads(
+        '{"auth_header":"Bearer","base_url":"http://localhost","model_prefixes":["my-"],"name":"my-provider"}'
+    )
     # Override base_url to point at the mock server
     provider_config["base_url"] = mock_server.url
     client.register_provider(provider_config)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"my-model-v1\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"my-model-v1"}')
     response = await client.chat(**request)
     assert len(response.choices) == 1, f"Expected 1 choice(s), got {len(response.choices)}"
     assert response.choices[0].message.content == "Hello from custom provider!", "message content mismatch"

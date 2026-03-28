@@ -42,29 +42,46 @@ class GuardrailHook:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute("/chat/completions", "POST", 200, "{}"),
+        ]
+    ],
+    indirect=True,
+)
 async def test_hook_guardrail(mock_server: MockServerInfo) -> None:
     """Tests that on_request hook can reject a request"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     hook = GuardrailHook()
     client.add_hook(hook)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(Exception):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 500, "{\"error\":{\"code\":\"internal_error\",\"message\":\"Internal server error\",\"type\":\"server_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                500,
+                '{"error":{"code":"internal_error","message":"Internal server error","type":"server_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_hook_on_error(mock_server: MockServerInfo) -> None:
     """Tests that on_error hook is called on failure"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     hook = TestHook()
     client.add_hook(hook)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     try:
         await client.chat(**request)
     except Exception:
@@ -73,28 +90,50 @@ async def test_hook_on_error(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-hook-req-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello! How can I help you today?","role":"assistant"}}],"created":1711000000,"id":"chatcmpl-hook-req-001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":9,"prompt_tokens":8,"total_tokens":17}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_hook_on_request(mock_server: MockServerInfo) -> None:
     """Tests that on_request hook is called before the request"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     hook = TestHook()
     client.add_hook(hook)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     await client.chat(**request)
     assert hook.on_request_called, "Expected on_request hook to be called"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 200, "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello! How can I help you today?\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-hook-resp-001\",\"model\":\"gpt-4\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":9,\"prompt_tokens\":8,\"total_tokens\":17}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                200,
+                '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello! How can I help you today?","role":"assistant"}}],"created":1711000000,"id":"chatcmpl-hook-resp-001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":9,"prompt_tokens":8,"total_tokens":17}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_hook_on_response(mock_server: MockServerInfo) -> None:
     """Tests that on_response hook is called with response data"""
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
     hook = TestHook()
     client.add_hook(hook)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     await client.chat(**request)
     assert hook.on_response_called, "Expected on_response hook to be called"

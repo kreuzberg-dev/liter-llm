@@ -12,14 +12,26 @@ from liter_llm import (  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/embeddings", "POST", 200, "{\"data\":[{\"embedding\":[0.1,0.2,0.3,0.4,0.5],\"index\":0,\"object\":\"embedding\"},{\"embedding\":[0.5,0.4,0.3,0.2,0.1],\"index\":1,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/embeddings",
+                "POST",
+                200,
+                '{"data":[{"embedding":[0.1,0.2,0.3,0.4,0.5],"index":0,"object":"embedding"},{"embedding":[0.5,0.4,0.3,0.2,0.1],"index":1,"object":"embedding"}],"model":"text-embedding-3-small","object":"list","usage":{"completion_tokens":0,"prompt_tokens":2,"total_tokens":2}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_batch_embed(mock_server: MockServerInfo) -> None:
     """Embedding request with multiple input strings returns one embedding object per input"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"input\":[\"Hello\",\"World\"],\"model\":\"text-embedding-3-small\"}")
+    request = json.loads('{"input":["Hello","World"],"model":"text-embedding-3-small"}')
     response = await client.embed(**request)
 
     assert len(response.data) == 2, f"Expected 2 embedding(s), got {len(response.data)}"
@@ -28,14 +40,26 @@ async def test_batch_embed(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/embeddings", "POST", 200, "{\"data\":[{\"embedding\":[0.123,0.456,0.789,0.012,0.345],\"index\":0,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/embeddings",
+                "POST",
+                200,
+                '{"data":[{"embedding":[0.123,0.456,0.789,0.012,0.345],"index":0,"object":"embedding"}],"model":"text-embedding-3-small","object":"list","usage":{"completion_tokens":0,"prompt_tokens":2,"total_tokens":2}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_embed_encoding_format(mock_server: MockServerInfo) -> None:
     """Embedding request with explicit encoding_format of float returns float array embeddings"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"encoding_format\":\"float\",\"input\":\"Test input\",\"model\":\"text-embedding-3-small\"}")
+    request = json.loads('{"encoding_format":"float","input":"Test input","model":"text-embedding-3-small"}')
     response = await client.embed(**request)
 
     assert len(response.data) == 1, f"Expected 1 embedding(s), got {len(response.data)}"
@@ -44,27 +68,51 @@ async def test_embed_encoding_format(mock_server: MockServerInfo) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/embeddings", "POST", 401, "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/embeddings",
+                "POST",
+                401,
+                '{"error":{"code":"invalid_api_key","message":"Incorrect API key provided.","param":null,"type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_embed_error_401(mock_server: MockServerInfo) -> None:
     """401 Unauthorized error on embedding request when API key is invalid"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}")
+    request = json.loads('{"input":"Hello world","model":"text-embedding-3-small"}')
     with pytest.raises(AuthenticationError):
         await client.embed(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/embeddings", "POST", 200, "{\"data\":[{\"embedding\":[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08],\"index\":0,\"object\":\"embedding\"}],\"model\":\"text-embedding-3-small\",\"object\":\"list\",\"usage\":{\"completion_tokens\":0,\"prompt_tokens\":2,\"total_tokens\":2}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/embeddings",
+                "POST",
+                200,
+                '{"data":[{"embedding":[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08],"index":0,"object":"embedding"}],"model":"text-embedding-3-small","object":"list","usage":{"completion_tokens":0,"prompt_tokens":2,"total_tokens":2}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_embed_with_dimensions(mock_server: MockServerInfo) -> None:
     """Embedding request with explicit dimensions parameter returns embeddings of the requested size"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"dimensions\":256,\"input\":\"Hello world\",\"model\":\"text-embedding-3-small\"}")
+    request = json.loads('{"dimensions":256,"input":"Hello world","model":"text-embedding-3-small"}')
     response = await client.embed(**request)
 
     assert len(response.data) == 1, f"Expected 1 embedding(s), got {len(response.data)}"

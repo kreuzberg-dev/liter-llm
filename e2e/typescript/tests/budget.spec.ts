@@ -19,7 +19,7 @@ describe("budget", () => {
 
     const server = await startMockServer(routes);
     try {
-      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse(`{"enforcement":"hard","global_limit":0.0}`) });
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse(`{"enforcement":"hard","globalLimit":0.0}`) });
 
       let threw = false;
       try {
@@ -48,7 +48,7 @@ describe("budget", () => {
 
     const server = await startMockServer(routes);
     try {
-      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse(`{"enforcement":"hard","model_limits":{"gpt-4":0.0}}`) });
+      const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, budget: JSON.parse(`{"enforcement":"hard","modelLimits":{"gpt-4":0.0}}`) });
 
       let threw = false;
       try {

@@ -35,6 +35,7 @@ class MockRoute:
 
 def make_handler(route: MockRoute):  # noqa: ANN202
     """Create an aiohttp handler for the given mock route."""
+
     async def handler(request: web.Request) -> web.Response:
         if route.stream_chunks:
             response = web.StreamResponse(

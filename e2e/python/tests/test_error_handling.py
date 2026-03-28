@@ -17,182 +17,340 @@ from liter_llm import (  # noqa: E402
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"message\":\"invalid x-api-key\",\"type\":\"authentication_error\"},\"type\":\"error\"}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                401,
+                '{"error":{"message":"invalid x-api-key","type":"authentication_error"},"type":"error"}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_anthropic_error_auth(mock_server: MockServerInfo) -> None:
     """401 Authentication error returned by the Anthropic API when the API key is invalid"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"anthropic/claude-3-5-sonnet-20241022\"}")
+    request = json.loads(
+        '{"messages":[{"content":"Hello","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022"}'
+    )
     with pytest.raises(AuthenticationError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                401,
+                '{"error":{"code":"invalid_api_key","message":"Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.","param":null,"type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_auth_401(mock_server: MockServerInfo) -> None:
     """401 Unauthorized error when API key is invalid or missing"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(AuthenticationError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\",\"param\":null,\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                401,
+                '{"error":{"code":"401","message":"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.","param":null,"type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_azure_error_auth(mock_server: MockServerInfo) -> None:
     """Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"azure/gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"azure/gpt-4"}')
     with pytest.raises(AuthenticationError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 400, "{\"error\":{\"message\":\"Invalid parameter: temperature must be between 0 and 2\",\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                400,
+                '{"error":{"message":"Invalid parameter: temperature must be between 0 and 2","type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_bad_request_400(mock_server: MockServerInfo) -> None:
     """400 Bad Request error when a parameter value is invalid"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"temperature\":5.0}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","temperature":5.0}')
     with pytest.raises(BadRequestError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 403, "{\"message\":\"You don't have access to the model with the specified model ID.\"}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                403,
+                '{"message":"You don\'t have access to the model with the specified model ID."}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_bedrock_error_auth(mock_server: MockServerInfo) -> None:
     """AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"bedrock/anthropic.claude-3-sonnet-20240229-v1:0\"}")
+    request = json.loads(
+        '{"messages":[{"content":"Hello","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0"}'
+    )
     with pytest.raises(Exception):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 400, "{\"error\":{\"message\":\"Your request was rejected as a result of our content_policy\",\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                400,
+                '{"error":{"message":"Your request was rejected as a result of our content_policy","type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_content_policy_violation(mock_server: MockServerInfo) -> None:
     """400 error when a request is rejected due to content policy"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Generate harmful content\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Generate harmful content","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(BadRequestError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 400, "{\"error\":{\"code\":\"context_length_exceeded\",\"message\":\"This model's maximum context length is 8192 tokens\",\"type\":\"invalid_request_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                400,
+                '{"error":{"code":"context_length_exceeded","message":"This model\'s maximum context length is 8192 tokens","type":"invalid_request_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_context_window_exceeded(mock_server: MockServerInfo) -> None:
     """400 error when the prompt exceeds the model's maximum context length"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Very long prompt that exceeds the context window...\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads(
+        '{"messages":[{"content":"Very long prompt that exceeds the context window...","role":"user"}],"model":"gpt-4"}'
+    )
     with pytest.raises(BadRequestError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 403, "{\"error\":{\"message\":\"Access denied\",\"type\":\"access_denied\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute("/chat/completions", "POST", 403, '{"error":{"message":"Access denied","type":"access_denied"}}'),
+        ]
+    ],
+    indirect=True,
+)
 async def test_forbidden_403(mock_server: MockServerInfo) -> None:
     """403 Forbidden error when the API key does not have access to the requested resource"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(Exception):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 504, "{\"error\":{\"message\":\"Gateway timeout\",\"type\":\"server_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions", "POST", 504, '{"error":{"message":"Gateway timeout","type":"server_error"}}'
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_gateway_timeout_504(mock_server: MockServerInfo) -> None:
     """504 Gateway Timeout error when the upstream service times out"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(Exception):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 404, "{\"error\":{\"message\":\"Model not found\",\"type\":\"not_found_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions", "POST", 404, '{"error":{"message":"Model not found","type":"not_found_error"}}'
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_not_found_404(mock_server: MockServerInfo) -> None:
     """404 Not Found error when requesting a model that does not exist"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-99\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-99"}')
     with pytest.raises(NotFoundError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 429, "{\"error\":{\"code\":\"rate_limit_exceeded\",\"message\":\"Rate limit reached for gpt-4 in organization org-abc123 on tokens per min. Limit: 10000, Used: 10000, Requested: 100. Please try again in 600ms.\",\"param\":null,\"type\":\"requests\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                429,
+                '{"error":{"code":"rate_limit_exceeded","message":"Rate limit reached for gpt-4 in organization org-abc123 on tokens per min. Limit: 10000, Used: 10000, Requested: 100. Please try again in 600ms.","param":null,"type":"requests"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_rate_limit_429(mock_server: MockServerInfo) -> None:
     """429 Too Many Requests error when the rate limit is exceeded"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(RateLimitedError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 500, "{\"error\":{\"code\":null,\"message\":\"The server had an error while processing your request. Sorry about that!\",\"param\":null,\"type\":\"server_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                500,
+                '{"error":{"code":null,"message":"The server had an error while processing your request. Sorry about that!","param":null,"type":"server_error"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_server_error_500(mock_server: MockServerInfo) -> None:
     """500 Internal Server Error from the upstream API"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(ServerError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 502, "{\"error\":{\"message\":\"Bad gateway\",\"type\":\"server_error\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute("/chat/completions", "POST", 502, '{"error":{"message":"Bad gateway","type":"server_error"}}'),
+        ]
+    ],
+    indirect=True,
+)
 async def test_service_unavailable_502(mock_server: MockServerInfo) -> None:
     """502 Bad Gateway error when the upstream service is unavailable"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}')
     with pytest.raises(ServiceUnavailableError):
         await client.chat(**request)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_server", [[
-    MockRoute("/chat/completions", "POST", 401, "{\"error\":{\"code\":401,\"message\":\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\"status\":\"UNAUTHENTICATED\"}}"),
-]], indirect=True)
+@pytest.mark.parametrize(
+    "mock_server",
+    [
+        [
+            MockRoute(
+                "/chat/completions",
+                "POST",
+                401,
+                '{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}',
+            ),
+        ]
+    ],
+    indirect=True,
+)
 async def test_vertex_error_auth(mock_server: MockServerInfo) -> None:
     """Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication"""
     import json
+
     client = LlmClient(api_key="test-key", base_url=mock_server.url, max_retries=0)
-    request = json.loads("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"vertex_ai/gemini-2.0-flash\"}")
+    request = json.loads('{"messages":[{"content":"Hello","role":"user"}],"model":"vertex_ai/gemini-2.0-flash"}')
     with pytest.raises(AuthenticationError):
         await client.chat(**request)
