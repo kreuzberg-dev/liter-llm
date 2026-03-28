@@ -12,6 +12,7 @@ require_once __DIR__ . '/Helpers.php';
 
 final class HooksTest extends TestCase
 {
+
     /** Tests that on_request hook can reject a request */
     public function testHookGuardrail(): void
     {
@@ -30,8 +31,10 @@ final class HooksTest extends TestCase
 
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
-        $client->addHook('on_request', function ($req) {
-            throw new \RuntimeException('Blocked by guardrail');
+        $client->addHook(new class implements \LiterLlm\LlmHook {
+            public function onRequest(mixed $request): void { throw new \LiterLlm\HookRejectedException('Blocked by guardrail'); }
+            public function onResponse(mixed $request, mixed $response): void {}
+            public function onError(mixed $request, \Throwable $error): void {}
         });
 
         $threw = false;
@@ -63,14 +66,15 @@ final class HooksTest extends TestCase
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $hookCalled = false;
-        $client->addHook('on_error', function ($err) use (&$hookCalled) {
-            $hookCalled = true;
+        $client->addHook(new class(&$hookCalled) implements \LiterLlm\LlmHook {
+            private bool $called;
+            public function __construct(bool &$called) { $this->called = &$called; }
+            public function onRequest(mixed $request): void {}
+            public function onResponse(mixed $request, mixed $response): void {}
+            public function onError(mixed $request, \Throwable $error): void { $this->called = true; }
         });
 
-        try {
-            $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
-        } catch (\Throwable $e) {
-        }
+        try { $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}'); } catch (\Throwable $e) { }
         $this->assertTrue($hookCalled, 'Expected on_error hook to be called');
         $server->stop();
     }
@@ -94,8 +98,12 @@ final class HooksTest extends TestCase
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $hookCalled = false;
-        $client->addHook('on_request', function ($req) use (&$hookCalled) {
-            $hookCalled = true;
+        $client->addHook(new class(&$hookCalled) implements \LiterLlm\LlmHook {
+            private bool $called;
+            public function __construct(bool &$called) { $this->called = &$called; }
+            public function onRequest(mixed $request): void { $this->called = true; }
+            public function onResponse(mixed $request, mixed $response): void {}
+            public function onError(mixed $request, \Throwable $error): void {}
         });
 
         $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
@@ -122,8 +130,12 @@ final class HooksTest extends TestCase
         $client = new \LiterLlm\LlmClient('test-key', $mockUrl);
 
         $hookCalled = false;
-        $client->addHook('on_response', function ($resp) use (&$hookCalled) {
-            $hookCalled = true;
+        $client->addHook(new class(&$hookCalled) implements \LiterLlm\LlmHook {
+            private bool $called;
+            public function __construct(bool &$called) { $this->called = &$called; }
+            public function onRequest(mixed $request): void {}
+            public function onResponse(mixed $request, mixed $response): void { $this->called = true; }
+            public function onError(mixed $request, \Throwable $error): void {}
         });
 
         $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');

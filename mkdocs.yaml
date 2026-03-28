@@ -146,17 +146,12 @@ extra_css:
 nav:
   - Home: index.md
   - Installation: getting-started/installation.md
-  - Quick Start: getting-started/quickstart.md
-  - Concepts:
-      - Architecture: concepts/architecture.md
-      - Provider Registry: concepts/providers.md
-      - Streaming: concepts/streaming.md
-  - Guides:
-      - Chat: guides/chat.md
-      - Streaming: guides/streaming.md
-      - Embeddings: guides/embeddings.md
-      - Configuration: guides/configuration.md
-      - CLI Usage: guides/cli.md
+  - Usage:
+      - Chat & Streaming: usage/chat.md
+      - Embeddings & Rerank: usage/embeddings.md
+      - Media (Images, Speech, Transcription): usage/media.md
+      - Files & Batches: usage/files.md
+      - Configuration: usage/configuration.md
   - API Reference:
       - Python: api/python.md
       - TypeScript / Node.js: api/typescript.md

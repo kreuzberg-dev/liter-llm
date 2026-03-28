@@ -12,8 +12,8 @@ Built in Rust for performance, safety, and reliability.
 
 <div style="display: flex; gap: 0.5rem; margin: 1.5rem 0;">
 
-[Quick Start](getting-started/quickstart.md){ .md-button .md-button--primary }
-[Installation](getting-started/installation.md){ .md-button }
+[Get Started](getting-started/installation.md){ .md-button .md-button--primary }
+[Usage](usage/chat.md){ .md-button }
 [GitHub](https://github.com/kreuzberg-dev/liter-llm){ .md-button }
 
 </div>
@@ -36,13 +36,13 @@ Built in Rust for performance, safety, and reliability.
 
     [:octicons-arrow-right-24: Providers](providers.md)
 
-- :material-language-rust:{ .lg .middle } **Architecture**
+- :material-chat-processing:{ .lg .middle } **Usage**
 
 ---
 
-    Understand the Rust core, Tower middleware stack, and how language bindings work.
+    Chat, streaming, embeddings, image generation, speech, moderation, and more.
 
-    [:octicons-arrow-right-24: Architecture](concepts/architecture.md)
+    [:octicons-arrow-right-24: Chat & Streaming](usage/chat.md)
 
 - :material-api:{ .lg .middle } **API Reference**
 

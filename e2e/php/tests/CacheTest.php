@@ -28,8 +28,8 @@ final class CacheTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        $cacheJson = json_encode(['max_entries' => 10, 'ttl_secs' => 60]);
-        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, null, null, null, $cacheJson);
+        $cacheConfig = new \LiterLlm\CacheConfig(maxEntries: 10, ttlSeconds: 60);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, cacheConfig: $cacheConfig);
 
         $resp1 = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
         $resp2 = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
@@ -53,8 +53,8 @@ final class CacheTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        $cacheJson = json_encode(['max_entries' => 10, 'ttl_secs' => 60]);
-        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, null, null, null, $cacheJson);
+        $cacheConfig = new \LiterLlm\CacheConfig(maxEntries: 10, ttlSeconds: 60);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, cacheConfig: $cacheConfig);
 
         $resp1 = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
         $resp2 = $client->chat('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
@@ -79,8 +79,8 @@ final class CacheTest extends TestCase
         $server = new MockServer($routes);
         $mockUrl = $server->url;
 
-        $cacheJson = json_encode(['max_entries' => 10, 'ttl_secs' => 60]);
-        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, null, null, null, $cacheJson);
+        $cacheConfig = new \LiterLlm\CacheConfig(maxEntries: 10, ttlSeconds: 60);
+        $client = new \LiterLlm\LlmClient('test-key', $mockUrl, cacheConfig: $cacheConfig);
 
         $chunks = $client->chatStream('{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}');
         $this->assertNotEmpty($chunks, 'Expected stream chunks');

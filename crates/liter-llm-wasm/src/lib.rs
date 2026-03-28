@@ -607,21 +607,28 @@ struct ClientOptions {
 }
 
 /// Deserialized cache configuration from JS.
+///
+/// Accepts both camelCase and snake_case field names so that JS callers
+/// can use either convention.
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 struct CacheOptionsConfig {
+    #[serde(alias = "maxEntries")]
     #[serde(default = "default_cache_max_entries")]
     max_entries: usize,
+    #[serde(alias = "ttlSeconds")]
     #[serde(default = "default_cache_ttl_seconds")]
     ttl_seconds: u32,
 }
 
 /// Deserialized budget configuration from JS.
+///
+/// Accepts both camelCase and snake_case field names.
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 struct BudgetOptionsConfig {
+    #[serde(alias = "globalLimit")]
     #[serde(default)]
     global_limit: Option<f64>,
+    #[serde(alias = "modelLimits")]
     #[serde(default)]
     model_limits: Option<HashMap<String, f64>>,
     #[serde(default = "default_enforcement")]

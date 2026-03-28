@@ -228,6 +228,6 @@ task build
 
 ## Next Steps
 
-- [Quick Start](quickstart.md) -- Make your first API call
+- [Chat & Streaming](../usage/chat.md) -- Make your first API call
 - [Provider Registry](../providers.md) -- Browse all 142 supported providers
-- [Configuration](../guides/configuration.md) -- Timeouts, retries, base URL overrides
+- [Configuration](../usage/configuration.md) -- Timeouts, retries, base URL overrides
