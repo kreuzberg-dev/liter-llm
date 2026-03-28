@@ -89,5 +89,11 @@ tasks:
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
-      - composer install --no-progress --prefer-dist
-      - composer exec -- phpunit
+      - cmd: bash ../../scripts/ci/php/create-ci-php-ini.sh
+        platforms: [linux, darwin, windows]
+      - cmd: composer install --no-progress --prefer-dist
+        platforms: [linux, darwin, windows]
+      - cmd: php -c php-liter-llm.ini vendor/bin/phpunit
+        platforms: [linux, darwin]
+      - cmd: php -c php-liter-llm.ini vendor\bin\phpunit.bat
+        platforms: [windows]
