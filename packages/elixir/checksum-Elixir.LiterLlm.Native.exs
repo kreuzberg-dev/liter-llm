@@ -1,8 +1,8 @@
 %{
-  "libliter_llm_rustler-v1.0.0-rc.8-nif-2.16-aarch64-apple-darwin.so.tar.gz" => "sha256:de1802507a4a6cf0af10d01dd5676e09cffcd623bf7389ca045fb12b536c6a95",
-  "libliter_llm_rustler-v1.0.0-rc.8-nif-2.16-aarch64-unknown-linux-gnu.so.tar.gz" => "sha256:ad4ec4218e093af6024a8b6749c222edf983704c93a6b7550018ca0a88a1c6d6",
-  "libliter_llm_rustler-v1.0.0-rc.8-nif-2.16-x86_64-unknown-linux-gnu.so.tar.gz" => "sha256:6d9f7f41e084c12ba13db208d9c721b7e204e9c526c1c0ae2482782af4737dd3",
-  "libliter_llm_rustler-v1.0.0-rc.8-nif-2.17-aarch64-apple-darwin.so.tar.gz" => "sha256:de1802507a4a6cf0af10d01dd5676e09cffcd623bf7389ca045fb12b536c6a95",
-  "libliter_llm_rustler-v1.0.0-rc.8-nif-2.17-aarch64-unknown-linux-gnu.so.tar.gz" => "sha256:ad4ec4218e093af6024a8b6749c222edf983704c93a6b7550018ca0a88a1c6d6",
-  "libliter_llm_rustler-v1.0.0-rc.8-nif-2.17-x86_64-unknown-linux-gnu.so.tar.gz" => "sha256:6d9f7f41e084c12ba13db208d9c721b7e204e9c526c1c0ae2482782af4737dd3",
+  "libliter_llm_rustler-v1.0.0-rc.9-nif-2.16-aarch64-apple-darwin.so.tar.gz" => "sha256:d63315655bcdff8d7b38add83717cb3e6ba8fee528fbd88114eacba18c96aeb6",
+  "libliter_llm_rustler-v1.0.0-rc.9-nif-2.16-aarch64-unknown-linux-gnu.so.tar.gz" => "sha256:f1bab8b257b0a57ad76212c6c0a491ef1ed4d527931da32722e83d7d60e08e91",
+  "libliter_llm_rustler-v1.0.0-rc.9-nif-2.16-x86_64-unknown-linux-gnu.so.tar.gz" => "sha256:903a442b9f5e2fb4f9718789c860ca777e5959cc2446a792d604c9f01b4c2463",
+  "libliter_llm_rustler-v1.0.0-rc.9-nif-2.17-aarch64-apple-darwin.so.tar.gz" => "sha256:d63315655bcdff8d7b38add83717cb3e6ba8fee528fbd88114eacba18c96aeb6",
+  "libliter_llm_rustler-v1.0.0-rc.9-nif-2.17-aarch64-unknown-linux-gnu.so.tar.gz" => "sha256:f1bab8b257b0a57ad76212c6c0a491ef1ed4d527931da32722e83d7d60e08e91",
+  "libliter_llm_rustler-v1.0.0-rc.9-nif-2.17-x86_64-unknown-linux-gnu.so.tar.gz" => "sha256:903a442b9f5e2fb4f9718789c860ca777e5959cc2446a792d604c9f01b4c2463",
 }
