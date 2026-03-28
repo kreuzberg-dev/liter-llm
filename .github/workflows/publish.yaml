@@ -701,11 +701,10 @@ jobs:
   # ── PHP extension ──────────────────────────────────────────────────────────
   build-php:
     name: Build PHP extension (${{ matrix.label }})
-    needs: [prepare, check-packagist]
+    needs: [prepare]
     if: |
       always() &&
-      needs.prepare.outputs.release_php == 'true' &&
-      (needs.check-packagist.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      needs.prepare.outputs.release_php == 'true'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
