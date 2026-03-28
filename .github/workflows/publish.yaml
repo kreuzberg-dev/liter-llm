@@ -1459,11 +1459,16 @@ jobs:
         with:
           name: maven-packages
           path: packages/java/target
-      - uses: actions/setup-java@v5
+      - name: Patch legacy Maven GPG arguments
+        run: scripts/publish/patch-maven-gpg-args.sh packages/java/pom.xml
+        shell: bash
+      - name: Setup Java
+        id: setup-java
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
@@ -1473,18 +1478,21 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
-      - uses: kreuzberg-dev/actions/setup-maven@v1
-      - name: Patch legacy Maven GPG arguments
-        run: scripts/publish/patch-maven-gpg-args.sh packages/java/pom.xml
+      - name: Setup Maven 3.9.11
+        uses: kreuzberg-dev/actions/setup-maven@v1
+      - name: Prefer gpg2 binary
+        run: scripts/publish/prefer-gpg2-binary.sh
         shell: bash
-      - uses: kreuzberg-dev/actions/publish-maven@v1
+      - name: Release Maven package
+        uses: kreuzberg-dev/actions/publish-maven@v1
         with:
           pom-file: packages/java/pom.xml
+          maven-profile: publish
+          extra-args: -DskipTests
           dry-run: ${{ needs.prepare.outputs.dry_run }}
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
   publish-hex:
     name: Publish Hex.pm
