@@ -4,6 +4,145 @@ description: "Client configuration: API keys, timeouts, retries, cache, budget, 
 
 # Configuration
 
+## Configuration File
+
+Create a `liter-llm.toml` file in your project directory. liter-llm auto-discovers it by searching the current directory and parent directories.
+
+```toml
+api_key = "sk-..."
+base_url = "https://api.openai.com/v1"
+model_hint = "openai"
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[budget.model_limits]
+"openai/gpt-4o" = 25.0
+
+[rate_limit]
+rpm = 60
+tpm = 100000
+
+cooldown_secs = 30
+health_check_secs = 60
+cost_tracking = true
+tracing = true
+
+[[providers]]
+name = "my-provider"
+base_url = "https://my-llm.example.com/v1"
+model_prefixes = ["my-provider/"]
+```
+
+Load it in code:
+
+=== "Python"
+
+    ```python
+    # Auto-discover liter-llm.toml
+    from liter_llm import LlmClient
+    client = LlmClient.from_config()  # discovers liter-llm.toml
+    # Or explicit path
+    client = LlmClient.from_config("path/to/config.toml")
+    ```
+
+=== "TypeScript"
+
+    ```typescript
+    import { LlmClient } from "@kreuzberg/liter-llm";
+
+    // Auto-discover liter-llm.toml
+    const client = await LlmClient.fromConfig();
+    // Or explicit path
+    const client2 = await LlmClient.fromConfig("path/to/config.toml");
+    ```
+
+=== "Rust"
+
+    ```rust
+    use liter_llm::{FileConfig, ManagedClient};
+
+    // Auto-discover
+    if let Some(config) = FileConfig::discover()? {
+        let client = ManagedClient::new(config.into_builder().build(), None)?;
+    }
+    // Or explicit path
+    let config = FileConfig::from_toml_file("liter-llm.toml")?;
+    let client = ManagedClient::new(config.into_builder().build(), None)?;
+    ```
+
+=== "Go"
+
+    ```go
+    // Auto-discover liter-llm.toml
+    client, err := llm.NewClientFromConfig()
+    // Or explicit path
+    client, err = llm.NewClientFromConfigFile("path/to/config.toml")
+    ```
+
+=== "Java"
+
+    ```java
+    // Auto-discover liter-llm.toml
+    var client = LlmClient.fromConfig();
+    // Or explicit path
+    var client = LlmClient.fromConfig("path/to/config.toml");
+    ```
+
+=== "C#"
+
+    ```csharp
+    // Auto-discover liter-llm.toml
+    var client = LlmClient.FromConfig();
+    // Or explicit path
+    var client = LlmClient.FromConfig("path/to/config.toml");
+    ```
+
+=== "Ruby"
+
+    ```ruby
+    # Auto-discover liter-llm.toml
+    client = LiterLlm::LlmClient.from_config
+    # Or explicit path
+    client = LiterLlm::LlmClient.from_config("path/to/config.toml")
+    ```
+
+=== "PHP"
+
+    ```php
+    // Auto-discover liter-llm.toml
+    $client = LlmClient::fromConfig();
+    // Or explicit path
+    $client = LlmClient::fromConfig('path/to/config.toml');
+    ```
+
+=== "Elixir"
+
+    ```elixir
+    # Auto-discover liter-llm.toml
+    client = LiterLlm.Client.from_config()
+    # Or explicit path
+    client = LiterLlm.Client.from_config("path/to/config.toml")
+    ```
+
+=== "WASM"
+
+    ```typescript
+    import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
+    await init();
+
+    // From TOML string (WASM cannot access the filesystem)
+    const toml = `api_key = "sk-..."`;
+    const client = LlmClient.fromConfigStr(toml);
+    ```
+
 ## Client Construction
 
 === "Python"

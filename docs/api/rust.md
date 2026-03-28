@@ -50,6 +50,44 @@ let client = DefaultClient::new(config, Some("gpt-4"))?;
 | `tracing(enabled)` | Enable OpenTelemetry tracing spans |
 | `build()` | Consume builder, return `ClientConfig` |
 
+### `FileConfig`
+
+Load client configuration from a TOML file (`liter-llm.toml`). Supports auto-discovery by searching the current directory and parent directories.
+
+```rust
+use liter_llm::{FileConfig, ManagedClient};
+
+// Auto-discover liter-llm.toml in current or parent directories
+if let Some(config) = FileConfig::discover()? {
+    let client = ManagedClient::new(config.into_builder().build(), None)?;
+}
+
+// Load from explicit path
+let config = FileConfig::from_toml_file("path/to/liter-llm.toml")?;
+let client = ManagedClient::new(config.into_builder().build(), None)?;
+
+// Parse from a TOML string
+let toml_str = std::fs::read_to_string("liter-llm.toml")?;
+let config = FileConfig::from_toml_str(&toml_str)?;
+
+// Access custom providers defined in the config
+for provider in config.providers() {
+    println!("Provider: {}", provider.name);
+}
+
+// Convert to ClientConfigBuilder for further customization
+let builder = config.into_builder();
+let final_config = builder.timeout(Duration::from_secs(120)).build();
+```
+
+| Method | Description |
+|--------|-------------|
+| `from_toml_file(path)` | Load config from a TOML file at the given path |
+| `from_toml_str(s)` | Parse config from a TOML string |
+| `discover()` | Search current and parent directories for `liter-llm.toml`. Returns `Ok(Some(config))` if found, `Ok(None)` if not found. |
+| `into_builder()` | Convert into a `ClientConfigBuilder` for further customization |
+| `providers()` | Return the list of custom providers defined in the config file |
+
 ### `DefaultClient`
 
 Implements `LlmClient`, `FileClient`, `BatchClient`, and `ResponseClient`.

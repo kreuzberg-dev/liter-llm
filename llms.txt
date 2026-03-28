@@ -81,6 +81,8 @@ Part of the kreuzberg.dev ecosystem:
 - `cancel_response(id)` — Cancel a response
 
 ### Configuration
+- TOML configuration file (`liter-llm.toml`) with auto-discovery
+- Custom provider loading from config files
 - API key, base URL, timeouts, retries, custom headers
 - Provider auto-detection via model prefix (e.g. "openai/gpt-4o")
 - model_hint for pre-resolving provider at construction time
