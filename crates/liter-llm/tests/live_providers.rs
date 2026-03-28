@@ -73,7 +73,7 @@ pub fn google_ai_client(api_key: &str) -> DefaultClient {
 pub fn bedrock_client() -> DefaultClient {
     // Bedrock uses AWS credentials from env (SigV4 signing), not an API key.
     let config = ClientConfigBuilder::new("").max_retries(2).build();
-    DefaultClient::new(config, Some("bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0")).unwrap()
+    DefaultClient::new(config, Some("bedrock/us.anthropic.claude-sonnet-4-6")).unwrap()
 }
 
 pub fn azure_client(api_key: &str) -> DefaultClient {

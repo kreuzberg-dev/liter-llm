@@ -9,9 +9,7 @@ async fn chat_basic() {
     let client = bedrock_client();
 
     let resp = client
-        .chat(simple_chat_request(
-            "bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-        ))
+        .chat(simple_chat_request("bedrock/us.anthropic.claude-sonnet-4-6"))
         .await
         .unwrap();
 
@@ -32,9 +30,7 @@ async fn chat_stream() {
     let client = bedrock_client();
 
     let mut stream = client
-        .chat_stream(simple_chat_request(
-            "bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-        ))
+        .chat_stream(simple_chat_request("bedrock/us.anthropic.claude-sonnet-4-6"))
         .await
         .unwrap();
 

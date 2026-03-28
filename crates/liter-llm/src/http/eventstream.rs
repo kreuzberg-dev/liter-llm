@@ -198,12 +198,12 @@ fn parse_headers(mut data: &[u8]) -> Result<Vec<EventHeader>> {
     Ok(headers)
 }
 
-/// CRC32C (Castagnoli) implementation for EventStream frame validation.
+/// CRC32 (ISO 3309) implementation for EventStream frame validation.
 ///
-/// Uses a lookup table for the CRC32C polynomial (0x82F63B78).
-/// This matches the checksum algorithm used by the AWS EventStream protocol.
-fn crc32c(data: &[u8]) -> u32 {
-    // CRC32C lookup table (Castagnoli polynomial 0x82F63B78).
+/// Uses a lookup table for the standard CRC32 polynomial (0xEDB88320,
+/// reflected form of 0x04C11DB7).  The AWS EventStream protocol uses
+/// standard CRC32, not CRC32C (Castagnoli).
+fn crc32(data: &[u8]) -> u32 {
     static TABLE: [u32; 256] = {
         let mut table = [0u32; 256];
         let mut i = 0;
@@ -212,7 +212,7 @@ fn crc32c(data: &[u8]) -> u32 {
             let mut j = 0;
             while j < 8 {
                 if crc & 1 != 0 {
-                    crc = (crc >> 1) ^ 0x82F6_3B78;
+                    crc = (crc >> 1) ^ 0xEDB8_8320;
                 } else {
                     crc >>= 1;
                 }
@@ -297,7 +297,7 @@ where
 
                     // Validate prelude CRC (covers first 8 bytes).
                     let prelude_crc_expected = u32::from_be_bytes([frame[8], frame[9], frame[10], frame[11]]);
-                    let prelude_crc_actual = crc32c(&frame[..8]);
+                    let prelude_crc_actual = crc32(&frame[..8]);
                     if prelude_crc_expected != prelude_crc_actual {
                         return Poll::Ready(Some(Err(LiterLlmError::Streaming {
                             message: format!(
@@ -313,7 +313,7 @@ where
                         frame[total_length - 2],
                         frame[total_length - 1],
                     ]);
-                    let message_crc_actual = crc32c(&frame[..total_length - 4]);
+                    let message_crc_actual = crc32(&frame[..total_length - 4]);
                     if message_crc_expected != message_crc_actual {
                         return Poll::Ready(Some(Err(LiterLlmError::Streaming {
                             message: format!(
@@ -459,7 +459,7 @@ mod tests {
         frame.extend_from_slice(&headers_length.to_be_bytes());
 
         // Prelude CRC.
-        let prelude_crc = crc32c(&frame[..8]);
+        let prelude_crc = crc32(&frame[..8]);
         frame.extend_from_slice(&prelude_crc.to_be_bytes());
 
         // Headers + payload.
@@ -467,18 +467,18 @@ mod tests {
         frame.extend_from_slice(payload);
 
         // Message CRC.
-        let message_crc = crc32c(&frame);
+        let message_crc = crc32(&frame);
         frame.extend_from_slice(&message_crc.to_be_bytes());
 
         frame
     }
 
     #[test]
-    fn crc32c_known_value() {
-        // CRC32C of empty string is 0x00000000.
-        assert_eq!(crc32c(b""), 0x0000_0000);
-        // CRC32C of "123456789" is 0xE3069283.
-        assert_eq!(crc32c(b"123456789"), 0xE306_9283);
+    fn crc32_known_values() {
+        // CRC32 of empty string is 0x00000000.
+        assert_eq!(crc32(b""), 0x0000_0000);
+        // CRC32 of "123456789" is 0xCBF43926 (standard ISO 3309).
+        assert_eq!(crc32(b"123456789"), 0xCBF4_3926);
     }
 
     #[test]
@@ -520,7 +520,7 @@ mod tests {
 
         // Verify CRCs.
         let prelude_crc_stored = u32::from_be_bytes([frame[8], frame[9], frame[10], frame[11]]);
-        assert_eq!(crc32c(&frame[..8]), prelude_crc_stored);
+        assert_eq!(crc32(&frame[..8]), prelude_crc_stored);
 
         let message_crc_stored = u32::from_be_bytes([
             frame[total_length - 4],
@@ -528,7 +528,7 @@ mod tests {
             frame[total_length - 2],
             frame[total_length - 1],
         ]);
-        assert_eq!(crc32c(&frame[..total_length - 4]), message_crc_stored);
+        assert_eq!(crc32(&frame[..total_length - 4]), message_crc_stored);
     }
 
     #[tokio::test]
@@ -631,7 +631,7 @@ mod tests {
         assert_eq!(total_length, frame.len());
 
         let prelude_crc_stored = u32::from_be_bytes([frame[8], frame[9], frame[10], frame[11]]);
-        let prelude_crc_actual = crc32c(&frame[..8]);
+        let prelude_crc_actual = crc32(&frame[..8]);
         assert_ne!(prelude_crc_stored, prelude_crc_actual);
     }
 
@@ -646,7 +646,7 @@ mod tests {
         frame[len / 2] ^= 0xFF;
 
         let message_crc_stored = u32::from_be_bytes([frame[len - 4], frame[len - 3], frame[len - 2], frame[len - 1]]);
-        let message_crc_actual = crc32c(&frame[..len - 4]);
+        let message_crc_actual = crc32(&frame[..len - 4]);
         assert_ne!(message_crc_stored, message_crc_actual);
     }
 

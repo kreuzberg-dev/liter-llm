@@ -76,9 +76,7 @@ async fn chat_parity_across_providers() {
     if std::env::var("AWS_ACCESS_KEY_ID").is_ok_and(|v| !v.is_empty()) {
         let client = super::bedrock_client();
         match client
-            .chat(simple_chat_request(
-                "bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-            ))
+            .chat(simple_chat_request("bedrock/us.anthropic.claude-sonnet-4-6"))
             .await
         {
             Ok(resp) => results.push(("bedrock", resp)),
