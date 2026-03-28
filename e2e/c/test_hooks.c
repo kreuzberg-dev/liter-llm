@@ -7,43 +7,62 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Forward declarations for liter-llm FFI functions used by TDD tests. */
-/* These functions do not exist yet -- tests will fail to link until
- * implemented. */
-typedef void *LiterLlmClient;
-typedef void *LiterLlmConfig;
-typedef void (*LiterLlmHookFn)(const char *data);
+/* Forward declarations for liter-llm FFI functions. */
+typedef void LiterLlmClient;
 
-extern LiterLlmConfig literllm_config_new(const char *api_key);
-extern void literllm_config_set_base_url(LiterLlmConfig cfg, const char *url);
-extern void literllm_config_set_cache(LiterLlmConfig cfg, int max_entries,
-                                      int ttl_seconds);
-extern void literllm_config_set_budget(LiterLlmConfig cfg, double global_limit,
-                                       const char *enforcement);
-extern LiterLlmClient literllm_client_new(LiterLlmConfig cfg);
-extern const char *literllm_chat(LiterLlmClient client,
-                                 const char *request_json);
-extern int literllm_response_is_cache_hit(const char *response);
-extern double literllm_budget_usage(LiterLlmClient client);
+/* Hook callback struct matching liter_llm_ffi. */
+typedef struct {
+  int (*on_request)(const char *request_json, void *user_data);
+  void (*on_response)(const char *request_json, const char *response_json,
+                      void *user_data);
+  void (*on_error)(const char *request_json, const char *error_message,
+                   void *user_data);
+  void *user_data;
+} LiterLlmHookCallbacks;
 
-extern void literllm_add_hook(LiterLlmClient client, const char *event,
-                              LiterLlmHookFn fn);
-extern int literllm_register_provider(LiterLlmClient client, const char *name,
-                                      const char *base_url,
-                                      const char **prefixes, int prefix_count);
-extern void literllm_config_free(LiterLlmConfig cfg);
-extern void literllm_client_free(LiterLlmClient client);
-extern void literllm_string_free(const char *s);
+extern LiterLlmClient *literllm_client_new(const char *api_key,
+                                           const char *base_url,
+                                           const char *model_hint);
+extern LiterLlmClient *literllm_client_new_with_config(const char *config_json);
+extern void literllm_client_free(LiterLlmClient *client);
+extern char *literllm_chat(const LiterLlmClient *client,
+                           const char *request_json);
+extern double literllm_budget_usage(const LiterLlmClient *client);
+extern int literllm_register_provider(const char *config_json);
+extern int literllm_unregister_provider(const char *name);
+extern int literllm_set_hooks(LiterLlmClient *client,
+                              const LiterLlmHookCallbacks *callbacks);
+extern const char *literllm_last_error(void);
+extern void literllm_free_string(char *s);
 
-#define LITERLLM_ERR_BUDGET_EXCEEDED 1010
-#define LITERLLM_ERR_HOOK_REJECTED 1020
+/* Static flag to track hook invocations. */
+static int g_hook_called = 0;
 
-/* Hook callback used by hook tests. */
-static void on_hook_callback(const char *data) { (void)data; }
+static int on_request_hook(const char *req, void *ud) {
+  (void)req;
+  (void)ud;
+  g_hook_called = 1;
+  return 0; /* proceed */
+}
 
-static void on_reject_hook(const char *data) {
-  (void)data;
-  /* Guardrail hook -- the FFI layer interprets this as a rejection. */
+static void on_response_hook(const char *req, const char *resp, void *ud) {
+  (void)req;
+  (void)resp;
+  (void)ud;
+  g_hook_called = 1;
+}
+
+static void on_error_hook(const char *req, const char *err, void *ud) {
+  (void)req;
+  (void)err;
+  (void)ud;
+  g_hook_called = 1;
+}
+
+static int on_reject_hook(const char *req, void *ud) {
+  (void)req;
+  (void)ud;
+  return -1; /* reject the request */
 }
 
 /* Tests that on_request hook can reject a request */
@@ -52,22 +71,21 @@ static void test_hook_guardrail(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  LiterLlmClient client = literllm_client_new(cfg);
+  LiterLlmClient *client = literllm_client_new("test-key", base_url, NULL);
   assert(client != NULL);
 
-  static int hook_called = 0;
-  hook_called = 0;
+  g_hook_called = 0;
 
-  literllm_add_hook(client, "on_request", on_reject_hook);
-  const char *resp =
+  LiterLlmHookCallbacks cbs = {0};
+  cbs.on_request = on_reject_hook;
+  literllm_set_hooks(client, &cbs);
+
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp == NULL);
   assert(literllm_last_error() != NULL);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests that on_error hook is called on failure */
@@ -76,22 +94,21 @@ static void test_hook_on_error(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  LiterLlmClient client = literllm_client_new(cfg);
+  LiterLlmClient *client = literllm_client_new("test-key", base_url, NULL);
   assert(client != NULL);
 
-  static int hook_called = 0;
-  hook_called = 0;
+  g_hook_called = 0;
 
-  literllm_add_hook(client, "on_error", on_hook_callback);
-  const char *resp =
+  LiterLlmHookCallbacks cbs = {0};
+  cbs.on_error = on_error_hook;
+  literllm_set_hooks(client, &cbs);
+
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   (void)resp; /* May be NULL on error. */
-  assert(hook_called == 1);
+  assert(g_hook_called == 1);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests that on_request hook is called before the request */
@@ -100,23 +117,22 @@ static void test_hook_on_request(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  LiterLlmClient client = literllm_client_new(cfg);
+  LiterLlmClient *client = literllm_client_new("test-key", base_url, NULL);
   assert(client != NULL);
 
-  static int hook_called = 0;
-  hook_called = 0;
+  g_hook_called = 0;
 
-  literllm_add_hook(client, "on_request", on_hook_callback);
-  const char *resp =
+  LiterLlmHookCallbacks cbs = {0};
+  cbs.on_request = on_request_hook;
+  literllm_set_hooks(client, &cbs);
+
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
-  assert(hook_called == 1);
+  assert(g_hook_called == 1);
   if (resp)
-    literllm_string_free(resp);
+    literllm_free_string(resp);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests that on_response hook is called with response data */
@@ -125,23 +141,22 @@ static void test_hook_on_response(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  LiterLlmClient client = literllm_client_new(cfg);
+  LiterLlmClient *client = literllm_client_new("test-key", base_url, NULL);
   assert(client != NULL);
 
-  static int hook_called = 0;
-  hook_called = 0;
+  g_hook_called = 0;
 
-  literllm_add_hook(client, "on_response", on_hook_callback);
-  const char *resp =
+  LiterLlmHookCallbacks cbs = {0};
+  cbs.on_response = on_response_hook;
+  literllm_set_hooks(client, &cbs);
+
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
-  assert(hook_called == 1);
+  assert(g_hook_called == 1);
   if (resp)
-    literllm_string_free(resp);
+    literllm_free_string(resp);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 int main(void) {

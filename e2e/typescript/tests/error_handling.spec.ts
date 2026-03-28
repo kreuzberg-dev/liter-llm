@@ -26,7 +26,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"anthropic/claude-3-5-sonnet-20241022"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -55,7 +55,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -84,7 +84,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"azure/gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -113,7 +113,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4","temperature":5.0}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected bad request error").toMatch(/bad.?request|400/i);
+        expect((e as Error).message ?? "", "Expected [BadRequest] error").toMatch(/\[BadRequest\]|BadRequest/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -142,7 +142,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"bedrock/anthropic.claude-3-sonnet-20240229-v1:0"}`));
       } catch (e) {
         threw = true;
-        // error thrown as expected
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -171,7 +171,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Generate harmful content","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected bad request error").toMatch(/bad.?request|400/i);
+        expect((e as Error).message ?? "", "Expected [ContentPolicy] error").toMatch(/\[ContentPolicy\]|ContentPolicy/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -200,7 +200,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Very long prompt that exceeds the context window...","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected bad request error").toMatch(/bad.?request|400/i);
+        expect((e as Error).message ?? "", "Expected [ContextWindowExceeded] error").toMatch(/\[ContextWindowExceeded\]|ContextWindowExceeded/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -229,7 +229,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        // error thrown as expected
+        expect((e as Error).message ?? "", "Expected [Forbidden] error").toMatch(/\[Forbidden\]|Forbidden/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -258,7 +258,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        // error thrown as expected
+        expect((e as Error).message ?? "", "Expected [ServerError] error").toMatch(/\[ServerError\]|ServerError/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -287,7 +287,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-99"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected not found error").toMatch(/not.?found|404/i);
+        expect((e as Error).message ?? "", "Expected [NotFound] error").toMatch(/\[NotFound\]|NotFound/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -316,7 +316,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected rate limit error").toMatch(/rate.?limit|429/i);
+        expect((e as Error).message ?? "", "Expected [RateLimited] error").toMatch(/\[RateLimited\]|RateLimited/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -345,7 +345,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected server error").toMatch(/server.?error|internal|500/i);
+        expect((e as Error).message ?? "", "Expected [ServerError] error").toMatch(/\[ServerError\]|ServerError/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -374,7 +374,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected service unavailable error").toMatch(/unavailable|502|503/i);
+        expect((e as Error).message ?? "", "Expected [ServerError] error").toMatch(/\[ServerError\]|ServerError/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {
@@ -403,7 +403,7 @@ describe("error-handling", () => {
         await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"vertex_ai/gemini-2.0-flash"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.chat to throw").toBe(true);
     } finally {

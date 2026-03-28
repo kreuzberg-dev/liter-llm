@@ -21,7 +21,7 @@ use liter_llm::types::image::CreateImageRequest;
 use liter_llm::types::moderation::ModerationRequest;
 use liter_llm::types::rerank::RerankRequest;
 use liter_llm::types::responses::CreateResponseRequest;
-use liter_llm::{ChatCompletionRequest, ClientConfig, DefaultClient, EmbeddingRequest};
+use liter_llm::{ChatCompletionChunk, ChatCompletionRequest, ClientConfig, DefaultClient, EmbeddingRequest};
 use rustler::{Error as NifError, NifResult, OwnedBinary};
 use serde::Deserialize;
 use tokio::runtime::Runtime;
@@ -101,6 +101,34 @@ fn chat(config_json: String, request_json: String) -> NifResult<String> {
         .block_on(async move { client.chat(req).await })
         .map_err(|e| nif_err(e.to_string()))?;
     to_json(&resp)
+}
+
+/// Stream a chat completion request, collecting all chunks into a JSON array.
+///
+/// Returns a single JSON string containing an array of `ChatCompletionChunk`
+/// objects.  Elixir callers can decode and iterate over the list.
+#[rustler::nif(schedule = "DirtyIo")]
+fn chat_stream(config_json: String, request_json: String) -> NifResult<String> {
+    let model = extract_model(&request_json);
+    let client = build_client(&config_json, model.as_deref())?;
+    let req: ChatCompletionRequest = from_json(&request_json, "chat request")?;
+
+    let chunks: Vec<ChatCompletionChunk> = runtime().block_on(async {
+        let mut stream = client.chat_stream(req).await.map_err(|e| nif_err(e.to_string()))?;
+
+        let mut collected = Vec::new();
+        loop {
+            let next = std::future::poll_fn(|cx| futures_core::Stream::poll_next(stream.as_mut(), cx)).await;
+            match next {
+                None => break,
+                Some(Err(e)) => return Err(nif_err(e.to_string())),
+                Some(Ok(chunk)) => collected.push(chunk),
+            }
+        }
+        Ok(collected)
+    })?;
+
+    to_json(&chunks)
 }
 
 /// Send an embedding request.

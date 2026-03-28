@@ -10,7 +10,7 @@ use liter_llm::tower::{BudgetConfig, CacheConfig, Enforcement};
 use liter_llm::tower::{LlmHook, LlmRequest, LlmResponse};
 use liter_llm::{
     AuthHeaderFormat, BatchClient, ClientConfigBuilder, CustomProviderConfig, FileClient, LiterLlmError, LlmClient,
-    ManagedClient, ResponseClient, register_custom_provider,
+    ManagedClient, ResponseClient, register_custom_provider, unregister_custom_provider,
 };
 use pyo3::exceptions::{PyStopAsyncIteration, PyValueError};
 use pyo3::prelude::*;
@@ -843,6 +843,26 @@ impl PyLlmClient {
             let resp = client.cancel_response(&response_id).await.map_err(to_py_err)?;
             to_json_value(&resp)
         })
+    }
+
+    /// Return the total budget spend so far (in USD).
+    ///
+    /// Returns ``0.0`` if no budget is configured.
+    #[getter]
+    fn budget_used(&self) -> f64 {
+        self.inner.budget_state().map(|s| s.global_spend()).unwrap_or(0.0)
+    }
+
+    /// Unregister a previously registered custom provider by name.
+    ///
+    /// Args:
+    ///     name: The provider name to unregister.
+    ///
+    /// Returns:
+    ///     ``True`` if the provider was found and removed, ``False`` otherwise.
+    #[staticmethod]
+    fn unregister_provider(name: String) -> PyResult<bool> {
+        unregister_custom_provider(&name).map_err(to_py_err)
     }
 
     fn __repr__(&self) -> String {

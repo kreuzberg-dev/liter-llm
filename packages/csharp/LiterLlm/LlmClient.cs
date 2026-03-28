@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -176,6 +177,109 @@ public sealed class LlmClient : IDisposable, IAsyncDisposable
         {
             await RunOnErrorAsync(request, ex, cancellationToken).ConfigureAwait(false);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Sends a streaming chat completion request, yielding each chunk as it arrives
+    /// via server-sent events (SSE).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The <c>Stream</c> field on the request is forced to <c>true</c>.
+    /// Streaming bypasses the response cache.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var request = new ChatCompletionRequest(
+    ///     Model: "gpt-4o-mini",
+    ///     Messages: [new UserMessage("Hello!")],
+    ///     MaxTokens: 256);
+    ///
+    /// await foreach (var chunk in client.ChatStreamAsync(request))
+    /// {
+    ///     var content = chunk.Choices.FirstOrDefault()?.Delta.Content;
+    ///     if (content is not null) Console.Write(content);
+    /// }
+    /// </code>
+    /// </example>
+    /// <param name="request">The chat completion request.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>An async enumerable of <see cref="ChatCompletionChunk"/> instances.</returns>
+    /// <exception cref="LlmException">Thrown when the request fails or the stream cannot be parsed.</exception>
+    public async IAsyncEnumerable<ChatCompletionChunk> ChatStreamAsync(
+        ChatCompletionRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        CheckBudget(request.Model);
+        await RunOnRequestAsync(request, cancellationToken).ConfigureAwait(false);
+
+        // Force stream=true by creating a copy with Stream set.
+        var streamRequest = request with { Stream = true };
+        var body = Serialize(streamRequest);
+
+        HttpResponseMessage? response = null;
+        try
+        {
+            using var content = new StringContent(body, Encoding.UTF8, "application/json");
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "chat/completions")
+            {
+                Content = content,
+            };
+            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
+
+            response = await _httpClient.SendAsync(
+                httpRequest,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content
+                    .ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                throw ClassifyHttpError((int)response.StatusCode, errorBody);
+            }
+
+            using var stream = await response.Content
+                .ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+
+            string? line;
+            while ((line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false)) is not null)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!line.StartsWith("data:", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var payload = line["data:".Length..].Trim();
+                if (payload == "[DONE]")
+                {
+                    break;
+                }
+
+                ChatCompletionChunk chunk;
+                try
+                {
+                    chunk = LiterLlmJson.Deserialize<ChatCompletionChunk>(payload)
+                        ?? throw new StreamException("provider returned null chunk");
+                }
+                catch (JsonException ex)
+                {
+                    throw new StreamException($"failed to parse chunk: {ex.Message}", ex);
+                }
+
+                yield return chunk;
+            }
+
+            await RunOnResponseAsync(request, "stream_complete", cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            response?.Dispose();
         }
     }
 

@@ -78,7 +78,7 @@ describe("embed", () => {
         await client.embed(JSON.parse(`{"input":"Hello world","model":"text-embedding-3-small"}`));
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.embed to throw").toBe(true);
     } finally {

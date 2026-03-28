@@ -457,7 +457,11 @@ class LlmClient
             return;
         }
 
-        $totalTokens = $decoded['usage']['total_tokens'] ?? null;
+        $usage = $decoded['usage'] ?? null;
+        if (!is_array($usage)) {
+            return;
+        }
+        $totalTokens = $usage['total_tokens'] ?? null;
         if (!is_int($totalTokens)) {
             return;
         }

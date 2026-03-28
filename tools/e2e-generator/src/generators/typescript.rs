@@ -620,6 +620,17 @@ fn emit_chat_assertions(out: &mut String, fixture: &Fixture) {
 }
 
 fn emit_error_assertions(out: &mut String, fixture: &Fixture) {
+    // If the fixture specifies an error_type, match on the bracket format from ManagedClient.
+    if let Some(error_type) = &fixture.assertions.error_type {
+        writeln!(
+            out,
+            "        expect((e as Error).message ?? \"\", \"Expected [{error_type}] error\").toMatch(/\\[{error_type}\\]|{error_type}/i);"
+        )
+        .unwrap();
+        return;
+    }
+
+    // Fall back to generic status-based matching.
     let status = fixture.api.mock_response.status;
     match status {
         401 => writeln!(
@@ -853,11 +864,7 @@ fn emit_ts_budget_test(out: &mut String, fixture: &Fixture) {
                 r#"      // Verify cost tracking is active — binding should expose budget usage."#
             )
             .unwrap();
-            writeln!(
-                out,
-                "      expect((client as {{ budgetUsed?: number }}).budgetUsed ?? 0).toBeGreaterThan(0);"
-            )
-            .unwrap();
+            writeln!(out, "      expect(client.budgetUsed).toBeGreaterThan(0);").unwrap();
         }
     }
 
@@ -1039,7 +1046,7 @@ fn emit_ts_custom_provider_test(out: &mut String, fixture: &Fixture) {
 
     writeln!(
         out,
-        "      client.registerProvider({{ name: {provider_name:?}, baseUrl: server.url, modelPrefixes: [{model_prefixes}] }});"
+        "      LlmClient.registerProvider({{ name: {provider_name:?}, baseUrl: server.url, modelPrefixes: [{model_prefixes}] }});"
     ).unwrap();
     writeln!(out).unwrap();
 

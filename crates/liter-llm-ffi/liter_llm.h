@@ -630,6 +630,19 @@ char *literllm_cancel_response(const LiterLlmClient *client,
                                const char *response_id);
 
 /**
+ * Read the cumulative global spend tracked by the budget layer.
+ *
+ * Returns the spend in USD.  If no budget is configured on the client,
+ * returns `0.0`.
+ *
+ * # Safety
+ *
+ * - `client` must be a valid, non-null pointer returned by
+ *   `literllm_client_new` or `literllm_client_new_with_config`.
+ */
+LITER_LLM_EXPORT double literllm_budget_usage(const LiterLlmClient *client);
+
+/**
  * Retrieve the last error message for the current thread.
  *
  * Returns a `const char*` pointer to the NUL-terminated error string, or

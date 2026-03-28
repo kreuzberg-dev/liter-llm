@@ -177,14 +177,14 @@ type modelPricing struct {
 // defaultPricing provides approximate pricing for common models.
 // Prices are in USD per million tokens.
 var defaultPricing = map[string]modelPricing{
-	"gpt-4o":         {promptPerMillion: 2.50, completionPerMillion: 10.00},
-	"gpt-4o-mini":    {promptPerMillion: 0.15, completionPerMillion: 0.60},
-	"gpt-4-turbo":    {promptPerMillion: 10.00, completionPerMillion: 30.00},
-	"gpt-4":          {promptPerMillion: 30.00, completionPerMillion: 60.00},
-	"gpt-3.5-turbo":  {promptPerMillion: 0.50, completionPerMillion: 1.50},
-	"claude-3-opus":  {promptPerMillion: 15.00, completionPerMillion: 75.00},
+	"gpt-4o":          {promptPerMillion: 2.50, completionPerMillion: 10.00},
+	"gpt-4o-mini":     {promptPerMillion: 0.15, completionPerMillion: 0.60},
+	"gpt-4-turbo":     {promptPerMillion: 10.00, completionPerMillion: 30.00},
+	"gpt-4":           {promptPerMillion: 30.00, completionPerMillion: 60.00},
+	"gpt-3.5-turbo":   {promptPerMillion: 0.50, completionPerMillion: 1.50},
+	"claude-3-opus":   {promptPerMillion: 15.00, completionPerMillion: 75.00},
 	"claude-3-sonnet": {promptPerMillion: 3.00, completionPerMillion: 15.00},
-	"claude-3-haiku": {promptPerMillion: 0.25, completionPerMillion: 1.25},
+	"claude-3-haiku":  {promptPerMillion: 0.25, completionPerMillion: 1.25},
 }
 
 // estimateCost calculates the estimated cost for the given model and usage.

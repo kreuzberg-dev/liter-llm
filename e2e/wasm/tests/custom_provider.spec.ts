@@ -14,7 +14,7 @@ describe("custom_provider", () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello with custom auth!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-auth-001\",\"model\":\"my-auth-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":6,\"prompt_tokens\":8,\"total_tokens\":14}}", streamChunks: [] }]);
     try {
       const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
-      client.registerProvider({ name: "my-auth-provider", baseUrl: server.url, modelPrefixes: ["my-auth-"] });
+      LlmClient.registerProvider({ name: "my-auth-provider", baseUrl: server.url, modelPrefixes: ["my-auth-"] });
 
       const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"my-auth-model-v1\"}");
       const response = await client.chat(req);
@@ -29,7 +29,7 @@ describe("custom_provider", () => {
     const server = await startMockServer([{ path: "/chat/completions", method: "POST", status: 200, body: "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Hello from custom provider!\",\"role\":\"assistant\"}}],\"created\":1711000000,\"id\":\"chatcmpl-custom-001\",\"model\":\"my-model-v1\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":7,\"prompt_tokens\":8,\"total_tokens\":15}}", streamChunks: [] }]);
     try {
       const client = new LlmClient({ apiKey: "test-key", baseUrl: server.url, maxRetries: 0 });
-      client.registerProvider({ name: "my-provider", baseUrl: server.url, modelPrefixes: ["my-"] });
+      LlmClient.registerProvider({ name: "my-provider", baseUrl: server.url, modelPrefixes: ["my-"] });
 
       const req = JSON.parse("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"my-model-v1\"}");
       const response = await client.chat(req);

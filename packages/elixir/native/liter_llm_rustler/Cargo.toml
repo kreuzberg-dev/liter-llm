@@ -13,6 +13,7 @@ name = "liter_llm_rustler"
 crate-type = ["cdylib"]
 
 [dependencies]
+futures-core = { workspace = true }
 liter-llm = { path = "../../../../crates/liter-llm", features = ["full"] }
 rustler = { workspace = true }
 serde = { workspace = true }

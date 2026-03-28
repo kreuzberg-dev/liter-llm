@@ -82,7 +82,7 @@ describe("budget", () => {
       const response = await client.chat(JSON.parse(`{"messages":[{"content":"Hello","role":"user"}],"model":"gpt-4"}`));
       expect(response).toBeTruthy();
       // Verify cost tracking is active — binding should expose budget usage.
-      expect((client as { budgetUsed?: number }).budgetUsed ?? 0).toBeGreaterThan(0);
+      expect(client.budgetUsed).toBeGreaterThan(0);
     } finally {
       server.close();
     }

@@ -7,36 +7,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Forward declarations for liter-llm FFI functions used by TDD tests. */
-/* These functions do not exist yet -- tests will fail to link until
- * implemented. */
-typedef void *LiterLlmClient;
-typedef void *LiterLlmConfig;
-typedef void (*LiterLlmHookFn)(const char *data);
+/* Forward declarations for liter-llm FFI functions. */
+typedef void LiterLlmClient;
 
-extern LiterLlmConfig literllm_config_new(const char *api_key);
-extern void literllm_config_set_base_url(LiterLlmConfig cfg, const char *url);
-extern void literllm_config_set_cache(LiterLlmConfig cfg, int max_entries,
-                                      int ttl_seconds);
-extern void literllm_config_set_budget(LiterLlmConfig cfg, double global_limit,
-                                       const char *enforcement);
-extern LiterLlmClient literllm_client_new(LiterLlmConfig cfg);
-extern const char *literllm_chat(LiterLlmClient client,
-                                 const char *request_json);
-extern int literllm_response_is_cache_hit(const char *response);
-extern double literllm_budget_usage(LiterLlmClient client);
+/* Hook callback struct matching liter_llm_ffi. */
+typedef struct {
+  int (*on_request)(const char *request_json, void *user_data);
+  void (*on_response)(const char *request_json, const char *response_json,
+                      void *user_data);
+  void (*on_error)(const char *request_json, const char *error_message,
+                   void *user_data);
+  void *user_data;
+} LiterLlmHookCallbacks;
 
-extern void literllm_add_hook(LiterLlmClient client, const char *event,
-                              LiterLlmHookFn fn);
-extern int literllm_register_provider(LiterLlmClient client, const char *name,
-                                      const char *base_url,
-                                      const char **prefixes, int prefix_count);
-extern void literllm_config_free(LiterLlmConfig cfg);
-extern void literllm_client_free(LiterLlmClient client);
-extern void literllm_string_free(const char *s);
-
-#define LITERLLM_ERR_BUDGET_EXCEEDED 1010
-#define LITERLLM_ERR_HOOK_REJECTED 1020
+extern LiterLlmClient *literllm_client_new(const char *api_key,
+                                           const char *base_url,
+                                           const char *model_hint);
+extern LiterLlmClient *literllm_client_new_with_config(const char *config_json);
+extern void literllm_client_free(LiterLlmClient *client);
+extern char *literllm_chat(const LiterLlmClient *client,
+                           const char *request_json);
+extern double literllm_budget_usage(const LiterLlmClient *client);
+extern int literllm_register_provider(const char *config_json);
+extern int literllm_unregister_provider(const char *name);
+extern int literllm_set_hooks(LiterLlmClient *client,
+                              const LiterLlmHookCallbacks *callbacks);
+extern const char *literllm_last_error(void);
+extern void literllm_free_string(char *s);
 
 /* Tests that a request is rejected when budget is exceeded */
 static void test_budget_enforced(void) {
@@ -44,20 +41,21 @@ static void test_budget_enforced(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  literllm_config_set_budget(cfg, 0.001, "hard");
-  LiterLlmClient client = literllm_client_new(cfg);
+  char config_json[2048];
+  snprintf(config_json, sizeof(config_json),
+           "{\"api_key\":\"test-key\",\"base_url\":\"%s\",\"budget\":{"
+           "\"enforcement\":\"hard\",\"global_limit\":0.001}}",
+           base_url);
+  LiterLlmClient *client = literllm_client_new_with_config(config_json);
   assert(client != NULL);
 
-  const char *resp =
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
-  /* Expect NULL response and budget-exceeded error code. */
+  /* Expect NULL response when budget is exceeded. */
   assert(resp == NULL);
   assert(literllm_last_error() != NULL);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests per-model budget limit */
@@ -66,20 +64,21 @@ static void test_budget_per_model(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  literllm_config_set_budget(cfg, 0.001, "hard");
-  LiterLlmClient client = literllm_client_new(cfg);
+  char config_json[2048];
+  snprintf(config_json, sizeof(config_json),
+           "{\"api_key\":\"test-key\",\"base_url\":\"%s\",\"budget\":{"
+           "\"enforcement\":\"hard\",\"model_limits\":{\"gpt-4\":0.001}}}",
+           base_url);
+  LiterLlmClient *client = literllm_client_new_with_config(config_json);
   assert(client != NULL);
 
-  const char *resp =
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
-  /* Expect NULL response and budget-exceeded error code. */
+  /* Expect NULL response when budget is exceeded. */
   assert(resp == NULL);
   assert(literllm_last_error() != NULL);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 /* Tests that cost is tracked after a successful response */
@@ -88,20 +87,20 @@ static void test_budget_tracked(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  literllm_config_set_base_url(cfg, base_url);
-  literllm_config_set_budget(cfg, 10.0, "soft");
-  LiterLlmClient client = literllm_client_new(cfg);
+  char config_json[2048];
+  snprintf(config_json, sizeof(config_json),
+           "{\"api_key\":\"test-key\",\"base_url\":\"%s\",\"budget\":{}}",
+           base_url);
+  LiterLlmClient *client = literllm_client_new_with_config(config_json);
   assert(client != NULL);
 
-  const char *resp =
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"gpt-4\"}");
   assert(resp != NULL);
   assert(literllm_budget_usage(client) > 0.0);
-  literllm_string_free(resp);
+  literllm_free_string(resp);
   literllm_client_free(client);
-  literllm_config_free(cfg);
 }
 
 int main(void) {

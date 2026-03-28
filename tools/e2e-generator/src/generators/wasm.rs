@@ -504,11 +504,7 @@ fn emit_wasm_budget_test(out: &mut String, fixture: &Fixture) {
         writeln!(out, "      const response = await client.chat(req);").unwrap();
         writeln!(out, "      expect(response).toBeTruthy();").unwrap();
         if fixture.assertions.cost_tracked == Some(true) {
-            writeln!(
-                out,
-                "      expect((client as {{ budgetUsed?: number }}).budgetUsed ?? 0).toBeGreaterThan(0);"
-            )
-            .unwrap();
+            writeln!(out, "      expect(client.budgetUsed).toBeGreaterThan(0);").unwrap();
         }
     }
 
@@ -640,7 +636,7 @@ fn emit_wasm_custom_provider_test(out: &mut String, fixture: &Fixture) {
     .unwrap();
     writeln!(
         out,
-        "      client.registerProvider({{ name: {provider_name:?}, baseUrl: server.url, modelPrefixes: [{model_prefixes}] }});"
+        "      LlmClient.registerProvider({{ name: {provider_name:?}, baseUrl: server.url, modelPrefixes: [{model_prefixes}] }});"
     ).unwrap();
     writeln!(out).unwrap();
     writeln!(out, "      const req = JSON.parse({req_json:?});").unwrap();

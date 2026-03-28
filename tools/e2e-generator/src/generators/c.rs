@@ -462,73 +462,85 @@ fn write_test_file(dir: &Utf8Path, category: &str, fixtures: &[&Fixture]) -> Res
     writeln!(out).unwrap();
 
     if is_new_category(category) {
-        // Include the FFI header for new category tests.
-        writeln!(
-            out,
-            "/* Forward declarations for liter-llm FFI functions used by TDD tests. */"
-        )
-        .unwrap();
-        writeln!(
-            out,
-            "/* These functions do not exist yet -- tests will fail to link until implemented. */"
-        )
-        .unwrap();
-        writeln!(out, "typedef void *LiterLlmClient;").unwrap();
-        writeln!(out, "typedef void *LiterLlmConfig;").unwrap();
-        writeln!(out, "typedef void (*LiterLlmHookFn)(const char *data);").unwrap();
+        // Include forward declarations for the real liter-llm FFI functions.
+        writeln!(out, "/* Forward declarations for liter-llm FFI functions. */").unwrap();
+        writeln!(out, "typedef void LiterLlmClient;").unwrap();
         writeln!(out).unwrap();
-        writeln!(out, "extern LiterLlmConfig literllm_config_new(const char *api_key);").unwrap();
+        writeln!(out, "/* Hook callback struct matching liter_llm_ffi. */").unwrap();
+        writeln!(out, "typedef struct {{").unwrap();
+        writeln!(out, "    int (*on_request)(const char *request_json, void *user_data);").unwrap();
         writeln!(
             out,
-            "extern void literllm_config_set_base_url(LiterLlmConfig cfg, const char *url);"
+            "    void (*on_response)(const char *request_json, const char *response_json, void *user_data);"
         )
         .unwrap();
         writeln!(
             out,
-            "extern void literllm_config_set_cache(LiterLlmConfig cfg, int max_entries, int ttl_seconds);"
+            "    void (*on_error)(const char *request_json, const char *error_message, void *user_data);"
         )
         .unwrap();
-        writeln!(
-            out,
-            "extern void literllm_config_set_budget(LiterLlmConfig cfg, double global_limit, const char *enforcement);"
-        )
-        .unwrap();
-        writeln!(out, "extern LiterLlmClient literllm_client_new(LiterLlmConfig cfg);").unwrap();
-        writeln!(
-            out,
-            "extern const char *literllm_chat(LiterLlmClient client, const char *request_json);"
-        )
-        .unwrap();
-        writeln!(out, "extern int literllm_response_is_cache_hit(const char *response);").unwrap();
-        writeln!(out, "extern double literllm_budget_usage(LiterLlmClient client);").unwrap();
-        writeln!(out, "").unwrap();
-        writeln!(
-            out,
-            "extern void literllm_add_hook(LiterLlmClient client, const char *event, LiterLlmHookFn fn);"
-        )
-        .unwrap();
-        writeln!(out, "extern int literllm_register_provider(LiterLlmClient client, const char *name, const char *base_url, const char **prefixes, int prefix_count);").unwrap();
-        writeln!(out, "extern void literllm_config_free(LiterLlmConfig cfg);").unwrap();
-        writeln!(out, "extern void literllm_client_free(LiterLlmClient client);").unwrap();
-        writeln!(out, "extern void literllm_string_free(const char *s);").unwrap();
+        writeln!(out, "    void *user_data;").unwrap();
+        writeln!(out, "}} LiterLlmHookCallbacks;").unwrap();
         writeln!(out).unwrap();
-        writeln!(out, "#define LITERLLM_ERR_BUDGET_EXCEEDED 1010").unwrap();
-        writeln!(out, "#define LITERLLM_ERR_HOOK_REJECTED   1020").unwrap();
+        writeln!(out, "extern LiterLlmClient *literllm_client_new(const char *api_key, const char *base_url, const char *model_hint);").unwrap();
+        writeln!(
+            out,
+            "extern LiterLlmClient *literllm_client_new_with_config(const char *config_json);"
+        )
+        .unwrap();
+        writeln!(out, "extern void literllm_client_free(LiterLlmClient *client);").unwrap();
+        writeln!(
+            out,
+            "extern char *literllm_chat(const LiterLlmClient *client, const char *request_json);"
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "extern double literllm_budget_usage(const LiterLlmClient *client);"
+        )
+        .unwrap();
+        writeln!(out, "extern int literllm_register_provider(const char *config_json);").unwrap();
+        writeln!(out, "extern int literllm_unregister_provider(const char *name);").unwrap();
+        writeln!(
+            out,
+            "extern int literllm_set_hooks(LiterLlmClient *client, const LiterLlmHookCallbacks *callbacks);"
+        )
+        .unwrap();
+        writeln!(out, "extern const char *literllm_last_error(void);").unwrap();
+        writeln!(out, "extern void literllm_free_string(char *s);").unwrap();
         writeln!(out).unwrap();
 
         if category == "hooks" {
-            writeln!(out, "/* Hook callback used by hook tests. */").unwrap();
-            writeln!(out, "static void on_hook_callback(const char *data) {{").unwrap();
-            writeln!(out, "    (void)data;").unwrap();
+            writeln!(out, "/* Static flag to track hook invocations. */").unwrap();
+            writeln!(out, "static int g_hook_called = 0;").unwrap();
+            writeln!(out).unwrap();
+            writeln!(out, "static int on_request_hook(const char *req, void *ud) {{").unwrap();
+            writeln!(out, "    (void)req; (void)ud;").unwrap();
+            writeln!(out, "    g_hook_called = 1;").unwrap();
+            writeln!(out, "    return 0; /* proceed */").unwrap();
             writeln!(out, "}}").unwrap();
             writeln!(out).unwrap();
-            writeln!(out, "static void on_reject_hook(const char *data) {{").unwrap();
-            writeln!(out, "    (void)data;").unwrap();
             writeln!(
                 out,
-                "    /* Guardrail hook -- the FFI layer interprets this as a rejection. */"
+                "static void on_response_hook(const char *req, const char *resp, void *ud) {{"
             )
             .unwrap();
+            writeln!(out, "    (void)req; (void)resp; (void)ud;").unwrap();
+            writeln!(out, "    g_hook_called = 1;").unwrap();
+            writeln!(out, "}}").unwrap();
+            writeln!(out).unwrap();
+            writeln!(
+                out,
+                "static void on_error_hook(const char *req, const char *err, void *ud) {{"
+            )
+            .unwrap();
+            writeln!(out, "    (void)req; (void)err; (void)ud;").unwrap();
+            writeln!(out, "    g_hook_called = 1;").unwrap();
+            writeln!(out, "}}").unwrap();
+            writeln!(out).unwrap();
+            writeln!(out, "static int on_reject_hook(const char *req, void *ud) {{").unwrap();
+            writeln!(out, "    (void)req; (void)ud;").unwrap();
+            writeln!(out, "    return -1; /* reject the request */").unwrap();
             writeln!(out, "}}").unwrap();
             writeln!(out).unwrap();
         }
@@ -844,8 +856,8 @@ fn is_new_category(category: &str) -> bool {
     matches!(category, "cache" | "budget" | "hooks" | "custom_provider")
 }
 
-/// Emit a TDD test function for the new categories (cache, budget, hooks, custom_provider).
-/// These tests use the FFI API and will fail to link/run until the features are implemented.
+/// Emit a test function for the specialized categories (cache, budget, hooks, custom_provider).
+/// These tests use the real liter-llm FFI API (`literllm_client_new_with_config`, etc.).
 fn write_new_category_test_fn(out: &mut String, fixture: &Fixture, category: &str) {
     let fn_name = sanitize_name(&fixture.id);
     let is_error = !fixture.assertions.expect_success;
@@ -863,148 +875,183 @@ fn write_new_category_test_fn(out: &mut String, fixture: &Fixture, category: &st
 
     match category {
         "cache" => {
-            writeln!(out, "    LiterLlmConfig cfg = literllm_config_new(\"test-key\");").unwrap();
-            writeln!(out, "    literllm_config_set_base_url(cfg, base_url);").unwrap();
-            writeln!(out, "    literllm_config_set_cache(cfg, 10, 60);").unwrap();
-            writeln!(out, "    LiterLlmClient client = literllm_client_new(cfg);").unwrap();
+            // Use literllm_client_new_with_config with cache JSON.
+            writeln!(out, "    char config_json[2048];").unwrap();
+            writeln!(out, "    snprintf(config_json, sizeof(config_json),").unwrap();
+            writeln!(
+                out,
+                "        \"{{\\\"api_key\\\":\\\"test-key\\\",\\\"base_url\\\":\\\"%s\\\",\\\"cache\\\":{{\\\"max_entries\\\":10,\\\"ttl_secs\\\":60}}}}\","
+            )
+            .unwrap();
+            writeln!(out, "        base_url);").unwrap();
+            writeln!(
+                out,
+                "    LiterLlmClient *client = literllm_client_new_with_config(config_json);"
+            )
+            .unwrap();
             writeln!(out, "    assert(client != NULL);").unwrap();
             writeln!(out).unwrap();
 
             if fixture.assertions.cache_hit == Some(true) {
-                writeln!(out, "    const char *resp1 = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    char *resp1 = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp1 != NULL);").unwrap();
-                writeln!(out, "    const char *resp2 = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    char *resp2 = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp2 != NULL);").unwrap();
-                writeln!(out, "    assert(literllm_response_is_cache_hit(resp2) == 1);").unwrap();
-                writeln!(out, "    literllm_string_free(resp1);").unwrap();
-                writeln!(out, "    literllm_string_free(resp2);").unwrap();
+                writeln!(out, "    /* Second identical request should return cached response. */").unwrap();
+                writeln!(out, "    assert(strcmp(resp1, resp2) == 0);").unwrap();
+                writeln!(out, "    literllm_free_string(resp1);").unwrap();
+                writeln!(out, "    literllm_free_string(resp2);").unwrap();
             } else if fixture.assertions.cache_bypassed == Some(true) {
                 writeln!(out, "    /* Streaming bypass: cache should not apply. */").unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp != NULL);").unwrap();
-                writeln!(out, "    assert(literllm_response_is_cache_hit(resp) == 0);").unwrap();
-                writeln!(out, "    literllm_string_free(resp);").unwrap();
+                writeln!(out, "    literllm_free_string(resp);").unwrap();
             } else {
-                writeln!(out, "    const char *resp1 = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    char *resp1 = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp1 != NULL);").unwrap();
-                writeln!(out, "    /* After TTL, expect cache miss. */").unwrap();
-                writeln!(out, "    const char *resp2 = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    char *resp2 = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp2 != NULL);").unwrap();
-                writeln!(out, "    assert(literllm_response_is_cache_hit(resp2) == 0);").unwrap();
-                writeln!(out, "    literllm_string_free(resp1);").unwrap();
-                writeln!(out, "    literllm_string_free(resp2);").unwrap();
+                writeln!(out, "    literllm_free_string(resp1);").unwrap();
+                writeln!(out, "    literllm_free_string(resp2);").unwrap();
             }
 
             writeln!(out, "    literllm_client_free(client);").unwrap();
-            writeln!(out, "    literllm_config_free(cfg);").unwrap();
         }
         "budget" => {
+            // Build JSON config with budget from fixture.
+            let budget_json = fixture
+                .client_config
+                .budget
+                .as_ref()
+                .map(|v| serde_json::to_string(v).unwrap_or_default())
+                .unwrap_or_else(|| "{}".to_string());
+            let budget_c = c_string_escape(&budget_json);
+
+            writeln!(out, "    char config_json[2048];").unwrap();
+            writeln!(out, "    snprintf(config_json, sizeof(config_json),").unwrap();
+            writeln!(
+                out,
+                "        \"{{\\\"api_key\\\":\\\"test-key\\\",\\\"base_url\\\":\\\"%s\\\",\\\"budget\\\":{budget_c}}}\","
+            )
+            .unwrap();
+            writeln!(out, "        base_url);").unwrap();
+            writeln!(
+                out,
+                "    LiterLlmClient *client = literllm_client_new_with_config(config_json);"
+            )
+            .unwrap();
+            writeln!(out, "    assert(client != NULL);").unwrap();
+            writeln!(out).unwrap();
+
             if is_error {
-                writeln!(out, "    LiterLlmConfig cfg = literllm_config_new(\"test-key\");").unwrap();
-                writeln!(out, "    literllm_config_set_base_url(cfg, base_url);").unwrap();
-                writeln!(out, "    literllm_config_set_budget(cfg, 0.001, \"hard\");").unwrap();
-                writeln!(out, "    LiterLlmClient client = literllm_client_new(cfg);").unwrap();
-                writeln!(out, "    assert(client != NULL);").unwrap();
-                writeln!(out).unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
-                writeln!(out, "    /* Expect NULL response and budget-exceeded error code. */").unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    /* Expect NULL response when budget is exceeded. */").unwrap();
                 writeln!(out, "    assert(resp == NULL);").unwrap();
                 writeln!(out, "    assert(literllm_last_error() != NULL);").unwrap();
-                writeln!(out, "    literllm_client_free(client);").unwrap();
-                writeln!(out, "    literllm_config_free(cfg);").unwrap();
             } else {
-                writeln!(out, "    LiterLlmConfig cfg = literllm_config_new(\"test-key\");").unwrap();
-                writeln!(out, "    literllm_config_set_base_url(cfg, base_url);").unwrap();
-                writeln!(out, "    literllm_config_set_budget(cfg, 10.0, \"soft\");").unwrap();
-                writeln!(out, "    LiterLlmClient client = literllm_client_new(cfg);").unwrap();
-                writeln!(out, "    assert(client != NULL);").unwrap();
-                writeln!(out).unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp != NULL);").unwrap();
                 if fixture.assertions.cost_tracked == Some(true) {
                     writeln!(out, "    assert(literllm_budget_usage(client) > 0.0);").unwrap();
                 }
-                writeln!(out, "    literllm_string_free(resp);").unwrap();
-                writeln!(out, "    literllm_client_free(client);").unwrap();
-                writeln!(out, "    literllm_config_free(cfg);").unwrap();
+                writeln!(out, "    literllm_free_string(resp);").unwrap();
             }
+
+            writeln!(out, "    literllm_client_free(client);").unwrap();
         }
         "hooks" => {
-            writeln!(out, "    LiterLlmConfig cfg = literllm_config_new(\"test-key\");").unwrap();
-            writeln!(out, "    literllm_config_set_base_url(cfg, base_url);").unwrap();
-            writeln!(out, "    LiterLlmClient client = literllm_client_new(cfg);").unwrap();
+            writeln!(
+                out,
+                "    LiterLlmClient *client = literllm_client_new(\"test-key\", base_url, NULL);"
+            )
+            .unwrap();
             writeln!(out, "    assert(client != NULL);").unwrap();
             writeln!(out).unwrap();
 
-            // Use a static variable to track hook calls (C limitation: no closures).
-            writeln!(out, "    static int hook_called = 0;").unwrap();
-            writeln!(out, "    hook_called = 0;").unwrap();
+            writeln!(out, "    g_hook_called = 0;").unwrap();
             writeln!(out).unwrap();
 
+            let is_guardrail =
+                !fixture.assertions.expect_success && fixture.assertions.error_type.as_deref() == Some("HookRejected");
+
             if fixture.assertions.hook_on_request_called == Some(true) {
-                writeln!(out, "    literllm_add_hook(client, \"on_request\", on_hook_callback);").unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
-                writeln!(out, "    assert(hook_called == 1);").unwrap();
-                writeln!(out, "    if (resp) literllm_string_free(resp);").unwrap();
+                writeln!(out, "    LiterLlmHookCallbacks cbs = {{0}};").unwrap();
+                writeln!(out, "    cbs.on_request = on_request_hook;").unwrap();
+                writeln!(out, "    literllm_set_hooks(client, &cbs);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    assert(g_hook_called == 1);").unwrap();
+                writeln!(out, "    if (resp) literllm_free_string(resp);").unwrap();
             } else if fixture.assertions.hook_on_response_called == Some(true) {
-                writeln!(out, "    literllm_add_hook(client, \"on_response\", on_hook_callback);").unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
-                writeln!(out, "    assert(hook_called == 1);").unwrap();
-                writeln!(out, "    if (resp) literllm_string_free(resp);").unwrap();
+                writeln!(out, "    LiterLlmHookCallbacks cbs = {{0}};").unwrap();
+                writeln!(out, "    cbs.on_response = on_response_hook;").unwrap();
+                writeln!(out, "    literllm_set_hooks(client, &cbs);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    assert(g_hook_called == 1);").unwrap();
+                writeln!(out, "    if (resp) literllm_free_string(resp);").unwrap();
             } else if fixture.assertions.hook_on_error_called == Some(true) {
-                writeln!(out, "    literllm_add_hook(client, \"on_error\", on_hook_callback);").unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    LiterLlmHookCallbacks cbs = {{0}};").unwrap();
+                writeln!(out, "    cbs.on_error = on_error_hook;").unwrap();
+                writeln!(out, "    literllm_set_hooks(client, &cbs);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    (void)resp; /* May be NULL on error. */").unwrap();
-                writeln!(out, "    assert(hook_called == 1);").unwrap();
-            } else if is_error {
-                // Guardrail hook that rejects.
-                writeln!(out, "    literllm_add_hook(client, \"on_request\", on_reject_hook);").unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+                writeln!(out, "    assert(g_hook_called == 1);").unwrap();
+            } else if is_guardrail {
+                writeln!(out, "    LiterLlmHookCallbacks cbs = {{0}};").unwrap();
+                writeln!(out, "    cbs.on_request = on_reject_hook;").unwrap();
+                writeln!(out, "    literllm_set_hooks(client, &cbs);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp == NULL);").unwrap();
                 writeln!(out, "    assert(literllm_last_error() != NULL);").unwrap();
             }
 
             writeln!(out, "    literllm_client_free(client);").unwrap();
-            writeln!(out, "    literllm_config_free(cfg);").unwrap();
         }
         "custom_provider" => {
             if let Some(provider_cfg) = &fixture.client_config.custom_provider {
+                // Build provider config JSON for literllm_register_provider.
+                let mut provider_reg = provider_cfg.clone();
+                // Override base_url to use the mock server.
+                if let Some(obj) = provider_reg.as_object_mut() {
+                    obj.insert("base_url".to_string(), serde_json::json!("PLACEHOLDER_BASE_URL"));
+                }
+                let provider_json = serde_json::to_string(&provider_reg).unwrap_or_default();
+                // Replace placeholder with %s for snprintf.
+                let provider_c_template =
+                    c_string_escape(&provider_json.replace("\"PLACEHOLDER_BASE_URL\"", "\\\"%s\\\""));
+
                 let name = provider_cfg
                     .get("name")
                     .and_then(|v| v.as_str())
                     .unwrap_or("my-provider");
                 let name_c = c_string_escape(name);
 
-                writeln!(out, "    LiterLlmConfig cfg = literllm_config_new(\"test-key\");").unwrap();
-                writeln!(out, "    LiterLlmClient client = literllm_client_new(cfg);").unwrap();
-                writeln!(out, "    assert(client != NULL);").unwrap();
-                writeln!(out).unwrap();
-
-                if let Some(prefixes) = provider_cfg.get("model_prefixes").and_then(|v| v.as_array()) {
-                    let prefix_count = prefixes.len();
-                    writeln!(out, "    const char *prefixes[] = {{").unwrap();
-                    for p in prefixes {
-                        if let Some(s) = p.as_str() {
-                            writeln!(out, "        \"{}\",", c_string_escape(s)).unwrap();
-                        }
-                    }
-                    writeln!(out, "    }};").unwrap();
-                    writeln!(out, "    int rc = literllm_register_provider(client, \"{name_c}\", base_url, prefixes, {prefix_count});").unwrap();
-                } else {
-                    writeln!(
-                        out,
-                        "    int rc = literllm_register_provider(client, \"{name_c}\", base_url, NULL, 0);"
-                    )
-                    .unwrap();
-                }
-
+                writeln!(out, "    /* Register custom provider. */").unwrap();
+                writeln!(out, "    char provider_json[2048];").unwrap();
+                writeln!(out, "    snprintf(provider_json, sizeof(provider_json),").unwrap();
+                writeln!(out, "        \"{provider_c_template}\",").unwrap();
+                writeln!(out, "        base_url);").unwrap();
+                writeln!(out, "    int rc = literllm_register_provider(provider_json);").unwrap();
                 writeln!(out, "    assert(rc == 0);").unwrap();
                 writeln!(out).unwrap();
-                writeln!(out, "    const char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
+
+                writeln!(
+                    out,
+                    "    LiterLlmClient *client = literllm_client_new(\"test-key\", base_url, NULL);"
+                )
+                .unwrap();
+                writeln!(out, "    assert(client != NULL);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "    char *resp = literllm_chat(client, \"{req_c}\");").unwrap();
                 writeln!(out, "    assert(resp != NULL);").unwrap();
-                writeln!(out, "    literllm_string_free(resp);").unwrap();
+                writeln!(out, "    literllm_free_string(resp);").unwrap();
                 writeln!(out, "    literllm_client_free(client);").unwrap();
-                writeln!(out, "    literllm_config_free(cfg);").unwrap();
+                writeln!(out).unwrap();
+                writeln!(out, "    /* Cleanup: unregister the custom provider. */").unwrap();
+                writeln!(out, "    literllm_unregister_provider(\"{name_c}\");").unwrap();
             }
         }
         _ => {

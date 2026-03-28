@@ -247,7 +247,7 @@ describe("streaming", () => {
         for await (const _chunk of stream) { /* drain */ }
       } catch (e) {
         threw = true;
-        expect((e as Error).message ?? "", "Expected auth error").toMatch(/auth|unauthorized|401/i);
+        expect((e as Error).message ?? "", "Expected [Authentication] error").toMatch(/\[Authentication\]|Authentication/i);
       }
       expect(threw, "Expected client.chatStream to throw").toBe(true);
     } finally {

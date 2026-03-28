@@ -85,6 +85,6 @@ defmodule LiterLlmE2E.BudgetTest do
 
     assert resp != nil
     # Verify cost was tracked after the request
-    assert LiterLlm.total_cost(client) > 0, "Expected cost to be tracked"
+    assert LiterLlm.Budget.global_spend() > 0, "Expected cost to be tracked"
   end
 end

@@ -130,6 +130,41 @@ defmodule LiterLlm.Client do
     end
   end
 
+  @doc """
+  Streams a chat completion request, collecting all chunks.
+
+  Returns the full list of chunks as a decoded list of maps.  Each map
+  corresponds to one SSE chunk from the provider.
+
+  ## Parameters
+
+  - `client` — client configuration from `new/1`
+  - `request` — a `LiterLlm.Types.chat_request()` map
+  - `opts` — reserved for future use
+
+  ## Returns
+
+  - `{:ok, [map()]}` on success
+  - `{:error, LiterLlm.Error.t()}` on failure
+
+  """
+  @spec chat_stream(t(), Types.chat_request(), keyword()) ::
+          {:ok, [map()]} | {:error, Error.t()}
+  def chat_stream(%__MODULE__{} = client, request, _opts \\ []) do
+    with :ok <- run_hooks(client, :on_request, request),
+         :ok <- check_budget(client, request[:model]) do
+      case call_nif(:chat_stream, client, request) do
+        {:ok, chunks} = ok ->
+          run_hooks(client, :on_response, {request, chunks})
+          ok
+
+        {:error, _} = err ->
+          run_hooks(client, :on_error, {request, err})
+          err
+      end
+    end
+  end
+
   @doc "Sends an embedding request."
   @spec embed(t(), Types.embedding_request(), keyword()) ::
           {:ok, Types.embedding_response()} | {:error, Error.t()}
@@ -586,7 +621,8 @@ defmodule LiterLlm.Client do
     end)
   end
 
-  defp run_hooks(%__MODULE__{hooks: hooks}, event, payload) when event in [:on_response, :on_error] do
+  defp run_hooks(%__MODULE__{hooks: hooks}, event, payload)
+       when event in [:on_response, :on_error] do
     arity =
       case event do
         :on_response -> 2

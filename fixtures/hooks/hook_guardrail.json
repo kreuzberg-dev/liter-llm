@@ -24,6 +24,6 @@
 	},
 	"tags": ["hooks"],
 	"skip": {
-		"languages": ["wasm", "typescript", "node"]
+		"languages": []
 	}
 }

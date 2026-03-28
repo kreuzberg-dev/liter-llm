@@ -48,4 +48,4 @@ async def test_budget_tracked(mock_server: MockServerInfo) -> None:
     response = await client.chat(**request)
     assert response is not None
     # Verify cost was tracked after the request
-    assert client.total_cost > 0, "Expected cost to be tracked"
+    assert client.budget_used > 0, "Expected cost to be tracked"

@@ -680,7 +680,7 @@ fn write_budget_specs(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<()> {
             writeln!(out, "    expect(response).not_to be_nil").unwrap();
             if fixture.assertions.cost_tracked == Some(true) {
                 writeln!(out, "    # Verify cost was tracked after the request").unwrap();
-                writeln!(out, "    expect(client.total_cost).to be > 0").unwrap();
+                writeln!(out, "    expect(client.budget_used).to be > 0").unwrap();
             }
         }
 
@@ -886,6 +886,21 @@ fn write_custom_provider_specs(dir: &Utf8Path, fixtures: &[&Fixture]) -> Result<
                 writeln!(out, "    expect(body['model']).to eq({})", ruby_string(model)).unwrap();
             }
         }
+
+        // Cleanup: unregister the custom provider.
+        let provider_name_for_cleanup = fixture
+            .client_config
+            .custom_provider
+            .as_ref()
+            .and_then(|v| v.get("name"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("my-provider");
+        writeln!(
+            out,
+            "    client.unregister_provider({})",
+            ruby_string(provider_name_for_cleanup)
+        )
+        .unwrap();
 
         writeln!(out).unwrap();
         writeln!(out, "  ensure").unwrap();

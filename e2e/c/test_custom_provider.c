@@ -7,36 +7,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Forward declarations for liter-llm FFI functions used by TDD tests. */
-/* These functions do not exist yet -- tests will fail to link until
- * implemented. */
-typedef void *LiterLlmClient;
-typedef void *LiterLlmConfig;
-typedef void (*LiterLlmHookFn)(const char *data);
+/* Forward declarations for liter-llm FFI functions. */
+typedef void LiterLlmClient;
 
-extern LiterLlmConfig literllm_config_new(const char *api_key);
-extern void literllm_config_set_base_url(LiterLlmConfig cfg, const char *url);
-extern void literllm_config_set_cache(LiterLlmConfig cfg, int max_entries,
-                                      int ttl_seconds);
-extern void literllm_config_set_budget(LiterLlmConfig cfg, double global_limit,
-                                       const char *enforcement);
-extern LiterLlmClient literllm_client_new(LiterLlmConfig cfg);
-extern const char *literllm_chat(LiterLlmClient client,
-                                 const char *request_json);
-extern int literllm_response_is_cache_hit(const char *response);
-extern double literllm_budget_usage(LiterLlmClient client);
+/* Hook callback struct matching liter_llm_ffi. */
+typedef struct {
+  int (*on_request)(const char *request_json, void *user_data);
+  void (*on_response)(const char *request_json, const char *response_json,
+                      void *user_data);
+  void (*on_error)(const char *request_json, const char *error_message,
+                   void *user_data);
+  void *user_data;
+} LiterLlmHookCallbacks;
 
-extern void literllm_add_hook(LiterLlmClient client, const char *event,
-                              LiterLlmHookFn fn);
-extern int literllm_register_provider(LiterLlmClient client, const char *name,
-                                      const char *base_url,
-                                      const char **prefixes, int prefix_count);
-extern void literllm_config_free(LiterLlmConfig cfg);
-extern void literllm_client_free(LiterLlmClient client);
-extern void literllm_string_free(const char *s);
-
-#define LITERLLM_ERR_BUDGET_EXCEEDED 1010
-#define LITERLLM_ERR_HOOK_REJECTED 1020
+extern LiterLlmClient *literllm_client_new(const char *api_key,
+                                           const char *base_url,
+                                           const char *model_hint);
+extern LiterLlmClient *literllm_client_new_with_config(const char *config_json);
+extern void literllm_client_free(LiterLlmClient *client);
+extern char *literllm_chat(const LiterLlmClient *client,
+                           const char *request_json);
+extern double literllm_budget_usage(const LiterLlmClient *client);
+extern int literllm_register_provider(const char *config_json);
+extern int literllm_unregister_provider(const char *name);
+extern int literllm_set_hooks(LiterLlmClient *client,
+                              const LiterLlmHookCallbacks *callbacks);
+extern const char *literllm_last_error(void);
+extern void literllm_free_string(char *s);
 
 /* Tests custom provider with custom auth header */
 static void test_provider_auth(void) {
@@ -44,24 +41,27 @@ static void test_provider_auth(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  LiterLlmClient client = literllm_client_new(cfg);
-  assert(client != NULL);
-
-  const char *prefixes[] = {
-      "my-auth-",
-  };
-  int rc = literllm_register_provider(client, "my-auth-provider", base_url,
-                                      prefixes, 1);
+  /* Register custom provider. */
+  char provider_json[2048];
+  snprintf(provider_json, sizeof(provider_json),
+           "{\"auth_header\":\"api-key:X-Custom-Key\",\"base_url\":\\\"%s\\\","
+           "\"model_prefixes\":[\"my-auth-\"],\"name\":\"my-auth-provider\"}",
+           base_url);
+  int rc = literllm_register_provider(provider_json);
   assert(rc == 0);
 
-  const char *resp =
+  LiterLlmClient *client = literllm_client_new("test-key", base_url, NULL);
+  assert(client != NULL);
+
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"my-auth-model-v1\"}");
   assert(resp != NULL);
-  literllm_string_free(resp);
+  literllm_free_string(resp);
   literllm_client_free(client);
-  literllm_config_free(cfg);
+
+  /* Cleanup: unregister the custom provider. */
+  literllm_unregister_provider("my-auth-provider");
 }
 
 /* Tests that a custom provider can be registered and routes requests */
@@ -70,24 +70,27 @@ static void test_register_provider(void) {
   if (base_url == NULL)
     base_url = "http://127.0.0.1:9999";
 
-  LiterLlmConfig cfg = literllm_config_new("test-key");
-  LiterLlmClient client = literllm_client_new(cfg);
-  assert(client != NULL);
-
-  const char *prefixes[] = {
-      "my-",
-  };
-  int rc =
-      literllm_register_provider(client, "my-provider", base_url, prefixes, 1);
+  /* Register custom provider. */
+  char provider_json[2048];
+  snprintf(provider_json, sizeof(provider_json),
+           "{\"base_url\":\\\"%s\\\",\"model_prefixes\":[\"my-\"],\"name\":"
+           "\"my-provider\"}",
+           base_url);
+  int rc = literllm_register_provider(provider_json);
   assert(rc == 0);
 
-  const char *resp =
+  LiterLlmClient *client = literllm_client_new("test-key", base_url, NULL);
+  assert(client != NULL);
+
+  char *resp =
       literllm_chat(client, "{\"messages\":[{\"content\":\"Hello\",\"role\":"
                             "\"user\"}],\"model\":\"my-model-v1\"}");
   assert(resp != NULL);
-  literllm_string_free(resp);
+  literllm_free_string(resp);
   literllm_client_free(client);
-  literllm_config_free(cfg);
+
+  /* Cleanup: unregister the custom provider. */
+  literllm_unregister_provider("my-provider");
 }
 
 int main(void) {

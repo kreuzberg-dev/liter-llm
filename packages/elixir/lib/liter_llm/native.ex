@@ -52,6 +52,15 @@ defmodule LiterLlm.Native do
   @spec chat(String.t(), String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def chat(_config_json, _request_json), do: :erlang.nif_error(:nif_not_loaded)
 
+  @doc """
+  Stream a chat completion request, collecting all chunks into a JSON array.
+
+  Returns `{:ok, json_array_string}` or `{:error, message}`.
+  The JSON array contains one element per SSE chunk.
+  """
+  @spec chat_stream(String.t(), String.t()) :: {:ok, String.t()} | {:error, String.t()}
+  def chat_stream(_config_json, _request_json), do: :erlang.nif_error(:nif_not_loaded)
+
   @doc "Send an embedding request."
   @spec embed(String.t(), String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def embed(_config_json, _request_json), do: :erlang.nif_error(:nif_not_loaded)
