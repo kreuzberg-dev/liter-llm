@@ -5,7 +5,7 @@
 	"api": {
 		"method": "chat",
 		"request": {
-			"model": "anthropic/claude-3-5-haiku-20241022",
+			"model": "anthropic/claude-sonnet-4-20250514",
 			"messages": [{ "role": "user", "content": "Say hello in exactly one word." }],
 			"max_tokens": 10
 		}

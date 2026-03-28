@@ -63,7 +63,7 @@ async fn embed() {
     let client = google_ai_client(&key);
 
     let resp = client
-        .embed(simple_embed_request("gemini-embedding-001"))
+        .embed(simple_embed_request("gemini/gemini-embedding-001"))
         .await
         .unwrap();
 

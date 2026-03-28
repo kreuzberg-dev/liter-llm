@@ -12,15 +12,25 @@
 //! | `ANTHROPIC_API_KEY` | Anthropic |
 //! | `GEMINI_API_KEY` | Google AI (Gemini) |
 //! | `VERTEXAI_PROJECT` | Vertex AI (+ gcloud auth) |
+//! | `MISTRAL_API_KEY` | Mistral AI |
+//! | `AZURE_OPENAI_API_KEY` | Azure OpenAI (+ `AZURE_OPENAI_ENDPOINT`) |
+//! | `AWS_ACCESS_KEY_ID` | AWS Bedrock (+ `AWS_SECRET_ACCESS_KEY`, requires `bedrock` feature) |
 
 use liter_llm::{ChatCompletionRequest, ClientConfigBuilder, DefaultClient, EmbeddingInput, EmbeddingRequest};
 
 #[path = "live_providers/anthropic.rs"]
 mod anthropic;
+#[path = "live_providers/azure.rs"]
+mod azure;
+#[cfg(feature = "bedrock")]
+#[path = "live_providers/bedrock.rs"]
+mod bedrock;
 #[path = "live_providers/cross_provider.rs"]
 mod cross_provider;
 #[path = "live_providers/google_ai.rs"]
 mod google_ai;
+#[path = "live_providers/mistral.rs"]
+mod mistral;
 #[path = "live_providers/openai.rs"]
 mod openai;
 #[path = "live_providers/vertex_ai.rs"]
@@ -57,6 +67,23 @@ pub fn anthropic_client(api_key: &str) -> DefaultClient {
 pub fn google_ai_client(api_key: &str) -> DefaultClient {
     let config = ClientConfigBuilder::new(api_key).max_retries(2).build();
     DefaultClient::new(config, Some("gemini/gemini-2.5-flash-lite")).unwrap()
+}
+
+#[cfg(feature = "bedrock")]
+pub fn bedrock_client() -> DefaultClient {
+    // Bedrock uses AWS credentials from env (SigV4 signing), not an API key.
+    let config = ClientConfigBuilder::new("").max_retries(2).build();
+    DefaultClient::new(config, Some("bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0")).unwrap()
+}
+
+pub fn azure_client(api_key: &str) -> DefaultClient {
+    let config = ClientConfigBuilder::new(api_key).max_retries(2).build();
+    DefaultClient::new(config, Some("azure/gpt-4o-mini")).unwrap()
+}
+
+pub fn mistral_client(api_key: &str) -> DefaultClient {
+    let config = ClientConfigBuilder::new(api_key).max_retries(2).build();
+    DefaultClient::new(config, Some("mistral/mistral-small-latest")).unwrap()
 }
 
 /// Try to get a gcloud access token. Returns `None` if gcloud is not

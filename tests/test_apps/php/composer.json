@@ -1,0 +1,12 @@
+{
+	"name": "kreuzberg/liter-llm-smoke-test",
+	"description": "Smoke tests for liter-llm PHP package",
+	"type": "project",
+	"require": {
+		"php": ">=8.2",
+		"kreuzberg/liter-llm": "1.0.0-rc.8"
+	},
+	"config": {
+		"sort-packages": true
+	}
+}

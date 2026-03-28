@@ -86,7 +86,7 @@ async def test_chat_anthropic() -> str | None:
         return None
     client = LlmClient(api_key=key)
     r = await client.chat(
-        model="anthropic/claude-3-5-haiku-20241022",
+        model="anthropic/claude-sonnet-4-20250514",
         messages=[{"role": "user", "content": "Say hello in one word."}],
         max_tokens=10,
     )
@@ -102,7 +102,7 @@ async def test_chat_gemini() -> str | None:
         return None
     client = LlmClient(api_key=key)
     r = await client.chat(
-        model="google/gemini-2.0-flash",
+        model="gemini/gemini-2.5-flash-preview-05-20",
         messages=[{"role": "user", "content": "Say hello in one word."}],
         max_tokens=10,
     )
@@ -170,7 +170,7 @@ async def test_provider_routing() -> str | None:
 
     client_anthropic = LlmClient(api_key=anthropic_key)
     r2 = await client_anthropic.chat(
-        model="anthropic/claude-3-5-haiku-20241022",
+        model="anthropic/claude-sonnet-4-20250514",
         messages=messages,
         max_tokens=5,
     )

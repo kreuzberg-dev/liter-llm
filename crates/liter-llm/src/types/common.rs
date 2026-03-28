@@ -227,12 +227,16 @@ pub struct JsonSchemaFormat {
 
 // ─── Usage ───────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Usage {
+    /// Prompt tokens used. Defaults to 0 when absent (some providers omit this).
+    #[serde(default)]
     pub prompt_tokens: u64,
     /// Completion tokens used. Defaults to 0 when absent (e.g. embedding responses).
     #[serde(default)]
     pub completion_tokens: u64,
+    /// Total tokens used. Defaults to 0 when absent (some providers omit this).
+    #[serde(default)]
     pub total_tokens: u64,
 }
 

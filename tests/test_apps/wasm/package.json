@@ -1,0 +1,12 @@
+{
+	"name": "liter-llm-wasm-smoke-test",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "node main.mjs"
+	},
+	"dependencies": {
+		"@kreuzberg/liter-llm-wasm": "1.0.0-rc.8"
+	}
+}

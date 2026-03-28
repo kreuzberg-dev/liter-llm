@@ -63,7 +63,7 @@ async fn embed() {
     let client = vertex_ai_client(&token);
 
     let resp = client
-        .embed(simple_embed_request("gemini-embedding-001"))
+        .embed(simple_embed_request("vertex_ai/gemini-embedding-001"))
         .await
         .unwrap();
 

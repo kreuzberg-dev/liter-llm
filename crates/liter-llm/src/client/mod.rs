@@ -46,8 +46,7 @@ pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T>> + Send + 'a>>
 /// A boxed stream of `Result<T>`.
 pub type BoxStream<'a, T> = Pin<Box<dyn Stream<Item = Result<T>> + Send + 'a>>;
 
-/// Result of [`DefaultClient::prepare_request`]:
-/// `(url, optional_auth_header, body_json, body_bytes)`.
+/// Result of [`DefaultClient::prepare_request`].
 ///
 /// The body is pre-serialized into `bytes::Bytes` so it is serialized exactly
 /// once — the same bytes are used for signing headers and for the HTTP request
@@ -57,11 +56,16 @@ pub type BoxStream<'a, T> = Pin<Box<dyn Stream<Item = Result<T>> + Send + 'a>>;
 /// [`Provider::dynamic_headers`] can inspect request fields without
 /// re-parsing.
 ///
-/// The auth header is `None` when the provider requires no authentication
-/// (e.g. local models or providers with `auth: none`).
-/// Extra headers are accessed directly from the provider via `extra_headers()`.
+/// The `provider` is the resolved provider for this specific request — it may
+/// differ from `self.provider` when the model prefix identifies a different
+/// provider.
 #[cfg(feature = "native-http")]
-type PreparedRequest = (String, Option<(String, String)>, serde_json::Value, bytes::Bytes);
+struct PreparedRequest {
+    url: String,
+    provider: Arc<dyn Provider>,
+    body_json: serde_json::Value,
+    body_bytes: bytes::Bytes,
+}
 
 /// Convert an owned `(String, String)` auth header pair to `(&str, &str)` borrows.
 ///
@@ -155,13 +159,14 @@ pub trait ResponseClient: Send + Sync {
 
 /// Default client implementation backed by `reqwest`.
 ///
-/// The provider is resolved **once** at construction time.  For most
-/// use-cases a single client talks to a single provider, so detecting the
-/// provider per-request is unnecessary overhead and creates subtle bugs (e.g.
-/// the old `list_models` hardcoded `"gpt-4"` as the detection key).
+/// The provider is resolved at construction time from `model_hint` (or
+/// defaults to OpenAI).  However, individual requests can override the
+/// provider when their model string contains a prefix that clearly
+/// identifies a different provider (e.g. `"anthropic/claude-3"` will
+/// route to Anthropic even if the client was built without a hint).
 ///
-/// If you need to talk to multiple providers, create one `DefaultClient` per
-/// provider.
+/// When the model prefix does not match any known provider, the
+/// construction-time provider is used as the fallback.
 ///
 /// The provider is stored behind an [`Arc`] so it can be shared cheaply into
 /// async closures and streaming tasks that must be `'static`.
@@ -247,20 +252,77 @@ impl DefaultClient {
         })
     }
 
-    /// Shared helper: build the URL, resolve auth header strings, strip model
-    /// prefix from the request body, set the `stream` flag, apply provider
+    /// Resolve the provider for a specific request based on the model string.
+    ///
+    /// If the model prefix clearly identifies a provider that differs from the
+    /// construction-time default, the detected provider is returned.  Otherwise
+    /// the construction-time provider is reused (zero allocation).
+    fn resolve_provider_for_model(&self, model: &str) -> Arc<dyn Provider> {
+        // If the construction-time provider already matches this model, keep it.
+        if self.provider.matches_model(model) {
+            return Arc::clone(&self.provider);
+        }
+        // Attempt per-request detection from the model prefix.
+        if let Some(detected) = provider::detect_provider(model) {
+            return Arc::from(detected);
+        }
+        // Fall back to the construction-time provider.
+        Arc::clone(&self.provider)
+    }
+
+    /// Compute the auth header for a given provider (potentially different from
+    /// the construction-time cached one).
+    async fn resolve_auth_header_for_provider(&self, prov: &dyn Provider) -> Result<Option<(String, String)>> {
+        if let Some(ref cp) = self.config.credential_provider {
+            let credential = cp.resolve().await?;
+            match credential {
+                Credential::BearerToken(token) => Ok(Some((
+                    "Authorization".to_owned(),
+                    format!("Bearer {}", token.expose_secret()),
+                ))),
+                Credential::AwsCredentials { .. } => Ok(None),
+            }
+        } else {
+            // Re-compute auth header for the resolved provider.
+            Ok(prov
+                .auth_header(self.config.api_key.expose_secret())
+                .map(|(name, value)| (name.into_owned(), value.into_owned())))
+        }
+    }
+
+    /// Build the combined header list for a request using a specific provider.
+    fn all_headers_for_provider(
+        &self,
+        prov: &dyn Provider,
+        method: &str,
+        url: &str,
+        body_json: &serde_json::Value,
+        body_bytes: &[u8],
+    ) -> Vec<(String, String)> {
+        let mut headers = prov.signing_headers(method, url, body_bytes);
+        headers.extend(
+            prov.extra_headers()
+                .iter()
+                .map(|&(name, value)| (name.to_owned(), value.to_owned())),
+        );
+        headers.extend(prov.dynamic_headers(body_json));
+        headers
+    }
+
+    /// Shared helper: resolve the per-request provider, build the URL, strip
+    /// model prefix from the request body, set the `stream` flag, apply provider
     /// transform, and return everything needed to fire a request.
+    ///
+    /// `endpoint_fn` receives the resolved provider and returns the endpoint
+    /// path (e.g. `|p| p.chat_completions_path()`), ensuring the path comes
+    /// from the correct provider when per-request routing overrides the default.
     ///
     /// `stream` is inserted into the body **before** `transform_request` runs,
     /// so providers can inspect the final body state in one pass.
-    ///
-    /// Returns `(url, optional_auth_header, body_value)` where the auth header
-    /// is `None` when the provider requires no authentication.
-    /// Extra headers are accessed directly from `self.cached_extra_headers`.
     fn prepare_request(
         &self,
         serializable: &impl serde::Serialize,
-        endpoint_path: &str,
+        endpoint_fn: impl FnOnce(&dyn Provider) -> &str,
         model: &str,
         stream: Option<bool>,
     ) -> Result<PreparedRequest> {
@@ -270,11 +332,12 @@ impl DefaultClient {
             });
         }
 
-        let bare_model = self.provider.strip_model_prefix(model).to_owned();
+        let prov = self.resolve_provider_for_model(model);
+        let bare_model = prov.strip_model_prefix(model).to_owned();
         // Use build_url so providers like Azure and Bedrock can embed the model
         // name or deployment identifier into the URL.
-        let url = self.provider.build_url(endpoint_path, &bare_model);
-        let auth_header = self.cached_auth_header.clone();
+        let endpoint_path = endpoint_fn(prov.as_ref());
+        let url = prov.build_url(endpoint_path, &bare_model);
 
         let mut body = serde_json::to_value(serializable)?;
         if let Some(obj) = body.as_object_mut() {
@@ -283,22 +346,26 @@ impl DefaultClient {
                 obj.insert("stream".into(), serde_json::Value::Bool(s));
             }
         }
-        self.provider.transform_request(&mut body)?;
+        prov.transform_request(&mut body)?;
 
         // Serialize exactly once — the same bytes are used for signing and for
         // the HTTP request body.  `Bytes` is reference-counted, so cloning on
         // retry is a zero-copy bump.
         let body_bytes = bytes::Bytes::from(serde_json::to_vec(&body)?);
 
-        Ok((url, auth_header, body, body_bytes))
+        Ok(PreparedRequest {
+            url,
+            provider: prov,
+            body_json: body,
+            body_bytes,
+        })
     }
 
-    /// Resolve the auth header for a request.
+    /// Resolve the auth header for a request using the construction-time provider.
     ///
-    /// When a [`CredentialProvider`] is configured, it is called to obtain a
-    /// fresh credential which overrides the pre-computed `cached_auth_header`.
-    /// Otherwise the cached header (built at construction from the static
-    /// `api_key`) is returned as-is.
+    /// Uses the pre-computed cached auth header for efficiency.  When a
+    /// [`CredentialProvider`] is configured, it is called to obtain a fresh
+    /// credential which overrides the cached header.
     async fn resolve_auth_header(&self) -> Result<Option<(String, String)>> {
         if let Some(ref cp) = self.config.credential_provider {
             let credential = cp.resolve().await?;
@@ -307,24 +374,16 @@ impl DefaultClient {
                     "Authorization".to_owned(),
                     format!("Bearer {}", token.expose_secret()),
                 ))),
-                Credential::AwsCredentials { .. } => {
-                    // AWS credentials are handled via signing_headers, not the auth header.
-                    // Return None so the normal auth header is skipped.
-                    Ok(None)
-                }
+                Credential::AwsCredentials { .. } => Ok(None),
             }
         } else {
             Ok(self.cached_auth_header.clone())
         }
     }
 
-    /// Build the combined header list for a request.
+    /// Build the combined header list using the construction-time provider.
     ///
-    /// Merges the provider's pre-computed static [`Provider::extra_headers`], the
-    /// dynamic signing headers returned by [`Provider::signing_headers`],
-    /// and the per-request [`Provider::dynamic_headers`] computed from the
-    /// JSON body.  Returns an owned vec of `(name, value)` pairs; callers
-    /// borrow these for the HTTP layer.
+    /// Uses pre-computed cached extra headers for efficiency.
     fn all_headers(
         &self,
         method: &str,
@@ -332,11 +391,8 @@ impl DefaultClient {
         body_json: &serde_json::Value,
         body_bytes: &[u8],
     ) -> Vec<(String, String)> {
-        // Start with dynamic signing headers (e.g. SigV4 Authorization + x-amz-date).
         let mut headers = self.provider.signing_headers(method, url, body_bytes);
-        // Append pre-computed static provider extra headers (e.g. anthropic-version).
         headers.extend(self.cached_extra_headers.iter().cloned());
-        // Append per-request dynamic headers (e.g. anthropic-beta).
         headers.extend(self.provider.dynamic_headers(body_json));
         headers
     }
@@ -374,18 +430,31 @@ impl LlmClient for DefaultClient {
     fn chat(&self, req: ChatCompletionRequest) -> BoxFuture<'_, ChatCompletionResponse> {
         Box::pin(async move {
             // Pass stream=false so providers can inspect the flag in transform_request.
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(false))?;
+            let prepared = self.prepare_request(&req, |p| p.chat_completions_path(), &req.model, Some(false))?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<ChatCompletionResponse>(raw).map_err(LiterLlmError::from)
         })
     }
@@ -394,33 +463,37 @@ impl LlmClient for DefaultClient {
         Box::pin(async move {
             // Use prepare_request for validation, model-prefix stripping, and
             // transform_request — then override the URL via build_stream_url.
-            let (_base_url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.chat_completions_path(), &req.model, Some(true))?;
+            let prepared = self.prepare_request(&req, |p| p.chat_completions_path(), &req.model, Some(true))?;
 
             // Always use build_stream_url for the streaming endpoint.
-            // The default implementation delegates to build_url, so this is safe
-            // for all providers.  Providers with a distinct streaming endpoint
-            // (e.g. Bedrock /converse-stream) override build_stream_url.
-            let bare_model = self.provider.strip_model_prefix(&req.model);
-            let url = self
+            let bare_model = prepared.provider.strip_model_prefix(&req.model);
+            let url = prepared
                 .provider
-                .build_stream_url(self.provider.chat_completions_path(), bare_model);
+                .build_stream_url(prepared.provider.chat_completions_path(), bare_model);
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
             let auth = auth_header.as_ref().map(str_pair);
 
-            match self.provider.stream_format() {
+            match prepared.provider.stream_format() {
                 provider::StreamFormat::Sse => {
-                    let provider = Arc::clone(&self.provider);
+                    let provider = Arc::clone(&prepared.provider);
                     let parse_event = move |data: &str| provider.parse_stream_event(data);
                     let stream = http::streaming::post_stream(
                         &self.http,
                         &url,
                         auth,
                         &extra,
-                        body_bytes,
+                        prepared.body_bytes,
                         self.config.max_retries,
                         parse_event,
                     )
@@ -433,7 +506,7 @@ impl LlmClient for DefaultClient {
                         &url,
                         auth,
                         &extra,
-                        body_bytes,
+                        prepared.body_bytes,
                         self.config.max_retries,
                         provider::bedrock::parse_bedrock_stream_event,
                     )
@@ -447,30 +520,41 @@ impl LlmClient for DefaultClient {
     fn embed(&self, req: EmbeddingRequest) -> BoxFuture<'_, EmbeddingResponse> {
         Box::pin(async move {
             // Embeddings have no stream flag; pass None so it is not inserted.
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.embeddings_path(), &req.model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.embeddings_path(), &req.model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<EmbeddingResponse>(raw).map_err(LiterLlmError::from)
         })
     }
 
     fn list_models(&self) -> BoxFuture<'_, ModelsListResponse> {
         Box::pin(async move {
-            // Use build_url so providers like Azure/Bedrock can customise the URL.
+            // list_models has no model string — use the construction-time provider.
             let url = self.provider.build_url(self.provider.models_path(), "");
             let auth_header = self.resolve_auth_header().await?;
             let auth = auth_header.as_ref().map(str_pair);
-            // list_models is a GET request; signing headers use an empty body,
-            // and dynamic_headers receives a null JSON value.
             let all_headers = self.all_headers("GET", &url, &serde_json::Value::Null, &[]);
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
@@ -483,50 +567,91 @@ impl LlmClient for DefaultClient {
     fn image_generate(&self, req: CreateImageRequest) -> BoxFuture<'_, ImagesResponse> {
         Box::pin(async move {
             let model = req.model.as_deref().unwrap_or_default();
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.image_generations_path(), model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.image_generations_path(), model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<ImagesResponse>(raw).map_err(LiterLlmError::from)
         })
     }
 
     fn speech(&self, req: CreateSpeechRequest) -> BoxFuture<'_, bytes::Bytes> {
         Box::pin(async move {
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.audio_speech_path(), &req.model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.audio_speech_path(), &req.model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            http::request::post_binary(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries).await
+            http::request::post_binary(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await
         })
     }
 
     fn transcribe(&self, req: CreateTranscriptionRequest) -> BoxFuture<'_, TranscriptionResponse> {
         Box::pin(async move {
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.audio_transcriptions_path(), &req.model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.audio_transcriptions_path(), &req.model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<TranscriptionResponse>(raw).map_err(LiterLlmError::from)
         })
     }
@@ -534,72 +659,124 @@ impl LlmClient for DefaultClient {
     fn moderate(&self, req: ModerationRequest) -> BoxFuture<'_, ModerationResponse> {
         Box::pin(async move {
             let model = req.model.as_deref().unwrap_or_default();
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.moderations_path(), model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.moderations_path(), model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<ModerationResponse>(raw).map_err(LiterLlmError::from)
         })
     }
 
     fn rerank(&self, req: RerankRequest) -> BoxFuture<'_, RerankResponse> {
         Box::pin(async move {
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.rerank_path(), &req.model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.rerank_path(), &req.model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<RerankResponse>(raw).map_err(LiterLlmError::from)
         })
     }
 
     fn search(&self, req: SearchRequest) -> BoxFuture<'_, SearchResponse> {
         Box::pin(async move {
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.search_path(), &req.model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.search_path(), &req.model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<SearchResponse>(raw).map_err(LiterLlmError::from)
         })
     }
 
     fn ocr(&self, req: OcrRequest) -> BoxFuture<'_, OcrResponse> {
         Box::pin(async move {
-            let (url, _cached_auth, body_json, body_bytes) =
-                self.prepare_request(&req, self.provider.ocr_path(), &req.model, None)?;
+            let prepared = self.prepare_request(&req, |p| p.ocr_path(), &req.model, None)?;
 
-            let auth_header = self.resolve_auth_header().await?;
-            let all_headers = self.all_headers("POST", &url, &body_json, &body_bytes);
+            let auth_header = self
+                .resolve_auth_header_for_provider(prepared.provider.as_ref())
+                .await?;
+            let all_headers = self.all_headers_for_provider(
+                prepared.provider.as_ref(),
+                "POST",
+                &prepared.url,
+                &prepared.body_json,
+                &prepared.body_bytes,
+            );
             let extra: Vec<(&str, &str)> = all_headers.iter().map(|(n, v)| (n.as_str(), v.as_str())).collect();
 
             let auth = auth_header.as_ref().map(str_pair);
-            let mut raw =
-                http::request::post_json_raw(&self.http, &url, auth, &extra, body_bytes, self.config.max_retries)
-                    .await?;
-            self.provider.transform_response(&mut raw)?;
+            let mut raw = http::request::post_json_raw(
+                &self.http,
+                &prepared.url,
+                auth,
+                &extra,
+                prepared.body_bytes,
+                self.config.max_retries,
+            )
+            .await?;
+            prepared.provider.transform_response(&mut raw)?;
             serde_json::from_value::<OcrResponse>(raw).map_err(LiterLlmError::from)
         })
     }
