@@ -1199,7 +1199,7 @@ jobs:
         run: |
           for pkg_dir in crates/liter-llm-node/npm/*/; do
             echo "Packing $pkg_dir..."
-            npm pack "$pkg_dir"
+            (cd "$pkg_dir" && npm pack && mv ./*.tgz ..)
           done
 
       - name: Re-check npm before publish

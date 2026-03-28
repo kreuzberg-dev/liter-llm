@@ -4,9 +4,8 @@ package dev.kreuzberg.literllm;
  * Lifecycle hook interface for intercepting LLM client request/response events.
  *
  * <p>
- * Implement this interface and register it via
- * {@link LlmClient#addHook(LlmHook)}. All methods have default no-op
- * implementations; override only the callbacks you need.
+ * Implement this interface and register it with the LLM client. All methods
+ * have default no-op implementations; override only the callbacks you need.
  *
  * <p>
  * Hooks are invoked in registration order, synchronously on the calling thread.

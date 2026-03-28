@@ -130,6 +130,7 @@ fn parse_cache_config_rb(kw: &RHash) -> Result<CacheConfig, Error> {
     Ok(CacheConfig {
         max_entries,
         ttl: std::time::Duration::from_secs(ttl_seconds),
+        backend: Default::default(),
     })
 }
 
