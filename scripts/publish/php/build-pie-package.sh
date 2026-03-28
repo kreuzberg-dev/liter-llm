@@ -19,7 +19,7 @@ linux-x86_64)
   ARCH="x86_64"
   EXT_SUFFIX="so"
   ;;
-linux-arm64)
+linux-arm64 | linux-aarch64)
   OS="linux"
   ARCH="arm64"
   EXT_SUFFIX="so"
