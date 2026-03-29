@@ -57,6 +57,11 @@ impl ProxyError {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, "InternalError", message)
     }
 
+    /// 503 Service Unavailable.
+    pub fn service_unavailable(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::SERVICE_UNAVAILABLE, "ServiceUnavailable", message)
+    }
+
     /// 403 Forbidden.
     pub fn forbidden(message: impl Into<String>) -> Self {
         Self::new(StatusCode::FORBIDDEN, "Forbidden", message)

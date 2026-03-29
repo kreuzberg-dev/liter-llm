@@ -142,7 +142,7 @@ impl ServicePool {
     pub fn first_client(&self) -> Result<Arc<DefaultClient>, ProxyError> {
         self.default_client
             .clone()
-            .ok_or_else(|| ProxyError::internal("no models configured"))
+            .ok_or_else(|| ProxyError::service_unavailable("no models configured"))
     }
 
     /// Return the names of all available models.

@@ -35,6 +35,8 @@ pub struct ListFilesQuery {
         (status = 422, description = "Unprocessable entity", body = crate::openapi::ProxyErrorBody),
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 500, description = "Internal server error", body = crate::openapi::ProxyErrorBody),
+        (status = 415, description = "Unsupported media type", body = crate::openapi::ProxyErrorBody),
+        (status = 503, description = "Service unavailable", body = crate::openapi::ProxyErrorBody),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -62,6 +64,8 @@ pub async fn create_file(
         (status = 200, description = "List of file objects"),
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 500, description = "Internal server error", body = crate::openapi::ProxyErrorBody),
+        (status = 415, description = "Unsupported media type", body = crate::openapi::ProxyErrorBody),
+        (status = 503, description = "Service unavailable", body = crate::openapi::ProxyErrorBody),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -95,6 +99,8 @@ pub async fn list_files(
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 404, description = "Not found", body = crate::openapi::ProxyErrorBody),
         (status = 500, description = "Internal server error", body = crate::openapi::ProxyErrorBody),
+        (status = 415, description = "Unsupported media type", body = crate::openapi::ProxyErrorBody),
+        (status = 503, description = "Service unavailable", body = crate::openapi::ProxyErrorBody),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -119,6 +125,8 @@ pub async fn retrieve_file(
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 404, description = "Not found", body = crate::openapi::ProxyErrorBody),
         (status = 500, description = "Internal server error", body = crate::openapi::ProxyErrorBody),
+        (status = 415, description = "Unsupported media type", body = crate::openapi::ProxyErrorBody),
+        (status = 503, description = "Service unavailable", body = crate::openapi::ProxyErrorBody),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -143,6 +151,8 @@ pub async fn delete_file(
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 404, description = "Not found", body = crate::openapi::ProxyErrorBody),
         (status = 500, description = "Internal server error", body = crate::openapi::ProxyErrorBody),
+        (status = 415, description = "Unsupported media type", body = crate::openapi::ProxyErrorBody),
+        (status = 503, description = "Service unavailable", body = crate::openapi::ProxyErrorBody),
     ),
     security(("bearer_auth" = [])),
 )]

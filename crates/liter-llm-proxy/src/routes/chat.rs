@@ -30,6 +30,8 @@ use crate::streaming;
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 429, description = "Rate limited", body = crate::openapi::ProxyErrorBody),
         (status = 500, description = "Internal server error", body = crate::openapi::ProxyErrorBody),
+        (status = 415, description = "Unsupported media type", body = crate::openapi::ProxyErrorBody),
+        (status = 503, description = "Service unavailable", body = crate::openapi::ProxyErrorBody),
     ),
     security(("bearer_auth" = [])),
 )]

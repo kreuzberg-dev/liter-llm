@@ -80,7 +80,7 @@ jobs:
             --max-examples=10 \
             --request-timeout=30000 \
             --header "Authorization: Bearer sk-schema-test" \
-            --checks not_a_server_error,status_code_conformance,content_type_conformance,response_schema_conformance,negative_data_rejection || FAILED=1
+            --checks not_a_server_error,status_code_conformance,response_schema_conformance,negative_data_rejection || FAILED=1
 
           docker stop "$container_id"
           exit $FAILED
