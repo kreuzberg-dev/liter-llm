@@ -39,6 +39,9 @@
   <a href="https://github.com/kreuzberg-dev/liter-llm/pkgs/container/liter-llm">
     <img src="https://img.shields.io/badge/Docker-ghcr.io-007ec6?logo=docker&logoColor=white" alt="Docker">
   </a>
+  <a href="https://github.com/kreuzberg-dev/homebrew-tap/blob/main/Formula/liter-llm.rb">
+    <img src="https://img.shields.io/badge/Homebrew-007ec6?logo=homebrew&logoColor=white" alt="Homebrew">
+  </a>
 
   <!-- Project Info -->
   <a href="https://github.com/kreuzberg-dev/liter-llm/blob/main/LICENSE">

@@ -22,6 +22,7 @@ use crate::state::AppState;
     responses(
         (status = 200, description = "Audio bytes", content_type = "audio/mpeg"),
         (status = 400, description = "Bad request", body = crate::openapi::ProxyErrorBody),
+        (status = 404, description = "Model not found", body = crate::openapi::ProxyErrorBody),
         (status = 422, description = "Unprocessable entity", body = crate::openapi::ProxyErrorBody),
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 429, description = "Rate limited", body = crate::openapi::ProxyErrorBody),
@@ -56,6 +57,7 @@ pub async fn create_speech(
     responses(
         (status = 200, description = "Transcription response"),
         (status = 400, description = "Bad request", body = crate::openapi::ProxyErrorBody),
+        (status = 404, description = "Model not found", body = crate::openapi::ProxyErrorBody),
         (status = 422, description = "Unprocessable entity", body = crate::openapi::ProxyErrorBody),
         (status = 401, description = "Unauthorized", body = crate::openapi::ProxyErrorBody),
         (status = 429, description = "Rate limited", body = crate::openapi::ProxyErrorBody),
