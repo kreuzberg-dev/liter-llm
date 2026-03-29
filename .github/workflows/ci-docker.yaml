@@ -1,0 +1,75 @@
+name: CI Docker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/liter-llm-proxy/**'
+      - 'crates/liter-llm-cli/**'
+      - 'docker/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  pull_request:
+    paths:
+      - 'crates/liter-llm-proxy/**'
+      - 'crates/liter-llm-cli/**'
+      - 'docker/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          load: true
+          tags: liter-llm:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test health endpoints
+        run: |
+          container_id=$(docker run -d -p 4000:4000 \
+            -e LITER_LLM_MASTER_KEY=sk-ci-test \
+            liter-llm:test)
+          sleep 3
+
+          echo "=== Liveness ==="
+          curl -sf http://localhost:4000/health/liveness || { docker logs "$container_id"; exit 1; }
+
+          echo "=== Health ==="
+          curl -sf http://localhost:4000/health | jq .
+
+          echo "=== OpenAPI spec ==="
+          curl -sf http://localhost:4000/openapi.json | jq .info
+
+          docker stop "$container_id"
+
+      - name: Schemathesis API contract tests
+        run: |
+          pip3 install schemathesis
+
+          container_id=$(docker run -d -p 4000:4000 \
+            -e LITER_LLM_MASTER_KEY=sk-schema-test \
+            liter-llm:test)
+          sleep 3
+
+          FAILED=0
+          schemathesis run http://localhost:4000/openapi.json \
+            --max-examples=10 \
+            --request-timeout=30000 \
+            --header "Authorization: Bearer sk-schema-test" \
+            --checks not_a_server_error,status_code_conformance,content_type_conformance,response_schema_conformance,negative_data_rejection || FAILED=1
+
+          docker stop "$container_id"
+          exit $FAILED

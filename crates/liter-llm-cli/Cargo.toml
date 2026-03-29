@@ -1,0 +1,27 @@
+[package]
+name = "liter-llm-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "CLI for liter-llm — start an OpenAI-compatible proxy server or MCP tool server."
+keywords = ["llm", "proxy", "cli", "openai", "kreuzberg"]
+
+[[bin]]
+name = "liter-llm"
+path = "src/main.rs"
+
+[features]
+default = []
+otel = ["liter-llm-proxy/otel"]
+
+[dependencies]
+axum = { workspace = true }
+clap = { workspace = true }
+liter-llm-proxy = { path = "../liter-llm-proxy" }
+rmcp = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

@@ -1,0 +1,47 @@
+[package]
+name = "liter-llm-proxy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "OpenAI-compatible LLM proxy server — model routing, virtual keys, rate limiting, cost tracking."
+keywords = ["llm", "proxy", "openai", "gateway", "kreuzberg"]
+
+[package.metadata.cargo-machete]
+ignored = ["opentelemetry", "tracing-opentelemetry"]
+
+[features]
+default = []
+otel = ["liter-llm/otel", "dep:opentelemetry", "dep:tracing-opentelemetry"]
+opendal-cache = ["liter-llm/opendal-cache"]
+full = ["otel", "opendal-cache"]
+
+[dependencies]
+axum = { workspace = true }
+base64 = { workspace = true }
+bytes = { workspace = true }
+dashmap = { workspace = true }
+futures-util = { workspace = true }
+liter-llm = { path = "../liter-llm", features = ["native-http", "tower", "tracing"] }
+opendal = { workspace = true }
+
+# Feature-gated
+opentelemetry = { workspace = true, optional = true }
+rmcp = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+toml = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+tracing = { workspace = true }
+tracing-opentelemetry = { workspace = true, optional = true }
+utoipa = { workspace = true }
+
+[dev-dependencies]
+http-body-util = "0.1"
+reqwest = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }

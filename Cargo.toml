@@ -2,9 +2,11 @@
 members = [
     "crates/liter-llm",
     "crates/liter-llm-bindings-core",
+    "crates/liter-llm-cli",
     "crates/liter-llm-ffi",
     "crates/liter-llm-node",
     "crates/liter-llm-php",
+    "crates/liter-llm-proxy",
     "crates/liter-llm-py",
     "crates/liter-llm-wasm",
     "packages/elixir/native/liter_llm_rustler",
@@ -26,11 +28,13 @@ keywords = ["llm", "openai", "api-client", "ai", "kreuzberg"]
 
 [workspace.dependencies]
 anyhow = "1"
+axum = { version = "0.8", features = ["macros"] }
+axum-extra = { version = "0.10", features = ["typed-header"] }
 base64 = "0.22"
 bytes = "1"
 
 # CLI (for tools)
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] }
 dashmap = "6"
 futures-core = "0.3"
 futures-util = "0.3"
@@ -43,7 +47,7 @@ memchr = "2"
 napi = { version = "3", features = ["napi4", "serde-json", "async"] }
 napi-build = "2"
 napi-derive = "3"
-opendal = { version = "0.55", default-features = false, features = ["services-memory", "services-redis", "services-fs"] }
+opendal = { version = "0.55", default-features = false, features = ["services-memory", "services-redis", "services-fs", "services-s3"] }
 opentelemetry = "0.31"
 pin-project-lite = "0.2"
 pyo3 = { version = "0.28", features = ["abi3-py310"] }
@@ -52,12 +56,14 @@ rayon = "1"
 rb-sys = "0.9"
 # Async / HTTP
 reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls", "multipart", "form"] }
+rmcp = { version = "1.3", features = ["server", "macros", "transport-io", "transport-streamable-http-server", "server-side-http"] }
 rustler = "0.37"
+
+# Serialization
+schemars = "1"
 
 # Security
 secrecy = { version = "0.10", features = ["serde"] }
-
-# Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serial_test = "3"
@@ -69,11 +75,13 @@ tokenizers = { version = "0.22", default-features = false, features = ["http", "
 tokio = { version = "1", features = ["full"] }
 toml = "1.1"
 tower = { version = "0.5", features = ["retry", "limit", "timeout", "buffer", "load-shed", "steer", "util"] }
-tower-http = { version = "0.6", features = ["follow-redirect", "set-header", "sensitive-headers", "trace", "request-id"] }
+tower-http = { version = "0.6", features = ["follow-redirect", "set-header", "sensitive-headers", "trace", "request-id", "cors", "compression-gzip", "catch-panic", "limit"] }
 tower-layer = "0.3"
 tower-service = "0.3"
 tracing = "0.1"
 tracing-opentelemetry = "0.32"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+utoipa = { version = "5.4", features = ["axum_extras"] }
 walkdir = "2.5"
 wasm-bindgen = "0.2"
 wasm-bindgen-test = "0.3"

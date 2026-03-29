@@ -1,0 +1,19 @@
+# Minimal proxy config for schemathesis API contract testing.
+# Uses a test model pointed at a non-existent backend — schemathesis
+# only validates the OpenAPI spec contract (status codes, content types,
+# response schemas), not actual LLM responses.
+
+[server]
+host = "127.0.0.1"
+port = 4111
+
+[general]
+master_key = "sk-schemathesis-test"
+
+[[models]]
+name = "test-model"
+provider_model = "openai/gpt-4o"
+api_key = "sk-test-placeholder"
+
+[[keys]]
+key = "sk-schemathesis-test"
