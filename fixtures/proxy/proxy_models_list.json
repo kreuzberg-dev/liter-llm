@@ -1,0 +1,35 @@
+{
+	"id": "proxy_models_list",
+	"category": "proxy",
+	"description": "List models request routed through the proxy",
+	"api": {
+		"method": "list_models",
+		"request": {},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"data": [
+					{
+						"id": "gpt-4o",
+						"object": "model",
+						"created": 1715367049,
+						"owned_by": "openai"
+					},
+					{
+						"id": "gpt-4o-mini",
+						"object": "model",
+						"created": 1721172741,
+						"owned_by": "openai"
+					}
+				]
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"models_count_min": 1
+	},
+	"tags": ["proxy", "list-models"],
+	"skip": {}
+}

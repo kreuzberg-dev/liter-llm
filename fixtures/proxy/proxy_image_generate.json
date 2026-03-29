@@ -1,0 +1,33 @@
+{
+	"id": "proxy_image_generate",
+	"category": "proxy",
+	"description": "Image generation request routed through the proxy",
+	"api": {
+		"method": "image_generate",
+		"request": {
+			"model": "dall-e-3",
+			"prompt": "A sunset over the ocean",
+			"n": 1,
+			"size": "1024x1024"
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"created": 1711000000,
+				"data": [
+					{
+						"url": "https://example.com/images/img-proxy001.png",
+						"revised_prompt": "A vivid sunset casting warm orange and pink hues over a calm ocean"
+					}
+				]
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"image_count": 1,
+		"image_has_url": true
+	},
+	"tags": ["proxy", "image"],
+	"skip": {}
+}

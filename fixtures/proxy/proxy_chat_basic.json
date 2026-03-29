@@ -1,0 +1,49 @@
+{
+	"id": "proxy_chat_basic",
+	"category": "proxy",
+	"description": "Basic chat completion request routed through the proxy",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "openai/gpt-4o",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Say hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "chatcmpl-proxy001",
+				"object": "chat.completion",
+				"created": 1711000000,
+				"model": "gpt-4o",
+				"choices": [
+					{
+						"index": 0,
+						"message": {
+							"role": "assistant",
+							"content": "Hello!"
+						},
+						"finish_reason": "stop"
+					}
+				],
+				"usage": {
+					"prompt_tokens": 10,
+					"completion_tokens": 3,
+					"total_tokens": 13
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"choices_count": 1,
+		"first_choice_content": "Hello!",
+		"first_choice_finish_reason": "stop"
+	},
+	"tags": ["proxy", "chat"],
+	"skip": {}
+}

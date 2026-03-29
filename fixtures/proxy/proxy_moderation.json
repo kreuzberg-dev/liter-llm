@@ -1,0 +1,57 @@
+{
+	"id": "proxy_moderation",
+	"category": "proxy",
+	"description": "Content moderation request routed through the proxy",
+	"api": {
+		"method": "moderate",
+		"request": {
+			"model": "omni-moderation-latest",
+			"input": "The weather is nice today."
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"id": "modr-proxy001",
+				"model": "omni-moderation-latest",
+				"results": [
+					{
+						"flagged": false,
+						"categories": {
+							"sexual": false,
+							"hate": false,
+							"harassment": false,
+							"self-harm": false,
+							"sexual/minors": false,
+							"hate/threatening": false,
+							"violence/graphic": false,
+							"self-harm/intent": false,
+							"self-harm/instructions": false,
+							"harassment/threatening": false,
+							"violence": false
+						},
+						"category_scores": {
+							"sexual": 0.0001,
+							"hate": 0.0001,
+							"harassment": 0.0002,
+							"self-harm": 0.0001,
+							"sexual/minors": 0.0001,
+							"hate/threatening": 0.0001,
+							"violence/graphic": 0.0001,
+							"self-harm/intent": 0.0001,
+							"self-harm/instructions": 0.0001,
+							"harassment/threatening": 0.0001,
+							"violence": 0.0001
+						}
+					}
+				]
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"moderation_result_count": 1,
+		"moderation_has_flagged": false
+	},
+	"tags": ["proxy", "moderate"],
+	"skip": {}
+}

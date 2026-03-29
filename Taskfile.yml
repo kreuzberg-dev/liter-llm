@@ -129,6 +129,29 @@ tasks:
       - task: csharp:test
       - task: elixir:test
 
+  proxy:test:
+    desc: Run all proxy tests (unit + integration)
+    cmds:
+      - cargo test -p liter-llm-proxy
+
+  proxy:schemathesis:
+    desc: Run schemathesis API contract tests against proxy Docker image
+    cmds:
+      - docker build -f docker/Dockerfile -t liter-llm:schemathesis .
+      - |
+        container_id=$(docker run -d -p 4111:4000 \
+          -e LITER_LLM_MASTER_KEY=sk-schema-test \
+          liter-llm:schemathesis)
+        sleep 3
+        FAILED=0
+        schemathesis run http://localhost:4111/openapi.json \
+          --max-examples=10 \
+          --request-timeout=30000 \
+          --header "Authorization: Bearer sk-schema-test" \
+          --checks not_a_server_error,status_code_conformance,content_type_conformance,response_schema_conformance,negative_data_rejection || FAILED=1
+        docker stop "$container_id"
+        exit $FAILED
+
   lint:
     desc: Run all linters and formatters via prek (pre-commit framework)
     cmds:

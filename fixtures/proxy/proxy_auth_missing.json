@@ -1,0 +1,35 @@
+{
+	"id": "proxy_auth_missing",
+	"category": "proxy",
+	"description": "401 Unauthorized when no API key is provided through the proxy",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "openai/gpt-4o",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 401,
+			"body": {
+				"error": {
+					"message": "You didn't provide an API key. You need to provide your API key in an Authorization header.",
+					"type": "invalid_request_error",
+					"param": null,
+					"code": null
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "Authentication",
+		"error_status_code": 401
+	},
+	"tags": ["proxy", "error-handling"],
+	"skip": {}
+}

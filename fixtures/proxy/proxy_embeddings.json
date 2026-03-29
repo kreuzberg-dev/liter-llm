@@ -1,0 +1,37 @@
+{
+	"id": "proxy_embeddings",
+	"category": "proxy",
+	"description": "Embedding request routed through the proxy",
+	"api": {
+		"method": "embed",
+		"request": {
+			"model": "openai/text-embedding-3-small",
+			"input": "Hello world"
+		},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"model": "text-embedding-3-small",
+				"data": [
+					{
+						"object": "embedding",
+						"index": 0,
+						"embedding": [0.01, 0.02, 0.03, 0.04, 0.05]
+					}
+				],
+				"usage": {
+					"prompt_tokens": 2,
+					"completion_tokens": 0,
+					"total_tokens": 2
+				}
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"embedding_count": 1
+	},
+	"tags": ["proxy", "embed"],
+	"skip": {}
+}

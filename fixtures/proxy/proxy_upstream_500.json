@@ -1,0 +1,35 @@
+{
+	"id": "proxy_upstream_500",
+	"category": "proxy",
+	"description": "500 Internal Server Error from upstream provider through the proxy",
+	"api": {
+		"method": "chat",
+		"request": {
+			"model": "openai/gpt-4o",
+			"messages": [
+				{
+					"role": "user",
+					"content": "Hello"
+				}
+			]
+		},
+		"mock_response": {
+			"status": 500,
+			"body": {
+				"error": {
+					"message": "The server had an error while processing your request. Sorry about that!",
+					"type": "server_error",
+					"param": null,
+					"code": null
+				}
+			}
+		}
+	},
+	"assertions": {
+		"expect_success": false,
+		"error_type": "ServerError",
+		"error_status_code": 500
+	},
+	"tags": ["proxy", "error-handling"],
+	"skip": {}
+}

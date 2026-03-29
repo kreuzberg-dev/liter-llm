@@ -1,0 +1,29 @@
+{
+	"id": "proxy_health",
+	"category": "proxy",
+	"description": "Health check verifying proxy connectivity via list models",
+	"api": {
+		"method": "list_models",
+		"request": {},
+		"mock_response": {
+			"status": 200,
+			"body": {
+				"object": "list",
+				"data": [
+					{
+						"id": "gpt-4o",
+						"object": "model",
+						"created": 1715367049,
+						"owned_by": "openai"
+					}
+				]
+			}
+		}
+	},
+	"assertions": {
+		"response_not_null": true,
+		"models_count_min": 1
+	},
+	"tags": ["proxy", "health"],
+	"skip": {}
+}
