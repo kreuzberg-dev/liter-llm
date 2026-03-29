@@ -346,7 +346,9 @@ mod tests {
     #[tokio::test]
     #[ignore] // Requires network access and a valid service account key file.
     async fn live_vertex_oauth_token_exchange() {
-        let provider = VertexOAuthCredentialProvider::from_env().expect("GOOGLE_APPLICATION_CREDENTIALS not set");
+        let Ok(provider) = VertexOAuthCredentialProvider::from_env() else {
+            return; // Skip when Google credentials are not configured.
+        };
         let credential = provider.resolve().await.expect("token exchange failed");
         assert!(matches!(credential, Credential::BearerToken(_)));
     }

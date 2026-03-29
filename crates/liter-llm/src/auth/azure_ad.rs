@@ -257,7 +257,9 @@ mod tests {
     #[tokio::test]
     #[ignore] // Requires network access and valid Azure AD credentials.
     async fn live_azure_ad_token_exchange() {
-        let provider = AzureAdCredentialProvider::from_env().expect("Azure AD env vars not set");
+        let Ok(provider) = AzureAdCredentialProvider::from_env() else {
+            return; // Skip when Azure AD credentials are not configured.
+        };
         let credential = provider.resolve().await.expect("token exchange failed");
         assert!(matches!(credential, Credential::BearerToken(_)));
     }

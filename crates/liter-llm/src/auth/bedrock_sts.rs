@@ -346,7 +346,9 @@ mod tests {
     #[tokio::test]
     #[ignore] // Requires network access and valid AWS OIDC credentials.
     async fn live_sts_web_identity_exchange() {
-        let provider = WebIdentityCredentialProvider::from_env().expect("AWS env vars not set");
+        let Ok(provider) = WebIdentityCredentialProvider::from_env() else {
+            return; // Skip when AWS OIDC credentials are not configured.
+        };
         let credential = provider.resolve().await.expect("STS exchange failed");
         assert!(matches!(credential, Credential::AwsCredentials { .. }));
     }

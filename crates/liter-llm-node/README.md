@@ -32,7 +32,9 @@
   <a href="https://hex.pm/packages/liter_llm">
     <img src="https://img.shields.io/hexpm/v/liter_llm?label=Elixir&color=007ec6" alt="Elixir">
   </a>
-
+  <a href="https://github.com/kreuzberg-dev/liter-llm/pkgs/container/liter-llm">
+    <img src="https://img.shields.io/badge/Docker-007ec6?logo=docker&logoColor=white" alt="Docker">
+  </a>
   <a href="https://github.com/kreuzberg-dev/liter-llm/tree/main/crates/liter-llm-ffi">
     <img src="https://img.shields.io/badge/C-FFI-007ec6" alt="C FFI">
   </a>
