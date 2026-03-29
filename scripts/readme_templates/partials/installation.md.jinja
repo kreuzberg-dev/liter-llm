@@ -100,7 +100,7 @@ dotnet add package {{ package_name }}
 
 Or via NuGet Package Manager:
 
-```
+```text
 Install-Package {{ package_name }}
 ```
 
@@ -111,36 +111,42 @@ Install via one of the supported package managers:
 {% for pm in package_manager %}
 {% if pm == "pip" %}
 **pip:**
+
 ```bash
 pip install {{ package_name }}
 ```
 
 {% elif pm == "npm" %}
 **npm:**
+
 ```bash
 npm install {{ package_name }}
 ```
 
 {% elif pm == "pnpm" %}
 **pnpm:**
+
 ```bash
 pnpm add {{ package_name }}
 ```
 
 {% elif pm == "yarn" %}
 **yarn:**
+
 ```bash
 yarn add {{ package_name }}
 ```
 
 {% elif pm == "go get" %}
 **go get:**
+
 ```bash
 go get {{ package_name }}
 ```
 
 {% elif pm == "maven" %}
 **Maven:**
+
 ```xml
 <dependency>
     <groupId>dev.kreuzberg</groupId>
@@ -151,30 +157,35 @@ go get {{ package_name }}
 
 {% elif pm == "gradle" %}
 **Gradle:**
+
 ```gradle
 implementation 'dev.kreuzberg:liter-llm:{{ version }}'
 ```
 
 {% elif pm == "rubygems" %}
 **gem:**
+
 ```bash
 gem install {{ package_name }}
 ```
 
 {% elif pm == "bundler" %}
 **Bundler:**
+
 ```ruby
 gem '{{ package_name }}'
 ```
 
 {% elif pm == "composer" %}
 **Composer:**
+
 ```bash
 composer require {{ package_name }}
 ```
 
 {% elif pm == "mix" %}
 **mix:**
+
 ```elixir
 def deps do
   [
@@ -185,6 +196,7 @@ end
 
 {% elif pm == "nuget" %}
 **NuGet:**
+
 ```bash
 dotnet add package {{ package_name }}
 ```
@@ -205,6 +217,7 @@ dotnet add package {{ package_name }}
 ### Platform Support
 
 Pre-built binaries available for:
+
 - macOS (arm64, x64)
 - Linux (x64)
 - Windows (x64)

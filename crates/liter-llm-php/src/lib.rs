@@ -183,6 +183,46 @@ impl PhpHookBridge {
     fn call_method_fire_and_forget(&self, method_name: &str, args: Vec<String>) {
         let _ = self.call_method_checked(method_name, args);
     }
+
+    /// Call `onError` on the PHP hook object, passing the error as a PHP
+    /// `\Exception` so that it satisfies the `\Throwable` type hint
+    /// declared in the `LlmHook` interface.
+    ///
+    /// Silently ignored if the method doesn't exist or the call fails.
+    fn call_on_error(&self, req_json: String, err_msg: String) {
+        use ext_php_rs::convert::IntoZval;
+
+        HOOK_REGISTRY.with(|registry| {
+            let registry = registry.borrow();
+            let zval = match registry.get(self.hook_idx) {
+                Some(Some(z)) => z,
+                _ => return,
+            };
+
+            let obj = match zval.object() {
+                Some(o) => o,
+                None => return,
+            };
+
+            // Create a PHP \Exception with the error message so that the
+            // `\Throwable` type hint in `onError` is satisfied.
+            let exception_obj = ext_php_rs::zend::ce::exception().new();
+            // Initialize the exception via __construct(message).
+            let _ =
+                exception_obj.try_call_method("__construct", vec![&err_msg as &dyn ext_php_rs::convert::IntoZvalDyn]);
+
+            // Convert ZBox<ZendObject> -> Zval so we can pass it as &dyn IntoZvalDyn.
+            let exception_zval = match exception_obj.into_zval(false) {
+                Ok(z) => z,
+                Err(_) => return,
+            };
+
+            let params: Vec<&dyn ext_php_rs::convert::IntoZvalDyn> =
+                vec![&req_json as &dyn ext_php_rs::convert::IntoZvalDyn, &exception_zval];
+
+            let _ = obj.try_call_method("onError", params);
+        });
+    }
 }
 
 /// Serialize the inner request of an [`LlmRequest`] to JSON.
@@ -215,7 +255,7 @@ impl LlmHook for PhpHookBridge {
     fn on_error(&self, req: &LlmRequest, err: &LiterLlmError) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
         let req_json = request_to_json(req);
         let err_msg = err.to_string();
-        self.call_method_fire_and_forget("onError", vec![req_json, err_msg]);
+        self.call_on_error(req_json, err_msg);
         Box::pin(async {})
     }
 }

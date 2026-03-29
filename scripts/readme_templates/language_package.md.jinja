@@ -1,4 +1,4 @@
-# {{ name }}
+# {{ name | replace("#", "\\#") }}
 
 {% include 'partials/badges.html.jinja' %}
 {% include 'partials/banner.html.jinja' %}
@@ -27,7 +27,7 @@
 
 Route to 142+ providers using the `provider/model` prefix convention:
 
-```
+```text
 openai/gpt-4o
 anthropic/claude-3-5-sonnet-20241022
 groq/llama-3.1-70b-versatile
