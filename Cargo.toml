@@ -43,7 +43,7 @@ memchr = "2"
 napi = { version = "3", features = ["napi4", "serde-json", "async"] }
 napi-build = "2"
 napi-derive = "3"
-opendal = { version = "0.53", default-features = false, features = ["services-memory", "services-redis", "services-fs"] }
+opendal = { version = "0.55", default-features = false, features = ["services-memory", "services-redis", "services-fs"] }
 opentelemetry = "0.31"
 pin-project-lite = "0.2"
 pyo3 = { version = "0.28", features = ["abi3-py310"] }

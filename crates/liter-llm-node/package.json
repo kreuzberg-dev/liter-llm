@@ -1,7 +1,7 @@
 {
 	"name": "@kreuzberg/liter-llm-native",
 	"version": "1.0.0",
-	"description": "Native NAPI-RS bindings for liter-llm \u2014 high-performance LLM client powered by Rust",
+	"description": "Native NAPI-RS bindings for liter-llm — high-performance LLM client powered by Rust",
 	"main": "index.js",
 	"types": "index.d.ts",
 	"files": [
@@ -51,6 +51,6 @@
 		"prepublishOnly": "napi prepublish -t npm --skip-optional-publish"
 	},
 	"devDependencies": {
-		"@napi-rs/cli": "^3.5.1"
+		"@napi-rs/cli": "^3.6.0"
 	}
 }
