@@ -1,0 +1,125 @@
+languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
+
+[crate]
+name = "liter-llm"
+core_import = "liter_llm"
+sources = ["crates/liter-llm/src/lib.rs"]
+version_from = "Cargo.toml"
+workspace_root = "."
+
+# Only generate bindings for these specific types/functions.
+# Phase 1: Data types and sync functions (no async client methods yet).
+[include]
+types = [
+    # Chat types
+    "ChatCompletionRequest",
+    "ChatCompletionResponse",
+    "ChatCompletionTool",
+    "Choice",
+    "AssistantMessage",
+    "FunctionCall",
+    "ToolCall",
+    "Message",
+    "Usage",
+    # Streaming
+    "ChatCompletionChunk",
+    "StreamChoice",
+    "StreamDelta",
+    "StreamFunctionCall",
+    "StreamToolCall",
+    # Embedding
+    "EmbeddingRequest",
+    "EmbeddingResponse",
+    "EmbeddingObject",
+    # Models
+    "ModelsListResponse",
+    "ModelObject",
+    # Moderation
+    "ModerationRequest",
+    "ModerationResponse",
+    "ModerationResult",
+    # Rerank
+    "RerankRequest",
+    "RerankResponse",
+    # Image
+    "CreateImageRequest",
+    "ImagesResponse",
+    "Image",
+    # Audio
+    "CreateSpeechRequest",
+    "TranscriptionResponse",
+    "TranscriptionSegment",
+]
+# Exclude types/functions that can't cross FFI cleanly
+[exclude]
+functions = [
+    "completion_cost",      # in liter_llm::cost, not re-exported
+    "model_pricing",        # returns &ModelPricing (reference)
+    "count_tokens",         # in liter_llm::tokenizer, not re-exported
+    "count_request_tokens", # in liter_llm::tokenizer, not re-exported
+]
+types = [
+    "CredentialProvider",
+    "CacheStore",
+    "LlmHook",
+    "BudgetState",
+    "ClientConfig",
+    "ClientConfigBuilder",
+    "FileConfig",
+    "ManagedClient",
+    "DefaultClient",
+    # Batch/File/Response types not in include list but may be extracted
+    "CreateBatchRequest",
+    "BatchObject",
+    "BatchRequestCounts",
+    "BatchListResponse",
+    "BatchListQuery",
+    "CreateTranscriptionRequest",
+    "StreamOptions",
+    # Duration fields not mapped correctly yet
+    "BudgetConfig",
+    "CacheConfig",
+    "RateLimitConfig",
+]
+
+[output]
+python = "crates/liter-llm-py/src/"
+node = "crates/liter-llm-node/src/"
+ruby = "packages/ruby/ext/liter_llm_rb/src/"
+php = "crates/liter-llm-php/src/"
+ffi = "crates/liter-llm-ffi/src/"
+elixir = "packages/elixir/native/liter_llm_rustler/src/"
+wasm = "crates/liter-llm-wasm/src/"
+
+[python]
+module_name = "_internal_bindings"
+
+[python.stubs]
+output = "packages/python/liter_llm/"
+
+[node]
+package_name = "@liter-llm/node"
+
+[ffi]
+prefix = "liter_llm"
+header_name = "liter_llm.h"
+lib_name = "liter_llm_ffi"
+
+[go]
+module = "github.com/kreuzberg-dev/liter-llm-go"
+
+[java]
+package = "dev.kreuzberg.literllm"
+
+[csharp]
+namespace = "LiterLlm"
+
+[elixir]
+app_name = "liter_llm"
+
+[scaffold]
+description = "Universal LLM API client"
+license = "MIT"
+repository = "https://github.com/kreuzberg-dev/liter-llm"
+authors = ["Kreuzberg Team"]
+keywords = ["llm", "openai", "anthropic"]
