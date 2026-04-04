@@ -3,61 +3,27 @@ languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "el
 [crate]
 name = "liter-llm"
 core_import = "liter_llm"
-sources = ["crates/liter-llm/src/lib.rs"]
+sources = [
+    "crates/liter-llm/src/lib.rs",
+    "crates/liter-llm/src/types/audio.rs",
+    "crates/liter-llm/src/types/batch.rs",
+    "crates/liter-llm/src/types/chat.rs",
+    "crates/liter-llm/src/types/common.rs",
+    "crates/liter-llm/src/types/embedding.rs",
+    "crates/liter-llm/src/types/files.rs",
+    "crates/liter-llm/src/types/image.rs",
+    "crates/liter-llm/src/types/models.rs",
+    "crates/liter-llm/src/types/moderation.rs",
+    "crates/liter-llm/src/types/ocr.rs",
+    "crates/liter-llm/src/types/rerank.rs",
+    "crates/liter-llm/src/types/responses.rs",
+    "crates/liter-llm/src/types/search.rs",
+]
 version_from = "Cargo.toml"
 workspace_root = "."
 
-# Only generate bindings for these specific types/functions.
-# Phase 1: Data types and sync functions (no async client methods yet).
-[include]
-types = [
-    # Chat types
-    "ChatCompletionRequest",
-    "ChatCompletionResponse",
-    "ChatCompletionTool",
-    "Choice",
-    "AssistantMessage",
-    "FunctionCall",
-    "ToolCall",
-    "Message",
-    "Usage",
-    # Streaming
-    "ChatCompletionChunk",
-    "StreamChoice",
-    "StreamDelta",
-    "StreamFunctionCall",
-    "StreamToolCall",
-    # Embedding
-    "EmbeddingRequest",
-    "EmbeddingResponse",
-    "EmbeddingObject",
-    # Models
-    "ModelsListResponse",
-    "ModelObject",
-    # Moderation
-    "ModerationRequest",
-    "ModerationResponse",
-    "ModerationResult",
-    # Rerank
-    "RerankRequest",
-    "RerankResponse",
-    # Image
-    "CreateImageRequest",
-    "ImagesResponse",
-    "Image",
-    # Audio
-    "CreateSpeechRequest",
-    "TranscriptionResponse",
-    "TranscriptionSegment",
-    # Cost
-    "ModelPricing",
-    # Tower middleware config
-    "BudgetConfig",
-    "CacheConfig",
-    "RateLimitConfig",
-    "Enforcement",
-]
-functions = ["completion_cost"]
+# Generate all extracted types except those in [exclude].
+# No [include] section — all public types from sources are included.
 
 # Exclude types/functions that can't cross FFI cleanly
 [exclude]
