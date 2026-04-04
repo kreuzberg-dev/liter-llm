@@ -76,10 +76,13 @@ types = [
     "BatchListQuery",
     "CreateTranscriptionRequest",
     "StreamOptions",
-    # Duration fields not mapped correctly yet
+    # Tower middleware types — behind feature gate, not re-exported at crate root
     "BudgetConfig",
     "CacheConfig",
     "RateLimitConfig",
+    "CacheBackend",
+    "Enforcement",
+    "CachedResponse",
 ]
 
 [output]
