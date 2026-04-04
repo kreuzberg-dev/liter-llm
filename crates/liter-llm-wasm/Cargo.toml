@@ -11,7 +11,16 @@ keywords = ["wasm", "webassembly", "llm", "api-client", "bindings"]
 categories = ["api-bindings", "wasm"]
 
 [package.metadata.cargo-machete]
-ignored = ["liter-llm", "web-sys"]
+ignored = [
+    "liter-llm",
+    "web-sys",
+    "js-sys",
+    "liter-llm-bindings-core",
+    "serde",
+    "serde-wasm-bindgen",
+    "serde_json",
+    "wasm-bindgen-futures",
+]
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = ["-O", "--enable-bulk-memory", "--enable-nontrapping-float-to-int"]

@@ -65,6 +65,69 @@ pub unsafe extern "C" fn liter_llm_version() -> *const c_char {
     VERSION.as_ptr() as *const c_char
 }
 
+/// Create a `ModelPricing` from a JSON string. Returns null on failure.
+/// # Safety
+/// JSON string must be valid UTF-8 and null-terminated.
+/// Returned handle must be freed with `liter_llm_model_pricing_free`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn liter_llm_model_pricing_from_json(json: *const c_char) -> *mut liter_llm::ModelPricing {
+    clear_last_error();
+    if json.is_null() {
+        set_last_error(1, "Null pointer passed for JSON string");
+        return std::ptr::null_mut();
+    }
+    let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
+        Ok(s) => s,
+        Err(_) => {
+            set_last_error(1, "Invalid UTF-8 in JSON string");
+            return std::ptr::null_mut();
+        }
+    };
+    match serde_json::from_str::<liter_llm::ModelPricing>(c_str) {
+        Ok(val) => Box::into_raw(Box::new(val)),
+        Err(e) => {
+            set_last_error(2, &e.to_string());
+            std::ptr::null_mut()
+        }
+    }
+}
+
+/// Free a `ModelPricing` handle.
+/// # Safety
+/// Pointer must have been returned by this library, or be null.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn liter_llm_model_pricing_free(ptr: *mut liter_llm::ModelPricing) {
+    if !ptr.is_null() {
+        unsafe {
+            drop(Box::from_raw(ptr));
+        }
+    }
+}
+
+/// Get the `input_cost_per_token` field from a `ModelPricing`.
+/// # Safety
+/// Pointer must be a valid handle returned by this library.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn liter_llm_model_pricing_input_cost_per_token(ptr: *const liter_llm::ModelPricing) -> f64 {
+    if ptr.is_null() {
+        return 0.0;
+    }
+    let obj = unsafe { &*ptr };
+    obj.input_cost_per_token
+}
+
+/// Get the `output_cost_per_token` field from a `ModelPricing`.
+/// # Safety
+/// Pointer must be a valid handle returned by this library.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn liter_llm_model_pricing_output_cost_per_token(ptr: *const liter_llm::ModelPricing) -> f64 {
+    if ptr.is_null() {
+        return 0.0;
+    }
+    let obj = unsafe { &*ptr };
+    obj.output_cost_per_token
+}
+
 /// Create a `CreateSpeechRequest` from a JSON string. Returns null on failure.
 /// # Safety
 /// JSON string must be valid UTF-8 and null-terminated.

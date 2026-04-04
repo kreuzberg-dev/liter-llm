@@ -6,9 +6,27 @@
 #![allow(clippy::should_implement_trait)]
 
 use ext_php_rs::prelude::*;
+use serde_json;
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
+#[php_class]
+pub struct ModelPricing {
+    pub input_cost_per_token: f64,
+    pub output_cost_per_token: f64,
+}
+
+#[php_impl]
+impl ModelPricing {
+    pub fn __construct(input_cost_per_token: f64, output_cost_per_token: f64) -> Self {
+        Self {
+            input_cost_per_token,
+            output_cost_per_token,
+        }
+    }
+}
+
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct CreateSpeechRequest {
     pub model: String,
@@ -37,7 +55,7 @@ impl CreateSpeechRequest {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct TranscriptionResponse {
     pub text: String,
@@ -48,15 +66,14 @@ pub struct TranscriptionResponse {
 
 #[php_impl]
 impl TranscriptionResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for TranscriptionResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::TranscriptionResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct TranscriptionSegment {
     pub id: u32,
@@ -72,7 +89,7 @@ impl TranscriptionSegment {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ChatCompletionRequest {
     pub model: String,
@@ -98,15 +115,14 @@ pub struct ChatCompletionRequest {
 
 #[php_impl]
 impl ChatCompletionRequest {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ChatCompletionRequest requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ChatCompletionRequest =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ChatCompletionResponse {
     pub id: String,
@@ -121,11 +137,10 @@ pub struct ChatCompletionResponse {
 
 #[php_impl]
 impl ChatCompletionResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ChatCompletionResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ChatCompletionResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 
     pub fn estimated_cost(&self) -> Option<f64> {
@@ -133,7 +148,7 @@ impl ChatCompletionResponse {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct Choice {
     pub index: u32,
@@ -143,12 +158,13 @@ pub struct Choice {
 
 #[php_impl]
 impl Choice {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default("Not implemented: constructor for Choice requires complex params".to_string()).into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::Choice = serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ChatCompletionChunk {
     pub id: String,
@@ -163,15 +179,14 @@ pub struct ChatCompletionChunk {
 
 #[php_impl]
 impl ChatCompletionChunk {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ChatCompletionChunk requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ChatCompletionChunk =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct StreamChoice {
     pub index: u32,
@@ -181,15 +196,14 @@ pub struct StreamChoice {
 
 #[php_impl]
 impl StreamChoice {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(
-            PhpException::default("Not implemented: constructor for StreamChoice requires complex params".to_string())
-                .into(),
-        )
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::StreamChoice =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct StreamDelta {
     pub role: Option<String>,
@@ -201,15 +215,14 @@ pub struct StreamDelta {
 
 #[php_impl]
 impl StreamDelta {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(
-            PhpException::default("Not implemented: constructor for StreamDelta requires complex params".to_string())
-                .into(),
-        )
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::StreamDelta =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct StreamToolCall {
     pub index: u32,
@@ -220,15 +233,14 @@ pub struct StreamToolCall {
 
 #[php_impl]
 impl StreamToolCall {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for StreamToolCall requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::StreamToolCall =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct StreamFunctionCall {
     pub name: Option<String>,
@@ -242,7 +254,7 @@ impl StreamFunctionCall {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct AssistantMessage {
     pub content: Option<String>,
@@ -254,15 +266,14 @@ pub struct AssistantMessage {
 
 #[php_impl]
 impl AssistantMessage {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for AssistantMessage requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::AssistantMessage =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ChatCompletionTool {
     pub tool_type: String,
@@ -271,15 +282,14 @@ pub struct ChatCompletionTool {
 
 #[php_impl]
 impl ChatCompletionTool {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ChatCompletionTool requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ChatCompletionTool =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct FunctionDefinition {
     pub name: String,
@@ -305,7 +315,7 @@ impl FunctionDefinition {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ToolCall {
     pub id: String,
@@ -315,15 +325,14 @@ pub struct ToolCall {
 
 #[php_impl]
 impl ToolCall {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(
-            PhpException::default("Not implemented: constructor for ToolCall requires complex params".to_string())
-                .into(),
-        )
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ToolCall =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct FunctionCall {
     pub name: String,
@@ -337,7 +346,7 @@ impl FunctionCall {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct Usage {
     pub prompt_tokens: i64,
@@ -356,7 +365,7 @@ impl Usage {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct EmbeddingRequest {
     pub model: String,
@@ -368,15 +377,14 @@ pub struct EmbeddingRequest {
 
 #[php_impl]
 impl EmbeddingRequest {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for EmbeddingRequest requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::EmbeddingRequest =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct EmbeddingResponse {
     pub object: String,
@@ -387,11 +395,10 @@ pub struct EmbeddingResponse {
 
 #[php_impl]
 impl EmbeddingResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for EmbeddingResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::EmbeddingResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 
     pub fn estimated_cost(&self) -> Option<f64> {
@@ -399,7 +406,7 @@ impl EmbeddingResponse {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct EmbeddingObject {
     pub object: String,
@@ -418,7 +425,7 @@ impl EmbeddingObject {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct CreateImageRequest {
     pub prompt: String,
@@ -456,7 +463,7 @@ impl CreateImageRequest {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ImagesResponse {
     pub created: i64,
@@ -465,15 +472,14 @@ pub struct ImagesResponse {
 
 #[php_impl]
 impl ImagesResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ImagesResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ImagesResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct Image {
     pub url: Option<String>,
@@ -492,7 +498,7 @@ impl Image {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModelsListResponse {
     pub object: String,
@@ -501,15 +507,14 @@ pub struct ModelsListResponse {
 
 #[php_impl]
 impl ModelsListResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ModelsListResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ModelsListResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModelObject {
     pub id: String,
@@ -530,7 +535,7 @@ impl ModelObject {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModerationRequest {
     pub input: String,
@@ -539,15 +544,14 @@ pub struct ModerationRequest {
 
 #[php_impl]
 impl ModerationRequest {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ModerationRequest requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ModerationRequest =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModerationResponse {
     pub id: String,
@@ -557,15 +561,14 @@ pub struct ModerationResponse {
 
 #[php_impl]
 impl ModerationResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ModerationResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ModerationResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModerationResult {
     pub flagged: bool,
@@ -575,15 +578,14 @@ pub struct ModerationResult {
 
 #[php_impl]
 impl ModerationResult {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for ModerationResult requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::ModerationResult =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModerationCategories {
     pub sexual: bool,
@@ -630,7 +632,7 @@ impl ModerationCategories {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct ModerationCategoryScores {
     pub sexual: f64,
@@ -677,7 +679,7 @@ impl ModerationCategoryScores {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct RerankRequest {
     pub model: String,
@@ -689,15 +691,14 @@ pub struct RerankRequest {
 
 #[php_impl]
 impl RerankRequest {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(
-            PhpException::default("Not implemented: constructor for RerankRequest requires complex params".to_string())
-                .into(),
-        )
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::RerankRequest =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct RerankResponse {
     pub id: Option<String>,
@@ -707,15 +708,14 @@ pub struct RerankResponse {
 
 #[php_impl]
 impl RerankResponse {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(PhpException::default(
-            "Not implemented: constructor for RerankResponse requires complex params".to_string(),
-        )
-        .into())
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::RerankResponse =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct RerankResult {
     pub index: u32,
@@ -725,15 +725,14 @@ pub struct RerankResult {
 
 #[php_impl]
 impl RerankResult {
-    pub fn __construct() -> PhpResult<Self> {
-        Err(
-            PhpException::default("Not implemented: constructor for RerankResult requires complex params".to_string())
-                .into(),
-        )
+    pub fn from_json(json: String) -> PhpResult<Self> {
+        let core: liter_llm::RerankResult =
+            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
+        Ok(core.into())
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[php_class]
 pub struct RerankResultDocument {
     pub text: String,
@@ -798,6 +797,24 @@ pub const MODERATIONINPUT_MULTIPLE: &str = "Multiple";
 // RerankDocument enum values
 pub const RERANKDOCUMENT_TEXT: &str = "Text";
 pub const RERANKDOCUMENT_OBJECT: &str = "Object";
+
+impl From<ModelPricing> for liter_llm::ModelPricing {
+    fn from(val: ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<liter_llm::ModelPricing> for ModelPricing {
+    fn from(val: liter_llm::ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
 
 impl From<CreateSpeechRequest> for liter_llm::CreateSpeechRequest {
     fn from(val: CreateSpeechRequest) -> Self {
@@ -867,6 +884,20 @@ impl From<liter_llm::TranscriptionSegment> for TranscriptionSegment {
     }
 }
 
+impl From<ChatCompletionRequest> for liter_llm::ChatCompletionRequest {
+    fn from(val: ChatCompletionRequest) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
+impl From<ChatCompletionResponse> for liter_llm::ChatCompletionResponse {
+    fn from(val: ChatCompletionResponse) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
 impl From<liter_llm::ChatCompletionResponse> for ChatCompletionResponse {
     fn from(val: liter_llm::ChatCompletionResponse) -> Self {
         Self {
@@ -882,6 +913,13 @@ impl From<liter_llm::ChatCompletionResponse> for ChatCompletionResponse {
     }
 }
 
+impl From<Choice> for liter_llm::Choice {
+    fn from(val: Choice) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
 impl From<liter_llm::Choice> for Choice {
     fn from(val: liter_llm::Choice) -> Self {
         Self {
@@ -889,6 +927,13 @@ impl From<liter_llm::Choice> for Choice {
             message: val.message.into(),
             finish_reason: val.finish_reason.as_ref().map(|v| format!("{:?}", v)),
         }
+    }
+}
+
+impl From<ChatCompletionChunk> for liter_llm::ChatCompletionChunk {
+    fn from(val: ChatCompletionChunk) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
     }
 }
 
@@ -907,6 +952,13 @@ impl From<liter_llm::ChatCompletionChunk> for ChatCompletionChunk {
     }
 }
 
+impl From<StreamChoice> for liter_llm::StreamChoice {
+    fn from(val: StreamChoice) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
 impl From<liter_llm::StreamChoice> for StreamChoice {
     fn from(val: liter_llm::StreamChoice) -> Self {
         Self {
@@ -914,6 +966,13 @@ impl From<liter_llm::StreamChoice> for StreamChoice {
             delta: val.delta.into(),
             finish_reason: val.finish_reason.as_ref().map(|v| format!("{:?}", v)),
         }
+    }
+}
+
+impl From<StreamDelta> for liter_llm::StreamDelta {
+    fn from(val: StreamDelta) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
     }
 }
 
@@ -926,6 +985,13 @@ impl From<liter_llm::StreamDelta> for StreamDelta {
             function_call: val.function_call.map(Into::into),
             refusal: val.refusal,
         }
+    }
+}
+
+impl From<StreamToolCall> for liter_llm::StreamToolCall {
+    fn from(val: StreamToolCall) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
     }
 }
 
@@ -958,6 +1024,13 @@ impl From<liter_llm::StreamFunctionCall> for StreamFunctionCall {
     }
 }
 
+impl From<AssistantMessage> for liter_llm::AssistantMessage {
+    fn from(val: AssistantMessage) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
 impl From<liter_llm::AssistantMessage> for AssistantMessage {
     fn from(val: liter_llm::AssistantMessage) -> Self {
         Self {
@@ -967,6 +1040,20 @@ impl From<liter_llm::AssistantMessage> for AssistantMessage {
             refusal: val.refusal,
             function_call: val.function_call.map(Into::into),
         }
+    }
+}
+
+impl From<ChatCompletionTool> for liter_llm::ChatCompletionTool {
+    fn from(val: ChatCompletionTool) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
+impl From<ToolCall> for liter_llm::ToolCall {
+    fn from(val: ToolCall) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
     }
 }
 
@@ -1015,6 +1102,13 @@ impl From<liter_llm::Usage> for Usage {
             completion_tokens: val.completion_tokens as i64,
             total_tokens: val.total_tokens as i64,
         }
+    }
+}
+
+impl From<EmbeddingRequest> for liter_llm::EmbeddingRequest {
+    fn from(val: EmbeddingRequest) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
     }
 }
 
@@ -1180,6 +1274,13 @@ impl From<liter_llm::ModelObject> for ModelObject {
     }
 }
 
+impl From<ModerationRequest> for liter_llm::ModerationRequest {
+    fn from(val: ModerationRequest) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
+    }
+}
+
 impl From<liter_llm::ModerationRequest> for ModerationRequest {
     fn from(val: liter_llm::ModerationRequest) -> Self {
         Self {
@@ -1298,6 +1399,13 @@ impl From<liter_llm::ModerationCategoryScores> for ModerationCategoryScores {
             harassment_threatening: val.harassment_threatening,
             violence: val.violence,
         }
+    }
+}
+
+impl From<RerankRequest> for liter_llm::RerankRequest {
+    fn from(val: RerankRequest) -> Self {
+        let json = serde_json::to_string(&val).expect("skif: serialize binding type");
+        serde_json::from_str(&json).expect("skif: deserialize to core type")
     }
 }
 

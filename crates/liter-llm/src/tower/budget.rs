@@ -51,7 +51,7 @@ use crate::error::{LiterLlmError, Result};
 // ---- Types -----------------------------------------------------------------
 
 /// How budget limits are enforced.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Enforcement {
     /// Reject requests that would exceed the budget with
     /// [`LiterLlmError::BudgetExceeded`].
@@ -64,7 +64,7 @@ pub enum Enforcement {
 // ---- Config ----------------------------------------------------------------
 
 /// Configuration for budget enforcement.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct BudgetConfig {
     /// Maximum total spend across all models, in USD.  `None` means unlimited.
     pub global_limit: Option<f64>,

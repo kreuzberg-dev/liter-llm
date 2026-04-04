@@ -26,6 +26,6 @@ public sealed class CacheConfig
     /// Storage backend to use.
     /// </summary>
     [JsonPropertyName("backend")]
-    public required CacheBackend Backend { get; set; }
+    public required string Backend { get; set; }
 
 }

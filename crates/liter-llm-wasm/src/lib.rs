@@ -12,6 +12,44 @@ use wasm_bindgen::prelude::*;
 
 #[derive(Clone)]
 #[wasm_bindgen]
+pub struct JsModelPricing {
+    input_cost_per_token: f64,
+    output_cost_per_token: f64,
+}
+
+#[wasm_bindgen]
+impl JsModelPricing {
+    #[wasm_bindgen(constructor)]
+    pub fn new(input_cost_per_token: f64, output_cost_per_token: f64) -> JsModelPricing {
+        JsModelPricing {
+            input_cost_per_token,
+            output_cost_per_token,
+        }
+    }
+
+    #[wasm_bindgen(getter, js_name = "inputCostPerToken")]
+    pub fn input_cost_per_token(&self) -> f64 {
+        self.input_cost_per_token
+    }
+
+    #[wasm_bindgen(setter, js_name = "inputCostPerToken")]
+    pub fn set_input_cost_per_token(&mut self, value: f64) {
+        self.input_cost_per_token = value;
+    }
+
+    #[wasm_bindgen(getter, js_name = "outputCostPerToken")]
+    pub fn output_cost_per_token(&self) -> f64 {
+        self.output_cost_per_token
+    }
+
+    #[wasm_bindgen(setter, js_name = "outputCostPerToken")]
+    pub fn set_output_cost_per_token(&mut self, value: f64) {
+        self.output_cost_per_token = value;
+    }
+}
+
+#[derive(Clone)]
+#[wasm_bindgen]
 pub struct JsCreateSpeechRequest {
     model: String,
     input: String,
@@ -2556,6 +2594,24 @@ pub enum JsModerationInput {
 pub enum JsRerankDocument {
     Text = 0,
     Object = 1,
+}
+
+impl From<JsModelPricing> for liter_llm::ModelPricing {
+    fn from(val: JsModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<liter_llm::ModelPricing> for JsModelPricing {
+    fn from(val: liter_llm::ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
 }
 
 impl From<JsCreateSpeechRequest> for liter_llm::CreateSpeechRequest {

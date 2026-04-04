@@ -11,6 +11,13 @@ use rustler::{Env, NifResult, ResourceArc, Term};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, rustler::NifStruct)]
+#[module = "LiterLlm.ModelPricing"]
+pub struct ModelPricing {
+    pub input_cost_per_token: f64,
+    pub output_cost_per_token: f64,
+}
+
+#[derive(Debug, Clone, rustler::NifStruct)]
 #[module = "LiterLlm.CreateSpeechRequest"]
 pub struct CreateSpeechRequest {
     pub model: String,
@@ -420,6 +427,24 @@ pub fn chatcompletionresponse_estimated_cost(obj: ChatCompletionResponse) -> Opt
 #[rustler::nif]
 pub fn embeddingresponse_estimated_cost(obj: EmbeddingResponse) -> Option<f64> {
     None
+}
+
+impl From<ModelPricing> for liter_llm::ModelPricing {
+    fn from(val: ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<liter_llm::ModelPricing> for ModelPricing {
+    fn from(val: liter_llm::ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
 }
 
 impl From<CreateSpeechRequest> for liter_llm::CreateSpeechRequest {

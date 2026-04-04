@@ -49,7 +49,7 @@ struct PricingRegistry {
 }
 
 /// Per-token pricing for a single model (USD per token).
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, Deserialize)]
 pub struct ModelPricing {
     /// Cost in USD per input (prompt) token.
     pub input_cost_per_token: f64,

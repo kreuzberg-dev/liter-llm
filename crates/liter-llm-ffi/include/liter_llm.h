@@ -42,6 +42,35 @@ void liter_llm_free_string(char *ptr);
 const char *liter_llm_version(void);
 
 /**
+ * Create a `ModelPricing` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `liter_llm_model_pricing_free`.
+ */
+LITER_LLMModelPricing *liter_llm_model_pricing_from_json(const char *json);
+
+/**
+ * Free a `ModelPricing` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void liter_llm_model_pricing_free(LITER_LLMModelPricing *ptr);
+
+/**
+ * Get the `input_cost_per_token` field from a `ModelPricing`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+double liter_llm_model_pricing_input_cost_per_token(const LITER_LLMModelPricing *ptr);
+
+/**
+ * Get the `output_cost_per_token` field from a `ModelPricing`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+double liter_llm_model_pricing_output_cost_per_token(const LITER_LLMModelPricing *ptr);
+
+/**
  * Create a `CreateSpeechRequest` from a JSON string. Returns null on failure.
  * # Safety
  * JSON string must be valid UTF-8 and null-terminated.

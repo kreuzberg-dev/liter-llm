@@ -11,6 +11,37 @@ use magnus::{function, method, prelude::*, Error, Ruby, IntoValueFromNative, try
 use std::collections::HashMap;
 
 #[derive(Clone)]
+#[magnus::wrap(class = "Kreuzberg::ModelPricing")]
+pub struct ModelPricing {
+    pub input_cost_per_token: f64,
+    pub output_cost_per_token: f64,
+}
+
+unsafe impl IntoValueFromNative for ModelPricing {}
+
+impl magnus::TryConvert for ModelPricing {
+    fn try_convert(val: magnus::Value) -> Result<Self, magnus::Error> {
+        let r: &ModelPricing = magnus::TryConvert::try_convert(val)?;
+        Ok(r.clone())
+    }
+}
+unsafe impl TryConvertOwned for ModelPricing {}
+
+impl ModelPricing {
+    fn new(input_cost_per_token: f64, output_cost_per_token: f64) -> Self {
+            Self { input_cost_per_token, output_cost_per_token }
+        }
+
+    fn input_cost_per_token(&self) -> f64 {
+            self.input_cost_per_token
+        }
+
+    fn output_cost_per_token(&self) -> f64 {
+            self.output_cost_per_token
+        }
+}
+
+#[derive(Clone)]
 #[magnus::wrap(class = "Kreuzberg::CreateSpeechRequest")]
 pub struct CreateSpeechRequest {
     pub model: String,
@@ -2010,6 +2041,11 @@ unsafe impl TryConvertOwned for RerankDocument {}
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("LiterLlm")?;
+
+    let class = module.define_class("ModelPricing", ruby.class_object())?;
+    class.define_singleton_method("new", function!(ModelPricing::new, 2))?;
+    class.define_method("input_cost_per_token", method!(ModelPricing::input_cost_per_token, 0))?;
+    class.define_method("output_cost_per_token", method!(ModelPricing::output_cost_per_token, 0))?;
 
     let class = module.define_class("CreateSpeechRequest", ruby.class_object())?;
     class.define_singleton_method("new", function!(CreateSpeechRequest::new, 5))?;

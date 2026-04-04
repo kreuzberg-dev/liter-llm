@@ -14,6 +14,27 @@ use std::collections::HashMap;
 
 #[derive(Clone, serde::Serialize)]
 #[pyclass(frozen, from_py_object)]
+pub struct ModelPricing {
+    #[pyo3(get)]
+    pub input_cost_per_token: f64,
+    #[pyo3(get)]
+    pub output_cost_per_token: f64,
+}
+
+#[pymethods]
+impl ModelPricing {
+    #[pyo3(signature = (input_cost_per_token, output_cost_per_token))]
+    #[new]
+    pub fn new(input_cost_per_token: f64, output_cost_per_token: f64) -> Self {
+        Self {
+            input_cost_per_token,
+            output_cost_per_token,
+        }
+    }
+}
+
+#[derive(Clone, serde::Serialize)]
+#[pyclass(frozen, from_py_object)]
 pub struct CreateSpeechRequest {
     #[pyo3(get)]
     pub model: String,
@@ -1183,6 +1204,24 @@ pub enum RerankDocument {
     Object = 1,
 }
 
+impl From<ModelPricing> for liter_llm::ModelPricing {
+    fn from(val: ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<liter_llm::ModelPricing> for ModelPricing {
+    fn from(val: liter_llm::ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
 impl From<CreateSpeechRequest> for liter_llm::CreateSpeechRequest {
     fn from(val: CreateSpeechRequest) -> Self {
         Self {
@@ -2013,6 +2052,7 @@ impl From<liter_llm::RerankDocument> for RerankDocument {
 
 #[pymodule]
 pub fn _internal_bindings(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<ModelPricing>()?;
     m.add_class::<CreateSpeechRequest>()?;
     m.add_class::<TranscriptionResponse>()?;
     m.add_class::<TranscriptionSegment>()?;

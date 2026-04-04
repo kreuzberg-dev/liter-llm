@@ -13,6 +13,15 @@ use std::collections::HashMap;
 
 #[derive(Clone)]
 #[napi(object)]
+pub struct JsModelPricing {
+    #[napi(js_name = "inputCostPerToken")]
+    pub input_cost_per_token: f64,
+    #[napi(js_name = "outputCostPerToken")]
+    pub output_cost_per_token: f64,
+}
+
+#[derive(Clone)]
+#[napi(object)]
 pub struct JsCreateSpeechRequest {
     pub model: String,
     pub input: String,
@@ -473,6 +482,24 @@ pub enum JsModerationInput {
 pub enum JsRerankDocument {
     Text,
     Object,
+}
+
+impl From<JsModelPricing> for liter_llm::ModelPricing {
+    fn from(val: JsModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<liter_llm::ModelPricing> for JsModelPricing {
+    fn from(val: liter_llm::ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
 }
 
 impl From<JsCreateSpeechRequest> for liter_llm::CreateSpeechRequest {

@@ -10,6 +10,20 @@ description = "C FFI bindings for liter-llm — universal LLM API client with 14
 keywords = ["ffi", "bindings", "llm", "api-client", "ai"]
 categories = ["development-tools::ffi", "api-bindings"]
 
+[package.metadata.cargo-machete]
+ignored = [
+    "liter-llm-bindings-core",
+    "futures-core",
+    "serde",
+    "serde_json",
+    "tokio",
+    "js-sys",
+    "serde-wasm-bindgen",
+    "wasm-bindgen-futures",
+    "base64",
+    "bytes",
+]
+
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]
 

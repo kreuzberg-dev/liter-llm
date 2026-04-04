@@ -29,7 +29,7 @@ use crate::types::{ChatCompletionResponse, EmbeddingResponse};
 // ---- Config ----------------------------------------------------------------
 
 /// Storage backend for the response cache.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub enum CacheBackend {
     /// In-memory LRU cache (default). No external dependencies.
     #[default]
@@ -45,7 +45,7 @@ pub enum CacheBackend {
 }
 
 /// Configuration for the response cache.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CacheConfig {
     /// Maximum number of cached entries.
     pub max_entries: usize,

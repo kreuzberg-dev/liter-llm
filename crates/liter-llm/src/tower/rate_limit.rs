@@ -24,7 +24,7 @@ use crate::error::{LiterLlmError, Result};
 // ---- Config ----------------------------------------------------------------
 
 /// Configuration for per-model rate limits.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RateLimitConfig {
     /// Maximum requests per window.  `None` means unlimited.
     pub rpm: Option<u32>,

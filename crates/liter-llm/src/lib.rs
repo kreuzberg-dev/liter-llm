@@ -28,6 +28,7 @@ pub use client::DefaultClient;
 // ManagedClient requires both the native HTTP stack and Tower middleware.
 #[cfg(all(feature = "native-http", feature = "tower"))]
 pub use client::managed::ManagedClient;
+pub use cost::{ModelPricing, completion_cost};
 pub use error::{LiterLlmError, Result};
 // Re-export the public provider helper functions that are part of the crate's
 // public API even though the `provider` module itself is pub(crate).
@@ -35,4 +36,6 @@ pub use provider::custom::{
     AuthHeaderFormat, CustomProviderConfig, register_custom_provider, unregister_custom_provider,
 };
 pub use provider::{ProviderConfig, all_providers, complex_provider_names};
+#[cfg(feature = "tower")]
+pub use tower::{BudgetConfig, CacheConfig, Enforcement, RateLimitConfig};
 pub use types::*;

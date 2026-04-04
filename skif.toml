@@ -49,12 +49,14 @@ types = [
     "CreateSpeechRequest",
     "TranscriptionResponse",
     "TranscriptionSegment",
+    # Cost
+    "ModelPricing",
 ]
 # Exclude types/functions that can't cross FFI cleanly
 [exclude]
 functions = [
-    "completion_cost",      # in liter_llm::cost, not re-exported
-    "model_pricing",        # returns &ModelPricing (reference)
+    "completion_cost",      # Optional<f64> return with pointer null check — FFI backend bug
+    "model_pricing",        # returns &ModelPricing (reference — can't cross FFI)
     "count_tokens",         # in liter_llm::tokenizer, not re-exported
     "count_request_tokens", # in liter_llm::tokenizer, not re-exported
 ]
@@ -76,13 +78,14 @@ types = [
     "BatchListQuery",
     "CreateTranscriptionRequest",
     "StreamOptions",
-    # Tower middleware types — behind feature gate, not re-exported at crate root
+    # Tower middleware types that can't cross FFI cleanly
+    "CacheBackend",   # cfg-gated enum variant with HashMap
+    "CachedResponse", # wraps LlmResponse tower type
+    # Tower middleware — Duration mapping needs per-backend i64/u64 handling
     "BudgetConfig",
     "CacheConfig",
     "RateLimitConfig",
-    "CacheBackend",
     "Enforcement",
-    "CachedResponse",
 ]
 
 [output]
