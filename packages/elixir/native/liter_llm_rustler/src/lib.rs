@@ -421,17 +421,17 @@ pub enum RerankDocument {
 
 #[rustler::nif]
 pub fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
-    None
+    liter_llm::completion_cost(&model, prompt_tokens, completion_tokens)
 }
 
 #[rustler::nif]
 pub fn chatcompletionresponse_estimated_cost(obj: ChatCompletionResponse) -> Option<f64> {
-    None
+    liter_llm::ChatCompletionResponse::from(obj).estimated_cost()
 }
 
 #[rustler::nif]
 pub fn embeddingresponse_estimated_cost(obj: EmbeddingResponse) -> Option<f64> {
-    None
+    liter_llm::EmbeddingResponse::from(obj).estimated_cost()
 }
 
 impl From<ModelPricing> for liter_llm::ModelPricing {

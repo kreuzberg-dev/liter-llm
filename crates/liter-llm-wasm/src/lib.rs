@@ -634,7 +634,7 @@ impl JsChatCompletionResponse {
 
     #[wasm_bindgen(js_name = "estimatedCost")]
     pub fn estimated_cost(&self) -> Option<f64> {
-        None
+        liter_llm::ChatCompletionResponse::from(self.clone()).estimated_cost()
     }
 }
 
@@ -1504,7 +1504,7 @@ impl JsEmbeddingResponse {
 
     #[wasm_bindgen(js_name = "estimatedCost")]
     pub fn estimated_cost(&self) -> Option<f64> {
-        None
+        liter_llm::EmbeddingResponse::from(self.clone()).estimated_cost()
     }
 }
 
@@ -2598,7 +2598,7 @@ pub enum JsRerankDocument {
 
 #[wasm_bindgen(js_name = "completionCost")]
 pub fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
-    None
+    liter_llm::completion_cost(&model, prompt_tokens, completion_tokens)
 }
 
 impl From<JsModelPricing> for liter_llm::ModelPricing {

@@ -138,7 +138,17 @@ impl ChatCompletionResponse {
     }
 
     pub fn estimated_cost(&self) -> Option<f64> {
-        None
+        let core_self = liter_llm::ChatCompletionResponse {
+            id: self.id.clone(),
+            object: self.object.clone(),
+            created: self.created,
+            model: self.model.clone(),
+            choices: self.choices.clone().into_iter().map(Into::into).collect(),
+            usage: self.usage.clone().map(Into::into),
+            system_fingerprint: self.system_fingerprint.clone(),
+            service_tier: self.service_tier.clone(),
+        };
+        core_self.estimated_cost()
     }
 }
 
@@ -377,7 +387,13 @@ impl EmbeddingResponse {
     }
 
     pub fn estimated_cost(&self) -> Option<f64> {
-        None
+        let core_self = liter_llm::EmbeddingResponse {
+            object: self.object.clone(),
+            data: self.data.clone().into_iter().map(Into::into).collect(),
+            model: self.model.clone(),
+            usage: self.usage.clone().map(Into::into),
+        };
+        core_self.estimated_cost()
     }
 }
 
@@ -758,8 +774,8 @@ pub const RERANKDOCUMENT_TEXT: &str = "Text";
 pub const RERANKDOCUMENT_OBJECT: &str = "Object";
 
 #[php_function]
-pub fn completion_cost() -> Option<f64> {
-    None
+pub fn completion_cost(model: String, prompt_tokens: i64, completion_tokens: i64) -> Option<f64> {
+    liter_llm::completion_cost(&model, prompt_tokens, completion_tokens)
 }
 
 impl From<ModelPricing> for liter_llm::ModelPricing {

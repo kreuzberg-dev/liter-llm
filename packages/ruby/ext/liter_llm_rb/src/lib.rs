@@ -380,7 +380,17 @@ impl ChatCompletionResponse {
         }
 
     fn estimated_cost(&self, ) -> Option<f64> {
-            None
+            let core_self = liter_llm::ChatCompletionResponse {
+                id: self.id.clone(),
+                object: self.object.clone(),
+                created: self.created,
+                model: self.model.clone(),
+                choices: self.choices.clone().into_iter().map(Into::into).collect(),
+                usage: self.usage.clone().map(Into::into),
+                system_fingerprint: self.system_fingerprint.clone(),
+                service_tier: self.service_tier.clone(),
+            };
+            core_self.estimated_cost()
         }
 }
 
@@ -970,7 +980,13 @@ impl EmbeddingResponse {
         }
 
     fn estimated_cost(&self, ) -> Option<f64> {
-            None
+            let core_self = liter_llm::EmbeddingResponse {
+                object: self.object.clone(),
+                data: self.data.clone().into_iter().map(Into::into).collect(),
+                model: self.model.clone(),
+                usage: self.usage.clone().map(Into::into),
+            };
+            core_self.estimated_cost()
         }
 }
 
@@ -2039,7 +2055,855 @@ unsafe impl IntoValueFromNative for RerankDocument {}
 unsafe impl TryConvertOwned for RerankDocument {}
 
 fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
-    None
+    liter_llm::completion_cost(&model, prompt_tokens, completion_tokens)
+}
+
+impl From<ModelPricing> for liter_llm::ModelPricing {
+    fn from(val: ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<liter_llm::ModelPricing> for ModelPricing {
+    fn from(val: liter_llm::ModelPricing) -> Self {
+        Self {
+            input_cost_per_token: val.input_cost_per_token,
+            output_cost_per_token: val.output_cost_per_token,
+        }
+    }
+}
+
+impl From<CreateSpeechRequest> for liter_llm::CreateSpeechRequest {
+    fn from(val: CreateSpeechRequest) -> Self {
+        Self {
+            model: val.model,
+            input: val.input,
+            voice: val.voice,
+            response_format: val.response_format,
+            speed: val.speed,
+        }
+    }
+}
+
+impl From<liter_llm::CreateSpeechRequest> for CreateSpeechRequest {
+    fn from(val: liter_llm::CreateSpeechRequest) -> Self {
+        Self {
+            model: val.model,
+            input: val.input,
+            voice: val.voice,
+            response_format: val.response_format,
+            speed: val.speed,
+        }
+    }
+}
+
+impl From<TranscriptionResponse> for liter_llm::TranscriptionResponse {
+    fn from(val: TranscriptionResponse) -> Self {
+        Self {
+            text: val.text,
+            language: val.language,
+            duration: val.duration,
+            segments: val.segments.map(|v| v.into_iter().map(Into::into).collect()),
+        }
+    }
+}
+
+impl From<liter_llm::TranscriptionResponse> for TranscriptionResponse {
+    fn from(val: liter_llm::TranscriptionResponse) -> Self {
+        Self {
+            text: val.text,
+            language: val.language,
+            duration: val.duration,
+            segments: val.segments.map(|v| v.into_iter().map(Into::into).collect()),
+        }
+    }
+}
+
+impl From<TranscriptionSegment> for liter_llm::TranscriptionSegment {
+    fn from(val: TranscriptionSegment) -> Self {
+        Self {
+            id: val.id,
+            start: val.start,
+            end: val.end,
+            text: val.text,
+        }
+    }
+}
+
+impl From<liter_llm::TranscriptionSegment> for TranscriptionSegment {
+    fn from(val: liter_llm::TranscriptionSegment) -> Self {
+        Self {
+            id: val.id,
+            start: val.start,
+            end: val.end,
+            text: val.text,
+        }
+    }
+}
+
+impl From<ChatCompletionResponse> for liter_llm::ChatCompletionResponse {
+    fn from(val: ChatCompletionResponse) -> Self {
+        Self {
+            id: val.id,
+            object: val.object,
+            created: val.created,
+            model: val.model,
+            choices: val.choices.into_iter().map(Into::into).collect(),
+            usage: val.usage.map(Into::into),
+            system_fingerprint: val.system_fingerprint,
+            service_tier: val.service_tier,
+        }
+    }
+}
+
+impl From<liter_llm::ChatCompletionResponse> for ChatCompletionResponse {
+    fn from(val: liter_llm::ChatCompletionResponse) -> Self {
+        Self {
+            id: val.id,
+            object: val.object,
+            created: val.created,
+            model: val.model,
+            choices: val.choices.into_iter().map(Into::into).collect(),
+            usage: val.usage.map(Into::into),
+            system_fingerprint: val.system_fingerprint,
+            service_tier: val.service_tier,
+        }
+    }
+}
+
+impl From<Choice> for liter_llm::Choice {
+    fn from(val: Choice) -> Self {
+        Self {
+            index: val.index,
+            message: val.message.into(),
+            finish_reason: val.finish_reason.map(Into::into),
+        }
+    }
+}
+
+impl From<liter_llm::Choice> for Choice {
+    fn from(val: liter_llm::Choice) -> Self {
+        Self {
+            index: val.index,
+            message: val.message.into(),
+            finish_reason: val.finish_reason.map(Into::into),
+        }
+    }
+}
+
+impl From<ChatCompletionChunk> for liter_llm::ChatCompletionChunk {
+    fn from(val: ChatCompletionChunk) -> Self {
+        Self {
+            id: val.id,
+            object: val.object,
+            created: val.created,
+            model: val.model,
+            choices: val.choices.into_iter().map(Into::into).collect(),
+            usage: val.usage.map(Into::into),
+            system_fingerprint: val.system_fingerprint,
+            service_tier: val.service_tier,
+        }
+    }
+}
+
+impl From<liter_llm::ChatCompletionChunk> for ChatCompletionChunk {
+    fn from(val: liter_llm::ChatCompletionChunk) -> Self {
+        Self {
+            id: val.id,
+            object: val.object,
+            created: val.created,
+            model: val.model,
+            choices: val.choices.into_iter().map(Into::into).collect(),
+            usage: val.usage.map(Into::into),
+            system_fingerprint: val.system_fingerprint,
+            service_tier: val.service_tier,
+        }
+    }
+}
+
+impl From<StreamChoice> for liter_llm::StreamChoice {
+    fn from(val: StreamChoice) -> Self {
+        Self {
+            index: val.index,
+            delta: val.delta.into(),
+            finish_reason: val.finish_reason.map(Into::into),
+        }
+    }
+}
+
+impl From<liter_llm::StreamChoice> for StreamChoice {
+    fn from(val: liter_llm::StreamChoice) -> Self {
+        Self {
+            index: val.index,
+            delta: val.delta.into(),
+            finish_reason: val.finish_reason.map(Into::into),
+        }
+    }
+}
+
+impl From<StreamDelta> for liter_llm::StreamDelta {
+    fn from(val: StreamDelta) -> Self {
+        Self {
+            role: val.role,
+            content: val.content,
+            tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
+            function_call: val.function_call.map(Into::into),
+            refusal: val.refusal,
+        }
+    }
+}
+
+impl From<liter_llm::StreamDelta> for StreamDelta {
+    fn from(val: liter_llm::StreamDelta) -> Self {
+        Self {
+            role: val.role,
+            content: val.content,
+            tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
+            function_call: val.function_call.map(Into::into),
+            refusal: val.refusal,
+        }
+    }
+}
+
+impl From<StreamToolCall> for liter_llm::StreamToolCall {
+    fn from(val: StreamToolCall) -> Self {
+        Self {
+            index: val.index,
+            id: val.id,
+            call_type: val.call_type.map(Into::into),
+            function: val.function.map(Into::into),
+        }
+    }
+}
+
+impl From<liter_llm::StreamToolCall> for StreamToolCall {
+    fn from(val: liter_llm::StreamToolCall) -> Self {
+        Self {
+            index: val.index,
+            id: val.id,
+            call_type: val.call_type.map(Into::into),
+            function: val.function.map(Into::into),
+        }
+    }
+}
+
+impl From<StreamFunctionCall> for liter_llm::StreamFunctionCall {
+    fn from(val: StreamFunctionCall) -> Self {
+        Self {
+            name: val.name,
+            arguments: val.arguments,
+        }
+    }
+}
+
+impl From<liter_llm::StreamFunctionCall> for StreamFunctionCall {
+    fn from(val: liter_llm::StreamFunctionCall) -> Self {
+        Self {
+            name: val.name,
+            arguments: val.arguments,
+        }
+    }
+}
+
+impl From<AssistantMessage> for liter_llm::AssistantMessage {
+    fn from(val: AssistantMessage) -> Self {
+        Self {
+            content: val.content,
+            name: val.name,
+            tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
+            refusal: val.refusal,
+            function_call: val.function_call.map(Into::into),
+        }
+    }
+}
+
+impl From<liter_llm::AssistantMessage> for AssistantMessage {
+    fn from(val: liter_llm::AssistantMessage) -> Self {
+        Self {
+            content: val.content,
+            name: val.name,
+            tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
+            refusal: val.refusal,
+            function_call: val.function_call.map(Into::into),
+        }
+    }
+}
+
+impl From<ToolCall> for liter_llm::ToolCall {
+    fn from(val: ToolCall) -> Self {
+        Self {
+            id: val.id,
+            call_type: val.call_type.into(),
+            function: val.function.into(),
+        }
+    }
+}
+
+impl From<liter_llm::ToolCall> for ToolCall {
+    fn from(val: liter_llm::ToolCall) -> Self {
+        Self {
+            id: val.id,
+            call_type: val.call_type.into(),
+            function: val.function.into(),
+        }
+    }
+}
+
+impl From<FunctionCall> for liter_llm::FunctionCall {
+    fn from(val: FunctionCall) -> Self {
+        Self {
+            name: val.name,
+            arguments: val.arguments,
+        }
+    }
+}
+
+impl From<liter_llm::FunctionCall> for FunctionCall {
+    fn from(val: liter_llm::FunctionCall) -> Self {
+        Self {
+            name: val.name,
+            arguments: val.arguments,
+        }
+    }
+}
+
+impl From<Usage> for liter_llm::Usage {
+    fn from(val: Usage) -> Self {
+        Self {
+            prompt_tokens: val.prompt_tokens,
+            completion_tokens: val.completion_tokens,
+            total_tokens: val.total_tokens,
+        }
+    }
+}
+
+impl From<liter_llm::Usage> for Usage {
+    fn from(val: liter_llm::Usage) -> Self {
+        Self {
+            prompt_tokens: val.prompt_tokens,
+            completion_tokens: val.completion_tokens,
+            total_tokens: val.total_tokens,
+        }
+    }
+}
+
+impl From<EmbeddingRequest> for liter_llm::EmbeddingRequest {
+    fn from(val: EmbeddingRequest) -> Self {
+        Self {
+            model: val.model,
+            input: val.input.into(),
+            encoding_format: val.encoding_format.map(Into::into),
+            dimensions: val.dimensions,
+            user: val.user,
+        }
+    }
+}
+
+impl From<liter_llm::EmbeddingRequest> for EmbeddingRequest {
+    fn from(val: liter_llm::EmbeddingRequest) -> Self {
+        Self {
+            model: val.model,
+            input: val.input.into(),
+            encoding_format: val.encoding_format.map(Into::into),
+            dimensions: val.dimensions,
+            user: val.user,
+        }
+    }
+}
+
+impl From<EmbeddingResponse> for liter_llm::EmbeddingResponse {
+    fn from(val: EmbeddingResponse) -> Self {
+        Self {
+            object: val.object,
+            data: val.data.into_iter().map(Into::into).collect(),
+            model: val.model,
+            usage: val.usage.map(Into::into),
+        }
+    }
+}
+
+impl From<liter_llm::EmbeddingResponse> for EmbeddingResponse {
+    fn from(val: liter_llm::EmbeddingResponse) -> Self {
+        Self {
+            object: val.object,
+            data: val.data.into_iter().map(Into::into).collect(),
+            model: val.model,
+            usage: val.usage.map(Into::into),
+        }
+    }
+}
+
+impl From<EmbeddingObject> for liter_llm::EmbeddingObject {
+    fn from(val: EmbeddingObject) -> Self {
+        Self {
+            object: val.object,
+            embedding: val.embedding,
+            index: val.index,
+        }
+    }
+}
+
+impl From<liter_llm::EmbeddingObject> for EmbeddingObject {
+    fn from(val: liter_llm::EmbeddingObject) -> Self {
+        Self {
+            object: val.object,
+            embedding: val.embedding,
+            index: val.index,
+        }
+    }
+}
+
+impl From<CreateImageRequest> for liter_llm::CreateImageRequest {
+    fn from(val: CreateImageRequest) -> Self {
+        Self {
+            prompt: val.prompt,
+            model: val.model,
+            n: val.n,
+            size: val.size,
+            quality: val.quality,
+            style: val.style,
+            response_format: val.response_format,
+            user: val.user,
+        }
+    }
+}
+
+impl From<liter_llm::CreateImageRequest> for CreateImageRequest {
+    fn from(val: liter_llm::CreateImageRequest) -> Self {
+        Self {
+            prompt: val.prompt,
+            model: val.model,
+            n: val.n,
+            size: val.size,
+            quality: val.quality,
+            style: val.style,
+            response_format: val.response_format,
+            user: val.user,
+        }
+    }
+}
+
+impl From<ImagesResponse> for liter_llm::ImagesResponse {
+    fn from(val: ImagesResponse) -> Self {
+        Self {
+            created: val.created,
+            data: val.data.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<liter_llm::ImagesResponse> for ImagesResponse {
+    fn from(val: liter_llm::ImagesResponse) -> Self {
+        Self {
+            created: val.created,
+            data: val.data.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<Image> for liter_llm::Image {
+    fn from(val: Image) -> Self {
+        Self {
+            url: val.url,
+            b64_json: val.b64_json,
+            revised_prompt: val.revised_prompt,
+        }
+    }
+}
+
+impl From<liter_llm::Image> for Image {
+    fn from(val: liter_llm::Image) -> Self {
+        Self {
+            url: val.url,
+            b64_json: val.b64_json,
+            revised_prompt: val.revised_prompt,
+        }
+    }
+}
+
+impl From<ModelsListResponse> for liter_llm::ModelsListResponse {
+    fn from(val: ModelsListResponse) -> Self {
+        Self {
+            object: val.object,
+            data: val.data.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<liter_llm::ModelsListResponse> for ModelsListResponse {
+    fn from(val: liter_llm::ModelsListResponse) -> Self {
+        Self {
+            object: val.object,
+            data: val.data.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<ModelObject> for liter_llm::ModelObject {
+    fn from(val: ModelObject) -> Self {
+        Self {
+            id: val.id,
+            object: val.object,
+            created: val.created,
+            owned_by: val.owned_by,
+        }
+    }
+}
+
+impl From<liter_llm::ModelObject> for ModelObject {
+    fn from(val: liter_llm::ModelObject) -> Self {
+        Self {
+            id: val.id,
+            object: val.object,
+            created: val.created,
+            owned_by: val.owned_by,
+        }
+    }
+}
+
+impl From<ModerationRequest> for liter_llm::ModerationRequest {
+    fn from(val: ModerationRequest) -> Self {
+        Self {
+            input: val.input.into(),
+            model: val.model,
+        }
+    }
+}
+
+impl From<liter_llm::ModerationRequest> for ModerationRequest {
+    fn from(val: liter_llm::ModerationRequest) -> Self {
+        Self {
+            input: val.input.into(),
+            model: val.model,
+        }
+    }
+}
+
+impl From<ModerationResponse> for liter_llm::ModerationResponse {
+    fn from(val: ModerationResponse) -> Self {
+        Self {
+            id: val.id,
+            model: val.model,
+            results: val.results.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<liter_llm::ModerationResponse> for ModerationResponse {
+    fn from(val: liter_llm::ModerationResponse) -> Self {
+        Self {
+            id: val.id,
+            model: val.model,
+            results: val.results.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<ModerationResult> for liter_llm::ModerationResult {
+    fn from(val: ModerationResult) -> Self {
+        Self {
+            flagged: val.flagged,
+            categories: val.categories.into(),
+            category_scores: val.category_scores.into(),
+        }
+    }
+}
+
+impl From<liter_llm::ModerationResult> for ModerationResult {
+    fn from(val: liter_llm::ModerationResult) -> Self {
+        Self {
+            flagged: val.flagged,
+            categories: val.categories.into(),
+            category_scores: val.category_scores.into(),
+        }
+    }
+}
+
+impl From<ModerationCategories> for liter_llm::ModerationCategories {
+    fn from(val: ModerationCategories) -> Self {
+        Self {
+            sexual: val.sexual,
+            hate: val.hate,
+            harassment: val.harassment,
+            self_harm: val.self_harm,
+            sexual_minors: val.sexual_minors,
+            hate_threatening: val.hate_threatening,
+            violence_graphic: val.violence_graphic,
+            self_harm_intent: val.self_harm_intent,
+            self_harm_instructions: val.self_harm_instructions,
+            harassment_threatening: val.harassment_threatening,
+            violence: val.violence,
+        }
+    }
+}
+
+impl From<liter_llm::ModerationCategories> for ModerationCategories {
+    fn from(val: liter_llm::ModerationCategories) -> Self {
+        Self {
+            sexual: val.sexual,
+            hate: val.hate,
+            harassment: val.harassment,
+            self_harm: val.self_harm,
+            sexual_minors: val.sexual_minors,
+            hate_threatening: val.hate_threatening,
+            violence_graphic: val.violence_graphic,
+            self_harm_intent: val.self_harm_intent,
+            self_harm_instructions: val.self_harm_instructions,
+            harassment_threatening: val.harassment_threatening,
+            violence: val.violence,
+        }
+    }
+}
+
+impl From<ModerationCategoryScores> for liter_llm::ModerationCategoryScores {
+    fn from(val: ModerationCategoryScores) -> Self {
+        Self {
+            sexual: val.sexual,
+            hate: val.hate,
+            harassment: val.harassment,
+            self_harm: val.self_harm,
+            sexual_minors: val.sexual_minors,
+            hate_threatening: val.hate_threatening,
+            violence_graphic: val.violence_graphic,
+            self_harm_intent: val.self_harm_intent,
+            self_harm_instructions: val.self_harm_instructions,
+            harassment_threatening: val.harassment_threatening,
+            violence: val.violence,
+        }
+    }
+}
+
+impl From<liter_llm::ModerationCategoryScores> for ModerationCategoryScores {
+    fn from(val: liter_llm::ModerationCategoryScores) -> Self {
+        Self {
+            sexual: val.sexual,
+            hate: val.hate,
+            harassment: val.harassment,
+            self_harm: val.self_harm,
+            sexual_minors: val.sexual_minors,
+            hate_threatening: val.hate_threatening,
+            violence_graphic: val.violence_graphic,
+            self_harm_intent: val.self_harm_intent,
+            self_harm_instructions: val.self_harm_instructions,
+            harassment_threatening: val.harassment_threatening,
+            violence: val.violence,
+        }
+    }
+}
+
+impl From<RerankRequest> for liter_llm::RerankRequest {
+    fn from(val: RerankRequest) -> Self {
+        Self {
+            model: val.model,
+            query: val.query,
+            documents: val.documents.into_iter().map(Into::into).collect(),
+            top_n: val.top_n,
+            return_documents: val.return_documents,
+        }
+    }
+}
+
+impl From<liter_llm::RerankRequest> for RerankRequest {
+    fn from(val: liter_llm::RerankRequest) -> Self {
+        Self {
+            model: val.model,
+            query: val.query,
+            documents: val.documents.into_iter().map(Into::into).collect(),
+            top_n: val.top_n,
+            return_documents: val.return_documents,
+        }
+    }
+}
+
+impl From<RerankResult> for liter_llm::RerankResult {
+    fn from(val: RerankResult) -> Self {
+        Self {
+            index: val.index,
+            relevance_score: val.relevance_score,
+            document: val.document.map(Into::into),
+        }
+    }
+}
+
+impl From<liter_llm::RerankResult> for RerankResult {
+    fn from(val: liter_llm::RerankResult) -> Self {
+        Self {
+            index: val.index,
+            relevance_score: val.relevance_score,
+            document: val.document.map(Into::into),
+        }
+    }
+}
+
+impl From<RerankResultDocument> for liter_llm::RerankResultDocument {
+    fn from(val: RerankResultDocument) -> Self {
+        Self {
+            text: val.text,
+        }
+    }
+}
+
+impl From<liter_llm::RerankResultDocument> for RerankResultDocument {
+    fn from(val: liter_llm::RerankResultDocument) -> Self {
+        Self {
+            text: val.text,
+        }
+    }
+}
+
+impl From<FinishReason> for liter_llm::FinishReason {
+    fn from(val: FinishReason) -> Self {
+        match val {
+            FinishReason::Stop => Self::Stop,
+            FinishReason::Length => Self::Length,
+            FinishReason::ToolCalls => Self::ToolCalls,
+            FinishReason::ContentFilter => Self::ContentFilter,
+            FinishReason::FunctionCall => Self::FunctionCall,
+            FinishReason::Other => Self::Other,
+        }
+    }
+}
+
+impl From<liter_llm::FinishReason> for FinishReason {
+    fn from(val: liter_llm::FinishReason) -> Self {
+        match val {
+            liter_llm::FinishReason::Stop => Self::Stop,
+            liter_llm::FinishReason::Length => Self::Length,
+            liter_llm::FinishReason::ToolCalls => Self::ToolCalls,
+            liter_llm::FinishReason::ContentFilter => Self::ContentFilter,
+            liter_llm::FinishReason::FunctionCall => Self::FunctionCall,
+            liter_llm::FinishReason::Other => Self::Other,
+        }
+    }
+}
+
+impl From<ReasoningEffort> for liter_llm::ReasoningEffort {
+    fn from(val: ReasoningEffort) -> Self {
+        match val {
+            ReasoningEffort::Low => Self::Low,
+            ReasoningEffort::Medium => Self::Medium,
+            ReasoningEffort::High => Self::High,
+        }
+    }
+}
+
+impl From<liter_llm::ReasoningEffort> for ReasoningEffort {
+    fn from(val: liter_llm::ReasoningEffort) -> Self {
+        match val {
+            liter_llm::ReasoningEffort::Low => Self::Low,
+            liter_llm::ReasoningEffort::Medium => Self::Medium,
+            liter_llm::ReasoningEffort::High => Self::High,
+        }
+    }
+}
+
+impl From<ToolType> for liter_llm::ToolType {
+    fn from(val: ToolType) -> Self {
+        match val {
+            ToolType::Function => Self::Function,
+        }
+    }
+}
+
+impl From<liter_llm::ToolType> for ToolType {
+    fn from(val: liter_llm::ToolType) -> Self {
+        match val {
+            liter_llm::ToolType::Function => Self::Function,
+        }
+    }
+}
+
+impl From<StopSequence> for liter_llm::StopSequence {
+    fn from(val: StopSequence) -> Self {
+        match val {
+            StopSequence::Single => Self::Single(Default::default()),
+            StopSequence::Multiple => Self::Multiple(Default::default()),
+        }
+    }
+}
+
+impl From<liter_llm::StopSequence> for StopSequence {
+    fn from(val: liter_llm::StopSequence) -> Self {
+        match val {
+            liter_llm::StopSequence::Single(..) => Self::Single,
+            liter_llm::StopSequence::Multiple(..) => Self::Multiple,
+        }
+    }
+}
+
+impl From<EmbeddingFormat> for liter_llm::EmbeddingFormat {
+    fn from(val: EmbeddingFormat) -> Self {
+        match val {
+            EmbeddingFormat::Float => Self::Float,
+            EmbeddingFormat::Base64 => Self::Base64,
+        }
+    }
+}
+
+impl From<liter_llm::EmbeddingFormat> for EmbeddingFormat {
+    fn from(val: liter_llm::EmbeddingFormat) -> Self {
+        match val {
+            liter_llm::EmbeddingFormat::Float => Self::Float,
+            liter_llm::EmbeddingFormat::Base64 => Self::Base64,
+        }
+    }
+}
+
+impl From<EmbeddingInput> for liter_llm::EmbeddingInput {
+    fn from(val: EmbeddingInput) -> Self {
+        match val {
+            EmbeddingInput::Single => Self::Single(Default::default()),
+            EmbeddingInput::Multiple => Self::Multiple(Default::default()),
+        }
+    }
+}
+
+impl From<liter_llm::EmbeddingInput> for EmbeddingInput {
+    fn from(val: liter_llm::EmbeddingInput) -> Self {
+        match val {
+            liter_llm::EmbeddingInput::Single(..) => Self::Single,
+            liter_llm::EmbeddingInput::Multiple(..) => Self::Multiple,
+        }
+    }
+}
+
+impl From<ModerationInput> for liter_llm::ModerationInput {
+    fn from(val: ModerationInput) -> Self {
+        match val {
+            ModerationInput::Single => Self::Single(Default::default()),
+            ModerationInput::Multiple => Self::Multiple(Default::default()),
+        }
+    }
+}
+
+impl From<liter_llm::ModerationInput> for ModerationInput {
+    fn from(val: liter_llm::ModerationInput) -> Self {
+        match val {
+            liter_llm::ModerationInput::Single(..) => Self::Single,
+            liter_llm::ModerationInput::Multiple(..) => Self::Multiple,
+        }
+    }
+}
+
+impl From<RerankDocument> for liter_llm::RerankDocument {
+    fn from(val: RerankDocument) -> Self {
+        match val {
+            RerankDocument::Text => Self::Text(Default::default()),
+            RerankDocument::Object => Self::Object { text: Default::default() },
+        }
+    }
+}
+
+impl From<liter_llm::RerankDocument> for RerankDocument {
+    fn from(val: liter_llm::RerankDocument) -> Self {
+        match val {
+            liter_llm::RerankDocument::Text(..) => Self::Text,
+            liter_llm::RerankDocument::Object { .. } => Self::Object,
+        }
+    }
 }
 
 #[magnus::init]
