@@ -18,6 +18,10 @@ final class NativeLib {
 		LIB = SymbolLookup.loaderLookup();
 	}
 
+	static final MethodHandle LITER_LLM_COMPLETION_COST = LINKER
+			.downcallHandle(LIB.find("liter_llm_completion_cost").orElseThrow(), FunctionDescriptor
+					.of(ValueLayout.JAVA_DOUBLE, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG, ValueLayout.JAVA_LONG));
+
 	static final MethodHandle LITER_LLM_FREE_STRING = LINKER.downcallHandle(
 			LIB.find("liter_llm_free_string").orElseThrow(), FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
 }

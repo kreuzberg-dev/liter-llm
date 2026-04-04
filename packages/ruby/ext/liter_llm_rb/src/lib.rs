@@ -2038,6 +2038,10 @@ impl magnus::TryConvert for RerankDocument {
 unsafe impl IntoValueFromNative for RerankDocument {}
 unsafe impl TryConvertOwned for RerankDocument {}
 
+fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
+    None
+}
+
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("LiterLlm")?;
@@ -2308,6 +2312,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     class.define_singleton_method("new", function!(RerankResultDocument::new, 1))?;
     class.define_method("text", method!(RerankResultDocument::text, 0))?;
 
+    module.define_module_function("completion_cost", function!(completion_cost, 3))?;
 
     Ok(())
 }

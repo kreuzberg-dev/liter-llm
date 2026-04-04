@@ -67,9 +67,7 @@ pub struct TranscriptionResponse {
 #[php_impl]
 impl TranscriptionResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::TranscriptionResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -116,9 +114,7 @@ pub struct ChatCompletionRequest {
 #[php_impl]
 impl ChatCompletionRequest {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ChatCompletionRequest =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -138,9 +134,7 @@ pub struct ChatCompletionResponse {
 #[php_impl]
 impl ChatCompletionResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ChatCompletionResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 
     pub fn estimated_cost(&self) -> Option<f64> {
@@ -159,8 +153,7 @@ pub struct Choice {
 #[php_impl]
 impl Choice {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::Choice = serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -180,9 +173,7 @@ pub struct ChatCompletionChunk {
 #[php_impl]
 impl ChatCompletionChunk {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ChatCompletionChunk =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -197,9 +188,7 @@ pub struct StreamChoice {
 #[php_impl]
 impl StreamChoice {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::StreamChoice =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -216,9 +205,7 @@ pub struct StreamDelta {
 #[php_impl]
 impl StreamDelta {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::StreamDelta =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -234,9 +221,7 @@ pub struct StreamToolCall {
 #[php_impl]
 impl StreamToolCall {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::StreamToolCall =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -267,9 +252,7 @@ pub struct AssistantMessage {
 #[php_impl]
 impl AssistantMessage {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::AssistantMessage =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -283,9 +266,7 @@ pub struct ChatCompletionTool {
 #[php_impl]
 impl ChatCompletionTool {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ChatCompletionTool =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -326,9 +307,7 @@ pub struct ToolCall {
 #[php_impl]
 impl ToolCall {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ToolCall =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -378,9 +357,7 @@ pub struct EmbeddingRequest {
 #[php_impl]
 impl EmbeddingRequest {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::EmbeddingRequest =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -396,9 +373,7 @@ pub struct EmbeddingResponse {
 #[php_impl]
 impl EmbeddingResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::EmbeddingResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 
     pub fn estimated_cost(&self) -> Option<f64> {
@@ -473,9 +448,7 @@ pub struct ImagesResponse {
 #[php_impl]
 impl ImagesResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ImagesResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -508,9 +481,7 @@ pub struct ModelsListResponse {
 #[php_impl]
 impl ModelsListResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ModelsListResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -545,9 +516,7 @@ pub struct ModerationRequest {
 #[php_impl]
 impl ModerationRequest {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ModerationRequest =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -562,9 +531,7 @@ pub struct ModerationResponse {
 #[php_impl]
 impl ModerationResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ModerationResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -579,9 +546,7 @@ pub struct ModerationResult {
 #[php_impl]
 impl ModerationResult {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::ModerationResult =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -692,9 +657,7 @@ pub struct RerankRequest {
 #[php_impl]
 impl RerankRequest {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::RerankRequest =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -709,9 +672,7 @@ pub struct RerankResponse {
 #[php_impl]
 impl RerankResponse {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::RerankResponse =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -726,9 +687,7 @@ pub struct RerankResult {
 #[php_impl]
 impl RerankResult {
     pub fn from_json(json: String) -> PhpResult<Self> {
-        let core: liter_llm::RerankResult =
-            serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()))?;
-        Ok(core.into())
+        serde_json::from_str(&json).map_err(|e| PhpException::default(e.to_string()).into())
     }
 }
 
@@ -797,6 +756,11 @@ pub const MODERATIONINPUT_MULTIPLE: &str = "Multiple";
 // RerankDocument enum values
 pub const RERANKDOCUMENT_TEXT: &str = "Text";
 pub const RERANKDOCUMENT_OBJECT: &str = "Object";
+
+#[php_function]
+pub fn completion_cost() -> Option<f64> {
+    None
+}
 
 impl From<ModelPricing> for liter_llm::ModelPricing {
     fn from(val: ModelPricing) -> Self {

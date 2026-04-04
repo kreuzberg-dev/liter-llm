@@ -7,6 +7,13 @@ internal static partial class NativeMethods
 {
     private const string LibName = "liter_llm_ffi";
 
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "liter_llm_completion_cost")]
+    internal static extern IntPtr CompletionCost(
+        [MarshalAs(UnmanagedType.LPStr)] string model,
+        ulong promptTokens,
+        ulong completionTokens
+    );
+
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "liter_llm_estimated_cost")]
     internal static extern IntPtr EstimatedCost();
 

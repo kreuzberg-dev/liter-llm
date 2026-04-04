@@ -2596,6 +2596,11 @@ pub enum JsRerankDocument {
     Object = 1,
 }
 
+#[wasm_bindgen(js_name = "completionCost")]
+pub fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
+    None
+}
+
 impl From<JsModelPricing> for liter_llm::ModelPricing {
     fn from(val: JsModelPricing) -> Self {
         Self {

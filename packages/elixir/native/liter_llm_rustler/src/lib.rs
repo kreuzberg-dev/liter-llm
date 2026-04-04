@@ -420,6 +420,11 @@ pub enum RerankDocument {
 }
 
 #[rustler::nif]
+pub fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
+    None
+}
+
+#[rustler::nif]
 pub fn chatcompletionresponse_estimated_cost(obj: ChatCompletionResponse) -> Option<f64> {
     None
 }
@@ -1277,5 +1282,9 @@ impl From<liter_llm::RerankDocument> for RerankDocument {
 
 rustler::init!(
     "elixir_module",
-    [chatcompletionresponse_estimated_cost, embeddingresponse_estimated_cost]
+    [
+        completion_cost,
+        chatcompletionresponse_estimated_cost,
+        embeddingresponse_estimated_cost
+    ]
 );

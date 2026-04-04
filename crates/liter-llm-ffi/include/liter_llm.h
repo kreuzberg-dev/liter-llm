@@ -1836,4 +1836,32 @@ int32_t liter_llm_rerank_document_from_i32(int32_t value);
  */
 int32_t liter_llm_rerank_document_from_str(const char *name);
 
+/**
+ * Calculate the estimated cost of a completion given a model name and token
+ * counts.
+ *
+ * Returns `None` if the model is not present in the embedded pricing registry.
+ * Returns `Some(cost_usd)` otherwise, where the value is in US dollars.
+ *
+ * When an exact model name match is not found, progressively shorter prefixes
+ * are tried by stripping from the last `-` or `.` separator.  For example,
+ * `gpt-4-0613` will match `gpt-4` if no `gpt-4-0613` entry exists.
+ *
+ * # Example
+ *
+ * ```rust
+ * use liter_llm::cost;
+ *
+ * let usd = cost::completion_cost("gpt-4o", 1_000, 500).unwrap();
+ * // 1000 * 0.0000025 + 500 * 0.00001 = 0.0025 + 0.005 = 0.0075
+ * assert!((usd - 0.0075).abs() < 1e-9);
+ * ```
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+double liter_llm_completion_cost(const char *model,
+                                 uint64_t prompt_tokens,
+                                 uint64_t completion_tokens);
+
 #endif  /* LITER_LLM_H */

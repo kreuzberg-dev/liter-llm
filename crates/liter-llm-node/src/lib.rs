@@ -484,6 +484,11 @@ pub enum JsRerankDocument {
     Object,
 }
 
+#[napi(js_name = "completionCost")]
+pub fn completion_cost(model: String, prompt_tokens: i64, completion_tokens: i64) -> Option<f64> {
+    None
+}
+
 impl From<JsModelPricing> for liter_llm::ModelPricing {
     fn from(val: JsModelPricing) -> Self {
         Self {

@@ -18,6 +18,18 @@ public final class LiterLlm {
 	private LiterLlm() {
 	}
 
+	public static Double completionCost(String model, long prompt_tokens, long completion_tokens)
+			throws LiterLlmException {
+		try (var arena = Arena.ofConfined()) {
+			var cmodel = arena.allocateFrom(model);
+			var result = (MemorySegment) NativeLib.LITER_LLM_COMPLETION_COST.invoke(cmodel, prompt_tokens,
+					completion_tokens);
+			return result;
+		} catch (Throwable t) {
+			throw new LiterLlmException("FFI call failed", t);
+		}
+	}
+
 	// Helper methods for FFI marshalling
 
 	private static String readCString(MemorySegment ptr) {

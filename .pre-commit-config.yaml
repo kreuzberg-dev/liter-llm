@@ -187,6 +187,7 @@ repos:
         language: system
         files: \.go$
         pass_filenames: false
+        exclude: ^packages/go/
 
   # Local hooks for languages without native pre-commit support
   - repo: local

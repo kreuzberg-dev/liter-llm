@@ -1204,6 +1204,12 @@ pub enum RerankDocument {
     Object = 1,
 }
 
+#[pyfunction]
+#[pyo3(signature = (model, prompt_tokens, completion_tokens))]
+pub fn completion_cost(model: String, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
+    liter_llm::completion_cost(&model, prompt_tokens, completion_tokens)
+}
+
 impl From<ModelPricing> for liter_llm::ModelPricing {
     fn from(val: ModelPricing) -> Self {
         Self {
@@ -2098,5 +2104,6 @@ pub fn _internal_bindings(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<EmbeddingInput>()?;
     m.add_class::<ModerationInput>()?;
     m.add_class::<RerankDocument>()?;
+    m.add_function(wrap_pyfunction!(completion_cost, m)?)?;
     Ok(())
 }

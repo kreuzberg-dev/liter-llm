@@ -4473,3 +4473,49 @@ pub unsafe extern "C" fn liter_llm_rerank_document_from_str(name: *const c_char)
         }
     }
 }
+
+/// Calculate the estimated cost of a completion given a model name and token
+/// counts.
+///
+/// Returns `None` if the model is not present in the embedded pricing registry.
+/// Returns `Some(cost_usd)` otherwise, where the value is in US dollars.
+///
+/// When an exact model name match is not found, progressively shorter prefixes
+/// are tried by stripping from the last `-` or `.` separator.  For example,
+/// `gpt-4-0613` will match `gpt-4` if no `gpt-4-0613` entry exists.
+///
+/// # Example
+///
+/// ```rust
+/// use liter_llm::cost;
+///
+/// let usd = cost::completion_cost("gpt-4o", 1_000, 500).unwrap();
+/// // 1000 * 0.0000025 + 500 * 0.00001 = 0.0025 + 0.005 = 0.0075
+/// assert!((usd - 0.0075).abs() < 1e-9);
+/// ```
+/// # Safety
+/// Caller must ensure all pointer arguments are valid or null.
+/// Returned pointers must be freed with the appropriate free function.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn liter_llm_completion_cost(
+    model: *const std::ffi::c_char,
+    prompt_tokens: u64,
+    completion_tokens: u64,
+) -> f64 {
+    clear_last_error();
+    if model.is_null() {
+        set_last_error(1, "Null pointer passed for parameter 'model'");
+        return 0.0;
+    }
+    let model_rs = match unsafe { CStr::from_ptr(model) }.to_str() {
+        Ok(s) => s.to_string(),
+        Err(_) => {
+            set_last_error(1, "Invalid UTF-8 in parameter 'model'");
+            return 0.0;
+        }
+    };
+    let prompt_tokens_rs = prompt_tokens;
+    let completion_tokens_rs = completion_tokens;
+    let result = liter_llm::completion_cost(&model_rs, prompt_tokens_rs, completion_tokens_rs);
+    result.unwrap_or(0.0)
+}

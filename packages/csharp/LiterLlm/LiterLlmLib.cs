@@ -10,6 +10,18 @@ namespace LiterLlm;
 
 public static class LiterLlmLib
 {
+    public static double? CompletionCost(string model, ulong promptTokens, ulong completionTokens)
+    {
+        var result = NativeMethods.CompletionCost(
+            model,
+            promptTokens,
+            completionTokens
+        );
+        var json = Marshal.PtrToStringUTF8(result);
+        NativeMethods.FreeString(result);
+        return JsonSerializer.Deserialize<double?>(json ?? "null")!;
+    }
+
     public static double? EstimatedCost()
     {
         var result = NativeMethods.EstimatedCost();
