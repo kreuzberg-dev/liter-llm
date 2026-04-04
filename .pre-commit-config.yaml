@@ -134,7 +134,7 @@ repos:
             "-c",
             "packages/java/checkstyle.xml",
           ]
-        exclude: ^(\.mvn/wrapper/|e2e/|tools/e2e-generator/e2e/)
+        exclude: ^(\.mvn/wrapper/|e2e/|tools/e2e-generator/e2e/|packages/java/src/main/java/dev/kreuzberg/literllm/)
 
   # AI Rules
   - repo: https://github.com/Goldziher/ai-rulez

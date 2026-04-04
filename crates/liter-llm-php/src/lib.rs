@@ -867,21 +867,6 @@ impl From<liter_llm::TranscriptionSegment> for TranscriptionSegment {
     }
 }
 
-impl From<ChatCompletionResponse> for liter_llm::ChatCompletionResponse {
-    fn from(val: ChatCompletionResponse) -> Self {
-        Self {
-            id: val.id,
-            object: val.object,
-            created: val.created as u64,
-            model: val.model,
-            choices: val.choices.into_iter().map(Into::into).collect(),
-            usage: val.usage.map(Into::into),
-            system_fingerprint: val.system_fingerprint,
-            service_tier: val.service_tier,
-        }
-    }
-}
-
 impl From<liter_llm::ChatCompletionResponse> for ChatCompletionResponse {
     fn from(val: liter_llm::ChatCompletionResponse) -> Self {
         Self {
@@ -897,17 +882,12 @@ impl From<liter_llm::ChatCompletionResponse> for ChatCompletionResponse {
     }
 }
 
-impl From<ChatCompletionChunk> for liter_llm::ChatCompletionChunk {
-    fn from(val: ChatCompletionChunk) -> Self {
+impl From<liter_llm::Choice> for Choice {
+    fn from(val: liter_llm::Choice) -> Self {
         Self {
-            id: val.id,
-            object: val.object,
-            created: val.created as u64,
-            model: val.model,
-            choices: val.choices.into_iter().map(Into::into).collect(),
-            usage: val.usage.map(Into::into),
-            system_fingerprint: val.system_fingerprint,
-            service_tier: val.service_tier,
+            index: val.index,
+            message: val.message.into(),
+            finish_reason: val.finish_reason.as_ref().map(|v| format!("{:?}", v)),
         }
     }
 }
@@ -927,14 +907,12 @@ impl From<liter_llm::ChatCompletionChunk> for ChatCompletionChunk {
     }
 }
 
-impl From<StreamDelta> for liter_llm::StreamDelta {
-    fn from(val: StreamDelta) -> Self {
+impl From<liter_llm::StreamChoice> for StreamChoice {
+    fn from(val: liter_llm::StreamChoice) -> Self {
         Self {
-            role: val.role,
-            content: val.content,
-            tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
-            function_call: val.function_call.map(Into::into),
-            refusal: val.refusal,
+            index: val.index,
+            delta: val.delta.into(),
+            finish_reason: val.finish_reason.as_ref().map(|v| format!("{:?}", v)),
         }
     }
 }
@@ -947,6 +925,17 @@ impl From<liter_llm::StreamDelta> for StreamDelta {
             tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
             function_call: val.function_call.map(Into::into),
             refusal: val.refusal,
+        }
+    }
+}
+
+impl From<liter_llm::StreamToolCall> for StreamToolCall {
+    fn from(val: liter_llm::StreamToolCall) -> Self {
+        Self {
+            index: val.index,
+            id: val.id,
+            call_type: val.call_type.as_ref().map(|v| format!("{:?}", v)),
+            function: val.function.map(Into::into),
         }
     }
 }
@@ -969,8 +958,8 @@ impl From<liter_llm::StreamFunctionCall> for StreamFunctionCall {
     }
 }
 
-impl From<AssistantMessage> for liter_llm::AssistantMessage {
-    fn from(val: AssistantMessage) -> Self {
+impl From<liter_llm::AssistantMessage> for AssistantMessage {
+    fn from(val: liter_llm::AssistantMessage) -> Self {
         Self {
             content: val.content,
             name: val.name,
@@ -981,14 +970,12 @@ impl From<AssistantMessage> for liter_llm::AssistantMessage {
     }
 }
 
-impl From<liter_llm::AssistantMessage> for AssistantMessage {
-    fn from(val: liter_llm::AssistantMessage) -> Self {
+impl From<liter_llm::ToolCall> for ToolCall {
+    fn from(val: liter_llm::ToolCall) -> Self {
         Self {
-            content: val.content,
-            name: val.name,
-            tool_calls: val.tool_calls.map(|v| v.into_iter().map(Into::into).collect()),
-            refusal: val.refusal,
-            function_call: val.function_call.map(Into::into),
+            id: val.id,
+            call_type: format!("{:?}", val.call_type),
+            function: val.function.into(),
         }
     }
 }
@@ -1027,6 +1014,18 @@ impl From<liter_llm::Usage> for Usage {
             prompt_tokens: val.prompt_tokens as i64,
             completion_tokens: val.completion_tokens as i64,
             total_tokens: val.total_tokens as i64,
+        }
+    }
+}
+
+impl From<liter_llm::EmbeddingRequest> for EmbeddingRequest {
+    fn from(val: liter_llm::EmbeddingRequest) -> Self {
+        Self {
+            model: val.model,
+            input: format!("{:?}", val.input),
+            encoding_format: val.encoding_format.as_ref().map(|v| format!("{:?}", v)),
+            dimensions: val.dimensions,
+            user: val.user,
         }
     }
 }
@@ -1181,6 +1180,15 @@ impl From<liter_llm::ModelObject> for ModelObject {
     }
 }
 
+impl From<liter_llm::ModerationRequest> for ModerationRequest {
+    fn from(val: liter_llm::ModerationRequest) -> Self {
+        Self {
+            input: format!("{:?}", val.input),
+            model: val.model,
+        }
+    }
+}
+
 impl From<ModerationResponse> for liter_llm::ModerationResponse {
     fn from(val: ModerationResponse) -> Self {
         Self {
@@ -1289,6 +1297,18 @@ impl From<liter_llm::ModerationCategoryScores> for ModerationCategoryScores {
             self_harm_instructions: val.self_harm_instructions,
             harassment_threatening: val.harassment_threatening,
             violence: val.violence,
+        }
+    }
+}
+
+impl From<liter_llm::RerankRequest> for RerankRequest {
+    fn from(val: liter_llm::RerankRequest) -> Self {
+        Self {
+            model: val.model,
+            query: val.query,
+            documents: val.documents.iter().map(|v| format!("{:?}", v)).collect(),
+            top_n: val.top_n,
+            return_documents: val.return_documents,
         }
     }
 }

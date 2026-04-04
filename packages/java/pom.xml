@@ -231,6 +231,10 @@
                         <ruleset>/rulesets/java/quickstart.xml</ruleset>
                     </rulesets>
                     <printFailingErrors>true</printFailingErrors>
+                    <excludes>
+                        <exclude>**/dev/kreuzberg/literllm/LiterLlm.java</exclude>
+                        <exclude>**/dev/kreuzberg/literllm/NativeLib.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 

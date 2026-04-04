@@ -162,3 +162,13 @@ todo.md
 .remote-cache/
 .pnpm-store/
 .env*
+.skif/
+*.pyd
+.gems/
+vendor/bundle/
+*.h.bak
+*.test
+bin/
+obj/
+*.nupkg
+pkg/

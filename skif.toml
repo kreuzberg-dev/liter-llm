@@ -107,6 +107,7 @@ lib_name = "liter_llm_ffi"
 
 [go]
 module = "github.com/kreuzberg-dev/liter-llm-go"
+package_name = "literllm"
 
 [java]
 package = "dev.kreuzberg.literllm"

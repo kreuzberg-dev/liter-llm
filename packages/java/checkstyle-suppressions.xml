@@ -8,4 +8,6 @@
     <suppress checks="MethodName" files=".*Test\.java$"/>
     <!-- Test files commonly use literal numbers in assertions -->
     <suppress checks="MagicNumber" files=".*Test\.java$"/>
+    <!-- Generated code (skif) — uses spotless for formatting -->
+    <suppress checks="." files=".*[/\\]literllm[/\\](?!.*Test).*\.java$"/>
 </suppressions>
