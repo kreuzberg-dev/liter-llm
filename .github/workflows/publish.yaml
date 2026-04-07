@@ -1169,10 +1169,6 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org/
 
-      - name: Update NPM
-        run: npm install -g npm
-        shell: bash
-
       - name: Install @napi-rs/cli
         run: npm install -g @napi-rs/cli
         shell: bash
