@@ -449,18 +449,33 @@ literllm.NewPartsMessage(literllm.RoleUser, []literllm.ContentPart{...})
 
 ## Error Handling
 
-Errors use Go sentinel errors for `errors.Is` matching:
+Errors use Go sentinel errors for `errors.Is` matching. The Go binding collapses the 17 canonical liter-llm variants into eight categories; everything else surfaces as `ErrProviderError` wrapped in `*APIError`.
+
+| Sentinel | HTTP Status | Trigger | Transient? |
+|----------|-------------|---------|------------|
+| `ErrInvalidRequest` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `ErrAuthentication` | 401, 403 | API key rejected. | no |
+| `ErrRateLimit` | 429 | Rate limit exceeded. | yes |
+| `ErrNotFound` | 404 | Model or resource not found. | no |
+| `ErrProviderError` | 500, 502, 503, 504 | Provider 5xx. | yes |
+| `ErrStream` | n/a | Stream parse failure. | no |
+| `ErrBudgetExceeded` | 402 | Budget cap hit. | no |
+| `ErrHookRejected` | n/a | A registered hook rejected the request. | no |
 
 ```go
 var (
-    ErrInvalidRequest = errors.New("literllm: invalid request")
+    ErrInvalidRequest  = errors.New("literllm: invalid request")
     ErrAuthentication  = errors.New("literllm: authentication failed")
     ErrRateLimit       = errors.New("literllm: rate limit exceeded")
     ErrNotFound        = errors.New("literllm: not found")
     ErrProviderError   = errors.New("literllm: provider error")
     ErrStream          = errors.New("literllm: stream error")
+    ErrBudgetExceeded  = errors.New("literllm: budget exceeded")
+    ErrHookRejected    = errors.New("literllm: hook rejected request")
 )
 ```
+
+See [Error Handling](../usage/error-handling.md) for the canonical 17-variant taxonomy and retry semantics shared across every binding.
 
 Use `errors.Is` for programmatic handling:
 

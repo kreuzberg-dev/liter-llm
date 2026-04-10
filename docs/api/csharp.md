@@ -418,17 +418,19 @@ var request = new ChatCompletionRequest(
 
 ## Error Handling
 
-All errors derive from `LlmException` with numeric error codes:
+All errors derive from `LlmException` with numeric error codes. The C# binding collapses the 17 canonical liter-llm variants into nine sealed exception classes.
 
-| Exception | Code | HTTP Status |
-|-----------|------|-------------|
-| `InvalidRequestException` | 1400 | 400, 422 |
-| `AuthenticationException` | 1401 | 401, 403 |
-| `NotFoundException` | 1404 | 404 |
-| `RateLimitException` | 1429 | 429 |
-| `ProviderException` | 1500 | 5xx |
-| `StreamException` | 1600 | -- |
-| `SerializationException` | 1700 | -- |
+| Exception | Code | HTTP Status | Trigger | Transient? |
+|-----------|------|-------------|---------|------------|
+| `InvalidRequestException` | 1400 | 400, 422 | Malformed request or unsupported parameter. | no |
+| `AuthenticationException` | 1401 | 401, 403 | API key rejected. | no |
+| `NotFoundException` | 1404 | 404 | Model or resource not found. | no |
+| `RateLimitException` | 1429 | 429 | Rate limit exceeded. | yes |
+| `ProviderException` | 1500 | 500, 502, 503, 504 | Provider 5xx. | yes |
+| `StreamException` | 1600 | n/a | Stream parse failure. | no |
+| `SerializationException` | 1700 | n/a | JSON encode/decode failure. | no |
+| `BudgetExceededException` | 1800 | 402 | Budget cap hit. | no |
+| `HookRejectedException` | 1801 | n/a | A registered hook rejected the request. | no |
 
 ```csharp
 try
@@ -439,11 +441,17 @@ catch (RateLimitException ex)
 {
     Console.Error.WriteLine($"Rate limited: {ex.Message}");
 }
+catch (BudgetExceededException ex)
+{
+    Console.Error.WriteLine($"Budget exceeded: {ex.Message}");
+}
 catch (LlmException ex)
 {
     Console.Error.WriteLine($"Error {ex.ErrorCode}: {ex.Message}");
 }
 ```
+
+See [Error Handling](../usage/error-handling.md) for the canonical 17-variant taxonomy and retry semantics shared across every binding.
 
 ## Example
 

@@ -20,6 +20,12 @@ nav = [
         { "Local LLMs" = "usage/local-llms.md" },
         { "MCP & IDE Integration" = "usage/mcp-integration.md" },
         { "Configuration" = "usage/configuration.md" },
+        { "Error Handling" = "usage/error-handling.md" },
+    ] },
+    { "Server" = [
+        { "Proxy Server" = "server/proxy-server.md" },
+        { "Proxy Configuration" = "server/proxy-configuration.md" },
+        { "MCP Server" = "server/mcp-server.md" },
     ] },
     { "API Reference" = [
         { "Python" = "api/python.md" },

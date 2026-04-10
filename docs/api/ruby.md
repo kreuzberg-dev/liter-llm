@@ -466,44 +466,46 @@ Returned inside the array from `chat_stream`.
 
 ## Error Handling
 
-All errors are raised as Ruby exceptions inheriting from `LiterLlm::Error` (which itself inherits from `StandardError`). Invalid arguments raise `ArgumentError`.
+The Ruby binding does not define its own exception hierarchy. Every failure from the native extension surfaces as a plain `RuntimeError` whose `message` is the Rust `LiterLlmError` `Display` string (for example `"rate limited: Too many requests"` or `"authentication failed: invalid key"`). Invalid arguments to `chat`, `embed`, and friends raise `ArgumentError` before the request leaves Ruby.
 
-| Exception | Trigger |
-|-----------|---------|
-| `LiterLlm::Error` | Base class for all liter-llm errors |
-| `LiterLlm::AuthenticationError` | API key rejected (HTTP 401/403) |
-| `LiterLlm::RateLimitError` | Rate limit exceeded (HTTP 429) |
-| `LiterLlm::BadRequestError` | Malformed request (HTTP 400) |
-| `LiterLlm::ContextWindowExceededError` | Prompt exceeds context window (subclass of `BadRequestError`) |
-| `LiterLlm::ContentPolicyError` | Content policy violation (subclass of `BadRequestError`) |
-| `LiterLlm::NotFoundError` | Model/resource not found (HTTP 404) |
-| `LiterLlm::ServerError` | Provider 5xx error |
-| `LiterLlm::ServiceUnavailableError` | Provider temporarily unavailable (HTTP 502/503) |
-| `LiterLlm::TimeoutError` | Request timed out |
-| `LiterLlm::NetworkError` | Network-level failure |
-| `LiterLlm::StreamingError` | Error reading streaming response |
-| `LiterLlm::EndpointNotSupportedError` | Provider does not support the endpoint |
-| `LiterLlm::SerializationError` | JSON serialization/deserialization failure |
-| `LiterLlm::BudgetExceededError` | Budget limit exceeded |
+Branch on the message text to distinguish categories. The canonical 17-variant taxonomy is documented in [Error Handling](../usage/error-handling.md).
+
+| Message prefix | HTTP Status | Trigger | Transient? |
+|----------------|-------------|---------|------------|
+| `authentication failed:` | 401, 403 | API key rejected. | no |
+| `rate limited:` | 429 | Rate limit exceeded. | yes |
+| `bad request:` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `context window exceeded:` | 400, 422 | Prompt exceeds context window. | no |
+| `content policy violation:` | 400, 422 | Content policy violation. | no |
+| `not found:` | 404 | Model or resource not found. | no |
+| `server error:` | 500 | Provider 5xx. | yes |
+| `service unavailable:` | 502, 503, 504 | Provider temporarily unavailable. | yes |
+| `request timeout` | 408 | Request timed out. | yes |
+| `streaming error:` | n/a | Stream parse failure. | no |
+| `provider ... does not support ...` | n/a | Provider does not implement the endpoint. | no |
+| `invalid header ...` | n/a | Custom header name or value is invalid. | no |
+| `serialization error:` | n/a | JSON encode/decode failure. | no |
+| `budget exceeded:` | 402 | Budget cap hit. | no |
+| `hook rejected:` | n/a | A registered hook rejected the request. | no |
 
 ```ruby
 require 'liter_llm'
+require 'json'
 
 begin
   response = JSON.parse(client.chat(JSON.generate(
-    model: 'gpt-4', messages: [{ role: 'user', content: 'Hello' }]
+    model: 'openai/gpt-4o',
+    messages: [{ role: 'user', content: 'Hello' }]
   )))
 rescue ArgumentError => e
-  puts "Bad arguments: #{e.message}"
-rescue LiterLlm::RateLimitError => e
-  puts "Rate limited: #{e.message}"
-rescue LiterLlm::AuthenticationError => e
-  puts "Auth failed: #{e.message}"
-rescue LiterLlm::BudgetExceededError => e
-  puts "Budget exceeded: #{e.message}"
-rescue LiterLlm::Error => e
-  # Catch-all for other liter-llm errors
-  puts "Error: #{e.message}"
+  puts "bad arguments: #{e.message}"
+rescue RuntimeError => e
+  case e.message
+  when /\Arate limited:/        then puts "rate limited: #{e.message}"
+  when /\Aauthentication failed:/ then puts "auth failed: #{e.message}"
+  when /\Abudget exceeded:/     then puts "budget exceeded: #{e.message}"
+  else puts "error: #{e.message}"
+  end
 end
 ```
 

@@ -485,7 +485,20 @@ Returned inside the list from `chat_stream/3`.
 
 ## Error Handling
 
-Errors are returned as `{:error, %LiterLlm.Error{}}` structs. Pattern match on `:kind` for programmatic handling.
+Errors are returned as `{:error, %LiterLlm.Error{kind: atom, code: integer, http_status: integer | nil, message: string}}` tuples. Pattern match on `:kind` for programmatic handling. The Elixir binding collapses the 17 canonical liter-llm variants into 10 kinds; transient categories map to `:rate_limit` or `:provider_error` (inspect `http_status`).
+
+| Kind | Code | HTTP Status | Trigger | Transient? |
+|------|------|-------------|---------|------------|
+| `:unknown` | 1000 | n/a | Unknown or unclassified error. | no |
+| `:invalid_request` | 1400 | 400, 422 | Malformed request or unsupported parameter. | no |
+| `:authentication` | 1401 | 401, 403 | API key rejected. | no |
+| `:not_found` | 1404 | 404 | Model or resource not found. | no |
+| `:rate_limit` | 1429 | 429 | Rate limit exceeded. | yes |
+| `:provider_error` | 1500 | 500, 502, 503, 504 | Provider 5xx. Inspect `http_status`. | yes |
+| `:stream_error` | 1600 | n/a | Stream parse failure. | no |
+| `:serialization` | 1700 | n/a | JSON encode/decode failure. | no |
+| `:budget_exceeded` | 1800 | 402 | Budget cap hit. | no |
+| `:hook_rejected` | 1801 | n/a | A registered hook rejected the request. | no |
 
 ```elixir
 case LiterLlm.Client.chat(client, request) do
@@ -501,28 +514,15 @@ case LiterLlm.Client.chat(client, request) do
   {:error, %LiterLlm.Error{kind: :budget_exceeded}} ->
     IO.puts("Budget limit reached")
 
+  {:error, %LiterLlm.Error{kind: :provider_error, http_status: status, message: msg}} ->
+    Logger.error("provider #{status}: #{msg}")
+
   {:error, %LiterLlm.Error{} = err} ->
     Logger.error("LLM error: #{err}")
 end
 ```
 
-| Kind | Code | Description |
-|------|------|-------------|
-| `:unknown` | 1000 | Unknown error |
-| `:invalid_request` | 1400 | Malformed request (400/422) |
-| `:authentication` | 1401 | API key rejected (401/403) |
-| `:not_found` | 1404 | Model/resource not found (404) |
-| `:rate_limit` | 1429 | Rate limit exceeded (429) |
-| `:provider_error` | 1500 | Provider 5xx error |
-| `:service_unavailable` | 1503 | Provider temporarily unavailable (502/503) |
-| `:timeout` | 1504 | Request timed out |
-| `:network_error` | 1510 | Network-level failure |
-| `:stream_error` | 1600 | Stream parse failure |
-| `:serialization` | 1700 | JSON encode/decode failure |
-| `:endpoint_not_supported` | 1800 | Provider does not support the endpoint |
-| `:budget_exceeded` | 1900 | Budget limit exceeded |
-| `:context_window_exceeded` | 1401 | Prompt exceeds context window |
-| `:content_policy` | 1402 | Content policy violation |
+See [Error Handling](../usage/error-handling.md) for the canonical 17-variant taxonomy and retry semantics shared across every binding.
 
 ## Example
 

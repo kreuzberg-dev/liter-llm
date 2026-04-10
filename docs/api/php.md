@@ -409,38 +409,48 @@ array{
 
 ## Error Handling
 
-All methods throw `\LiterLlm\LlmException` (which extends `\RuntimeException`) on failure. Specific subclasses allow fine-grained catch blocks.
+The PHP package ships two dedicated exception classes (`\LiterLlm\BudgetExceededException` and `\LiterLlm\HookRejectedException`) for the variants that benefit from typed handling. Every other failure from the native extension surfaces as a plain `\RuntimeException` whose message is the underlying Rust error's `Display` string.
 
-| Exception | Trigger |
-|-----------|---------|
-| `LlmException` | Base class for all liter-llm errors |
-| `AuthenticationException` | API key rejected (HTTP 401/403) |
-| `RateLimitedException` | Rate limit exceeded (HTTP 429) |
-| `BadRequestException` | Malformed request (HTTP 400) |
-| `ContextWindowExceededException` | Prompt exceeds context window (subclass of `BadRequestException`) |
-| `ContentPolicyException` | Content policy violation (subclass of `BadRequestException`) |
-| `NotFoundException` | Model/resource not found (HTTP 404) |
-| `ServerException` | Provider 5xx error |
-| `ServiceUnavailableException` | Provider temporarily unavailable (HTTP 502/503) |
-| `TimeoutException` | Request timed out |
-| `NetworkException` | Network-level failure |
-| `StreamingException` | Error reading streaming response |
-| `EndpointNotSupportedException` | Provider does not support the endpoint |
-| `SerializationException` | JSON serialization/deserialization failure |
+Branch on the message prefix to distinguish other categories. The canonical 17-variant taxonomy is documented in [Error Handling](../usage/error-handling.md).
+
+Both dedicated exceptions extend `\RuntimeException`, so a single `\RuntimeException` catch block handles every failure if you do not need typed branching. The table below lists each category as it appears on the wire.
+
+| Exception | Message prefix | HTTP Status | Trigger | Transient? |
+|-----------|----------------|-------------|---------|------------|
+| `BudgetExceededException` | `budget exceeded:` | 402 | Budget cap hit. | no |
+| `HookRejectedException` | `hook rejected:` | n/a | A registered hook rejected the request. | no |
+| `RuntimeException` | `authentication failed:` | 401, 403 | API key rejected. | no |
+| `RuntimeException` | `rate limited:` | 429 | Rate limit exceeded. | yes |
+| `RuntimeException` | `bad request:` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `RuntimeException` | `context window exceeded:` | 400, 422 | Prompt exceeds context window. | no |
+| `RuntimeException` | `content policy violation:` | 400, 422 | Content policy violation. | no |
+| `RuntimeException` | `not found:` | 404 | Model or resource not found. | no |
+| `RuntimeException` | `server error:` | 500 | Provider 5xx. | yes |
+| `RuntimeException` | `service unavailable:` | 502, 503, 504 | Provider temporarily unavailable. | yes |
+| `RuntimeException` | `request timeout` | 408 | Request timed out. | yes |
+| `RuntimeException` | `streaming error:` | n/a | Stream parse failure. | no |
+| `RuntimeException` | `serialization error:` | n/a | JSON encode/decode failure. | no |
 
 ```php
-use LiterLlm\LlmException;
-use LiterLlm\RateLimitedException;
-use LiterLlm\AuthenticationException;
+use LiterLlm\LlmClient;
+use LiterLlm\BudgetExceededException;
+use LiterLlm\HookRejectedException;
 
 try {
     $response = json_decode($client->chat(json_encode($request)), true);
-} catch (RateLimitedException $e) {
-    echo "Rate limited: " . $e->getMessage() . "\n";
-} catch (AuthenticationException $e) {
-    echo "Auth failed: " . $e->getMessage() . "\n";
-} catch (LlmException $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+} catch (BudgetExceededException $e) {
+    echo "budget exceeded: " . $e->getMessage() . "\n";
+} catch (HookRejectedException $e) {
+    echo "hook rejected: " . $e->getMessage() . "\n";
+} catch (\RuntimeException $e) {
+    $msg = $e->getMessage();
+    if (str_starts_with($msg, 'rate limited:')) {
+        echo "rate limited: $msg\n";
+    } elseif (str_starts_with($msg, 'authentication failed:')) {
+        echo "auth failed: $msg\n";
+    } else {
+        echo "error: $msg\n";
+    }
 }
 ```
 

@@ -383,35 +383,39 @@ Response objects are plain JavaScript objects with camelCase keys.
 
 ## Error Handling
 
-Errors are thrown as JavaScript `Error` objects. The message includes a bracketed label for the error category:
+Errors are thrown as JavaScript `Error` objects. There is no typed hierarchy: every failure uses the base `Error` class, and the message starts with a bracketed category label so callers can branch on string match.
 
 ```typescript
 try {
   await client.chat({ model: "gpt-4", messages: [] });
 } catch (err) {
-  // "[Authentication] Invalid API key"
-  // "[RateLimited] Too many requests"
-  // "[BadRequest] Messages must not be empty"
-  console.error(err.message);
+  if (err instanceof Error && err.message.startsWith("[RateLimited]")) {
+    // 429 (transient): retry with backoff.
+  }
+  console.error((err as Error).message);
 }
 ```
 
-| Category | Trigger |
-|----------|---------|
-| `Authentication` | API key rejected (HTTP 401/403) |
-| `RateLimited` | Rate limit exceeded (HTTP 429) |
-| `BadRequest` | Malformed request (HTTP 400) |
-| `ContextWindowExceeded` | Prompt exceeds context window |
-| `ContentPolicy` | Content policy violation |
-| `NotFound` | Model/resource not found (HTTP 404) |
-| `ServerError` | Provider 5xx error |
-| `ServiceUnavailable` | Provider temporarily unavailable (HTTP 502/503) |
-| `Timeout` | Request timed out |
-| `Network` | Network-level failure |
-| `Streaming` | Error reading streaming response |
-| `EndpointNotSupported` | Provider does not support the endpoint |
-| `InvalidHeader` | Custom header name or value is invalid |
-| `Serialization` | JSON serialization/deserialization failure |
+| Category label | HTTP Status | Trigger | Transient? |
+|----------------|-------------|---------|------------|
+| `[Authentication]` | 401, 403 | API key rejected. | no |
+| `[RateLimited]` | 429 | Rate limit exceeded. | yes |
+| `[BadRequest]` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `[ContextWindowExceeded]` | 400, 422 | Prompt exceeds the context window. | no |
+| `[ContentPolicy]` | 400, 422 | Content policy violation. | no |
+| `[NotFound]` | 404 | Model or resource not found. | no |
+| `[ServerError]` | 500 | Provider 5xx error. | yes |
+| `[ServiceUnavailable]` | 502, 503, 504 | Provider temporarily unavailable. | yes |
+| `[Timeout]` | 408 | Request timed out. | yes |
+| `[Network]` | n/a | Transport failure. | yes |
+| `[Streaming]` | n/a | Stream parse failure. | no |
+| `[EndpointNotSupported]` | n/a | Provider does not implement the endpoint. | no |
+| `[InvalidHeader]` | n/a | Custom header name or value is invalid. | no |
+| `[Serialization]` | n/a | JSON serialization or deserialization failure. | no |
+| `[BudgetExceeded]` | 402 | Virtual-key or global budget cap hit. | no |
+| `[HookRejected]` | n/a | A registered hook rejected the request. | no |
+
+See [Error Handling](../usage/error-handling.md) for the canonical taxonomy and retry semantics.
 
 ## Example
 
