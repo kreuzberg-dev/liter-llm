@@ -39,7 +39,7 @@
         <junit.version>6.1.0-M1</junit.version>
         <maven.version>3.9.11</maven.version>
         <!-- Pinned to Maven 3.x-compatible versions -->
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
