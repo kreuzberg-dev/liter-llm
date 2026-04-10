@@ -75,7 +75,7 @@
 		"@kreuzberg/liter-llm-native": "workspace:*"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.10",
+		"@biomejs/biome": "^2.4.11",
 		"@types/node": "^25.5.2",
 		"tsup": "^8.5.1",
 		"typescript": "^6.0.2",
