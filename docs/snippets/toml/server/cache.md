@@ -4,7 +4,9 @@
 max_entries = 4096
 ttl_seconds = 900
 backend = "memory"
+```
 
+```toml
 # Redis cache via OpenDAL.
 [cache]
 max_entries = 10_000

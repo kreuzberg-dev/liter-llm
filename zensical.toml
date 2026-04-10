@@ -30,6 +30,12 @@ nav = [
         { "Proxy Configuration" = "server/proxy-configuration.md" },
         { "MCP Server" = "server/mcp-server.md" },
     ] },
+    { "Concepts" = [
+        { "Architecture" = "concepts/architecture.md" },
+        { "Feature Flags" = "concepts/feature-flags.md" },
+        { "Tokenizer" = "concepts/tokenizer.md" },
+        { "Cost Estimation" = "concepts/cost-estimation.md" },
+    ] },
     { "API Reference" = [
         { "Python" = "api/python.md" },
         { "TypeScript / Node.js" = "api/typescript.md" },

@@ -79,7 +79,7 @@ let router = Router::new(deployments, RoutingStrategy::LatencyBased)?;
 
 After each request completes, the observed wall-clock latency is folded into a per-deployment exponential moving average:
 
-```
+```text
 EMA_new = 0.3 * sample + 0.7 * EMA_prev
 ```
 
