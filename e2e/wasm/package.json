@@ -6,7 +6,7 @@
 		"test": "vitest run"
 	},
 	"devDependencies": {
-		"vitest": "^4.1.2"
+		"vitest": "^4.1.4"
 	},
 	"dependencies": {
 		"liter-llm-wasm": "link:../../crates/liter-llm-wasm"
