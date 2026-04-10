@@ -20,6 +20,9 @@ nav = [
         { "Local LLMs" = "usage/local-llms.md" },
         { "MCP & IDE Integration" = "usage/mcp-integration.md" },
         { "Configuration" = "usage/configuration.md" },
+        { "Authentication" = "usage/authentication.md" },
+        { "Observability" = "usage/observability.md" },
+        { "Fallback & Routing" = "usage/fallback-routing.md" },
         { "Error Handling" = "usage/error-handling.md" },
     ] },
     { "Server" = [
