@@ -51,6 +51,6 @@
 		"prepublishOnly": "napi prepublish -t npm --skip-optional-publish"
 	},
 	"devDependencies": {
-		"@napi-rs/cli": "^3.6.0"
+		"@napi-rs/cli": "^3.6.1"
 	}
 }
