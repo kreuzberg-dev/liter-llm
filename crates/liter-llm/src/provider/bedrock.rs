@@ -917,7 +917,10 @@ mod tests {
     // ── build_url ─────────────────────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn build_url_chat_completions() {
+        // SAFETY: env vars are process-global; `#[serial]` ensures no parallel mutation.
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
         let p = provider();
         let url = p.build_url("/chat/completions", "anthropic.claude-3-sonnet-20240229-v1:0");
         // Colon must be uppercase-encoded per RFC 3986 §2.1.
@@ -928,7 +931,10 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn build_url_embeddings() {
+        // SAFETY: env vars are process-global; `#[serial]` ensures no parallel mutation.
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
         let p = provider();
         let url = p.build_url("/embeddings", "amazon.titan-embed-text-v1");
         assert_eq!(
@@ -938,7 +944,10 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn build_url_other_path() {
+        // SAFETY: env vars are process-global; `#[serial]` ensures no parallel mutation.
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
         let p = provider();
         let url = p.build_url("/models", "any-model");
         assert_eq!(url, "https://bedrock-runtime.us-east-1.amazonaws.com/models");

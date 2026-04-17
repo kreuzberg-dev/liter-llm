@@ -18,6 +18,7 @@ nav = [
         { "Search & OCR" = "usage/search-ocr.md" },
         { "Files & Batches" = "usage/files.md" },
         { "Local LLMs" = "usage/local-llms.md" },
+        { "MCP & IDE Integration" = "usage/mcp-integration.md" },
         { "Configuration" = "usage/configuration.md" },
     ] },
     { "API Reference" = [

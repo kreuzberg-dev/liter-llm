@@ -33,6 +33,7 @@ use self::errors::to_error_data;
 /// etc.) or a management operation (files, batches, responses).
 #[derive(Clone)]
 pub struct LiterLlmMcp {
+    #[allow(dead_code)]
     tool_router: ToolRouter<Self>,
     service_pool: Arc<ServicePool>,
     #[allow(dead_code)]

@@ -82,7 +82,7 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.should_publish == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 360
     permissions:
       contents: read
       packages: write

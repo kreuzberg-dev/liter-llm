@@ -1142,7 +1142,7 @@ checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 
 [[package]]
 name = "e2e-generator"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "anyhow",
  "camino",
@@ -2225,7 +2225,7 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "liter-llm"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "aws-credential-types",
  "aws-sigv4",
@@ -2257,7 +2257,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-bindings-core"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "liter-llm",
  "pretty_assertions",
@@ -2268,7 +2268,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-cli"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "axum",
  "clap",
@@ -2281,7 +2281,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-ffi"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -2296,7 +2296,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-node"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -2310,7 +2310,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-php"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "ext-php-rs",
  "futures-core",
@@ -2321,7 +2321,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-proxy"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -2348,7 +2348,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-py"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -2361,7 +2361,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-wasm"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "js-sys",
  "liter-llm",
@@ -2377,7 +2377,7 @@ dependencies = [
 
 [[package]]
 name = "liter_llm_rustler"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -4100,7 +4100,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "snippet-runner"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "clap",
  "rayon",

@@ -42,6 +42,8 @@ Or start the MCP server:
 liter-llm mcp --transport stdio
 ```
 
+See [MCP & IDE Integration](../usage/mcp-integration.md) for setup guides for VS Code, GitHub Copilot, Claude Desktop, Cursor, and other MCP-compatible tools.
+
 ## Install
 
 === "Python"
@@ -265,5 +267,6 @@ task build
 ## Next Steps
 
 - [Chat & Streaming](../usage/chat.md) -- Make your first API call
+- [MCP & IDE Integration](../usage/mcp-integration.md) -- Integrate with VS Code, GitHub Copilot, Claude, Cursor
 - [Provider Registry](../providers.md) -- Browse all 142 supported providers
 - [Configuration](../usage/configuration.md) -- Timeouts, retries, base URL overrides

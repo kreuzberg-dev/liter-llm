@@ -24,7 +24,7 @@ base64 = { workspace = true }
 bytes = { workspace = true }
 dashmap = { workspace = true }
 futures-util = { workspace = true }
-liter-llm = { path = "../liter-llm", version = "1.2.0", features = ["native-http", "tower", "tracing"] }
+liter-llm = { path = "../liter-llm", version = "1.2.1", features = ["native-http", "tower", "tracing"] }
 opendal = { workspace = true }
 
 # Feature-gated
