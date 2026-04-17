@@ -41,7 +41,7 @@ dev = [
   "prek>=0.2.19",
   "pytest>=9.0.0",
   "pyyaml>=6.0.0",
-  "ruff>=0.14.6",
+  "ruff>=0.15.11",
   "typing-extensions>=4.15.0",
   "uv-bump",
 ]
