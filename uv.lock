@@ -211,7 +211,7 @@ wheels = [
 
 [[package]]
 name = "liter-llm"
-version = "1.2.1"
+version = "1.2.2"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -236,13 +236,13 @@ doc = [
 [package.metadata.requires-dev]
 dev = [
     { name = "anyio", specifier = ">=4.10.0" },
-    { name = "jinja2", specifier = ">=3.1.0" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "jsonschema", specifier = ">=4.0.0" },
-    { name = "mypy", specifier = ">=1.18.2" },
+    { name = "mypy", specifier = ">=1.20.1" },
     { name = "prek", specifier = ">=0.2.19" },
-    { name = "pytest", specifier = ">=9.0.0" },
+    { name = "pytest", specifier = ">=9.0.3" },
     { name = "pyyaml", specifier = ">=6.0.0" },
-    { name = "ruff", specifier = ">=0.14.6" },
+    { name = "ruff", specifier = ">=0.15.11" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
     { name = "uv-bump", git = "https://github.com/Goldziher/uv-bump" },
 ]

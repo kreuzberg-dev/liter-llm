@@ -17,10 +17,9 @@ A minimal file that exposes one model:
 The proxy resolves config in this order, later values winning:
 
 1. Defaults from each struct's `Default` impl.
-2. `liter-llm-proxy.toml` in the working directory, walked upward to the filesystem root.
-3. Explicit `--config <path>` if provided.
-4. CLI flags (`--host`, `--port`, `--master-key`).
-5. Environment variables read during `${VAR}` interpolation.
+2. **Either** auto-discovery of `liter-llm-proxy.toml` in the working directory walked upward to the filesystem root, **or** an explicit `--config <path>` file (mutually exclusive — `--config` disables auto-discovery).
+3. CLI flags (`--host`, `--port`, `--master-key`).
+4. Environment variables read during `${VAR}` interpolation.
 
 See [Proxy Server > Command-line flags](proxy-server.md#command-line-flags) for the flag list.
 

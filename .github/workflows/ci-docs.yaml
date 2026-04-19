@@ -99,3 +99,35 @@ jobs:
         run: |
           uv sync --group doc --no-editable --no-install-workspace --no-install-project
           uv run --no-sync zensical build --clean
+
+  lint-links:
+    name: "Validate: Links (lychee)"
+    needs: [validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Build docs
+        run: |
+          uv sync --group doc --no-editable --no-install-workspace --no-install-project
+          uv run --no-sync zensical build --clean
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--config .lychee.toml site/"
+          fail: true

@@ -83,7 +83,7 @@ Configuration is identical to the proxy server — see [Configuration](./configu
 
 === "VS Code & GitHub Copilot"
 
-    The VS Code MCP extension allows you to connect MCP servers directly to VS Code and GitHub Copilot. Follow the [VS Code MCP setup guide](https://marketplace.visualstudio.com/items?itemName=ms-vscode.prompt-expansion).
+    VS Code supports MCP servers natively. See the [VS Code MCP documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for setup details.
 
     **Manual Installation (without extension):**
 

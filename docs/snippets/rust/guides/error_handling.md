@@ -9,12 +9,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = ClientConfigBuilder::new(std::env::var("OPENAI_API_KEY")?).build();
     let client = DefaultClient::new(config);
 
-    let request = ChatCompletionRequest::builder()
-        .model("openai/gpt-4o")
-        .messages(vec![Message::User(UserMessage::new(UserContent::Text(
-            "Hello".into(),
-        )))])
-        .build();
+    let request = ChatCompletionRequest {
+        model: "openai/gpt-4o".to_owned(),
+        messages: vec![Message::User(UserMessage {
+            content: UserContent::Text("Hello".into()),
+            name: None,
+        })],
+        ..Default::default()
+    };
 
     match client.chat(request).await {
         Ok(response) => {

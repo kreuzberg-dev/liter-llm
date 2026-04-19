@@ -18,9 +18,10 @@ liter-llm uses Cargo feature flags to keep the default binary small and avoid pu
 | `azure-auth` | no | `AzureAdCredentialProvider` (client-credentials OAuth2 flow for Azure OpenAI) | none beyond `native-http` |
 | `vertex-auth` | no | `VertexOAuthCredentialProvider` (service-account JWT flow for Vertex AI) | `jsonwebtoken` |
 | `bedrock-auth` | no | `WebIdentityCredentialProvider` (STS web identity / IRSA for Bedrock) | none beyond `native-http` |
+| `copilot-auth` | no | GitHub Copilot OAuth Device Flow credential provider | `native-http` |
 | `tokenizer` | no | `count_tokens()` and `count_request_tokens()` via HuggingFace tokenizers. Downloads tokenizer files from HuggingFace Hub on first use and caches them in-process. | `tokenizers` |
 | `opendal-cache` | no | Distributed cache backend via OpenDAL (S3, GCS, Azure Blob, Redis, filesystem). Requires `tower`. | `opendal` |
-| `full` | no | All of the above combined. | All optional dependencies |
+| `full` | no | All of the above: `tower`, `tracing`, `otel`, `bedrock`, `bedrock-auth`, `azure-auth`, `vertex-auth`, `copilot-auth`, `tokenizer`, `opendal-cache` | All optional dependencies |
 
 ## Usage
 
@@ -28,7 +29,7 @@ Add only the flags your deployment needs:
 
 ```toml
 # Minimal: just the HTTP client, no Tower, no tracing
-liter-llm = { version = "...", default-features = true }
+liter-llm = "..."
 
 # Production server: Tower stack + OTEL + Bedrock
 liter-llm = { version = "...", features = ["tower", "otel", "bedrock", "bedrock-auth"] }
@@ -51,8 +52,9 @@ bedrock → native-http
 azure-auth  → native-http
 vertex-auth → native-http
 bedrock-auth → native-http
+copilot-auth → native-http
 opendal-cache → tower
-full → native-http, tower, tracing, otel, bedrock, tokenizer, azure-auth, vertex-auth, bedrock-auth, opendal-cache
+full → native-http, tower, tracing, otel, bedrock, tokenizer, azure-auth, vertex-auth, bedrock-auth, copilot-auth, opendal-cache
 ```
 
 `native-http` is in `default`. Disable it with `default-features = false` when compiling for WebAssembly. The WASM binding uses the browser `fetch` API instead.

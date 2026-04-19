@@ -50,14 +50,14 @@ See [Proxy Configuration](proxy-configuration.md) for every config field.
 | `--config`, `-c` | auto-discover | Path to `liter-llm-proxy.toml`. Walks from the current directory up to the filesystem root when omitted. |
 | `--host` | `0.0.0.0` | Bind address. Overrides `[server].host`. |
 | `--port`, `-p` | `4000` | Bind port. Overrides `[server].port`. |
-| `--master-key` | `$LITER_LLM_MASTER_KEY` | Master API key. Overrides `[general].master_key`. |
+| `--master-key` | reads env: `LITER_LLM_MASTER_KEY` | Master API key. Overrides `[general].master_key`. |
 | `--debug` | off | Enable debug-level tracing. Equivalent to `RUST_LOG=debug`. |
 
 CLI flags take precedence over config file values, which take precedence over defaults.
 
 ## Endpoints
 
-The proxy exposes 26 HTTP method registrations across 23 unique routes. All `/v1/*` routes require a Bearer token. Health and OpenAPI endpoints are public.
+The proxy exposes 23 API routes with 26 endpoints (verb+path combinations). All `/v1/*` routes require a Bearer token. Health and OpenAPI endpoints are public.
 
 ### LLM operations
 

@@ -28,7 +28,7 @@ Native-extension bindings (Python, Node.js, WebAssembly, Ruby, Elixir) use Rust 
 
 ```text
 crates/liter-llm/src/
-  client.rs          # LlmClient trait + DefaultClient
+  client/            # LlmClient trait + DefaultClient
   error.rs           # LiterLlmError enum (17 variants)
   cost.rs            # completion_cost() - pricing registry
   tokenizer.rs       # count_tokens() - HuggingFace tokenizer bridge
@@ -37,7 +37,10 @@ crates/liter-llm/src/
   provider/          # Per-provider adapters (143 providers)
   tower/             # Tower middleware layers
   types/             # Request and response types (OpenAI wire format)
-  schemas/           # pricing.json embedded at compile time
+
+crates/liter-llm/schemas/
+  pricing.json       # Provider pricing registry embedded at compile time
+  providers.json     # 142+ provider configurations
 ```
 
 ## Tower middleware stack
@@ -99,7 +102,7 @@ On a transient provider error, `FallbackLayer` replays the request on the config
 
 ## Language binding strategy
 
-All eleven bindings share the same Rust core. Three native-extension approaches cover the binding surface:
+All eleven bindings share the same Rust core. Six native-extension approaches cover the binding surface:
 
 | Approach | Used by | Mechanism |
 |----------|---------|-----------|
@@ -118,12 +121,17 @@ The WASM binding is the only one that does not use `format_error()`. It calls th
 
 ```text
 crates/liter-llm-proxy/src/
+  auth/              # Auth key store + validation
   config/            # TOML config structs + env-var interpolation
   routes/            # Axum route handlers (23 unique routes)
   mcp/               # MCP server (22 tools via rmcp)
-  middleware/        # Auth, CORS, body limit, panic catcher
+  error.rs           # Error types and mapping
+  file_store.rs      # OpenDAL file storage backend
+  lib.rs             # Module exports
+  openapi.rs         # OpenAPI spec generation
   service_pool.rs    # Builds the Tower stack per model
-  keys.rs            # Virtual key validation
+  state.rs           # Shared application state
+  streaming.rs       # SSE response streaming
 ```
 
 The proxy builds one Tower stack per `[[models]]` entry at startup. Stacks are stored in a `ServicePool` indexed by model name and alias. Incoming requests authenticate via the master key or a virtual key (`[[keys]]`), then route to the matching stack.
