@@ -772,9 +772,9 @@ dependencies = [
 
 [[package]]
 name = "constant_time_eq"
-version = "0.4.2"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
+checksum = "7dab3fe76c1571ecd5cfe878b61bce3fedf4adbde5d8a8653b2a7956ffd14628"
 
 [[package]]
 name = "convert_case"
@@ -1142,7 +1142,7 @@ checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 
 [[package]]
 name = "e2e-generator"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "anyhow",
  "camino",
@@ -2109,9 +2109,9 @@ dependencies = [
 
 [[package]]
 name = "jsonschema"
-version = "0.46.0"
+version = "0.46.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84695c6689b01384700a3d93acecbd07231ee6fff1bf22ae980b4c307e6ddfd5"
+checksum = "2d87ef9a314ee37b69ef9ab130d3159f04287dda52151b064752842065e0db2e"
 dependencies = [
  "ahash",
  "bytecount",
@@ -2225,7 +2225,7 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "liter-llm"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "aws-credential-types",
  "aws-sigv4",
@@ -2257,7 +2257,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-bindings-core"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "liter-llm",
  "pretty_assertions",
@@ -2268,7 +2268,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-cli"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "axum",
  "clap",
@@ -2281,7 +2281,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-ffi"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -2296,7 +2296,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-node"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -2310,7 +2310,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-php"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "ext-php-rs",
  "futures-core",
@@ -2321,7 +2321,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-proxy"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -2348,7 +2348,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-py"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -2361,7 +2361,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-wasm"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "js-sys",
  "liter-llm",
@@ -2377,7 +2377,7 @@ dependencies = [
 
 [[package]]
 name = "liter_llm_rustler"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "futures-core",
  "liter-llm",
@@ -3392,9 +3392,9 @@ dependencies = [
 
 [[package]]
 name = "referencing"
-version = "0.46.0"
+version = "0.46.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2d5554bf79f4acf770dc3193b44b2d63b348f5f7b7448a0ea1191b37b620728"
+checksum = "aee6970bf1974cd719a1f4e8bc5a8051a33740194b7246430441cff79faff66d"
 dependencies = [
  "ahash",
  "fluent-uri",
@@ -4100,7 +4100,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "snippet-runner"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "clap",
  "rayon",
@@ -4666,9 +4666,9 @@ checksum = "8e28f89b80c87b8fb0cf04ab448d5dd0dd0ade2f8891bae878de66a75a28600e"
 
 [[package]]
 name = "typenum"
-version = "1.19.0"
+version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb"
+checksum = "40ce102ab67701b8526c123c1bab5cbe42d7040ccfd0f64af1a385808d2f43de"
 
 [[package]]
 name = "unicase"
@@ -4903,11 +4903,11 @@ checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
 
 [[package]]
 name = "wasip2"
-version = "1.0.2+wasi-0.2.9"
+version = "1.0.3+wasi-0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9517f9239f02c069db75e65f174b3da828fe5f5b945c4dd26bd25d89c03ebcf5"
+checksum = "20064672db26d7cdc89c7798c48a0fdfac8213434a1186e5ef29fd560ae223d6"
 dependencies = [
- "wit-bindgen",
+ "wit-bindgen 0.57.1",
 ]
 
 [[package]]
@@ -4916,7 +4916,7 @@ version = "0.4.0+wasi-0.3.0-rc-2026-01-06"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5428f8bf88ea5ddc08faddef2ac4a67e390b88186c703ce6dbd955e1c145aca5"
 dependencies = [
- "wit-bindgen",
+ "wit-bindgen 0.51.0",
 ]
 
 [[package]]
@@ -5470,6 +5470,12 @@ checksum = "d7249219f66ced02969388cf2bb044a09756a083d0fab1e566056b04d9fbcaa5"
 dependencies = [
  "wit-bindgen-rust-macro",
 ]
+
+[[package]]
+name = "wit-bindgen"
+version = "0.57.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
 
 [[package]]
 name = "wit-bindgen-core"

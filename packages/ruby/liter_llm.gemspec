@@ -102,7 +102,7 @@ files = files.uniq
 
 Gem::Specification.new do |spec|
   spec.name = 'liter_llm'
-  spec.version = '1.2.1'
+  spec.version = '1.2.2'
   spec.authors = ["Na'aman Hirschfeld"]
   spec.email = ['naaman@kreuzberg.dev']
 

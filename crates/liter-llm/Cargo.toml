@@ -37,6 +37,8 @@ otel = ["tracing", "dep:tracing-opentelemetry", "dep:opentelemetry"]
 bedrock = ["native-http", "dep:aws-credential-types", "dep:aws-sigv4"]
 # Azure AD OAuth2 credential provider (client-credentials flow).
 azure-auth = ["native-http"]
+# GitHub Copilot OAuth Device Flow credential provider.
+copilot-auth = ["native-http"]
 # Google Vertex AI OAuth2 credential provider (service-account JWT flow).
 vertex-auth = ["native-http", "dep:jsonwebtoken"]
 # AWS STS Web Identity credential provider (EKS / IRSA token exchange).
@@ -55,6 +57,7 @@ full = [
     "bedrock",
     "tokenizer",
     "azure-auth",
+    "copilot-auth",
     "vertex-auth",
     "bedrock-auth",
     "opendal-cache",

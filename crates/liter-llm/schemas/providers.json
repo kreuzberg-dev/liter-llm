@@ -56,7 +56,12 @@
 			"display_name": "Amazon Nova",
 			"endpoints": ["chat"],
 			"model_prefixes": ["amazon-", "amazon-nova/"],
-			"model_count": 4
+			"model_count": 4,
+			"base_url": "https://api.nova.amazon.com/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "AMAZON_NOVA_API_KEY"
+			}
 		},
 		{
 			"name": "anthropic",
@@ -190,7 +195,12 @@
 		{
 			"name": "baseten",
 			"display_name": "Baseten",
-			"endpoints": ["chat"]
+			"endpoints": ["chat"],
+			"base_url": "https://inference.baseten.co/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "BASETEN_API_KEY"
+			}
 		},
 		{
 			"name": "bedrock",
@@ -350,7 +360,12 @@
 		{
 			"name": "compactifai",
 			"display_name": "CompactifAI",
-			"endpoints": ["chat"]
+			"endpoints": ["chat"],
+			"base_url": "https://api.compactif.ai/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "COMPACTIFAI_API_KEY"
+			}
 		},
 		{
 			"name": "cursor",
@@ -400,7 +415,12 @@
 		{
 			"name": "datarobot",
 			"display_name": "DataRobot",
-			"endpoints": ["chat"]
+			"endpoints": ["chat"],
+			"base_url": "https://app.datarobot.com",
+			"auth": {
+				"type": "bearer",
+				"env_var": "DATAROBOT_API_TOKEN"
+			}
 		},
 		{
 			"name": "deepgram",
@@ -455,13 +475,21 @@
 		{
 			"name": "docker_model_runner",
 			"display_name": "Docker Model Runner",
-			"endpoints": ["chat"]
+			"endpoints": ["chat"],
+			"base_url": "http://localhost:22088/engines/llama.cpp",
+			"auth": {
+				"type": "none"
+			}
 		},
 		{
 			"name": "duckduckgo",
 			"display_name": "DuckDuckGo",
 			"endpoints": ["search"],
-			"model_count": 1
+			"model_count": 1,
+			"base_url": "https://api.duckduckgo.com",
+			"auth": {
+				"type": "none"
+			}
 		},
 		{
 			"name": "elevenlabs",
@@ -790,14 +818,23 @@
 		{
 			"name": "langgraph",
 			"display_name": "LangGraph",
-			"endpoints": ["chat"]
+			"endpoints": ["chat"],
+			"base_url": "http://localhost:2024",
+			"auth": {
+				"type": "bearer",
+				"env_var": "LANGGRAPH_API_KEY"
+			}
 		},
 		{
 			"name": "lemonade",
 			"display_name": "Lemonade",
 			"endpoints": ["chat"],
 			"model_prefixes": ["lemonade/", "lemonade/Qwen3-", "lemonade/gpt-"],
-			"model_count": 5
+			"model_count": 5,
+			"base_url": "http://localhost:8000/api/v1",
+			"auth": {
+				"type": "none"
+			}
 		},
 		{
 			"name": "linkup",
@@ -1480,7 +1517,12 @@
 			"display_name": "V0",
 			"endpoints": ["chat"],
 			"model_prefixes": ["v0/", "v0/v0-"],
-			"model_count": 3
+			"model_count": 3,
+			"base_url": "https://api.v0.dev/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "V0_API_KEY"
+			}
 		},
 		{
 			"name": "venice",
@@ -1518,7 +1560,12 @@
 				"vercel_ai_gateway/xai/grok-",
 				"vercel_ai_gateway/zai/glm-"
 			],
-			"model_count": 101
+			"model_count": 101,
+			"base_url": "https://ai-gateway.vercel.sh/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "VERCEL_AI_GATEWAY_API_KEY"
+			}
 		},
 		{
 			"name": "vertex_ai",
@@ -1628,13 +1675,20 @@
 			"display_name": "Z.AI",
 			"endpoints": ["chat"],
 			"model_prefixes": ["zai/", "zai/glm-"],
-			"model_count": 11
+			"model_count": 11,
+			"base_url": "https://api.z.ai/api/paas/v4",
+			"auth": {
+				"type": "bearer",
+				"env_var": "ZAI_API_KEY"
+			}
 		}
 	],
 	"complex_providers": [
+		"a2a",
 		"amazon_nova",
 		"anthropic",
 		"anthropic_text",
+		"auto_router",
 		"aws_polly",
 		"azure",
 		"azure_ai",
@@ -1643,17 +1697,32 @@
 		"azure_text",
 		"baseten",
 		"bedrock",
+		"chatgpt",
 		"cloudflare",
+		"cursor",
+		"custom",
+		"custom_openai",
 		"databricks",
 		"datarobot",
 		"gigachat",
 		"github_copilot",
+		"hosted_vllm",
+		"litellm_proxy",
+		"manus",
+		"milvus",
 		"oci",
+		"openai_like",
+		"petals",
+		"pg_vector",
+		"pydantic_ai_agents",
+		"ragflow",
 		"s3_vectors",
 		"sagemaker",
 		"sagemaker_chat",
 		"sap",
+		"searxng",
 		"snowflake",
+		"triton",
 		"vertex_ai",
 		"vertex_ai/agent_engine",
 		"watsonx",

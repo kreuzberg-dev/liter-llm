@@ -79,20 +79,14 @@ impl Provider for AnthropicProvider {
             for tool in tools {
                 let tool_type = tool.get("type").and_then(|t| t.as_str()).unwrap_or("");
                 match tool_type {
-                    "computer_20241022" | "computer_use_20250124" => {
-                        if !betas.contains(&BETA_COMPUTER_USE) {
-                            betas.push(BETA_COMPUTER_USE);
-                        }
+                    "computer_20241022" | "computer_use_20250124" if !betas.contains(&BETA_COMPUTER_USE) => {
+                        betas.push(BETA_COMPUTER_USE);
                     }
-                    "web_search_20250305" => {
-                        if !betas.contains(&BETA_WEB_SEARCH) {
-                            betas.push(BETA_WEB_SEARCH);
-                        }
+                    "web_search_20250305" if !betas.contains(&BETA_WEB_SEARCH) => {
+                        betas.push(BETA_WEB_SEARCH);
                     }
-                    "code_execution_20250522" => {
-                        if !betas.contains(&BETA_CODE_EXECUTION) {
-                            betas.push(BETA_CODE_EXECUTION);
-                        }
+                    "code_execution_20250522" if !betas.contains(&BETA_CODE_EXECUTION) => {
+                        betas.push(BETA_CODE_EXECUTION);
                     }
                     _ => {}
                 }

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-04-18
+
+### Added
+
+- GitHub Copilot OAuth Device Flow credential provider (`copilot-auth` feature) — use your Copilot subscription as an LLM backend via `github_copilot/` model prefix ([#12](https://github.com/kreuzberg-dev/liter-llm/issues/12))
+- GitHub Copilot provider with OpenAI-compatible routing, required Copilot headers, per-request UUID, and `X-Initiator` header
+- E2E test fixtures for GitHub Copilot provider (chat + auth error)
+
+### Fixed
+
+- Provider registry audit: corrected base URLs for 20 providers (aiml, assemblyai, clarifai, dashscope, deepseek, elevenlabs, firecrawl, friendliai, gradient_ai, gmi, helicone, lambda_ai, minimax, moonshot, morph, nlp_cloud, ollama, poe, stability, wandb)
+- Provider registry audit: corrected env var names for 5 providers (cometapi, fal_ai, gradient_ai, jina_ai, venice)
+- Provider registry audit: corrected endpoint lists for 6 providers (cometapi, deepinfra, elevenlabs, jina_ai, mistral, nvidia_nim)
+- Added missing `base_url` and `auth` config for 11 previously non-functional providers (amazon_nova, baseten, compactifai, datarobot, docker_model_runner, duckduckgo, langgraph, lemonade, v0, vercel_ai_gateway, zai)
+- Added 18 stub/infrastructure providers to `complex_providers` list to prevent incorrect config-driven routing
+- Added `nanogpt` param mapping (`max_completion_tokens` → `max_tokens`)
+
 ## [1.2.1] - 2026-04-17
 
 ### Added
@@ -216,7 +233,9 @@ All bindings expose the full API surface with language-idiomatic conventions:
 
 </details>
 
-[Unreleased]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/kreuzberg-dev/liter-llm/compare/v1.0.0...v1.1.0

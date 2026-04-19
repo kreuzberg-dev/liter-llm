@@ -9,8 +9,8 @@
 
 #define LITER_LLM_VERSION_MAJOR 1
 #define LITER_LLM_VERSION_MINOR 2
-#define LITER_LLM_VERSION_PATCH 1
-#define LITER_LLM_VERSION "1.2.1"
+#define LITER_LLM_VERSION_PATCH 2
+#define LITER_LLM_VERSION "1.2.2"
 
 
 #include <stdarg.h>

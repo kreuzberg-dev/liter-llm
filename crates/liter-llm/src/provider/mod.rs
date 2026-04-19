@@ -336,6 +336,7 @@ pub mod azure;
 pub mod bedrock;
 pub mod cohere;
 pub mod custom;
+pub mod github_copilot;
 pub mod google_ai;
 pub mod mistral;
 pub mod vertex;
@@ -559,6 +560,11 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
         || model.starts_with("mistral/")
     {
         return Some(Box::new(mistral::MistralProvider));
+    }
+
+    // 9. GitHub Copilot: "github_copilot/" prefix.
+    if model.starts_with("github_copilot/") {
+        return Some(Box::new(github_copilot::GithubCopilotProvider::from_env()));
     }
 
     // Grab the registry; if it failed to parse we cannot route.

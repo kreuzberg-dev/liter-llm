@@ -42,7 +42,7 @@
 		{
 			"name": "aiml",
 			"display_name": "AI/ML API",
-			"base_url": "https://api.aimlapi.com/v1",
+			"base_url": "https://api.aimlapi.com",
 			"auth": {
 				"type": "bearer",
 				"env_var": "AIML_API_KEY"
@@ -54,6 +54,11 @@
 		{
 			"name": "amazon_nova",
 			"display_name": "Amazon Nova",
+			"base_url": "https://api.nova.amazon.com/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "AMAZON_NOVA_API_KEY"
+			},
 			"endpoints": ["chat"],
 			"model_prefixes": ["amazon-", "amazon-nova/"],
 			"model_count": 4
@@ -96,7 +101,7 @@
 		{
 			"name": "assemblyai",
 			"display_name": "AssemblyAI",
-			"base_url": "https://api.assemblyai.com",
+			"base_url": "https://llm-gateway.assemblyai.com/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "ASSEMBLYAI_API_KEY"
@@ -190,6 +195,11 @@
 		{
 			"name": "baseten",
 			"display_name": "Baseten",
+			"base_url": "https://inference.baseten.co/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "BASETEN_API_KEY"
+			},
 			"endpoints": ["chat"]
 		},
 		{
@@ -287,7 +297,7 @@
 		{
 			"name": "clarifai",
 			"display_name": "Clarifai",
-			"base_url": "https://api.clarifai.com",
+			"base_url": "https://api.clarifai.com/v2/ext/openai/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "CLARIFAI_API_KEY"
@@ -343,13 +353,18 @@
 			"base_url": "https://api.cometapi.com/v1",
 			"auth": {
 				"type": "bearer",
-				"env_var": "COMETAPI_API_KEY"
+				"env_var": "COMETAPI_KEY"
 			},
-			"endpoints": ["chat", "embedding"]
+			"endpoints": ["chat", "embedding", "image"]
 		},
 		{
 			"name": "compactifai",
 			"display_name": "CompactifAI",
+			"base_url": "https://api.compactif.ai/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "COMPACTIFAI_API_KEY"
+			},
 			"endpoints": ["chat"]
 		},
 		{
@@ -370,7 +385,7 @@
 		{
 			"name": "dashscope",
 			"display_name": "Dashscope",
-			"base_url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+			"base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "DASHSCOPE_API_KEY"
@@ -389,17 +404,18 @@
 		{
 			"name": "dataforseo",
 			"display_name": "DataForSEO",
-			"base_url": "https://api.dataforseo.com/v3",
-			"auth": {
-				"type": "bearer",
-				"env_var": "DATAFORSEO_API_KEY"
-			},
+			"base_url": "https://api.dataforseo.com/v3/serp/google/organic/live/advanced",
 			"endpoints": ["search"],
 			"model_count": 1
 		},
 		{
 			"name": "datarobot",
 			"display_name": "DataRobot",
+			"base_url": "https://app.datarobot.com",
+			"auth": {
+				"type": "bearer",
+				"env_var": "DATAROBOT_API_TOKEN"
+			},
 			"endpoints": ["chat"]
 		},
 		{
@@ -422,7 +438,7 @@
 				"type": "bearer",
 				"env_var": "DEEPINFRA_API_KEY"
 			},
-			"endpoints": ["chat"],
+			"endpoints": ["chat", "rerank"],
 			"model_prefixes": [
 				"deepinfra/",
 				"deepinfra/NousResearch/Hermes-",
@@ -443,7 +459,7 @@
 		{
 			"name": "deepseek",
 			"display_name": "Deepseek",
-			"base_url": "https://api.deepseek.com/v1",
+			"base_url": "https://api.deepseek.com/beta",
 			"auth": {
 				"type": "bearer",
 				"env_var": "DEEPSEEK_API_KEY"
@@ -455,23 +471,31 @@
 		{
 			"name": "docker_model_runner",
 			"display_name": "Docker Model Runner",
+			"base_url": "http://localhost:22088/engines/llama.cpp",
+			"auth": {
+				"type": "none"
+			},
 			"endpoints": ["chat"]
 		},
 		{
 			"name": "duckduckgo",
 			"display_name": "DuckDuckGo",
+			"base_url": "https://api.duckduckgo.com",
+			"auth": {
+				"type": "none"
+			},
 			"endpoints": ["search"],
 			"model_count": 1
 		},
 		{
 			"name": "elevenlabs",
 			"display_name": "ElevenLabs",
-			"base_url": "https://api.elevenlabs.io/v1",
+			"base_url": "https://api.elevenlabs.io",
 			"auth": {
 				"type": "bearer",
 				"env_var": "ELEVENLABS_API_KEY"
 			},
-			"endpoints": ["audio", "chat"],
+			"endpoints": ["audio"],
 			"model_prefixes": ["elevenlabs/"],
 			"model_count": 4
 		},
@@ -502,7 +526,7 @@
 			"base_url": "https://fal.run",
 			"auth": {
 				"type": "bearer",
-				"env_var": "FAL_KEY"
+				"env_var": "FAL_AI_API_KEY"
 			},
 			"endpoints": ["chat", "image"],
 			"model_prefixes": ["fal_ai/", "fal_ai/fal-"],
@@ -523,7 +547,7 @@
 		{
 			"name": "firecrawl",
 			"display_name": "Firecrawl",
-			"base_url": "https://api.firecrawl.dev/v1",
+			"base_url": "https://api.firecrawl.dev/v2",
 			"auth": {
 				"type": "bearer",
 				"env_var": "FIRECRAWL_API_KEY"
@@ -585,7 +609,7 @@
 		{
 			"name": "friendliai",
 			"display_name": "FriendliAI",
-			"base_url": "https://inference.friendli.ai/v1",
+			"base_url": "https://api.friendli.ai/serverless/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "FRIENDLI_TOKEN"
@@ -654,7 +678,7 @@
 		{
 			"name": "gmi",
 			"display_name": "GMI Cloud",
-			"base_url": "https://inference.gmicloud.ai/v1",
+			"base_url": "https://api.gmi-serving.com/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "GMI_API_KEY"
@@ -677,10 +701,10 @@
 		{
 			"name": "gradient_ai",
 			"display_name": "GradientAI",
-			"base_url": "https://api.gradient.ai/api",
+			"base_url": "https://inference.do-ai.run",
 			"auth": {
 				"type": "bearer",
-				"env_var": "GRADIENT_ACCESS_TOKEN"
+				"env_var": "GRADIENT_AI_API_KEY"
 			},
 			"endpoints": ["chat"],
 			"model_prefixes": ["gradient_ai/", "gradient_ai/anthropic-", "gradient_ai/openai-"],
@@ -701,7 +725,7 @@
 		{
 			"name": "helicone",
 			"display_name": "Helicone",
-			"base_url": "https://gateway.helicone.ai/v1",
+			"base_url": "https://ai-gateway.helicone.ai/",
 			"auth": {
 				"type": "bearer",
 				"env_var": "HELICONE_API_KEY"
@@ -711,11 +735,6 @@
 		{
 			"name": "heroku",
 			"display_name": "Heroku",
-			"base_url": "https://us.inference.heroku.com",
-			"auth": {
-				"type": "bearer",
-				"env_var": "HEROKU_API_KEY"
-			},
 			"endpoints": ["chat"],
 			"model_prefixes": ["heroku/", "heroku/claude-"],
 			"model_count": 4
@@ -750,10 +769,6 @@
 		{
 			"name": "infinity",
 			"display_name": "Infinity",
-			"base_url": "http://localhost:7997",
-			"auth": {
-				"type": "none"
-			},
 			"endpoints": ["embedding"]
 		},
 		{
@@ -762,15 +777,15 @@
 			"base_url": "https://api.jina.ai/v1",
 			"auth": {
 				"type": "bearer",
-				"env_var": "JINA_API_KEY"
+				"env_var": "JINA_AI_API_KEY"
 			},
-			"endpoints": ["embedding"],
+			"endpoints": ["embedding", "rerank"],
 			"model_count": 1
 		},
 		{
 			"name": "lambda_ai",
 			"display_name": "Lambda AI",
-			"base_url": "https://api.lambdalabs.com/v1",
+			"base_url": "https://api.lambda.ai/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "LAMBDA_API_KEY"
@@ -790,11 +805,20 @@
 		{
 			"name": "langgraph",
 			"display_name": "LangGraph",
+			"base_url": "http://localhost:2024",
+			"auth": {
+				"type": "bearer",
+				"env_var": "LANGGRAPH_API_KEY"
+			},
 			"endpoints": ["chat"]
 		},
 		{
 			"name": "lemonade",
 			"display_name": "Lemonade",
+			"base_url": "http://localhost:8000/api/v1",
+			"auth": {
+				"type": "none"
+			},
 			"endpoints": ["chat"],
 			"model_prefixes": ["lemonade/", "lemonade/Qwen3-", "lemonade/gpt-"],
 			"model_count": 5
@@ -905,7 +929,7 @@
 		{
 			"name": "minimax",
 			"display_name": "Minimax",
-			"base_url": "https://api.minimax.chat/v1",
+			"base_url": "https://api.minimax.io/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "MINIMAX_API_KEY"
@@ -922,7 +946,7 @@
 				"type": "bearer",
 				"env_var": "MISTRAL_API_KEY"
 			},
-			"endpoints": ["chat", "embedding", "ocr"],
+			"endpoints": ["chat", "embedding", "ocr", "audio"],
 			"model_prefixes": [
 				"mistral/",
 				"mistral/codestral-",
@@ -938,7 +962,7 @@
 		{
 			"name": "moonshot",
 			"display_name": "Moonshot",
-			"base_url": "https://api.moonshot.cn/v1",
+			"base_url": "https://api.moonshot.ai/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "MOONSHOT_API_KEY"
@@ -950,7 +974,7 @@
 		{
 			"name": "morph",
 			"display_name": "Morph",
-			"base_url": "https://api.morph.so/v1",
+			"base_url": "https://api.morphllm.com/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "MORPH_API_KEY"
@@ -967,7 +991,10 @@
 				"type": "bearer",
 				"env_var": "NANOGPT_API_KEY"
 			},
-			"endpoints": ["chat", "embedding"]
+			"endpoints": ["chat", "embedding"],
+			"param_mappings": {
+				"max_completion_tokens": "max_tokens"
+			}
 		},
 		{
 			"name": "nebius",
@@ -993,7 +1020,7 @@
 		{
 			"name": "nlp_cloud",
 			"display_name": "NLP Cloud",
-			"base_url": "https://api.nlpcloud.io/v1",
+			"base_url": "https://api.nlpcloud.io/v1/gpu/",
 			"auth": {
 				"type": "bearer",
 				"env_var": "NLP_CLOUD_API_KEY"
@@ -1048,7 +1075,7 @@
 				"type": "bearer",
 				"env_var": "NVIDIA_NIM_API_KEY"
 			},
-			"endpoints": ["chat"],
+			"endpoints": ["chat", "embedding", "rerank"],
 			"model_prefixes": ["nvidia_nim/"],
 			"model_count": 3
 		},
@@ -1062,7 +1089,7 @@
 		{
 			"name": "ollama",
 			"display_name": "Ollama",
-			"base_url": "http://localhost:11434/v1",
+			"base_url": "http://localhost:11434",
 			"auth": {
 				"type": "none"
 			},
@@ -1211,7 +1238,7 @@
 		{
 			"name": "poe",
 			"display_name": "Poe",
-			"base_url": "https://api.poe.com/bot",
+			"base_url": "https://api.poe.com/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "POE_API_KEY"
@@ -1392,7 +1419,7 @@
 		{
 			"name": "stability",
 			"display_name": "Stability AI",
-			"base_url": "https://api.stability.ai/v2beta",
+			"base_url": "https://api.stability.ai",
 			"auth": {
 				"type": "bearer",
 				"env_var": "STABILITY_API_KEY"
@@ -1490,6 +1517,11 @@
 		{
 			"name": "v0",
 			"display_name": "V0",
+			"base_url": "https://api.v0.dev/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "V0_API_KEY"
+			},
 			"endpoints": ["chat"],
 			"model_prefixes": ["v0/", "v0/v0-"],
 			"model_count": 3
@@ -1500,13 +1532,18 @@
 			"base_url": "https://api.venice.ai/api/v1",
 			"auth": {
 				"type": "bearer",
-				"env_var": "VENICE_API_KEY"
+				"env_var": "VENICE_AI_API_KEY"
 			},
 			"endpoints": ["chat"]
 		},
 		{
 			"name": "vercel_ai_gateway",
 			"display_name": "Vercel AI Gateway",
+			"base_url": "https://ai-gateway.vercel.sh/v1",
+			"auth": {
+				"type": "bearer",
+				"env_var": "VERCEL_AI_GATEWAY_API_KEY"
+			},
 			"endpoints": ["chat"],
 			"model_prefixes": [
 				"vercel_ai_gateway/",
@@ -1581,7 +1618,7 @@
 		{
 			"name": "wandb",
 			"display_name": "WandB Inference",
-			"base_url": "https://api.wandb.ai/proxy/openai/v1",
+			"base_url": "https://api.inference.wandb.ai/v1",
 			"auth": {
 				"type": "bearer",
 				"env_var": "WANDB_API_KEY"
@@ -1639,15 +1676,22 @@
 		{
 			"name": "zai",
 			"display_name": "Z.AI",
+			"base_url": "https://api.z.ai/api/paas/v4",
+			"auth": {
+				"type": "bearer",
+				"env_var": "ZAI_API_KEY"
+			},
 			"endpoints": ["chat"],
 			"model_prefixes": ["zai/", "zai/glm-"],
 			"model_count": 11
 		}
 	],
 	"complex_providers": [
+		"a2a",
 		"amazon_nova",
 		"anthropic",
 		"anthropic_text",
+		"auto_router",
 		"aws_polly",
 		"azure",
 		"azure_ai",
@@ -1656,17 +1700,35 @@
 		"azure_text",
 		"baseten",
 		"bedrock",
+		"chatgpt",
 		"cloudflare",
+		"cursor",
+		"custom",
+		"custom_openai",
 		"databricks",
+		"dataforseo",
 		"datarobot",
 		"gigachat",
 		"github_copilot",
+		"heroku",
+		"hosted_vllm",
+		"infinity",
+		"litellm_proxy",
+		"manus",
+		"milvus",
 		"oci",
+		"openai_like",
+		"petals",
+		"pg_vector",
+		"pydantic_ai_agents",
+		"ragflow",
 		"s3_vectors",
 		"sagemaker",
 		"sagemaker_chat",
 		"sap",
+		"searxng",
 		"snowflake",
+		"triton",
 		"vertex_ai",
 		"vertex_ai/agent_engine",
 		"watsonx",
