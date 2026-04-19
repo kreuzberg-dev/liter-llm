@@ -413,17 +413,19 @@ var request = Types.ChatCompletionRequest.builder(
 
 ## Error Handling
 
-All errors extend `LlmException` with numeric error codes (1000+):
+All errors extend `LlmException` with numeric error codes (1000+). The Java binding collapses the 17 canonical liter-llm variants into nine exception classes; transient classification is driven by the `ProviderException.getHttpStatus()` value.
 
-| Exception | Code | HTTP Status |
-|-----------|------|-------------|
-| `InvalidRequestException` | 1400 | 400, 422 |
-| `AuthenticationException` | 1401 | 401, 403 |
-| `NotFoundException` | 1404 | 404 |
-| `RateLimitException` | 1429 | 429 |
-| `ProviderException` | 1500 | 5xx |
-| `StreamException` | 1600 | -- |
-| `SerializationException` | 1700 | -- |
+| Exception | Code | HTTP Status | Trigger | Transient? |
+|-----------|------|-------------|---------|------------|
+| `InvalidRequestException` | 1400 | 400, 422 | Malformed request or unsupported parameter. | no |
+| `AuthenticationException` | 1401 | 401, 403 | API key rejected. | no |
+| `NotFoundException` | 1404 | 404 | Model or resource not found. | no |
+| `RateLimitException` | 1429 | 429 | Rate limit exceeded. | yes |
+| `ProviderException` | 1500 | 500, 502, 503, 504 | Provider 5xx. Inspect `getHttpStatus()`. | yes |
+| `StreamException` | 1600 | n/a | Stream parse failure. | no |
+| `SerializationException` | 1700 | n/a | JSON encode/decode failure. | no |
+| `BudgetExceededException` | 1800 | 402 | Budget cap hit. | no |
+| `HookRejectedException` | 1801 | n/a | A registered hook rejected the request. | no |
 
 ```java
 try {
@@ -432,10 +434,14 @@ try {
     System.err.println("Rate limited: " + e.getMessage());
 } catch (LlmException.AuthenticationException e) {
     System.err.println("Auth failed: " + e.getMessage());
+} catch (BudgetExceededException e) {
+    System.err.println("Budget exceeded: " + e.getMessage());
 } catch (LlmException e) {
     System.err.printf("Error %d: %s%n", e.getErrorCode(), e.getMessage());
 }
 ```
+
+See [Error Handling](../usage/error-handling.md) for the canonical 17-variant taxonomy and retry semantics shared across every binding.
 
 ## Example
 

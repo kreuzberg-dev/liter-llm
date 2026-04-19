@@ -441,37 +441,42 @@ interface ChatCompletionRequest {
 
 ## Error Handling
 
-Errors are thrown as JavaScript `Error` objects. The message includes a bracketed label for the error category.
+The WASM binding rejects the returned promise with a plain JavaScript `Error` whose `message` is formatted as `HTTP {status}: {message}`. The status is the HTTP status code returned by the provider (or `0` for network-level failures). When the provider body contains a JSON object with `error.message`, that text becomes the message; otherwise the raw response body is used.
 
-| Error Category | Trigger |
-|----------------|---------|
-| `[Authentication]` | API key rejected (HTTP 401/403) |
-| `[RateLimited]` | Rate limit exceeded (HTTP 429) |
-| `[BadRequest]` | Malformed request (HTTP 400) |
-| `[ContextWindowExceeded]` | Prompt exceeds context window |
-| `[ContentPolicy]` | Content policy violation |
-| `[NotFound]` | Model/resource not found (HTTP 404) |
-| `[ServerError]` | Provider 5xx error |
-| `[ServiceUnavailable]` | Provider temporarily unavailable (HTTP 502/503) |
-| `[Timeout]` | Request timed out |
-| `[Network]` | Network-level failure |
-| `[Streaming]` | Error reading streaming response |
-| `[EndpointNotSupported]` | Provider does not support the endpoint |
-| `[Serialization]` | JSON serialization/deserialization failure |
+Branch on the numeric status to identify the category. The canonical 17-variant taxonomy is documented in [Error Handling](../usage/error-handling.md).
+
+| HTTP status | Category | Trigger | Transient? |
+|-------------|----------|---------|------------|
+| 400, 422 | Bad request | Malformed request, unsupported parameter, context window exceeded, or content policy violation. | no |
+| 401, 403 | Authentication | API key rejected. | no |
+| 404 | Not found | Model or resource not found. | no |
+| 408 | Timeout | Request timed out. | yes |
+| 429 | Rate limited | Rate limit exceeded. | yes |
+| 500 | Server error | Provider 5xx. | yes |
+| 502, 503, 504 | Service unavailable | Provider temporarily unavailable. | yes |
+
+Non-HTTP failures (missing `fetch`, body reader errors, JSON parse errors) are also raised as plain `Error` values with descriptive messages that do not start with `HTTP`. Budget and hook rejections raised by the Tower middleware surface with their `LiterLlmError` display text.
 
 ```javascript
 try {
   const resp = await client.chat({ model: "gpt-4", messages: [...] });
 } catch (err) {
-  if (err.message.startsWith("[RateLimited]")) {
+  const match = err.message.match(/^HTTP (\d+):/);
+  const status = match ? Number(match[1]) : null;
+
+  if (status === 429) {
     // back off and retry
-  } else if (err.message.startsWith("[Authentication]")) {
+  } else if (status === 401 || status === 403) {
     console.error("Invalid API key");
+  } else if (status && status >= 500) {
+    // transient: retry with backoff
   } else {
     console.error(err.message);
   }
 }
 ```
+
+See [Error Handling](../usage/error-handling.md) for the full variant list and retry semantics shared across every binding.
 
 ## Example
 

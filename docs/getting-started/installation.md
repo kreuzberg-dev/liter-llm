@@ -4,11 +4,13 @@ description: "Installing liter-llm for Python, TypeScript, Rust, Go, Java, Ruby,
 
 # Installation
 
-liter-llm ships prebuilt native packages for all major languages. No Rust toolchain required unless building from source.
+liter-llm has prebuilt packages for every supported language. Pick your stack, run one command, and start calling models.
 
-## CLI / Proxy Server
+Every package includes prebuilt binaries for Linux (x86_64 / aarch64), macOS (Apple Silicon), and Windows. No Rust toolchain needed unless you're building from source.
 
-Install the `liter-llm` CLI for running the proxy server or MCP tool server.
+## CLI / Docker
+
+The CLI runs the proxy server and MCP tool server. You don't need it if you're only using a language binding.
 
 === "Homebrew"
 
@@ -30,21 +32,23 @@ Install the `liter-llm` CLI for running the proxy server or MCP tool server.
     docker run -p 4000:4000 -e LITER_LLM_MASTER_KEY=sk-your-key ghcr.io/kreuzberg-dev/liter-llm
     ```
 
-After installation, start the proxy:
+Start the proxy:
 
 ```bash
 liter-llm api --config liter-llm-proxy.toml
 ```
 
-Or start the MCP server:
+Or the MCP server:
 
 ```bash
 liter-llm mcp --transport stdio
 ```
 
-See [MCP & IDE Integration](../usage/mcp-integration.md) for setup guides for VS Code, GitHub Copilot, Claude Desktop, Cursor, and other MCP-compatible tools.
+[:octicons-arrow-right-24: Proxy Server docs](../server/proxy-server.md) &nbsp; [:octicons-arrow-right-24: MCP Server docs](../server/mcp-server.md)
 
-## Install
+---
+
+## Choose your language
 
 === "Python"
 
@@ -180,9 +184,11 @@ See [MCP & IDE Integration](../usage/mcp-integration.md) for setup guides for VS
 
     The shared library and C header are output to `target/release/`.
 
+---
+
 ## API Key Setup
 
-liter-llm reads API keys from environment variables. Set the key for the provider(s) you plan to use:
+Set the environment variable for the provider you're calling:
 
 ```bash
 export OPENAI_API_KEY="sk-..."
@@ -194,10 +200,10 @@ export AWS_ACCESS_KEY_ID="..."
 export AWS_SECRET_ACCESS_KEY="..."
 ```
 
-!!! tip "You only need the key for the provider you are calling"
-    If you only use OpenAI models, only `OPENAI_API_KEY` is required. liter-llm resolves the provider from the model prefix (e.g. `openai/gpt-4o`) and injects the matching key automatically.
+!!! tip "You only need one key"
+    If you only call OpenAI models, only `OPENAI_API_KEY` is needed. liter-llm resolves the provider from the model prefix (e.g. `openai/gpt-4o`) and picks the matching key automatically.
 
-You can also pass the key directly at client construction:
+You can also pass the key at client construction:
 
 === "Python"
 
@@ -224,10 +230,12 @@ You can also pass the key directly at client construction:
     let client = DefaultClient::new(config, None)?;
     ```
 
-!!! warning "Do not hard-code keys in source files"
-    Use environment variables or a secret manager. API keys passed to `LlmClient` are wrapped in `secrecy::SecretString` internally and never logged.
+!!! warning "Don't hard-code keys in source files"
+    Use environment variables or a secret manager. Keys passed to `LlmClient` are wrapped in `secrecy::SecretString` and never logged.
 
-## Verify Installation
+---
+
+## Verify it works
 
 === "Python"
 
@@ -253,9 +261,11 @@ You can also pass the key directly at client construction:
     go build ./...
     ```
 
-## Building from Source
+---
 
-If prebuilt binaries are not available for your platform, you can build from source. This requires the Rust toolchain (stable 1.75+):
+## Building from source
+
+If prebuilt binaries aren't available for your platform, build from source. You'll need the Rust toolchain (stable 1.75+):
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -264,9 +274,11 @@ cd liter-llm
 task build
 ```
 
-## Next Steps
+---
+
+## Next steps
 
 - [Chat & Streaming](../usage/chat.md) -- Make your first API call
 - [MCP & IDE Integration](../usage/mcp-integration.md) -- Integrate with VS Code, GitHub Copilot, Claude, Cursor
-- [Provider Registry](../providers.md) -- Browse all 142 supported providers
+- [Provider Registry](../providers.md) -- Browse all 142+ supported providers
 - [Configuration](../usage/configuration.md) -- Timeouts, retries, base URL overrides

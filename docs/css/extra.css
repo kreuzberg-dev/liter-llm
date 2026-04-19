@@ -1888,15 +1888,99 @@ body:has(.full-width-iframe) article {
 	margin-right: 3px;
 }
 
-/* Homepage hero banner */
+/* ── Hero banner — centered logo image ── */
 .hero-banner {
-	margin: 0 -0.8rem 1rem;
-	border-radius: 12px;
-	overflow: hidden;
+	text-align: center;
+	margin: 2rem auto 1.5rem;
+	max-width: 320px;
 }
 
 .hero-banner img {
 	width: 100%;
 	display: block;
+	border-radius: 0;
+	margin: 0 auto;
+}
+
+[data-md-color-scheme="slate"] .hero-banner img {
+	filter: brightness(1.1);
+}
+
+/* ── kreuzberg.dev family cards ── */
+.home-family {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1rem;
+	margin: 1.25rem 0 1.5rem;
+}
+
+@media (max-width: 720px) {
+	.home-family {
+		grid-template-columns: 1fr;
+	}
+}
+
+.home-family__card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	padding: 1.25rem 1.4rem 1.15rem;
+	border: 1px solid rgba(0, 0, 0, 0.08);
 	border-radius: 12px;
+	text-decoration: none !important;
+	background: var(--md-default-bg-color--dark);
+	transition:
+		box-shadow 0.2s ease,
+		border-color 0.2s ease,
+		transform 0.2s ease;
+}
+
+[data-md-color-scheme="slate"] .home-family__card {
+	background: rgba(255, 255, 255, 0.03);
+	border-color: rgba(255, 255, 255, 0.07);
+}
+
+.home-family__card:hover {
+	border-color: var(--md-accent-fg-color);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+	transform: translateY(-2px);
+}
+
+[data-md-color-scheme="slate"] .home-family__card:hover {
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.home-family__card .twemoji svg,
+.home-family__card .md-icon svg {
+	fill: #da2ae0;
+	width: 1.4rem;
+	height: 1.4rem;
+}
+
+[data-md-color-scheme="slate"] .home-family__card .twemoji svg,
+[data-md-color-scheme="slate"] .home-family__card .md-icon svg {
+	fill: #58fbda;
+}
+
+.home-family__card strong {
+	display: block;
+	font-size: 0.92rem;
+	font-weight: 700;
+	color: var(--md-default-fg-color);
+	margin-top: 0.1rem;
+}
+
+.home-family__card span {
+	display: block;
+	font-size: 0.83rem;
+	color: var(--md-default-fg-color--light);
+	line-height: 1.5;
+}
+
+[data-md-color-scheme="slate"] .home-family__card strong {
+	color: #ffffff;
+}
+
+[data-md-color-scheme="slate"] .home-family__card span {
+	color: rgba(255, 255, 255, 0.6);
 }

@@ -1,103 +1,110 @@
 ---
-description: "liter-llm -- Universal LLM API client with native bindings for 11 languages and 142 providers"
+description: "liter-llm — Universal LLM API client. One Rust core, 11 native language bindings, 143 providers."
 ---
 
 # liter-llm
 
-**Universal LLM API client -- one Rust core, 11 native language bindings, 142 providers.**
+liter-llm is an LLM API client written in Rust with native bindings for Python, TypeScript, Go, Java, C#, Ruby, PHP, Elixir, WebAssembly, C, and Rust. One API surface across 143 providers. No Python runtime, no dependency chain surprises. It ships as a compiled binary with Tower middleware, an OpenAI-compatible proxy server, and an MCP server built in.
 
-liter-llm gives you a single, unified interface to 142 LLM providers -- OpenAI, Anthropic, Google, AWS Bedrock, Groq, Mistral, and many more -- with native bindings for Python, TypeScript, Go, Java, Ruby, PHP, C#, Elixir, WebAssembly, and C/FFI.
+<div class="hero-badges" markdown>
 
-Built in Rust for performance, safety, and reliability.
-
-<div style="display: flex; gap: 0.5rem; margin: 1.5rem 0;">
-
-[Get Started](getting-started/installation.md){ .md-button .md-button--primary }
-[Usage](usage/chat.md){ .md-button }
-[GitHub](https://github.com/kreuzberg-dev/liter-llm){ .md-button }
+[:material-lightning-bolt: Quick Start](getting-started/installation.md){ .md-button .md-button--primary }
+[:material-package-variant: Installation](getting-started/installation.md){ .md-button }
+[:fontawesome-brands-github: GitHub](https://github.com/kreuzberg-dev/liter-llm){ .md-button }
+[:fontawesome-brands-discord: Community](https://discord.gg/xt9WY3GnKR){ .md-button }
 
 </div>
 
-<div class="grid cards" markdown>
-
-- :material-rocket-launch:{ .lg .middle } **Getting Started**
-
 ---
 
-    Install liter-llm in your language of choice and make your first API call in minutes.
+## Explore the Docs
+
+<!-- markdownlint-disable MD030 MD035 -->
+<div class="grid cards" markdown>
+
+-   :material-rocket-launch:{ .lg .middle } **Getting Started**
+
+    ---
+
+    Install the package for your language and make your first API call.
 
     [:octicons-arrow-right-24: Installation](getting-started/installation.md)
 
-- :material-server-network:{ .lg .middle } **142 Providers**
+-   :material-chat:{ .lg .middle } **Chat & Streaming**
 
----
+    ---
 
-    Access OpenAI, Anthropic, Google, AWS Bedrock, Groq, Mistral, and 130+ more through one interface.
+    Single-turn and multi-turn chat, streaming, tool calling, structured outputs.
 
-    [:octicons-arrow-right-24: Providers](providers.md)
+    [:octicons-arrow-right-24: Chat Guide](usage/chat.md)
 
-- :material-chat-processing:{ .lg .middle } **Usage**
+-   :material-server:{ .lg .middle } **Proxy Server**
 
----
+    ---
 
-    Chat, streaming, embeddings, image generation, speech, moderation, and more.
+    OpenAI-compatible proxy with virtual keys, budget enforcement, and TOML config.
 
-    [:octicons-arrow-right-24: Chat & Streaming](usage/chat.md)
+    [:octicons-arrow-right-24: Proxy Server](server/proxy-server.md)
 
-- :material-api:{ .lg .middle } **API Reference**
+-   :material-routes:{ .lg .middle } **Fallback & Routing**
 
----
+    ---
 
-    Complete API documentation for all 11 supported languages.
+    Round-robin, latency-based, cost-based, weighted-random, and ordered-fallback strategies.
 
-    [:octicons-arrow-right-24: Python](api/python.md) | [:octicons-arrow-right-24: TypeScript](api/typescript.md) | [:octicons-arrow-right-24: Go](api/go.md)
+    [:octicons-arrow-right-24: Routing Guide](usage/fallback-routing.md)
+
+-   :material-key-variant:{ .lg .middle } **Authentication**
+
+    ---
+
+    Azure AD, AWS Bedrock STS/IRSA, Vertex AI OAuth2 with automatic token caching.
+
+    [:octicons-arrow-right-24: Auth Guide](usage/authentication.md)
+
+-   :material-code-braces:{ .lg .middle } **API Reference**
+
+    ---
+
+    Full reference for Python, TypeScript, Rust, Go, Java, C#, Ruby, Elixir, PHP, WASM, C FFI.
+
+    [:octicons-arrow-right-24: Python](api/python.md)
 
 </div>
+<!-- markdownlint-enable MD030 MD035 -->
 
-## Why liter-llm?
-
-A universal LLM API client, compiled from the ground up in Rust. No interpreter, no transitive dependency tree, no supply chain surface area. The kind of [supply chain attack that hit litellm](https://www.xda-developers.com/popular-python-library-backdoor-machine/) is structurally impossible here.
-
-API keys are wrapped in [`secrecy::SecretString`](https://docs.rs/secrecy/), observability is built in via [OpenTelemetry](https://opentelemetry.io/), and middleware is composable via [Tower](https://docs.rs/tower/). We give credit to [litellm](https://github.com/BerriAI/litellm) for proving the category -- see [ATTRIBUTIONS.md](https://github.com/kreuzberg-dev/liter-llm/blob/main/ATTRIBUTIONS.md).
-
-## Key Features
-
-- **Polyglot** -- Native bindings for 11 languages from a single Rust core
-- **142 Providers** -- OpenAI, Anthropic, Google, Bedrock, Groq, Mistral, and more
-- **Streaming** -- First-class SSE and AWS EventStream support
-- **TOML Configuration** -- `liter-llm.toml` with auto-discovery, custom providers, cache backends
-- **Observability** -- Built-in OpenTelemetry with GenAI semantic conventions
-- **Type Safe** -- Compile-time checked types across all bindings
-- **Secure** -- API keys wrapped in `secrecy::SecretString`, never logged or exposed
-- **Middleware** -- Composable Tower stack: rate limiting, caching (40+ OpenDAL backends), cost tracking, budget enforcement, health checks, cooldown, hooks, fallback
-- **Search & OCR** -- Web search across 12 providers, document OCR across 4 providers
-- **Tool Calling** -- Parallel tools, structured outputs, JSON schema validation
-- **Per-Request Routing** -- Automatic provider detection from model prefix, custom providers at runtime
-
-## Quick Example
-
-=== "Python"
-
-    --8<-- "snippets/python/getting-started/basic_chat.md"
-
-=== "TypeScript"
-
-    --8<-- "snippets/typescript/getting-started/basic_chat.md"
-
-=== "Rust"
-
-    --8<-- "snippets/rust/getting-started/basic_chat.md"
-
-=== "Go"
-
-    --8<-- "snippets/go/getting-started/basic_chat.md"
+---
 
 ## Part of kreuzberg.dev
 
-liter-llm is built by the [kreuzberg.dev](https://kreuzberg.dev) team -- the same people behind [Kreuzberg](https://docs.kreuzberg.dev) (document extraction for 91+ formats), [tree-sitter-language-pack](https://github.com/kreuzberg-dev/tree-sitter-language-pack), and [html-to-markdown](https://github.com/kreuzberg-dev/html-to-markdown). All our libraries share the same Rust-core, polyglot-bindings architecture.
+liter-llm is built by the [kreuzberg.dev](https://kreuzberg.dev) team, the same people behind a family of Rust-core, polyglot-bindings libraries.
 
-## Community
+<div class="home-family" markdown>
 
-- [:fontawesome-brands-discord: Discord](https://discord.gg/xt9WY3GnKR) -- Real-time chat with the community
-- [:fontawesome-brands-github: GitHub Discussions](https://github.com/kreuzberg-dev/liter-llm/discussions) -- Questions, ideas, show-and-tell
-- [:octicons-issue-opened-24: Issue Tracker](https://github.com/kreuzberg-dev/liter-llm/issues) -- Bug reports and feature requests
+<a class="home-family__card" href="https://docs.kreuzberg.dev" target="_blank" markdown>
+:material-file-document-multiple:{ .home-family__icon }
+**Kreuzberg**
+<span>Document extraction for 91+ formats — PDF, Office, images, HTML, and more.</span>
+</a>
+
+<a class="home-family__card" href="https://github.com/kreuzberg-dev/tree-sitter-language-pack" target="_blank" markdown>
+:material-code-tags:{ .home-family__icon }
+**tree-sitter-language-pack**
+<span>All Tree-sitter grammars in one package, across every language binding.</span>
+</a>
+
+<a class="home-family__card" href="https://github.com/kreuzberg-dev/html-to-markdown" target="_blank" markdown>
+:material-language-markdown:{ .home-family__icon }
+**html-to-markdown**
+<span>Fast, lossless HTML to Markdown conversion with a Rust core.</span>
+</a>
+
+</div>
+
+---
+
+## Getting Help
+
+- **Bugs & feature requests** -- [Open an issue on GitHub](https://github.com/kreuzberg-dev/liter-llm/issues)
+- **Community chat** -- [Join the Discord](https://discord.gg/xt9WY3GnKR)
+- **Contributing** -- [Read the contributor guide](contributing.md)

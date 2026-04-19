@@ -387,25 +387,27 @@ Yielded by `chat_stream()`.
 
 ## Error Handling
 
-All errors are raised as Python exceptions inheriting from `liter_llm.LlmError` (which itself inherits from `Exception`). Invalid arguments to the constructor or malformed keyword arguments raise `ValueError`.
+All errors are raised as Python exceptions inheriting from `liter_llm.LlmError`, which itself inherits from `Exception`. Invalid arguments to the constructor or malformed keyword arguments raise `ValueError`.
 
-| Exception | Trigger |
-|-----------|---------|
-| `LlmError` | Base class for all liter-llm errors |
-| `AuthenticationError` | API key rejected (HTTP 401/403) |
-| `RateLimitedError` | Rate limit exceeded (HTTP 429) |
-| `BadRequestError` | Malformed request (HTTP 400) |
-| `ContextWindowExceededError` | Prompt exceeds context window (subclass of `BadRequestError`) |
-| `ContentPolicyError` | Content policy violation (subclass of `BadRequestError`) |
-| `NotFoundError` | Model/resource not found (HTTP 404) |
-| `ServerError` | Provider 5xx error |
-| `ServiceUnavailableError` | Provider temporarily unavailable (HTTP 502/503) |
-| `LlmTimeoutError` | Request timed out |
-| `NetworkError` | Network-level failure |
-| `StreamingError` | Error reading streaming response |
-| `EndpointNotSupportedError` | Provider does not support the endpoint |
-| `InvalidHeaderError` | Custom header name or value is invalid |
-| `SerializationError` | JSON serialization/deserialization failure |
+| Exception | HTTP Status | Trigger | Transient? |
+|-----------|-------------|---------|------------|
+| `LlmError` | n/a | Base class for every liter-llm error. | n/a |
+| `AuthenticationError` | 401, 403 | API key rejected. | no |
+| `RateLimitedError` | 429 | Rate limit exceeded. `retry_after` may be present. | yes |
+| `BadRequestError` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `ContextWindowExceededError` | 400, 422 | Prompt exceeds context window. Subclass of `BadRequestError`. | no |
+| `ContentPolicyError` | 400, 422 | Content policy violation. Subclass of `BadRequestError`. | no |
+| `NotFoundError` | 404 | Model or resource not found. | no |
+| `ServerError` | 500 | Provider 5xx error. | yes |
+| `ServiceUnavailableError` | 502, 503, 504 | Provider temporarily unavailable. | yes |
+| `LlmTimeoutError` | 408 | Request timed out. | yes |
+| `NetworkError` | n/a | Transport failure (DNS, TLS, connection reset). | yes |
+| `StreamingError` | n/a | Stream parse failure, CRC mismatch, or malformed chunk. | no |
+| `EndpointNotSupportedError` | n/a | Provider does not implement the endpoint. | no |
+| `InvalidHeaderError` | n/a | Custom header name or value is invalid. | no |
+| `SerializationError` | n/a | JSON serialization or deserialization failure. | no |
+| `BudgetExceededError` | 402 | Virtual-key or global budget cap hit. | no |
+| `HookRejectedError` | n/a | A registered hook rejected the request. | no |
 
 ```python
 from liter_llm import LlmError, RateLimitedError, AuthenticationError
@@ -423,6 +425,8 @@ except LlmError as e:
     # Catch-all for other liter-llm errors
     print(f"Error: {e}")
 ```
+
+See [Error Handling](../usage/error-handling.md) for the canonical 17-variant taxonomy and retry semantics shared across every binding.
 
 ## Example
 
