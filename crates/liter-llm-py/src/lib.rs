@@ -1909,7 +1909,6 @@ impl serde::Serialize for Message {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for Message {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::Message::deserialize(deserializer)?;
@@ -1954,7 +1953,6 @@ impl serde::Serialize for UserContent {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for UserContent {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::UserContent::deserialize(deserializer)?;
@@ -1998,7 +1996,6 @@ impl serde::Serialize for ContentPart {
         self.inner.serialize(serializer)
     }
 }
-
 
 impl<'de> serde::Deserialize<'de> for ContentPart {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
@@ -2060,7 +2057,6 @@ impl serde::Serialize for ToolChoice {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for ToolChoice {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::ToolChoice::deserialize(deserializer)?;
@@ -2115,7 +2111,6 @@ impl serde::Serialize for ResponseFormat {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for ResponseFormat {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::ResponseFormat::deserialize(deserializer)?;
@@ -2159,7 +2154,6 @@ impl serde::Serialize for StopSequence {
         self.inner.serialize(serializer)
     }
 }
-
 
 impl<'de> serde::Deserialize<'de> for StopSequence {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
@@ -2234,7 +2228,6 @@ impl serde::Serialize for EmbeddingInput {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for EmbeddingInput {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::EmbeddingInput::deserialize(deserializer)?;
@@ -2278,7 +2271,6 @@ impl serde::Serialize for ModerationInput {
         self.inner.serialize(serializer)
     }
 }
-
 
 impl<'de> serde::Deserialize<'de> for ModerationInput {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
@@ -2324,7 +2316,6 @@ impl serde::Serialize for RerankDocument {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for RerankDocument {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::RerankDocument::deserialize(deserializer)?;
@@ -2369,7 +2360,6 @@ impl serde::Serialize for OcrDocument {
     }
 }
 
-
 impl<'de> serde::Deserialize<'de> for OcrDocument {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let inner = liter_llm::types::OcrDocument::deserialize(deserializer)?;
@@ -2413,7 +2403,6 @@ impl serde::Serialize for AuthHeaderFormat {
         self.inner.serialize(serializer)
     }
 }
-
 
 impl<'de> serde::Deserialize<'de> for AuthHeaderFormat {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {

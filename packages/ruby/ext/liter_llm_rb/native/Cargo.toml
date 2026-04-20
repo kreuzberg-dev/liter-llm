@@ -12,7 +12,7 @@ categories = ["text-processing"]
 crate-type = ["cdylib"]
 
 [dependencies]
-liter-llm = { path = "../../../../crates/liter-llm", features = ["native-http", "full"] }
+liter-llm = { path = "../../../../../crates/liter-llm", features = ["native-http", "full"] }
 magnus = "0.8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

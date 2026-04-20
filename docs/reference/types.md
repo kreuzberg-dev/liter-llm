@@ -435,7 +435,7 @@ A search request.
 Configuration for an LLM client.
 
 `api_key` is stored as a `SecretString` so it is zeroed on drop and never
-printed accidentally.  Access it via `secrecy.ExposeSecret`.
+printed accidentally. Access it via `secrecy.ExposeSecret`.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -454,7 +454,7 @@ TOML file representation of client configuration.
 All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
 Convert to a builder via `FileConfig.into_builder`.
 
-# Example `liter-llm.toml`
+## Example `liter-llm.toml`
 
 ```toml
 api_key = "sk-..."
@@ -496,7 +496,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-#### FileCacheConfig
+### FileCacheConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -517,7 +517,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-#### FileRateLimitConfig
+##### FileRateLimitConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -527,7 +527,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-#### FileProviderConfig
+##### FileProviderConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -538,7 +538,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-#### CustomProviderConfig
+##### CustomProviderConfig
 
 Configuration for registering a custom LLM provider at runtime.
 
@@ -551,9 +551,9 @@ Configuration for registering a custom LLM provider at runtime.
 
 ---
 
-### OCR Types
+#### OCR Types
 
-#### OcrRequest
+##### OcrRequest
 
 An OCR request.
 
@@ -566,7 +566,7 @@ An OCR request.
 
 ---
 
-#### OcrResponse
+##### OcrResponse
 
 An OCR response.
 
@@ -578,7 +578,7 @@ An OCR response.
 
 ---
 
-#### OcrPage
+##### OcrPage
 
 A single page of OCR output.
 
@@ -591,7 +591,7 @@ A single page of OCR output.
 
 ---
 
-#### OcrImage
+##### OcrImage
 
 An image extracted from an OCR page.
 
@@ -602,9 +602,9 @@ An image extracted from an OCR page.
 
 ---
 
-### Other Types
+#### Other Types
 
-#### ErrorResponse
+##### ErrorResponse
 
 Error response from an OpenAI-compatible API.
 
@@ -614,7 +614,7 @@ Error response from an OpenAI-compatible API.
 
 ---
 
-#### ApiError
+##### ApiError
 
 Inner error object.
 
@@ -627,13 +627,13 @@ Inner error object.
 
 ---
 
-#### LiterLlmError
+##### LiterLlmError
 
 *Opaque type — fields are not directly accessible.*
 
 ---
 
-#### ChatCompletionTool
+##### ChatCompletionTool
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -642,7 +642,7 @@ Inner error object.
 
 ---
 
-#### FunctionDefinition
+##### FunctionDefinition
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -653,7 +653,7 @@ Inner error object.
 
 ---
 
-#### ToolCall
+##### ToolCall
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -663,7 +663,7 @@ Inner error object.
 
 ---
 
-#### FunctionCall
+##### FunctionCall
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -672,7 +672,7 @@ Inner error object.
 
 ---
 
-#### EmbeddingRequest
+##### EmbeddingRequest
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -684,7 +684,7 @@ Inner error object.
 
 ---
 
-#### EmbeddingResponse
+##### EmbeddingResponse
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -695,7 +695,7 @@ Inner error object.
 
 ---
 
-#### EmbeddingObject
+##### EmbeddingObject
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -705,7 +705,7 @@ Inner error object.
 
 ---
 
-#### ModerationRequest
+##### ModerationRequest
 
 Request to classify content for policy violations.
 
@@ -716,7 +716,7 @@ Request to classify content for policy violations.
 
 ---
 
-#### ModerationResponse
+##### ModerationResponse
 
 Response from the moderation endpoint.
 
@@ -728,7 +728,7 @@ Response from the moderation endpoint.
 
 ---
 
-#### ModerationCategories
+##### ModerationCategories
 
 Boolean flags for each moderation category.
 
@@ -748,7 +748,7 @@ Boolean flags for each moderation category.
 
 ---
 
-#### ModerationCategoryScores
+##### ModerationCategoryScores
 
 Confidence scores for each moderation category.
 
@@ -768,7 +768,7 @@ Confidence scores for each moderation category.
 
 ---
 
-#### RerankRequest
+##### RerankRequest
 
 Request to rerank documents by relevance to a query.
 
@@ -782,7 +782,7 @@ Request to rerank documents by relevance to a query.
 
 ---
 
-#### RerankResponse
+##### RerankResponse
 
 Response from the rerank endpoint.
 
@@ -794,7 +794,7 @@ Response from the rerank endpoint.
 
 ---
 
-#### SearchResponse
+##### SearchResponse
 
 A search response.
 
@@ -805,7 +805,7 @@ A search response.
 
 ---
 
-#### PageDimensions
+##### PageDimensions
 
 Page dimensions in pixels.
 
@@ -816,7 +816,7 @@ Page dimensions in pixels.
 
 ---
 
-#### ClientConfigBuilder
+##### ClientConfigBuilder
 
 Builder for `ClientConfig`.
 
@@ -828,15 +828,15 @@ obtain a `ClientConfig`.
 
 ---
 
-#### ManagedClient
+##### ManagedClient
 
 A managed LLM client that wraps `DefaultClient` with optional Tower
 middleware (cache, cooldown, rate limiting, health checks, cost tracking,
 budget, hooks, tracing).
 
-Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+Construct via `ManagedClient.new`. If the provided `ClientConfig`
 contains any middleware configuration the corresponding Tower layers are
-composed into a service stack.  Otherwise requests pass straight through
+composed into a service stack. Otherwise requests pass straight through
 to the inner `DefaultClient`.
 
 `ManagedClient` implements `LlmClient` and can be used everywhere a
@@ -846,7 +846,7 @@ to the inner `DefaultClient`.
 
 ---
 
-#### LlmClient
+##### LlmClient
 
 Core LLM client trait.
 
@@ -854,7 +854,7 @@ Core LLM client trait.
 
 ---
 
-#### LlmClientRaw
+##### LlmClientRaw
 
 Extension of `LlmClient` that returns raw request/response data
 alongside the typed response.
@@ -869,7 +869,7 @@ transformations, capturing wire-level data, or implementing custom parsing.
 
 ---
 
-#### FileClient
+##### FileClient
 
 File management operations (upload, list, retrieve, delete).
 
@@ -877,7 +877,7 @@ File management operations (upload, list, retrieve, delete).
 
 ---
 
-#### BatchClient
+##### BatchClient
 
 Batch processing operations (create, list, retrieve, cancel).
 
@@ -885,7 +885,7 @@ Batch processing operations (create, list, retrieve, cancel).
 
 ---
 
-#### ResponseClient
+##### ResponseClient
 
 Responses API operations (create, retrieve, cancel).
 
@@ -893,12 +893,12 @@ Responses API operations (create, retrieve, cancel).
 
 ---
 
-#### DefaultClient
+##### DefaultClient
 
 Default client implementation backed by `reqwest`.
 
 The provider is resolved at construction time from `model_hint` (or
-defaults to OpenAI).  However, individual requests can override the
+defaults to OpenAI). However, individual requests can override the
 provider when their model string contains a prefix that clearly
 identifies a different provider (e.g. `"anthropic/claude-3"` will
 route to Anthropic even if the client was built without a hint).
@@ -912,4 +912,3 @@ async closures and streaming tasks that must be `'static`.
 *Opaque type — fields are not directly accessible.*
 
 ---
-

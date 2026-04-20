@@ -3,7 +3,8 @@
 
 from typing import Any
 
-class LiterLlmError: ...
+class LiterLlmError:
+    ...
 
 class SystemMessage:
     content: str
@@ -31,7 +32,7 @@ class AudioContent:
     def __init__(
         self,
         data: str,
-        format: str,
+        format: str,  # noqa: A002
     ) -> None: ...
 
 class AssistantMessage:
@@ -89,7 +90,7 @@ class ToolCall:
     function: FunctionCall
     def __init__(
         self,
-        id: str,
+        id: str,  # noqa: A002
         call_type: ToolType | str,
         function: FunctionCall,
     ) -> None: ...
@@ -187,8 +188,8 @@ class ChatCompletionResponse:
     service_tier: str | None
     def __init__(
         self,
-        id: str,
-        object: str,
+        id: str,  # noqa: A002
+        object: str,  # noqa: A002
         created: int,
         model: str,
         choices: list[Choice],
@@ -219,8 +220,8 @@ class ChatCompletionChunk:
     service_tier: str | None
     def __init__(
         self,
-        id: str,
-        object: str,
+        id: str,  # noqa: A002
+        object: str,  # noqa: A002
         created: int,
         model: str,
         choices: list[StreamChoice],
@@ -263,7 +264,7 @@ class StreamToolCall:
     def __init__(
         self,
         index: int,
-        id: str | None = None,
+        id: str | None = None,  # noqa: A002
         call_type: ToolType | str | None = None,
         function: StreamFunctionCall | None = None,
     ) -> None: ...
@@ -282,7 +283,7 @@ class EmbeddingRequest:
     def __init__(
         self,
         model: str,
-        input: EmbeddingInput | dict[str, Any],
+        input: EmbeddingInput | dict[str, Any],  # noqa: A002
         encoding_format: EmbeddingFormat | str | None = None,
         dimensions: int | None = None,
         user: str | None = None,
@@ -295,7 +296,7 @@ class EmbeddingResponse:
     usage: Usage | None
     def __init__(
         self,
-        object: str,
+        object: str,  # noqa: A002
         data: list[EmbeddingObject],
         model: str,
         usage: Usage | None = None,
@@ -307,7 +308,7 @@ class EmbeddingObject:
     index: int
     def __init__(
         self,
-        object: str,
+        object: str,  # noqa: A002
         embedding: list[float],
         index: int,
     ) -> None: ...
@@ -358,7 +359,7 @@ class CreateSpeechRequest:
     def __init__(
         self,
         model: str,
-        input: str,
+        input: str,  # noqa: A002
         voice: str,
         response_format: str | None = None,
         speed: float | None = None,
@@ -401,7 +402,7 @@ class TranscriptionSegment:
     text: str
     def __init__(
         self,
-        id: int,
+        id: int,  # noqa: A002
         start: float,
         end: float,
         text: str,
@@ -412,7 +413,7 @@ class ModerationRequest:
     model: str | None
     def __init__(
         self,
-        input: ModerationInput | dict[str, Any],
+        input: ModerationInput | dict[str, Any],  # noqa: A002
         model: str | None = None,
     ) -> None: ...
 
@@ -422,7 +423,7 @@ class ModerationResponse:
     results: list[ModerationResult]
     def __init__(
         self,
-        id: str,
+        id: str,  # noqa: A002
         model: str,
         results: list[ModerationResult],
     ) -> None: ...
@@ -514,7 +515,7 @@ class RerankResponse:
     def __init__(
         self,
         results: list[RerankResult],
-        id: str | None = None,
+        id: str | None = None,  # noqa: A002
         meta: dict[str, Any] | None = None,
     ) -> None: ...
 
@@ -597,7 +598,7 @@ class OcrImage:
     image_base64: str | None
     def __init__(
         self,
-        id: str,
+        id: str,  # noqa: A002
         image_base64: str | None = None,
     ) -> None: ...
 
@@ -611,7 +612,7 @@ class ModelsListResponse:
     data: list[ModelObject]
     def __init__(
         self,
-        object: str,
+        object: str,  # noqa: A002
         data: list[ModelObject],
     ) -> None: ...
 
@@ -622,8 +623,8 @@ class ModelObject:
     owned_by: str
     def __init__(
         self,
-        id: str,
-        object: str,
+        id: str,  # noqa: A002
+        object: str,  # noqa: A002
         created: int,
         owned_by: str,
     ) -> None: ...
@@ -729,6 +730,9 @@ def create_client(
     max_retries: int | None = None,
     model_hint: str | None = None,
 ) -> DefaultClient: ...
+
 def create_client_from_json(json: str) -> DefaultClient: ...
+
 def register_custom_provider(config: CustomProviderConfig) -> None: ...
+
 def unregister_custom_provider(name: str) -> bool: ...

@@ -382,7 +382,7 @@ A search request.
 Configuration for an LLM client.
 
 `api_key` is stored as a `SecretString` so it is zeroed on drop and never
-printed accidentally.  Access it via `secrecy.ExposeSecret`.
+printed accidentally. Access it via `secrecy.ExposeSecret`.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -401,7 +401,7 @@ TOML file representation of client configuration.
 All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
 Convert to a builder via `FileConfig.into_builder`.
 
-# Example `liter-llm.toml`
+## Example `liter-llm.toml`
 
 ```toml
 api_key = "sk-..."
@@ -454,7 +454,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-### FileBudgetConfig
+#### FileBudgetConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -464,7 +464,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-### FileRateLimitConfig
+#### FileRateLimitConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -474,7 +474,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-### FileProviderConfig
+#### FileProviderConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -485,7 +485,7 @@ model_prefixes = ["my-provider/"]
 
 ---
 
-### CustomProviderConfig
+#### CustomProviderConfig
 
 Configuration for registering a custom LLM provider at runtime.
 
@@ -497,4 +497,3 @@ Configuration for registering a custom LLM provider at runtime.
 | `model_prefixes` | `list[str]` | — | Model name prefixes that route to this provider (e.g., ["my-"]). |
 
 ---
-

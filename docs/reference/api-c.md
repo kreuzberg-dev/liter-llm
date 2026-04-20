@@ -77,7 +77,7 @@ LiterllmDefaultClient* literllm_create_client_from_json(const char* json);
 Register a custom provider in the global runtime registry.
 
 The provider will be checked **before** all built-in providers during model
-detection.  If a provider with the same `name` already exists it is replaced.
+detection. If a provider with the same `name` already exists it is replaced.
 
 **Errors:**
 
@@ -285,6 +285,7 @@ LiterllmBatchObject literllm_cancel_batch(const char* batch_id);
 Estimate the cost of this response based on embedded pricing data.
 
 Returns `NULL` if:
+
 - the `model` field is not present in the embedded pricing registry, or
 - the `usage` field is absent from the response.
 
@@ -323,7 +324,7 @@ double* literllm_estimated_cost();
 Configuration for an LLM client.
 
 `api_key` is stored as a `SecretString` so it is zeroed on drop and never
-printed accidentally.  Access it via `secrecy.ExposeSecret`.
+printed accidentally. Access it via `secrecy.ExposeSecret`.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -490,7 +491,7 @@ Configuration for registering a custom LLM provider at runtime.
 Default client implementation backed by `reqwest`.
 
 The provider is resolved at construction time from `model_hint` (or
-defaults to OpenAI).  However, individual requests can override the
+defaults to OpenAI). However, individual requests can override the
 provider when their model string contains a prefix that clearly
 identifies a different provider (e.g. `"anthropic/claude-3"` will
 route to Anthropic even if the client was built without a hint).
@@ -508,14 +509,14 @@ async closures and streaming tasks that must be `'static`.
 Build a client.
 
 `model_hint` guides provider auto-detection when no explicit
-`base_url` override is present in the config.  For example, passing
-`Some("groq/llama3-70b")` selects the Groq provider.  Pass `NULL` to
+`base_url` override is present in the config. For example, passing
+`Some("groq/llama3-70b")` selects the Groq provider. Pass `NULL` to
 default to OpenAI.
 
 **Errors:**
 
 Returns a wrapped `reqwest.Error` if the underlying HTTP client
-cannot be constructed.  Header names and values are pre-validated by
+cannot be constructed. Header names and values are pre-validated by
 `ClientConfigBuilder.header`, so they are inserted directly here.
 
 **Signature:**
@@ -843,6 +844,7 @@ LiterllmResponseObject literllm_cancel_response(const char* id);
 Estimate the cost of this embedding request based on embedded pricing data.
 
 Returns `NULL` if:
+
 - the `model` field is not present in the embedded pricing registry, or
 - the `usage` field is absent from the response.
 
@@ -957,7 +959,7 @@ TOML file representation of client configuration.
 All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
 Convert to a builder via `FileConfig.into_builder`.
 
-# Example `liter-llm.toml`
+## Example `liter-llm.toml`
 
 ```toml
 api_key = "sk-..."
@@ -997,9 +999,9 @@ model_prefixes = ["my-provider/"]
 | `tracing` | `bool*` | `NULL` | Tracing |
 | `providers` | `LiterllmFileProviderConfig**` | `NULL` | Providers |
 
-##### Methods
+### Methods
 
-###### literllm_from_toml_file()
+#### literllm_from_toml_file()
 
 Load from a TOML file path.
 
@@ -1009,7 +1011,7 @@ Load from a TOML file path.
 LiterllmFileConfig literllm_from_toml_file(LiterllmPath path);
 ```
 
-###### literllm_from_toml_str()
+##### literllm_from_toml_str()
 
 Parse from a TOML string.
 
@@ -1057,7 +1059,7 @@ LiterllmFileProviderConfig* literllm_providers();
 
 ---
 
-#### LiterllmFileProviderConfig
+##### LiterllmFileProviderConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1069,7 +1071,7 @@ LiterllmFileProviderConfig* literllm_providers();
 
 ---
 
-#### LiterllmFileRateLimitConfig
+##### LiterllmFileRateLimitConfig
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1080,7 +1082,7 @@ LiterllmFileProviderConfig* literllm_providers();
 
 ---
 
-#### LiterllmFunctionCall
+##### LiterllmFunctionCall
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1090,7 +1092,7 @@ LiterllmFileProviderConfig* literllm_providers();
 
 ---
 
-#### LiterllmFunctionDefinition
+##### LiterllmFunctionDefinition
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1102,7 +1104,7 @@ LiterllmFileProviderConfig* literllm_providers();
 
 ---
 
-#### LiterllmFunctionMessage
+##### LiterllmFunctionMessage
 
 Deprecated legacy function-role message body.
 
@@ -1114,7 +1116,7 @@ Deprecated legacy function-role message body.
 
 ---
 
-#### LiterllmImage
+##### LiterllmImage
 
 A single generated image, returned as either a URL or base64 data.
 
@@ -1127,7 +1129,7 @@ A single generated image, returned as either a URL or base64 data.
 
 ---
 
-#### LiterllmImageUrl
+##### LiterllmImageUrl
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1137,7 +1139,7 @@ A single generated image, returned as either a URL or base64 data.
 
 ---
 
-#### LiterllmImagesResponse
+##### LiterllmImagesResponse
 
 Response containing generated images.
 
@@ -1149,7 +1151,7 @@ Response containing generated images.
 
 ---
 
-#### LiterllmJsonSchemaFormat
+##### LiterllmJsonSchemaFormat
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1161,9 +1163,9 @@ Response containing generated images.
 
 ---
 
-#### LiterllmLiterLlmError
+##### LiterllmLiterLlmError
 
-##### Methods
+###### Methods
 
 ###### literllm_is_transient()
 
@@ -1211,11 +1213,11 @@ LiterllmLiterLlmError literllm_from_status(uint16_t status, const char* body, ui
 
 ---
 
-#### LiterllmLlmClient
+##### LiterllmLlmClient
 
 Core LLM client trait.
 
-##### Methods
+###### Methods
 
 ###### literllm_chat()
 
@@ -1330,7 +1332,7 @@ LiterllmOcrResponse literllm_ocr(LiterllmOcrRequest req);
 
 ---
 
-#### LiterllmLlmClientRaw
+##### LiterllmLlmClientRaw
 
 Extension of `LlmClient` that returns raw request/response data
 alongside the typed response.
@@ -1341,7 +1343,7 @@ result in a `RawExchange` that exposes the final request body (after
 `transform_response`). This is useful for debugging provider-specific
 transformations, capturing wire-level data, or implementing custom parsing.
 
-##### Methods
+###### Methods
 
 ###### literllm_chat_raw()
 
@@ -1443,21 +1445,21 @@ LiterllmRawExchange literllm_ocr_raw(LiterllmOcrRequest req);
 
 ---
 
-#### LiterllmManagedClient
+##### LiterllmManagedClient
 
 A managed LLM client that wraps `DefaultClient` with optional Tower
 middleware (cache, cooldown, rate limiting, health checks, cost tracking,
 budget, hooks, tracing).
 
-Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+Construct via `ManagedClient.new`. If the provided `ClientConfig`
 contains any middleware configuration the corresponding Tower layers are
-composed into a service stack.  Otherwise requests pass straight through
+composed into a service stack. Otherwise requests pass straight through
 to the inner `DefaultClient`.
 
 `ManagedClient` implements `LlmClient` and can be used everywhere a
 `DefaultClient` is expected.
 
-##### Methods
+###### Methods
 
 ###### literllm_new()
 
@@ -1702,7 +1704,7 @@ LiterllmResponseObject literllm_cancel_response(const char* id);
 
 ---
 
-#### LiterllmModelObject
+##### LiterllmModelObject
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1714,7 +1716,7 @@ LiterllmResponseObject literllm_cancel_response(const char* id);
 
 ---
 
-#### LiterllmModelsListResponse
+##### LiterllmModelsListResponse
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -1724,7 +1726,7 @@ LiterllmResponseObject literllm_cancel_response(const char* id);
 
 ---
 
-#### LiterllmModerationCategories
+##### LiterllmModerationCategories
 
 Boolean flags for each moderation category.
 
@@ -1745,7 +1747,7 @@ Boolean flags for each moderation category.
 
 ---
 
-#### LiterllmModerationCategoryScores
+##### LiterllmModerationCategoryScores
 
 Confidence scores for each moderation category.
 
@@ -1766,7 +1768,7 @@ Confidence scores for each moderation category.
 
 ---
 
-#### LiterllmModerationRequest
+##### LiterllmModerationRequest
 
 Request to classify content for policy violations.
 
@@ -1778,7 +1780,7 @@ Request to classify content for policy violations.
 
 ---
 
-#### LiterllmModerationResponse
+##### LiterllmModerationResponse
 
 Response from the moderation endpoint.
 
@@ -1791,7 +1793,7 @@ Response from the moderation endpoint.
 
 ---
 
-#### LiterllmModerationResult
+##### LiterllmModerationResult
 
 A single moderation classification result.
 
@@ -1804,7 +1806,7 @@ A single moderation classification result.
 
 ---
 
-#### LiterllmOcrImage
+##### LiterllmOcrImage
 
 An image extracted from an OCR page.
 
@@ -1816,7 +1818,7 @@ An image extracted from an OCR page.
 
 ---
 
-#### LiterllmOcrPage
+##### LiterllmOcrPage
 
 A single page of OCR output.
 
@@ -1830,7 +1832,7 @@ A single page of OCR output.
 
 ---
 
-#### LiterllmOcrRequest
+##### LiterllmOcrRequest
 
 An OCR request.
 
@@ -1844,7 +1846,7 @@ An OCR request.
 
 ---
 
-#### LiterllmOcrResponse
+##### LiterllmOcrResponse
 
 An OCR response.
 
@@ -1857,7 +1859,7 @@ An OCR response.
 
 ---
 
-#### LiterllmPageDimensions
+##### LiterllmPageDimensions
 
 Page dimensions in pixels.
 
@@ -1869,7 +1871,7 @@ Page dimensions in pixels.
 
 ---
 
-#### LiterllmRerankRequest
+##### LiterllmRerankRequest
 
 Request to rerank documents by relevance to a query.
 
@@ -1884,7 +1886,7 @@ Request to rerank documents by relevance to a query.
 
 ---
 
-#### LiterllmRerankResponse
+##### LiterllmRerankResponse
 
 Response from the rerank endpoint.
 
@@ -1897,7 +1899,7 @@ Response from the rerank endpoint.
 
 ---
 
-#### LiterllmRerankResult
+##### LiterllmRerankResult
 
 A single reranked document with its relevance score.
 
@@ -1910,7 +1912,7 @@ A single reranked document with its relevance score.
 
 ---
 
-#### LiterllmRerankResultDocument
+##### LiterllmRerankResultDocument
 
 The text content of a reranked document, returned when `return_documents` is true.
 
@@ -1921,11 +1923,11 @@ The text content of a reranked document, returned when `return_documents` is tru
 
 ---
 
-#### LiterllmResponseClient
+##### LiterllmResponseClient
 
 Responses API operations (create, retrieve, cancel).
 
-##### Methods
+###### Methods
 
 ###### literllm_create_response()
 
@@ -1960,7 +1962,7 @@ LiterllmResponseObject literllm_cancel_response(const char* id);
 
 ---
 
-#### LiterllmSearchRequest
+##### LiterllmSearchRequest
 
 A search request.
 
@@ -1975,7 +1977,7 @@ A search request.
 
 ---
 
-#### LiterllmSearchResponse
+##### LiterllmSearchResponse
 
 A search response.
 
@@ -1987,7 +1989,7 @@ A search response.
 
 ---
 
-#### LiterllmSearchResult
+##### LiterllmSearchResult
 
 An individual search result.
 
@@ -2001,7 +2003,7 @@ An individual search result.
 
 ---
 
-#### LiterllmSpecificFunction
+##### LiterllmSpecificFunction
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2010,7 +2012,7 @@ An individual search result.
 
 ---
 
-#### LiterllmSpecificToolChoice
+##### LiterllmSpecificToolChoice
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2020,7 +2022,7 @@ An individual search result.
 
 ---
 
-#### LiterllmStreamChoice
+##### LiterllmStreamChoice
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2031,7 +2033,7 @@ An individual search result.
 
 ---
 
-#### LiterllmStreamDelta
+##### LiterllmStreamDelta
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2044,7 +2046,7 @@ An individual search result.
 
 ---
 
-#### LiterllmStreamFunctionCall
+##### LiterllmStreamFunctionCall
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2054,7 +2056,7 @@ An individual search result.
 
 ---
 
-#### LiterllmStreamOptions
+##### LiterllmStreamOptions
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2063,7 +2065,7 @@ An individual search result.
 
 ---
 
-#### LiterllmStreamToolCall
+##### LiterllmStreamToolCall
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2075,7 +2077,7 @@ An individual search result.
 
 ---
 
-#### LiterllmSystemMessage
+##### LiterllmSystemMessage
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2085,7 +2087,7 @@ An individual search result.
 
 ---
 
-#### LiterllmToolCall
+##### LiterllmToolCall
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2096,7 +2098,7 @@ An individual search result.
 
 ---
 
-#### LiterllmToolMessage
+##### LiterllmToolMessage
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2107,7 +2109,7 @@ An individual search result.
 
 ---
 
-#### LiterllmTranscriptionResponse
+##### LiterllmTranscriptionResponse
 
 Response from a transcription request.
 
@@ -2121,7 +2123,7 @@ Response from a transcription request.
 
 ---
 
-#### LiterllmTranscriptionSegment
+##### LiterllmTranscriptionSegment
 
 A segment of transcribed audio with timing information.
 
@@ -2135,7 +2137,7 @@ A segment of transcribed audio with timing information.
 
 ---
 
-#### LiterllmUsage
+##### LiterllmUsage
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2146,7 +2148,7 @@ A segment of transcribed audio with timing information.
 
 ---
 
-#### LiterllmUserMessage
+##### LiterllmUserMessage
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -2156,9 +2158,9 @@ A segment of transcribed audio with timing information.
 
 ---
 
-### Enums
+#### Enums
 
-#### LiterllmMessage
+##### LiterllmMessage
 
 A chat message in a conversation.
 
@@ -2174,7 +2176,7 @@ A chat message in a conversation.
 
 ---
 
-#### LiterllmUserContent
+##### LiterllmUserContent
 
 | Value | Description |
 |-------|-------------|
@@ -2184,7 +2186,7 @@ A chat message in a conversation.
 
 ---
 
-#### LiterllmContentPart
+##### LiterllmContentPart
 
 | Value | Description |
 |-------|-------------|
@@ -2196,7 +2198,7 @@ A chat message in a conversation.
 
 ---
 
-#### LiterllmImageDetail
+##### LiterllmImageDetail
 
 | Value | Description |
 |-------|-------------|
@@ -2207,7 +2209,7 @@ A chat message in a conversation.
 
 ---
 
-#### LiterllmToolType
+##### LiterllmToolType
 
 The type discriminator for tool/tool-call objects. Per the OpenAI spec this
 is always `"function"`. Using an enum enforces that constraint at the type
@@ -2220,7 +2222,7 @@ level and rejects any other value on deserialization.
 
 ---
 
-#### LiterllmToolChoice
+##### LiterllmToolChoice
 
 | Value | Description |
 |-------|-------------|
@@ -2230,7 +2232,7 @@ level and rejects any other value on deserialization.
 
 ---
 
-#### LiterllmToolChoiceMode
+##### LiterllmToolChoiceMode
 
 | Value | Description |
 |-------|-------------|
@@ -2241,7 +2243,7 @@ level and rejects any other value on deserialization.
 
 ---
 
-#### LiterllmResponseFormat
+##### LiterllmResponseFormat
 
 | Value | Description |
 |-------|-------------|
@@ -2252,7 +2254,7 @@ level and rejects any other value on deserialization.
 
 ---
 
-#### LiterllmStopSequence
+##### LiterllmStopSequence
 
 | Value | Description |
 |-------|-------------|
@@ -2262,7 +2264,7 @@ level and rejects any other value on deserialization.
 
 ---
 
-#### LiterllmFinishReason
+##### LiterllmFinishReason
 
 Why a choice stopped generating tokens.
 
@@ -2278,7 +2280,7 @@ Why a choice stopped generating tokens.
 
 ---
 
-#### LiterllmReasoningEffort
+##### LiterllmReasoningEffort
 
 Controls how much reasoning effort the model should use.
 
@@ -2291,7 +2293,7 @@ Controls how much reasoning effort the model should use.
 
 ---
 
-#### LiterllmEmbeddingFormat
+##### LiterllmEmbeddingFormat
 
 The format in which the embedding vectors are returned.
 
@@ -2303,7 +2305,7 @@ The format in which the embedding vectors are returned.
 
 ---
 
-#### LiterllmEmbeddingInput
+##### LiterllmEmbeddingInput
 
 | Value | Description |
 |-------|-------------|
@@ -2313,7 +2315,7 @@ The format in which the embedding vectors are returned.
 
 ---
 
-#### LiterllmModerationInput
+##### LiterllmModerationInput
 
 Input to the moderation endpoint — a single string or multiple strings.
 
@@ -2325,7 +2327,7 @@ Input to the moderation endpoint — a single string or multiple strings.
 
 ---
 
-#### LiterllmRerankDocument
+##### LiterllmRerankDocument
 
 A document to be reranked — either a plain string or an object with a text field.
 
@@ -2337,7 +2339,7 @@ A document to be reranked — either a plain string or an object with a text fie
 
 ---
 
-#### LiterllmOcrDocument
+##### LiterllmOcrDocument
 
 Document input for OCR — either a URL or inline base64 data.
 
@@ -2349,7 +2351,7 @@ Document input for OCR — either a URL or inline base64 data.
 
 ---
 
-#### LiterllmAuthHeaderFormat
+##### LiterllmAuthHeaderFormat
 
 How the API key is sent in the HTTP request.
 
@@ -2362,9 +2364,9 @@ How the API key is sent in the HTTP request.
 
 ---
 
-### Errors
+#### Errors
 
-#### LiterllmLiterLlmError
+##### LiterllmLiterLlmError
 
 All errors that can occur when using `liter-llm`.
 
@@ -2389,4 +2391,3 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
-
