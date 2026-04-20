@@ -746,4 +746,4 @@ name = "@kreuzberg/liter-llm"
 output = "test_apps"
 
 [sync]
-extra_paths = ["pyproject.toml"]
+extra_paths = []
