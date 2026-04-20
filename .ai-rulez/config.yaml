@@ -39,7 +39,7 @@ builtins:
   - default-commands
 presets:
   - claude
-  - gemini
+  - copilot
   - codex
 version: "3.0"
 installed_skills:
