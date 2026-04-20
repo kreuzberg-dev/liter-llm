@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('ocr', () => {
   it('ocr_url_document: OCR request with a document URL input', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
   });
 });

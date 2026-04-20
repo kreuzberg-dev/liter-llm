@@ -7,5 +7,6 @@ export default defineConfig({
   plugins: [wasm(), topLevelAwait()],
   test: {
     include: ['tests/**/*.test.ts'],
+    globalSetup: './globalSetup.ts',
   },
 });

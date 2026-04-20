@@ -4,17 +4,17 @@ import { createClient } from 'liter_llm';
 
 describe('proxy', () => {
   it('proxy_auth_invalid: 401 Unauthorized when an invalid API key is provided through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('proxy_auth_missing: 401 Unauthorized when no API key is provided through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('proxy_chat_basic: Basic chat completion request routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("Hello!");
@@ -22,7 +22,7 @@ describe('proxy', () => {
   });
 
   it('proxy_chat_streaming: Streaming chat completion routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
@@ -30,51 +30,51 @@ describe('proxy', () => {
   });
 
   it('proxy_embeddings: Embedding request routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("Hello world");
     expect(result.data.length).toBe(1);
   });
 
   it('proxy_health: Health check verifying proxy connectivity via list models', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
   it('proxy_image_generate: Image generation request routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });
 
   it('proxy_models_list: List models request routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
   it('proxy_moderation: Content moderation request routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("The weather is nice today.");
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(false);
   });
 
   it('proxy_rerank: Document reranking request routed through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });
 
   it('proxy_upstream_429: 429 Too Many Requests from upstream provider through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('proxy_upstream_500: 500 Internal Server Error from upstream provider through the proxy', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 });

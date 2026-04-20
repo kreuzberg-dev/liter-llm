@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('streaming', () => {
   it('anthropic_stream: Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("One Two Three");
@@ -12,7 +12,7 @@ describe('streaming', () => {
   });
 
   it('azure_stream: Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
@@ -20,14 +20,14 @@ describe('streaming', () => {
   });
 
   it('basic_stream: Streaming chat completion that produces content across multiple SSE chunks', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
   });
 
   it('bedrock_stream: Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(2);
     expect(result.streamContent.trim()).toBe("One Two Three");
@@ -35,14 +35,14 @@ describe('streaming', () => {
   });
 
   it('empty_stream: Streaming chat completion that produces no content chunks before the DONE signal', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(0);
     expect(result.streamContent.trim()).toBe("");
   });
 
   it('local_stream_ollama: Streaming chat completion via Ollama local provider with SSE chunks', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
@@ -50,7 +50,7 @@ describe('streaming', () => {
   });
 
   it('stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.streamComplete).toBe(true);
     expect(result.streamContent.trim()).toBe("Done");
@@ -58,12 +58,12 @@ describe('streaming', () => {
   });
 
   it('stream_error_401: 401 Unauthorized error on stream initiation before any chunks are received', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(4);
     expect(result.finishReason.trim()).toBe("tool_calls");
@@ -72,7 +72,7 @@ describe('streaming', () => {
   });
 
   it('stream_with_usage: Streaming chat completion that includes a usage summary in the final chunk', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("Hi there!");
@@ -80,7 +80,7 @@ describe('streaming', () => {
   });
 
   it('vertex_stream: Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.chunks.length).toBeGreaterThanOrEqual(2);
     expect(result.streamContent.trim()).toBe("One Two Three");

@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('configuration', () => {
   it('custom_base_url: Client configured with a custom base URL routes all requests to that endpoint', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("Hi there!");
@@ -13,14 +13,14 @@ describe('configuration', () => {
   });
 
   it('extra_headers: Client configured with extra custom headers successfully completes a chat request', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").finishReason.trim()).toBe("stop");
   });
 
   it('local_provider_llamacpp: llamacpp local provider routes requests via llamacpp/ model prefix with no auth', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("Hi there! I'm running locally.");
@@ -29,7 +29,7 @@ describe('configuration', () => {
   });
 
   it('local_provider_ollama: Ollama local provider routes requests via ollama/ model prefix with no auth', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("Hello! How can I help you today?");
@@ -38,7 +38,7 @@ describe('configuration', () => {
   });
 
   it('local_provider_vllm: vLLM local provider routes requests via vllm/ model prefix with no auth', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("Hello! How may I assist you?");

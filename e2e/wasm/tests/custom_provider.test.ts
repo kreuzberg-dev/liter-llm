@@ -4,12 +4,12 @@ import { createClient } from 'liter_llm';
 
 describe('custom_provider', () => {
   it('provider_auth: Tests custom provider with custom auth header', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
   });
 
   it('register_provider: Tests that a custom provider can be registered and routes requests', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
   });
 });

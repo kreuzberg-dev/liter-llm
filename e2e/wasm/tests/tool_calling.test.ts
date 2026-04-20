@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('tool-calling', () => {
   it('anthropic_tool_calling: Chat request to Anthropic provider with a tool definition; assistant responds with a tool call', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
@@ -13,7 +13,7 @@ describe('tool-calling', () => {
   });
 
   it('single_tool_call: Chat request with a tool definition; assistant responds with a tool call', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);

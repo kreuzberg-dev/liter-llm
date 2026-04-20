@@ -4,45 +4,45 @@ import { createClient } from 'liter_llm';
 
 describe('moderate', () => {
   it('edge_moderate_all_categories: Moderation response with multiple categories flagged', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("Extremely harmful content targeting multiple categories");
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(true);
   });
 
   it('edge_moderate_empty_input: Moderation with empty string input', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("");
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(false);
   });
 
   it('error_moderate_auth_401: 401 Unauthorized for moderation with invalid API key', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat("Hello")).rejects.toThrow();
   });
 
   it('error_moderate_bad_request: 400 Bad Request for moderation with invalid model', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat("Hello")).rejects.toThrow();
   });
 
   it('smoke_moderate_batch: Moderate multiple inputs in a single request', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(["Hello world", "Nice weather today"]);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").flagged).toBe(false);
   });
 
   it('smoke_moderate_flagged: Moderation detects flagged content', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("I want to hurt someone very badly");
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(true);
   });
 
   it('smoke_moderate_single: Moderate a single non-flagged input', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("The weather is nice today.");
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(false);

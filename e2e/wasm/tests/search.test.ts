@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('search', () => {
   it('search_basic: Basic web search request with a simple query', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
   });
 });

@@ -4,37 +4,37 @@ import { createClient } from 'liter_llm';
 
 describe('rerank', () => {
   it('edge_rerank_empty_query: Reranking with an empty query string', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.results.length).toBe(2);
   });
 
   it('edge_rerank_single_doc: Reranking with only a single document', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });
 
   it('error_rerank_auth_401: 401 Unauthorized for reranking with invalid API key', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('error_rerank_bad_request: 400 Bad Request for reranking with invalid model', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('smoke_rerank_basic: Basic reranking of documents against a query', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.results.length).toBe(3);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });
 
   it('smoke_rerank_return_docs: Reranking with return_documents flag to include document text', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").document.length).toBeGreaterThan(0);
@@ -42,7 +42,7 @@ describe('rerank', () => {
   });
 
   it('smoke_rerank_with_top_n: Reranking with top_n parameter to limit results', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);

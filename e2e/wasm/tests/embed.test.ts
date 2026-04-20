@@ -4,33 +4,33 @@ import { createClient } from 'liter_llm';
 
 describe('embed', () => {
   it('batch_embed: Embedding request with multiple input strings returns one embedding object per input', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(["Hello", "World"]);
     expect(result.data.length).toBe(2);
     expect(result.data.get("0").embedding.length).toBe(5);
   });
 
   it('embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("Test input");
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(5);
   });
 
   it('embed_error_401: 401 Unauthorized error on embedding request when API key is invalid', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat("Hello world")).rejects.toThrow();
   });
 
   it('embed_with_dimensions: Embedding request with explicit dimensions parameter returns embeddings of the requested size', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("Hello world");
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(8);
   });
 
   it('local_embed_ollama: Embedding request via Ollama local provider with all-minilm model', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat("The quick brown fox jumps over the lazy dog");
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(32);

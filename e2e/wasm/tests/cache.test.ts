@@ -4,25 +4,25 @@ import { createClient } from 'liter_llm';
 
 describe('cache', () => {
   it('cache_hit: Tests that identical chat requests return cached response', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.cacheHit).toBe(true);
   });
 
   it('cache_miss_ttl: Tests that cache expires after TTL', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.cacheHit).toBe(true);
   });
 
   it('cache_opendal_memory: Cache hit with OpenDAL memory backend returns cached response on repeat request', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.cacheHit).toBe(true);
   });
 
   it('cache_stream_bypass: Tests that streaming requests bypass cache entirely', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.cacheBypassed).toBe(true);
   });

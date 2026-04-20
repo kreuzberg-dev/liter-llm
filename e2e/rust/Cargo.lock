@@ -659,9 +659,11 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "liter-llm",
+ "serde",
  "serde_json",
  "tokio",
  "tokio-stream",
+ "walkdir",
 ]
 
 [[package]]

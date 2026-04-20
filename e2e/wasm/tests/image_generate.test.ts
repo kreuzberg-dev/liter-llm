@@ -4,48 +4,48 @@ import { createClient } from 'liter_llm';
 
 describe('image-generate', () => {
   it('edge_image_b64_response: Image generation returning base64-encoded data instead of URL', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").b64Json.length).toBeGreaterThan(0);
   });
 
   it('edge_image_empty_prompt: Image generation with an empty prompt returns 400', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('error_image_auth_401: 401 Unauthorized when generating images with invalid API key', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('error_image_bad_request: 400 Bad Request when image generation parameters are invalid', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('error_image_rate_limit: 429 Rate limit exceeded for image generation', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('smoke_image_basic: Basic image generation with a text prompt', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });
 
   it('smoke_image_multiple: Image generation requesting multiple images', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBe(3);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });
 
   it('smoke_image_with_size: Image generation with explicit size parameter', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);

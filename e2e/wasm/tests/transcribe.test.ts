@@ -4,29 +4,29 @@ import { createClient } from 'liter_llm';
 
 describe('transcribe', () => {
   it('edge_transcribe_empty_audio: Transcription of a silent or empty audio file returns empty text', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.text).toContain("");
   });
 
   it('error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('error_transcribe_bad_format: 400 Bad Request when audio format is unsupported', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     await expect(async () => await client.chat(null)).rejects.toThrow();
   });
 
   it('smoke_transcribe_basic: Basic audio transcription', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.text).toContain("Hello, this is a test transcription.");
   });
 
   it('smoke_transcribe_with_language: Audio transcription with explicit language hint', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.text).toContain("Hallo, dies ist ein Testtranskription.");
   });

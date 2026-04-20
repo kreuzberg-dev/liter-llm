@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('chat', () => {
   it('developer_message: Chat request that includes a developer role message alongside user messages', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("s[::-1]");
@@ -12,21 +12,21 @@ describe('chat', () => {
   });
 
   it('finish_reason_content_filter: Chat response stopped by content filter with finish_reason of content_filter and null content', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").finishReason.trim()).toBe("content_filter");
   });
 
   it('finish_reason_length: Chat response truncated due to max_tokens limit with finish_reason of length', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").finishReason.trim()).toBe("length");
   });
 
   it('multi_turn_conversation: Multi-turn conversation with system, user, assistant, and follow-up user messages', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("4 + 4 equals 8.");
@@ -34,7 +34,7 @@ describe('chat', () => {
   });
 
   it('parallel_tool_calls: Chat request that results in parallel tool calls in the response', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
@@ -43,7 +43,7 @@ describe('chat', () => {
   });
 
   it('response_format_json_object: Chat request with response_format json_object that returns valid JSON content', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.length).toBeGreaterThan(0);
@@ -51,7 +51,7 @@ describe('chat', () => {
   });
 
   it('response_format_json_schema: Chat request with response_format json_schema that validates the output structure', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.length).toBeGreaterThan(0);
@@ -59,7 +59,7 @@ describe('chat', () => {
   });
 
   it('seed_parameter: Chat request with seed parameter for deterministic output; response includes system_fingerprint', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").finishReason.trim()).toBe("stop");
@@ -67,14 +67,14 @@ describe('chat', () => {
   });
 
   it('stop_sequences: Chat request with custom stop sequences that terminates generation at a stop token', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").finishReason.trim()).toBe("stop");
   });
 
   it('tool_choice_required: Chat request with tool_choice set to required forces the model to call a tool', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
@@ -83,7 +83,7 @@ describe('chat', () => {
   });
 
   it('tool_choice_specific: Chat request with tool_choice specifying a particular function to call', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);

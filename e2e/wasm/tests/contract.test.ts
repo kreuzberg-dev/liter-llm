@@ -4,7 +4,7 @@ import { createClient } from 'liter_llm';
 
 describe('contract', () => {
   it('binding_api_parity: Verify all bindings expose the full API surface — constructor accepts all config options and every method exists', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
     expect(result.choices.length).toBe(1);
     expect(result.choices.get("0").message.content.trim()).toBe("OK");
@@ -14,12 +14,12 @@ describe('contract', () => {
   });
 
   it('contract_ocr: Verify ocr() method exists in all bindings', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
   });
 
   it('contract_search: Verify search() method exists in all bindings', async () => {
-    const client = await createClient('test-key');
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const result = await client.chat(null);
   });
 });
