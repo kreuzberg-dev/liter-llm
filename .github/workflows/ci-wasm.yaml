@@ -86,6 +86,10 @@ jobs:
         run: pnpm run build:nodejs
         shell: bash
 
+      - name: Build Mock Server
+        run: cargo build --manifest-path e2e/rust/Cargo.toml --bin mock-server --release
+        shell: bash
+
       - name: Run WASM E2E Tests
         env:
           PROJECT_ROOT: ${{ github.workspace }}
