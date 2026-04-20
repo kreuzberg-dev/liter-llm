@@ -5049,7 +5049,7 @@ impl From<UserContent> for liter_llm::types::UserContent {
     fn from(val: UserContent) -> Self {
         match val {
             UserContent::Text { _0 } => Self::Text(_0),
-            UserContent::Parts { _0 } => Self::Parts(_0.into_iter().map(Into::into).collect()),
+            UserContent::Parts { _0 } => Self::Parts(serde_json::from_str(&_0).unwrap_or_default()),
         }
     }
 }
@@ -5059,7 +5059,7 @@ impl From<liter_llm::types::UserContent> for UserContent {
         match val {
             liter_llm::types::UserContent::Text(_0) => Self::Text { _0 },
             liter_llm::types::UserContent::Parts(_0) => Self::Parts {
-                _0: _0.into_iter().map(Into::into).collect(),
+                _0: serde_json::to_string(&_0).unwrap_or_default(),
             },
         }
     }

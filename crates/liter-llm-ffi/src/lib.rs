@@ -6,7 +6,7 @@
     clippy::let_unit_value,
     clippy::needless_borrow,
     clippy::redundant_locals,
-    dropping_references
+    clippy::drop_ref
 )]
 
 use liter_llm::client::LlmClient;
@@ -14,8 +14,8 @@ use std::cell::RefCell;
 use std::ffi::{CStr, CString, c_char};
 
 thread_local! {
-    static LAST_ERROR_CODE: RefCell<i32> = const { RefCell::new(0) };
-    static LAST_ERROR_CONTEXT: RefCell<Option<CString>> = const { RefCell::new(None) };
+    static LAST_ERROR_CODE: RefCell<i32> = RefCell::new(0);
+    static LAST_ERROR_CONTEXT: RefCell<Option<CString>> = RefCell::new(None);
 }
 
 fn set_last_error(code: i32, message: &str) {
