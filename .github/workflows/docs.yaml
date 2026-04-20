@@ -42,7 +42,7 @@ jobs:
           uv run --no-sync zensical build --clean
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
