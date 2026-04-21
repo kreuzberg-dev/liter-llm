@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ModelObject(
     String id,
+    /** Always {@code "model"} from OpenAI-compatible APIs.  Stored as a plain */
     String object,
     long created,
     @JsonProperty("owned_by") String ownedBy

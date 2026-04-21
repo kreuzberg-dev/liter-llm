@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Request to create images from a text prompt.
+ */
 public record CreateImageRequest(
     String prompt,
     Optional<String> model,

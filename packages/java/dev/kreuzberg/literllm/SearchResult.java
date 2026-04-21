@@ -3,5 +3,8 @@ package dev.kreuzberg.literllm;
 
 import java.util.Optional;
 
+/**
+ * An individual search result.
+ */
 public record SearchResult(String title, String url, String snippet, Optional<String> date) {
 }

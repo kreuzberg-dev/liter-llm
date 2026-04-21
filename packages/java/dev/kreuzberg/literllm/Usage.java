@@ -4,8 +4,11 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record Usage(
+    /** Prompt tokens used. Defaults to 0 when absent (some providers omit this). */
     @JsonProperty("prompt_tokens") long promptTokens,
+    /** Completion tokens used. Defaults to 0 when absent (e.g. embedding responses). */
     @JsonProperty("completion_tokens") long completionTokens,
+    /** Total tokens used. Defaults to 0 when absent (some providers omit this). */
     @JsonProperty("total_tokens") long totalTokens
 ) {
     public static UsageBuilder builder() {

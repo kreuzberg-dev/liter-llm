@@ -4,8 +4,12 @@ package dev.kreuzberg.literllm;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Request to transcribe audio into text.
+ */
 public record CreateTranscriptionRequest(
     String model,
+    /** Base64-encoded audio file data. */
     String file,
     Optional<String> language,
     Optional<String> prompt,

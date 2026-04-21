@@ -4,6 +4,11 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * The type discriminator for tool/tool-call objects. Per the OpenAI spec this
+ * is always {@code "function"}. Using an enum enforces that constraint at the type
+ * level and rejects any other value on deserialization.
+ */
 public enum ToolType {
     Function("function");
 

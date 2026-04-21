@@ -2,6 +2,9 @@
 package dev.kreuzberg.literllm;
 
 
+/**
+ * Deprecated legacy function-role message body.
+ */
 public record FunctionMessage(String content, String name) {
     public static FunctionMessageBuilder builder() {
         return new FunctionMessageBuilder();

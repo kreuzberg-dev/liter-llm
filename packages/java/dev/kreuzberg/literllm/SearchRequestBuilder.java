@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A search request.
+ */
 public class SearchRequestBuilder {
 
     private String model = "";

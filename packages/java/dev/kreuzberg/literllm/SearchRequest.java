@@ -5,11 +5,19 @@ import java.util.List;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A search request.
+ */
 public record SearchRequest(
+    /** The model/provider to use (e.g. {@code "brave/web-search"}, {@code "tavily/search"}). */
     String model,
+    /** The search query. */
     String query,
+    /** Maximum number of results to return. */
     @JsonProperty("max_results") Optional<Integer> maxResults,
+    /** Domain filter — restrict results to specific domains. */
     @JsonProperty("search_domain_filter") Optional<List<String>> searchDomainFilter,
+    /** Country code for localized results (ISO 3166-1 alpha-2). */
     Optional<String> country
 ) {
     public static SearchRequestBuilder builder() {

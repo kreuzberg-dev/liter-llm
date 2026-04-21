@@ -370,30 +370,37 @@ const char *literllm_version(void);
 
 All functions that return `char*` return `NULL` on failure. All functions that return `int32_t` return `-1` on failure. Always check `literllm_last_error()` after a `NULL` or `-1` return.
 
-The error message includes a bracketed category prefix for programmatic matching:
+The error message is formatted as `<function>: [<Category>] <details>` (for example `literllm_chat: [RateLimited] Too many requests`). The bracketed category is a stable identifier suitable for programmatic matching. The canonical 17-variant taxonomy is documented in [Error Handling](../usage/error-handling.md).
 
-| Category | Trigger |
-|----------|---------|
-| `[Authentication]` | API key rejected (HTTP 401/403) |
-| `[RateLimited]` | Rate limit exceeded (HTTP 429) |
-| `[BadRequest]` | Malformed request (HTTP 400) |
-| `[ContextWindowExceeded]` | Prompt exceeds context window |
-| `[ContentPolicy]` | Content policy violation |
-| `[NotFound]` | Model/resource not found (HTTP 404) |
-| `[ServerError]` | Provider 5xx error |
-| `[ServiceUnavailable]` | Provider temporarily unavailable (HTTP 502/503) |
-| `[Timeout]` | Request timed out |
-| `[Network]` | Network-level failure |
-| `[Streaming]` | Error reading streaming response |
-| `[EndpointNotSupported]` | Provider does not support the endpoint |
-| `[Serialization]` | JSON serialization/deserialization failure |
+| Category | HTTP Status | Trigger | Transient? |
+|----------|-------------|---------|------------|
+| `[Authentication]` | 401, 403 | API key rejected. | no |
+| `[RateLimited]` | 429 | Rate limit exceeded. | yes |
+| `[BadRequest]` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `[ContextWindowExceeded]` | 400, 422 | Prompt exceeds context window. | no |
+| `[ContentPolicy]` | 400, 422 | Content policy violation. | no |
+| `[NotFound]` | 404 | Model or resource not found. | no |
+| `[ServerError]` | 500 | Provider 5xx. | yes |
+| `[ServiceUnavailable]` | 502, 503, 504 | Provider temporarily unavailable. | yes |
+| `[Timeout]` | 408 | Request timed out. | yes |
+| `[Network]` | n/a | Network-level failure (DNS, TCP, TLS). | yes |
+| `[Streaming]` | n/a | Stream parse failure. | no |
+| `[EndpointNotSupported]` | n/a | Provider does not implement the endpoint. | no |
+| `[InvalidHeader]` | n/a | Custom header name or value is invalid. | no |
+| `[Serialization]` | n/a | JSON encode/decode failure. | no |
+| `[BudgetExceeded]` | 402 | Budget cap hit. | no |
+| `[HookRejected]` | n/a | A registered hook rejected the request. | no |
+
+Argument-validation failures (NULL pointers, non-UTF-8 input, missing request fields) are reported without a bracketed prefix, for example `literllm_chat: request_json must not be NULL`.
 
 ```c
 char *result = literllm_chat(client, request_json);
 if (result == NULL) {
     const char *err = literllm_last_error();
-    if (err && strncmp(err, "[RateLimited]", 13) == 0) {
+    if (err && strstr(err, "[RateLimited]")) {
         // back off and retry
+    } else if (err && strstr(err, "[Authentication]")) {
+        fprintf(stderr, "Invalid API key: %s\n", err);
     } else {
         fprintf(stderr, "Error: %s\n", err ? err : "unknown");
     }
@@ -402,6 +409,8 @@ if (result == NULL) {
 // Use result...
 literllm_free_string(result);
 ```
+
+See [Error Handling](../usage/error-handling.md) for the full variant list and retry semantics shared across every binding.
 
 ## Types
 

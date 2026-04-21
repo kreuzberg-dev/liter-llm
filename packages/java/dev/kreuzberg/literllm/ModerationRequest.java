@@ -3,5 +3,8 @@ package dev.kreuzberg.literllm;
 
 import java.util.Optional;
 
+/**
+ * Request to classify content for policy violations.
+ */
 public record ModerationRequest(Object input, Optional<String> model) {
 }

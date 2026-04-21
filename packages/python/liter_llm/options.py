@@ -52,6 +52,7 @@ class SystemMessage:
     content: str = ""
     name: str | None = None
 
+
 @dataclass
 class UserMessage:
     """User message."""
@@ -59,12 +60,14 @@ class UserMessage:
     content: dict[str, Any] | None = None
     name: str | None = None
 
+
 @dataclass
 class ImageUrl:
     """Image url."""
 
     url: str = ""
     detail: str | None = None
+
 
 @dataclass
 class DocumentContent:
@@ -108,12 +111,14 @@ class ToolMessage:
     tool_call_id: str = ""
     name: str | None = None
 
+
 @dataclass
 class DeveloperMessage:
     """Developer message."""
 
     content: str = ""
     name: str | None = None
+
 
 @dataclass
 class FunctionMessage:
@@ -122,6 +127,7 @@ class FunctionMessage:
     content: str = ""
     name: str = ""
 
+
 @dataclass
 class SpecificToolChoice:
     """Specific tool choice."""
@@ -129,11 +135,13 @@ class SpecificToolChoice:
     choice_type: str = "function"
     function: Any | None = None
 
+
 @dataclass
 class SpecificFunction:
     """Specific function."""
 
     name: str = ""
+
 
 @dataclass
 class JsonSchemaFormat:
@@ -143,6 +151,7 @@ class JsonSchemaFormat:
     description: str | None = None
     schema: str = ""
     strict: bool | None = None
+
 
 @dataclass
 class Usage:
@@ -195,6 +204,7 @@ class StreamOptions:
 
     include_usage: bool | None = None
 
+
 @dataclass
 class ChatCompletionResponse:
     """Chat completion response."""
@@ -210,6 +220,7 @@ class ChatCompletionResponse:
     system_fingerprint: str | None = None
     service_tier: str | None = None
 
+
 @dataclass
 class Choice:
     """Choice."""
@@ -217,6 +228,7 @@ class Choice:
     index: int = 0
     message: Any | None = None
     finish_reason: str | None = None
+
 
 @dataclass
 class ChatCompletionChunk:
@@ -233,6 +245,7 @@ class ChatCompletionChunk:
     system_fingerprint: str | None = None
     service_tier: str | None = None
 
+
 @dataclass
 class StreamChoice:
     """Stream choice."""
@@ -240,6 +253,7 @@ class StreamChoice:
     index: int = 0
     delta: Any | None = None
     finish_reason: str | None = None
+
 
 @dataclass
 class StreamDelta:
@@ -253,6 +267,7 @@ class StreamDelta:
 
     refusal: str | None = None
 
+
 @dataclass
 class StreamToolCall:
     """Stream tool call."""
@@ -262,12 +277,14 @@ class StreamToolCall:
     call_type: str | None = None
     function: Any | None = None
 
+
 @dataclass
 class StreamFunctionCall:
     """Stream function call."""
 
     name: str | None = None
     arguments: str | None = None
+
 
 @dataclass
 class CreateImageRequest:
@@ -282,12 +299,14 @@ class CreateImageRequest:
     response_format: str | None = None
     user: str | None = None
 
+
 @dataclass
 class ImagesResponse:
     """Response containing generated images."""
 
     created: int = 0
     data: list[Any] = field(default_factory=list)
+
 
 @dataclass
 class Image:
@@ -296,6 +315,7 @@ class Image:
     url: str | None = None
     b64_json: str | None = None
     revised_prompt: str | None = None
+
 
 @dataclass
 class CreateSpeechRequest:
@@ -306,6 +326,7 @@ class CreateSpeechRequest:
     voice: str = ""
     response_format: str | None = None
     speed: float | None = None
+
 
 @dataclass
 class CreateTranscriptionRequest:
@@ -320,6 +341,7 @@ class CreateTranscriptionRequest:
     response_format: str | None = None
     temperature: float | None = None
 
+
 @dataclass
 class TranscriptionResponse:
     """Response from a transcription request."""
@@ -329,6 +351,7 @@ class TranscriptionResponse:
     duration: float | None = None
     segments: list[Any] | None = None
 
+
 @dataclass
 class TranscriptionSegment:
     """A segment of transcribed audio with timing information."""
@@ -337,6 +360,7 @@ class TranscriptionSegment:
     start: float = 0.0
     end: float = 0.0
     text: str = ""
+
 
 @dataclass
 class SearchRequest:
@@ -366,6 +390,7 @@ class ModelsListResponse:
     """Always `"list"` from OpenAI-compatible APIs.  Stored as a plain"""
 
     data: list[Any] = field(default_factory=list)
+
 
 @dataclass
 class ModelObject:

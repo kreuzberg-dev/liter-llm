@@ -5,10 +5,17 @@ import java.util.List;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * An OCR request.
+ */
 public record OcrRequest(
+    /** The model/provider to use (e.g. {@code "mistral/mistral-ocr-latest"}). */
     String model,
+    /** The document to process. */
     OcrDocument document,
+    /** Specific pages to process (1-indexed). {@code None} means all pages. */
     Optional<List<Integer>> pages,
+    /** Whether to include base64-encoded images of each page. */
     @JsonProperty("include_image_base64") Optional<Boolean> includeImageBase64
 ) {
 }

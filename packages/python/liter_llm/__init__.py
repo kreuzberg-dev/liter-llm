@@ -4,6 +4,7 @@
 Version: 1.2.2
 """
 
+from ._internal_bindings import ResponseFormat, StopSequence, ToolChoice, UserContent
 from .api import (
     create_client,
     create_client_from_json,
@@ -29,7 +30,6 @@ from .exceptions import (
     ServiceUnavailableError,
     StreamingError,
 )
-from ._internal_bindings import ResponseFormat, StopSequence, ToolChoice, UserContent
 from .options import (
     AssistantMessage,
     AudioContent,
@@ -46,8 +46,8 @@ from .options import (
     FunctionMessage,
     Image,
     ImageDetail,
-    ImageUrl,
     ImagesResponse,
+    ImageUrl,
     JsonSchemaFormat,
     ModelObject,
     ModelsListResponse,

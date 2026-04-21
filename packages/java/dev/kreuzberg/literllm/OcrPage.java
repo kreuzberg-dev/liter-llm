@@ -4,10 +4,17 @@ package dev.kreuzberg.literllm;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A single page of OCR output.
+ */
 public record OcrPage(
+    /** Page index (0-based). */
     int index,
+    /** Extracted content as Markdown. */
     String markdown,
+    /** Extracted images, if {@code include_image_base64} was set. */
     Optional<List<OcrImage>> images,
+    /** Page dimensions in pixels, if available. */
     Optional<PageDimensions> dimensions
 ) {
 }

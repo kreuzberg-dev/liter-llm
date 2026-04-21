@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * A document to be reranked — either a plain string or an object with a text field.
+ */
 public enum RerankDocument {
     Text("text"),
     Object("object");

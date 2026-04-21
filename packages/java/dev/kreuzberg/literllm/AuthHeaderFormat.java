@@ -4,9 +4,15 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * How the API key is sent in the HTTP request.
+ */
 public enum AuthHeaderFormat {
+    /** Bearer token: {@code Authorization: Bearer <key>} */
     Bearer("bearer"),
+    /** Custom header: e.g., {@code X-Api-Key: <key>} */
     ApiKey("apikey"),
+    /** No authentication required. */
     None("none");
 
     private final String value;

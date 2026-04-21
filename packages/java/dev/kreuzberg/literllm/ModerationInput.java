@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * Input to the moderation endpoint — a single string or multiple strings.
+ */
 public enum ModerationInput {
     Single("single"),
     Multiple("multiple");

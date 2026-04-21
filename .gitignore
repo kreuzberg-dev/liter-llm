@@ -151,6 +151,9 @@ CLAUDE.md
 AGENTS.md
 GEMINI.md
 
+# Lychee link checker cache
+.lycheecache
+
 # Misc
 .cache/
 .benchmarks/

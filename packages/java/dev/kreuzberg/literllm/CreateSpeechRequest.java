@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Request to generate speech audio from text.
+ */
 public record CreateSpeechRequest(
     String model,
     String input,

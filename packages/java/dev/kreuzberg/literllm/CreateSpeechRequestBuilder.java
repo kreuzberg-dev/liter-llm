@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import java.util.Optional;
 
+/**
+ * Request to generate speech audio from text.
+ */
 public class CreateSpeechRequestBuilder {
 
     private String model = "";

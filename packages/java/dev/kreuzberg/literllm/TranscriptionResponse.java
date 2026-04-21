@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Response from a transcription request.
+ */
 public record TranscriptionResponse(
     String text,
     Optional<String> language,

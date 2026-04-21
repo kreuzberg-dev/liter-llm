@@ -4,5 +4,8 @@ package dev.kreuzberg.literllm;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * An OCR response.
+ */
 public record OcrResponse(List<OcrPage> pages, String model, Optional<Usage> usage) {
 }

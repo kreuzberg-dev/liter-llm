@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import java.util.List;
 
+/**
+ * Response containing generated images.
+ */
 public record ImagesResponse(long created, List<Image> data) {
     public static ImagesResponseBuilder builder() {
         return new ImagesResponseBuilder();

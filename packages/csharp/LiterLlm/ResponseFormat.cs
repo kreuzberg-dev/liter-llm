@@ -49,35 +49,35 @@ internal sealed class ResponseFormatJsonConverter : JsonConverter<ResponseFormat
         switch (value)
         {
             case ResponseFormat.Text v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v, options);
-                writer.WriteStartObject();
-                writer.WriteString("type", "text");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "type") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("type", "text");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "type") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case ResponseFormat.JsonObject v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v, options);
-                writer.WriteStartObject();
-                writer.WriteString("type", "json_object");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "type") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("type", "json_object");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "type") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case ResponseFormat.JsonSchema v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("type", "json_schema");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "type") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("type", "json_schema");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "type") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             default: throw new JsonException($"Unknown ResponseFormat subtype: {value.GetType().Name}");
         }
     }

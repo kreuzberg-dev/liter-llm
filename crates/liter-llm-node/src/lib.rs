@@ -1000,7 +1000,7 @@ pub fn create_client(
         api_key,
         base_url,
         timeout_secs.map(|v| v as u64),
-        max_retries,
+        max_retries.map(|v| v),
         model_hint,
     )
     .map(|val| JsDefaultClient { inner: Arc::new(val) })

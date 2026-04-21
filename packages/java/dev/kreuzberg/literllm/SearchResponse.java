@@ -3,5 +3,8 @@ package dev.kreuzberg.literllm;
 
 import java.util.List;
 
+/**
+ * A search response.
+ */
 public record SearchResponse(List<SearchResult> results, String model) {
 }

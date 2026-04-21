@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Response from the rerank endpoint.
+ */
 public record RerankResponse(
     Optional<String> id,
     List<RerankResult> results,

@@ -84,6 +84,7 @@ pip install liter-llm
 ### System Requirements
 
 
+
 - **Python 3.10+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
 
@@ -113,6 +114,7 @@ asyncio.run(main())
 ### Common Use Cases
 
 
+
 #### Streaming Responses
 
 Stream tokens in real time:
@@ -134,6 +136,7 @@ async def main() -> None:
 
 asyncio.run(main())
 ```
+
 
 
 
@@ -188,6 +191,7 @@ asyncio.run(main())
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
 
 
+
 ## Features
 
 ### Supported Providers (143+)
@@ -232,6 +236,7 @@ Built on a compiled Rust core for speed and safety:
 - **Configurable timeouts** and connection pooling
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
+
 
 
 ## Provider Routing

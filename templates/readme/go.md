@@ -186,7 +186,7 @@ fmt.Println(resp.Content)
 ## API Reference
 
 - **[Documentation](https://docs.liter-llm.kreuzberg.dev)** -- Full docs and API reference
-- **GoDoc**: [pkg.go.dev/{{ package_name }}](<https://pkg.go.dev/{{> package_name }})
+- **GoDoc**: [pkg.go.dev/{{ package_name }}](https://pkg.go.dev/{{ package_name }})
 - **Provider Registry**: [schemas/providers.json](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)
 - **GitHub Repository**: [github.com/kreuzberg-dev/liter-llm](https://github.com/kreuzberg-dev/liter-llm)
 

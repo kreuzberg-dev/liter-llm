@@ -124,6 +124,7 @@ echo $response['choices'][0]['message']['content'] . PHP_EOL;
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
 
 
+
 ## Features
 
 ### Supported Providers (143+)
@@ -166,6 +167,7 @@ Built on a compiled Rust core for speed and safety:
 - **Configurable timeouts** and connection pooling
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
+
 
 
 ## Provider Routing

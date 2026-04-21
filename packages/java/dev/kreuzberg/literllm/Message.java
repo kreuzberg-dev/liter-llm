@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+/**
+ * A chat message in a conversation.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "role", visible = false)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Message.System.class, name = "system"),
@@ -27,6 +30,7 @@ public sealed interface Message {
 
     record Developer(@JsonUnwrapped DeveloperMessage value) implements Message { }
 
+    /** Deprecated legacy function-role message; retained for API compatibility. */
     record Function(@JsonUnwrapped FunctionMessage value) implements Message { }
 
 }

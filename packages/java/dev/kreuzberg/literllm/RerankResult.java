@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A single reranked document with its relevance score.
+ */
 public record RerankResult(
     int index,
     @JsonProperty("relevance_score") double relevanceScore,

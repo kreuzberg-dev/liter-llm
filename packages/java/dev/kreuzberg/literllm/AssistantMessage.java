@@ -10,6 +10,7 @@ public record AssistantMessage(
     Optional<String> name,
     @JsonProperty("tool_calls") Optional<List<ToolCall>> toolCalls,
     Optional<String> refusal,
+    /** Deprecated legacy function_call field; retained for API compatibility. */
     @JsonProperty("function_call") Optional<FunctionCall> functionCall
 ) {
     public static AssistantMessageBuilder builder() {

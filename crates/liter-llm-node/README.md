@@ -138,6 +138,7 @@ console.log(response.choices[0].message.content);
 ### Common Use Cases
 
 
+
 #### Streaming Responses
 
 Stream tokens in real time:
@@ -156,6 +157,7 @@ for (const chunk of chunks) {
 }
 console.log();
 ```
+
 
 
 
@@ -228,6 +230,7 @@ This binding uses NAPI-RS to provide native Node.js bindings with:
 - Provider registry is compiled into the binary — no runtime disk access
 
 
+
 ## Features
 
 ### Supported Providers (143+)
@@ -272,6 +275,7 @@ Built on a compiled Rust core for speed and safety:
 - **Configurable timeouts** and connection pooling
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
+
 
 
 ## Provider Routing

@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A single moderation classification result.
+ */
 public record ModerationResult(
     boolean flagged,
     ModerationCategories categories,

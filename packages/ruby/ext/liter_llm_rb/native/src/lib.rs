@@ -2989,7 +2989,7 @@ impl DefaultClient {
         Ok(result.into())
     }
 
-    fn chat_stream_async(&self, _req: ChatCompletionRequest) -> Result<String, Error> {
+    fn chat_stream_async(&self, req: ChatCompletionRequest) -> Result<String, Error> {
         Err(magnus::Error::new(
             unsafe { Ruby::get_unchecked() }.exception_runtime_error(),
             "Not implemented: chat_stream_async",

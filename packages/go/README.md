@@ -142,6 +142,7 @@ CGO_LDFLAGS="-L$HOME/liter-llm/lib -lliter_llm_ffi" go build
 ## Quickstart
 
 
+
 ```go
 package main
 
@@ -171,6 +172,7 @@ func main() {
 ```
 
 
+
 Build and run:
 
 ```bash
@@ -181,6 +183,7 @@ CGO_LDFLAGS="-L$HOME/liter-llm/lib -lliter_llm_ffi" go build
 ## Examples
 
 ### Streaming Responses
+
 
 
 ```go
@@ -199,7 +202,9 @@ for chunk := range stream.Chunks() {
 ```
 
 
+
 ### Multiple Providers
+
 
 
 ```go
@@ -214,7 +219,9 @@ resp, _ = client.Chat(ctx, literllm.ChatRequest{Model: "groq/llama-3.1-70b-versa
 ```
 
 
+
 ### Context-Aware Requests
+
 
 
 ```go
@@ -230,6 +237,7 @@ if err != nil {
 }
 fmt.Println(resp.Content)
 ```
+
 
 
 ## Proxy Server

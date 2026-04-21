@@ -1,6 +1,9 @@
 # Configuration for the lychee link checker.
 # https://github.com/lycheeverse/lychee
 
+# Root directory for resolving relative paths in the built site
+root_dir = "site"
+
 # Exclude common patterns that produce false positives
 exclude = [
     # Localhost / loopback addresses
@@ -23,7 +26,7 @@ exclude = [
     "github\\.com/.*/raw/",
 
     # Docs site self-references (404 until deployed)
-    "docs\\.kreuzberg\\.dev",
+    "docs\\.liter-llm\\.kreuzberg\\.dev",
 
     # PyPI project pages (rate-limited)
     "pypi\\.org/project/",
@@ -33,6 +36,9 @@ exclude = [
 
     # npm (rate-limited)
     "npmjs\\.com/package/",
+
+    # Discord invite links (require auth)
+    "discord\\.gg/",
 ]
 
 # Accept these HTTP status codes as valid

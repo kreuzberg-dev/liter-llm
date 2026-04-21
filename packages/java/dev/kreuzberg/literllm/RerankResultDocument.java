@@ -2,5 +2,8 @@
 package dev.kreuzberg.literllm;
 
 
+/**
+ * The text content of a reranked document, returned when {@code return_documents} is true.
+ */
 public record RerankResultDocument(String text) {
 }

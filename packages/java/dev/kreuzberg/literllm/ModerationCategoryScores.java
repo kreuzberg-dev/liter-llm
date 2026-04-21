@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Confidence scores for each moderation category.
+ */
 public record ModerationCategoryScores(
     double sexual,
     double hate,

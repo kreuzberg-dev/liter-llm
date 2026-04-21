@@ -4,12 +4,17 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * Why a choice stopped generating tokens.
+ */
 public enum FinishReason {
     Stop("stop"),
     Length("length"),
     ToolCalls("tool_calls"),
     ContentFilter("content_filter"),
+    /** Deprecated legacy finish reason; retained for API compatibility. */
     FunctionCall("function_call"),
+    /** Catch-all for unknown finish reasons returned by non-OpenAI providers. */
     Other("other");
 
     private final String value;

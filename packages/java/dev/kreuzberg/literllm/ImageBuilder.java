@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import java.util.Optional;
 
+/**
+ * A single generated image, returned as either a URL or base64 data.
+ */
 public class ImageBuilder {
 
     private Optional<String> url = Optional.empty();

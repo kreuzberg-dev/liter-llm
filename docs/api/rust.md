@@ -244,32 +244,45 @@ All types derive `Serialize`, `Deserialize`, `Debug`, `Clone`.
 
 ## Error Handling
 
-All methods return `Result<T, LiterLlmError>`. The error type is defined with `thiserror` and includes variants:
+All methods return `Result<T, LiterLlmError>`. The error type is defined with `thiserror` and has 17 variants. Use `e.is_transient()` to check whether the Tower fallback layer would retry the error on a different endpoint, and `e.error_type()` to record a stable label in traces.
 
-- `Authentication` -- API key rejected (401/403)
-- `RateLimited` -- Rate limit exceeded (429)
-- `BadRequest` -- Invalid request (400/422)
-- `ContextWindowExceeded` -- Input too long
-- `ContentPolicy` -- Content policy violation
-- `NotFound` -- Model/resource not found (404)
-- `ServerError` -- Provider 5xx error
-- `ServiceUnavailable` -- Provider temporarily unavailable
-- `Timeout` -- Request timeout
-- `Network` -- Network error
-- `Streaming` -- Stream parse error
-- `EndpointNotSupported` -- Provider does not support endpoint
-- `InvalidHeader` -- Custom header name or value is invalid
-- `Serialization` -- JSON serialization error
+| Variant | HTTP Status | Trigger | Transient? |
+|---------|-------------|---------|------------|
+| `Authentication { message }` | 401, 403 | API key rejected. | no |
+| `RateLimited { message, retry_after }` | 429 | Rate limit exceeded; `retry_after` is parsed from the header when present. | yes |
+| `BadRequest { message }` | 400, 422 | Malformed request or unsupported parameter. | no |
+| `ContextWindowExceeded { message }` | 400, 422 | Prompt exceeds the context window. | no |
+| `ContentPolicy { message }` | 400, 422 | Content policy violation. | no |
+| `NotFound { message }` | 404 | Model or resource not found. | no |
+| `ServerError { message }` | 500 | Provider 5xx. | yes |
+| `ServiceUnavailable { message }` | 502, 503, 504 | Provider temporarily unavailable. | yes |
+| `Timeout` | 408 | Request timed out. | yes |
+| `Network(reqwest::Error)` | n/a | Transport failure. Available with the `native-http` feature. | yes |
+| `Streaming { message }` | n/a | Stream parse, CRC, or UTF-8 failure during SSE or EventStream reads. | no |
+| `EndpointNotSupported { endpoint, provider }` | n/a | Provider crate does not implement the endpoint. | no |
+| `InvalidHeader { name, reason }` | n/a | Custom header name or value failed validation. | no |
+| `Serialization(serde_json::Error)` | n/a | JSON encode or decode failure. | no |
+| `BudgetExceeded { message, model }` | 402 | Budget cap hit. | no |
+| `HookRejected { message }` | n/a | A registered hook rejected the request. | no |
+| `InternalError { message }` | n/a | Library bug. Should never surface in normal operation. | no |
 
 ```rust
 use liter_llm::LiterLlmError;
 
 match client.chat(request).await {
     Ok(response) => println!("{}", response.choices[0].message.content.as_deref().unwrap_or("")),
-    Err(LiterLlmError::RateLimited { .. }) => eprintln!("Rate limited, retrying..."),
-    Err(e) => eprintln!("Error: {e}"),
+    Err(e) if e.is_transient() => eprintln!("transient, retrying: {e}"),
+    Err(LiterLlmError::RateLimited { retry_after, .. }) => {
+        eprintln!("rate limited, retry after {retry_after:?}")
+    }
+    Err(LiterLlmError::BudgetExceeded { message, model }) => {
+        eprintln!("budget exceeded ({model:?}): {message}")
+    }
+    Err(e) => eprintln!("Error ({}): {e}", e.error_type()),
 }
 ```
+
+See [Error Handling](../usage/error-handling.md) for the canonical taxonomy and retry semantics shared across every binding.
 
 ## Example
 

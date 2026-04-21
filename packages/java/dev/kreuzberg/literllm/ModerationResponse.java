@@ -3,5 +3,8 @@ package dev.kreuzberg.literllm;
 
 import java.util.List;
 
+/**
+ * Response from the moderation endpoint.
+ */
 public record ModerationResponse(String id, String model, List<ModerationResult> results) {
 }

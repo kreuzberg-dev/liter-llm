@@ -4,5 +4,8 @@ package dev.kreuzberg.literllm;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * An image extracted from an OCR page.
+ */
 public record OcrImage(String id, @JsonProperty("image_base64") Optional<String> imageBase64) {
 }

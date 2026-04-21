@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * Document input for OCR — either a URL or inline base64 data.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = false)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = OcrDocument.Url.class, name = "document_url"),
@@ -12,8 +15,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public sealed interface OcrDocument {
 
+    /** A publicly accessible document URL. */
     record Url(@JsonProperty("url") String url) implements OcrDocument { }
 
+    /** Inline base64-encoded document data. */
     record Base64(
         @JsonProperty("data") String data,
         @JsonProperty("media_type") String mediaType

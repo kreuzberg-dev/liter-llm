@@ -4,8 +4,13 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * The format in which the embedding vectors are returned.
+ */
 public enum EmbeddingFormat {
+    /** 32-bit floating-point numbers (default). */
     Float("float"),
+    /** Base64-encoded string representation of the floats. */
     Base64("base64");
 
     private final String value;

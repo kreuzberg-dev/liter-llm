@@ -11,7 +11,13 @@ if TYPE_CHECKING:
     from ._internal_bindings import CustomProviderConfig, DefaultClient
 
 
-def create_client(api_key: str, base_url: str | None = None, timeout_secs: int | None = None, max_retries: int | None = None, model_hint: str | None = None) -> DefaultClient:
+def create_client(
+    api_key: str,
+    base_url: str | None = None,
+    timeout_secs: int | None = None,
+    max_retries: int | None = None,
+    model_hint: str | None = None,
+) -> DefaultClient:
     """Create a new LLM client with simple scalar configuration."""
     return _rust.create_client(api_key, base_url, timeout_secs, max_retries, model_hint)
 

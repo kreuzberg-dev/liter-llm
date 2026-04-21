@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import java.util.Optional;
 
+/**
+ * Request to create images from a text prompt.
+ */
 public class CreateImageRequestBuilder {
 
     private String prompt = "";

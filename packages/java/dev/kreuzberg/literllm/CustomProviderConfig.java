@@ -4,10 +4,17 @@ package dev.kreuzberg.literllm;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Configuration for registering a custom LLM provider at runtime.
+ */
 public record CustomProviderConfig(
+    /** Unique name for this provider (e.g., "my-provider"). */
     String name,
+    /** Base URL for the provider's API (e.g., "https://api.my-provider.com/v1"). */
     @JsonProperty("base_url") String baseUrl,
+    /** Authentication header format. */
     @JsonProperty("auth_header") Object authHeader,
+    /** Model name prefixes that route to this provider (e.g., ["my-"]). */
     @JsonProperty("model_prefixes") List<String> modelPrefixes
 ) {
 }

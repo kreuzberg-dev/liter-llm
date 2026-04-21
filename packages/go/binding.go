@@ -10,46 +10,46 @@ package literllm
 import "C"
 
 import (
-    "encoding/json"
-    "errors"
-    "fmt"
-    "unsafe"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"unsafe"
 )
 
 // lastError retrieves the last error from the FFI layer.
 func lastError() error {
-    code := int32(C.literllm_last_error_code())
-    if code == 0 {
-        return nil
-    }
-    ctx := C.literllm_last_error_context()
-    message := C.GoString(ctx)
-    return fmt.Errorf("[%d] %s", code, message)
+	code := int32(C.literllm_last_error_code())
+	if code == 0 {
+		return nil
+	}
+	ctx := C.literllm_last_error_context()
+	message := C.GoString(ctx)
+	return fmt.Errorf("[%d] %s", code, message)
 }
 
 var (
-    ErrAuthentication = errors.New("authentication failed: {message}")
-    ErrRateLimited = errors.New("rate limited: {message}")
-    ErrBadRequest = errors.New("bad request: {message}")
-    ErrContextWindowExceeded = errors.New("context window exceeded: {message}")
-    ErrContentPolicy = errors.New("content policy violation: {message}")
-    ErrNotFound = errors.New("not found: {message}")
-    ErrServerError = errors.New("server error: {message}")
-    ErrServiceUnavailable = errors.New("service unavailable: {message}")
-    ErrTimeout = errors.New("request timeout")
-    ErrStreaming = errors.New("streaming error: {message}")
-    ErrEndpointNotSupported = errors.New("provider {provider} does not support {endpoint}")
-    ErrInvalidHeader = errors.New("invalid header {name:?}: {reason}")
-    ErrSerialization = errors.New("serialization error")
-    ErrBudgetExceeded = errors.New("budget exceeded: {message}")
-    ErrHookRejected = errors.New("hook rejected: {message}")
-    ErrInternalError = errors.New("internal error: {message}")
+	ErrAuthentication        = errors.New("authentication failed: {message}")
+	ErrRateLimited           = errors.New("rate limited: {message}")
+	ErrBadRequest            = errors.New("bad request: {message}")
+	ErrContextWindowExceeded = errors.New("context window exceeded: {message}")
+	ErrContentPolicy         = errors.New("content policy violation: {message}")
+	ErrNotFound              = errors.New("not found: {message}")
+	ErrServerError           = errors.New("server error: {message}")
+	ErrServiceUnavailable    = errors.New("service unavailable: {message}")
+	ErrTimeout               = errors.New("request timeout")
+	ErrStreaming             = errors.New("streaming error: {message}")
+	ErrEndpointNotSupported  = errors.New("provider {provider} does not support {endpoint}")
+	ErrInvalidHeader         = errors.New("invalid header {name:?}: {reason}")
+	ErrSerialization         = errors.New("serialization error")
+	ErrBudgetExceeded        = errors.New("budget exceeded: {message}")
+	ErrHookRejected          = errors.New("hook rejected: {message}")
+	ErrInternalError         = errors.New("internal error: {message}")
 )
 
 // LiterLlmError is a structured error type.
 type LiterLlmError struct {
-    Code    string
-    Message string
+	Code    string
+	Message string
 }
 
 func (e *LiterLlmError) Error() string { return e.Message }
@@ -57,36 +57,32 @@ func (e *LiterLlmError) Error() string { return e.Message }
 // A chat message in a conversation.
 // Variants: System, User, Assistant, Tool, Developer, Function
 type Message struct {
-    Role string `json:"role"`
+	Role string `json:"role"`
 }
-
 
 // UserContent is a tagged union type (discriminated by JSON tag).
 // Variants: Text, Parts
 type UserContent struct {
 }
 
-
 // ContentPart is a tagged union type (discriminated by JSON tag).
 // Variants: Text, ImageUrl, Document, InputAudio
 type ContentPart struct {
-    Type string `json:"type"`
-    Text *string `json:"text,omitempty"`
-    ImageUrl *ImageUrl `json:"image_url,omitempty"`
-    Document *DocumentContent `json:"document,omitempty"`
-    InputAudio *AudioContent `json:"input_audio,omitempty"`
+	Type       string           `json:"type"`
+	Text       *string          `json:"text,omitempty"`
+	ImageUrl   *ImageUrl        `json:"image_url,omitempty"`
+	Document   *DocumentContent `json:"document,omitempty"`
+	InputAudio *AudioContent    `json:"input_audio,omitempty"`
 }
-
 
 // ImageDetail is an enumeration type.
 type ImageDetail string
 
 const (
-    ImageDetailLow ImageDetail = "low"
-    ImageDetailHigh ImageDetail = "high"
-    ImageDetailAuto ImageDetail = "auto"
+	ImageDetailLow  ImageDetail = "low"
+	ImageDetailHigh ImageDetail = "high"
+	ImageDetailAuto ImageDetail = "auto"
 )
-
 
 // The type discriminator for tool/tool-call objects. Per the OpenAI spec this
 // is always `"function"`. Using an enum enforces that constraint at the type
@@ -94,1886 +90,1786 @@ const (
 type ToolType string
 
 const (
-    ToolTypeFunction ToolType = "function"
+	ToolTypeFunction ToolType = "function"
 )
-
 
 // ToolChoice is a tagged union type (discriminated by JSON tag).
 // Variants: Mode, Specific
 type ToolChoice struct {
 }
 
-
 // ToolChoiceMode is an enumeration type.
 type ToolChoiceMode string
 
 const (
-    ToolChoiceModeAuto ToolChoiceMode = "auto"
-    ToolChoiceModeRequired ToolChoiceMode = "required"
-    ToolChoiceModeNone ToolChoiceMode = "none"
+	ToolChoiceModeAuto     ToolChoiceMode = "auto"
+	ToolChoiceModeRequired ToolChoiceMode = "required"
+	ToolChoiceModeNone     ToolChoiceMode = "none"
 )
-
 
 // ResponseFormat is a tagged union type (discriminated by JSON tag).
 // Variants: Text, JsonObject, JsonSchema
 type ResponseFormat struct {
-    Type string `json:"type"`
-    JsonSchema *JsonSchemaFormat `json:"json_schema,omitempty"`
+	Type       string            `json:"type"`
+	JsonSchema *JsonSchemaFormat `json:"json_schema,omitempty"`
 }
-
 
 // StopSequence is a tagged union type (discriminated by JSON tag).
 // Variants: Single, Multiple
 type StopSequence struct {
 }
 
-
 // Why a choice stopped generating tokens.
 type FinishReason string
 
 const (
-    FinishReasonStop FinishReason = "stop"
-    FinishReasonLength FinishReason = "length"
-    FinishReasonToolCalls FinishReason = "tool_calls"
-    FinishReasonContentFilter FinishReason = "content_filter"
-    // Deprecated legacy finish reason; retained for API compatibility.
-    FinishReasonFunctionCall FinishReason = "function_call"
-    // Catch-all for unknown finish reasons returned by non-OpenAI providers.
-    //
-    // Note: this intentionally does **not** carry the original string (e.g.
-    // `Other(String)`).  Using `#[serde(other)]` requires a unit variant, and
-    // switching to `#[serde(untagged)]` would change deserialization semantics
-    // for all variants.  The original value can be recovered by inspecting the
-    // raw JSON if needed.
-    FinishReasonOther FinishReason = "other"
+	FinishReasonStop          FinishReason = "stop"
+	FinishReasonLength        FinishReason = "length"
+	FinishReasonToolCalls     FinishReason = "tool_calls"
+	FinishReasonContentFilter FinishReason = "content_filter"
+	// Deprecated legacy finish reason; retained for API compatibility.
+	FinishReasonFunctionCall FinishReason = "function_call"
+	// Catch-all for unknown finish reasons returned by non-OpenAI providers.
+	//
+	// Note: this intentionally does **not** carry the original string (e.g.
+	// `Other(String)`).  Using `#[serde(other)]` requires a unit variant, and
+	// switching to `#[serde(untagged)]` would change deserialization semantics
+	// for all variants.  The original value can be recovered by inspecting the
+	// raw JSON if needed.
+	FinishReasonOther FinishReason = "other"
 )
-
 
 // Controls how much reasoning effort the model should use.
 type ReasoningEffort string
 
 const (
-    ReasoningEffortLow ReasoningEffort = "low"
-    ReasoningEffortMedium ReasoningEffort = "medium"
-    ReasoningEffortHigh ReasoningEffort = "high"
+	ReasoningEffortLow    ReasoningEffort = "low"
+	ReasoningEffortMedium ReasoningEffort = "medium"
+	ReasoningEffortHigh   ReasoningEffort = "high"
 )
-
 
 // The format in which the embedding vectors are returned.
 type EmbeddingFormat string
 
 const (
-    // 32-bit floating-point numbers (default).
-    EmbeddingFormatFloat EmbeddingFormat = "float"
-    // Base64-encoded string representation of the floats.
-    EmbeddingFormatBase64 EmbeddingFormat = "base64"
+	// 32-bit floating-point numbers (default).
+	EmbeddingFormatFloat EmbeddingFormat = "float"
+	// Base64-encoded string representation of the floats.
+	EmbeddingFormatBase64 EmbeddingFormat = "base64"
 )
-
 
 // EmbeddingInput is a tagged union type (discriminated by JSON tag).
 // Variants: Single, Multiple
 type EmbeddingInput struct {
 }
 
-
 // Input to the moderation endpoint — a single string or multiple strings.
 // Variants: Single, Multiple
 type ModerationInput struct {
 }
 
-
 // A document to be reranked — either a plain string or an object with a text field.
 // Variants: Text, Object
 type RerankDocument struct {
-    Text *string `json:"text,omitempty"`
+	Text *string `json:"text,omitempty"`
 }
-
 
 // Document input for OCR — either a URL or inline base64 data.
 // Variants: Url, Base64
 type OcrDocument struct {
-    Type string `json:"type"`
-    // The document URL.
-    Url *string `json:"url,omitempty"`
-    // Base64-encoded document content.
-    Data *string `json:"data,omitempty"`
-    // MIME type (e.g. `"application/pdf"`, `"image/png"`).
-    MediaType *string `json:"media_type,omitempty"`
+	Type string `json:"type"`
+	// The document URL.
+	Url *string `json:"url,omitempty"`
+	// Base64-encoded document content.
+	Data *string `json:"data,omitempty"`
+	// MIME type (e.g. `"application/pdf"`, `"image/png"`).
+	MediaType *string `json:"media_type,omitempty"`
 }
-
 
 // How the API key is sent in the HTTP request.
 // Variants: Bearer, ApiKey, None
 type AuthHeaderFormat struct {
 }
 
-
 // SystemMessage is a type.
 type SystemMessage struct {
-    Content string `json:"content"`
-    Name *string `json:"name,omitempty"`
+	Content string  `json:"content"`
+	Name    *string `json:"name,omitempty"`
 }
-
 
 // SystemMessage option function
 type SystemMessageOption func(*SystemMessage)
 
 // WithSystemMessageContent sets the content field.
 func WithSystemMessageContent(v string) SystemMessageOption {
-    return func(c *SystemMessage) { c.Content = v }
+	return func(c *SystemMessage) { c.Content = v }
 }
 
 // WithSystemMessageName sets the name field.
 func WithSystemMessageName(v string) SystemMessageOption {
-    return func(c *SystemMessage) { c.Name = &v }
+	return func(c *SystemMessage) { c.Name = &v }
 }
 
 // NewSystemMessage creates a SystemMessage with optional parameters.
 func NewSystemMessage(opts ...SystemMessageOption) *SystemMessage {
-    c := &SystemMessage {
-        Content: "",
-        Name: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &SystemMessage{
+		Content: "",
+		Name:    nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // UserMessage is a type.
 type UserMessage struct {
-    Content UserContent `json:"content"`
-    Name *string `json:"name,omitempty"`
+	Content UserContent `json:"content"`
+	Name    *string     `json:"name,omitempty"`
 }
-
 
 // UserMessage option function
 type UserMessageOption func(*UserMessage)
 
 // WithUserMessageContent sets the content field.
 func WithUserMessageContent(v UserContent) UserMessageOption {
-    return func(c *UserMessage) { c.Content = v }
+	return func(c *UserMessage) { c.Content = v }
 }
 
 // WithUserMessageName sets the name field.
 func WithUserMessageName(v string) UserMessageOption {
-    return func(c *UserMessage) { c.Name = &v }
+	return func(c *UserMessage) { c.Name = &v }
 }
 
 // NewUserMessage creates a UserMessage with optional parameters.
 func NewUserMessage(opts ...UserMessageOption) *UserMessage {
-    c := &UserMessage {
-        Content: UserContent{},
-        Name: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &UserMessage{
+		Content: UserContent{},
+		Name:    nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ImageUrl is a type.
 type ImageUrl struct {
-    Url string `json:"url"`
-    Detail *ImageDetail `json:"detail,omitempty"`
+	Url    string       `json:"url"`
+	Detail *ImageDetail `json:"detail,omitempty"`
 }
-
 
 // ImageUrl option function
 type ImageUrlOption func(*ImageUrl)
 
 // WithImageUrlUrl sets the url field.
 func WithImageUrlUrl(v string) ImageUrlOption {
-    return func(c *ImageUrl) { c.Url = v }
+	return func(c *ImageUrl) { c.Url = v }
 }
 
 // WithImageUrlDetail sets the detail field.
 func WithImageUrlDetail(v ImageDetail) ImageUrlOption {
-    return func(c *ImageUrl) { c.Detail = &v }
+	return func(c *ImageUrl) { c.Detail = &v }
 }
 
 // NewImageUrl creates a ImageUrl with optional parameters.
 func NewImageUrl(opts ...ImageUrlOption) *ImageUrl {
-    c := &ImageUrl {
-        Url: "",
-        Detail: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ImageUrl{
+		Url:    "",
+		Detail: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // DocumentContent is a type.
 type DocumentContent struct {
-    // Base64-encoded document data or URL.
-    Data string `json:"data"`
-    // MIME type (e.g., "application/pdf", "text/csv").
-    MediaType string `json:"media_type"`
+	// Base64-encoded document data or URL.
+	Data string `json:"data"`
+	// MIME type (e.g., "application/pdf", "text/csv").
+	MediaType string `json:"media_type"`
 }
-
 
 // DocumentContent option function
 type DocumentContentOption func(*DocumentContent)
 
 // WithDocumentContentData sets the data field.
 func WithDocumentContentData(v string) DocumentContentOption {
-    return func(c *DocumentContent) { c.Data = v }
+	return func(c *DocumentContent) { c.Data = v }
 }
 
 // WithDocumentContentMediaType sets the media_type field.
 func WithDocumentContentMediaType(v string) DocumentContentOption {
-    return func(c *DocumentContent) { c.MediaType = v }
+	return func(c *DocumentContent) { c.MediaType = v }
 }
 
 // NewDocumentContent creates a DocumentContent with optional parameters.
 func NewDocumentContent(opts ...DocumentContentOption) *DocumentContent {
-    c := &DocumentContent {
-        Data: "",
-        MediaType: "",
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &DocumentContent{
+		Data:      "",
+		MediaType: "",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // AudioContent is a type.
 type AudioContent struct {
-    // Base64-encoded audio data.
-    Data string `json:"data"`
-    // Audio format (e.g., "wav", "mp3", "ogg").
-    Format string `json:"format"`
+	// Base64-encoded audio data.
+	Data string `json:"data"`
+	// Audio format (e.g., "wav", "mp3", "ogg").
+	Format string `json:"format"`
 }
-
 
 // AudioContent option function
 type AudioContentOption func(*AudioContent)
 
 // WithAudioContentData sets the data field.
 func WithAudioContentData(v string) AudioContentOption {
-    return func(c *AudioContent) { c.Data = v }
+	return func(c *AudioContent) { c.Data = v }
 }
 
 // WithAudioContentFormat sets the format field.
 func WithAudioContentFormat(v string) AudioContentOption {
-    return func(c *AudioContent) { c.Format = v }
+	return func(c *AudioContent) { c.Format = v }
 }
 
 // NewAudioContent creates a AudioContent with optional parameters.
 func NewAudioContent(opts ...AudioContentOption) *AudioContent {
-    c := &AudioContent {
-        Data: "",
-        Format: "",
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &AudioContent{
+		Data:   "",
+		Format: "",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // AssistantMessage is a type.
 type AssistantMessage struct {
-    Content *string `json:"content,omitempty"`
-    Name *string `json:"name,omitempty"`
-    ToolCalls *[]ToolCall `json:"tool_calls,omitempty"`
-    Refusal *string `json:"refusal,omitempty"`
-    // Deprecated legacy function_call field; retained for API compatibility.
-    FunctionCall *FunctionCall `json:"function_call,omitempty"`
+	Content   *string     `json:"content,omitempty"`
+	Name      *string     `json:"name,omitempty"`
+	ToolCalls *[]ToolCall `json:"tool_calls,omitempty"`
+	Refusal   *string     `json:"refusal,omitempty"`
+	// Deprecated legacy function_call field; retained for API compatibility.
+	FunctionCall *FunctionCall `json:"function_call,omitempty"`
 }
-
 
 // AssistantMessage option function
 type AssistantMessageOption func(*AssistantMessage)
 
 // WithAssistantMessageContent sets the content field.
 func WithAssistantMessageContent(v string) AssistantMessageOption {
-    return func(c *AssistantMessage) { c.Content = &v }
+	return func(c *AssistantMessage) { c.Content = &v }
 }
 
 // WithAssistantMessageName sets the name field.
 func WithAssistantMessageName(v string) AssistantMessageOption {
-    return func(c *AssistantMessage) { c.Name = &v }
+	return func(c *AssistantMessage) { c.Name = &v }
 }
 
 // WithAssistantMessageToolCalls sets the tool_calls field.
 func WithAssistantMessageToolCalls(v []ToolCall) AssistantMessageOption {
-    return func(c *AssistantMessage) { c.ToolCalls = &v }
+	return func(c *AssistantMessage) { c.ToolCalls = &v }
 }
 
 // WithAssistantMessageRefusal sets the refusal field.
 func WithAssistantMessageRefusal(v string) AssistantMessageOption {
-    return func(c *AssistantMessage) { c.Refusal = &v }
+	return func(c *AssistantMessage) { c.Refusal = &v }
 }
 
 // WithAssistantMessageFunctionCall sets the function_call field.
 func WithAssistantMessageFunctionCall(v FunctionCall) AssistantMessageOption {
-    return func(c *AssistantMessage) { c.FunctionCall = &v }
+	return func(c *AssistantMessage) { c.FunctionCall = &v }
 }
 
 // NewAssistantMessage creates a AssistantMessage with optional parameters.
 func NewAssistantMessage(opts ...AssistantMessageOption) *AssistantMessage {
-    c := &AssistantMessage {
-        Content: nil,
-        Name: nil,
-        ToolCalls: nil,
-        Refusal: nil,
-        FunctionCall: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &AssistantMessage{
+		Content:      nil,
+		Name:         nil,
+		ToolCalls:    nil,
+		Refusal:      nil,
+		FunctionCall: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ToolMessage is a type.
 type ToolMessage struct {
-    Content string `json:"content"`
-    ToolCallId string `json:"tool_call_id"`
-    Name *string `json:"name,omitempty"`
+	Content    string  `json:"content"`
+	ToolCallId string  `json:"tool_call_id"`
+	Name       *string `json:"name,omitempty"`
 }
-
 
 // ToolMessage option function
 type ToolMessageOption func(*ToolMessage)
 
 // WithToolMessageContent sets the content field.
 func WithToolMessageContent(v string) ToolMessageOption {
-    return func(c *ToolMessage) { c.Content = v }
+	return func(c *ToolMessage) { c.Content = v }
 }
 
 // WithToolMessageToolCallId sets the tool_call_id field.
 func WithToolMessageToolCallId(v string) ToolMessageOption {
-    return func(c *ToolMessage) { c.ToolCallId = v }
+	return func(c *ToolMessage) { c.ToolCallId = v }
 }
 
 // WithToolMessageName sets the name field.
 func WithToolMessageName(v string) ToolMessageOption {
-    return func(c *ToolMessage) { c.Name = &v }
+	return func(c *ToolMessage) { c.Name = &v }
 }
 
 // NewToolMessage creates a ToolMessage with optional parameters.
 func NewToolMessage(opts ...ToolMessageOption) *ToolMessage {
-    c := &ToolMessage {
-        Content: "",
-        ToolCallId: "",
-        Name: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ToolMessage{
+		Content:    "",
+		ToolCallId: "",
+		Name:       nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // DeveloperMessage is a type.
 type DeveloperMessage struct {
-    Content string `json:"content"`
-    Name *string `json:"name,omitempty"`
+	Content string  `json:"content"`
+	Name    *string `json:"name,omitempty"`
 }
-
 
 // DeveloperMessage option function
 type DeveloperMessageOption func(*DeveloperMessage)
 
 // WithDeveloperMessageContent sets the content field.
 func WithDeveloperMessageContent(v string) DeveloperMessageOption {
-    return func(c *DeveloperMessage) { c.Content = v }
+	return func(c *DeveloperMessage) { c.Content = v }
 }
 
 // WithDeveloperMessageName sets the name field.
 func WithDeveloperMessageName(v string) DeveloperMessageOption {
-    return func(c *DeveloperMessage) { c.Name = &v }
+	return func(c *DeveloperMessage) { c.Name = &v }
 }
 
 // NewDeveloperMessage creates a DeveloperMessage with optional parameters.
 func NewDeveloperMessage(opts ...DeveloperMessageOption) *DeveloperMessage {
-    c := &DeveloperMessage {
-        Content: "",
-        Name: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &DeveloperMessage{
+		Content: "",
+		Name:    nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Deprecated legacy function-role message body.
 type FunctionMessage struct {
-    Content string `json:"content"`
-    Name string `json:"name"`
+	Content string `json:"content"`
+	Name    string `json:"name"`
 }
-
 
 // FunctionMessage option function
 type FunctionMessageOption func(*FunctionMessage)
 
 // WithFunctionMessageContent sets the content field.
 func WithFunctionMessageContent(v string) FunctionMessageOption {
-    return func(c *FunctionMessage) { c.Content = v }
+	return func(c *FunctionMessage) { c.Content = v }
 }
 
 // WithFunctionMessageName sets the name field.
 func WithFunctionMessageName(v string) FunctionMessageOption {
-    return func(c *FunctionMessage) { c.Name = v }
+	return func(c *FunctionMessage) { c.Name = v }
 }
 
 // NewFunctionMessage creates a FunctionMessage with optional parameters.
 func NewFunctionMessage(opts ...FunctionMessageOption) *FunctionMessage {
-    c := &FunctionMessage {
-        Content: "",
-        Name: "",
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &FunctionMessage{
+		Content: "",
+		Name:    "",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ChatCompletionTool is a type.
 type ChatCompletionTool struct {
-    ToolType ToolType `json:"tool_type"`
-    Function FunctionDefinition `json:"function"`
+	ToolType ToolType           `json:"tool_type"`
+	Function FunctionDefinition `json:"function"`
 }
-
 
 // FunctionDefinition is a type.
 type FunctionDefinition struct {
-    Name string `json:"name"`
-    Description *string `json:"description,omitempty"`
-    Parameters *map[string]interface{} `json:"parameters,omitempty"`
-    Strict *bool `json:"strict,omitempty"`
+	Name        string           `json:"name"`
+	Description *string          `json:"description,omitempty"`
+	Parameters  *json.RawMessage `json:"parameters,omitempty"`
+	Strict      *bool            `json:"strict,omitempty"`
 }
-
 
 // ToolCall is a type.
 type ToolCall struct {
-    Id string `json:"id"`
-    CallType ToolType `json:"call_type"`
-    Function FunctionCall `json:"function"`
+	Id       string       `json:"id"`
+	CallType ToolType     `json:"call_type"`
+	Function FunctionCall `json:"function"`
 }
-
 
 // FunctionCall is a type.
 type FunctionCall struct {
-    Name string `json:"name"`
-    Arguments string `json:"arguments"`
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
 }
-
 
 // SpecificToolChoice is a type.
 type SpecificToolChoice struct {
-    ChoiceType ToolType `json:"choice_type,omitempty"`
-    Function SpecificFunction `json:"function"`
+	ChoiceType ToolType         `json:"choice_type,omitempty"`
+	Function   SpecificFunction `json:"function"`
 }
-
 
 // SpecificToolChoice option function
 type SpecificToolChoiceOption func(*SpecificToolChoice)
 
 // WithSpecificToolChoiceChoiceType sets the choice_type field.
 func WithSpecificToolChoiceChoiceType(v ToolType) SpecificToolChoiceOption {
-    return func(c *SpecificToolChoice) { c.ChoiceType = v }
+	return func(c *SpecificToolChoice) { c.ChoiceType = v }
 }
 
 // WithSpecificToolChoiceFunction sets the function field.
 func WithSpecificToolChoiceFunction(v SpecificFunction) SpecificToolChoiceOption {
-    return func(c *SpecificToolChoice) { c.Function = v }
+	return func(c *SpecificToolChoice) { c.Function = v }
 }
 
 // NewSpecificToolChoice creates a SpecificToolChoice with optional parameters.
 func NewSpecificToolChoice(opts ...SpecificToolChoiceOption) *SpecificToolChoice {
-    c := &SpecificToolChoice {
-        ChoiceType: "",
-        Function: SpecificFunction{},
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &SpecificToolChoice{
+		ChoiceType: "",
+		Function:   SpecificFunction{},
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // SpecificFunction is a type.
 type SpecificFunction struct {
-    Name string `json:"name"`
+	Name string `json:"name"`
 }
-
 
 // SpecificFunction option function
 type SpecificFunctionOption func(*SpecificFunction)
 
 // WithSpecificFunctionName sets the name field.
 func WithSpecificFunctionName(v string) SpecificFunctionOption {
-    return func(c *SpecificFunction) { c.Name = v }
+	return func(c *SpecificFunction) { c.Name = v }
 }
 
 // NewSpecificFunction creates a SpecificFunction with optional parameters.
 func NewSpecificFunction(opts ...SpecificFunctionOption) *SpecificFunction {
-    c := &SpecificFunction {
-        Name: "",
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &SpecificFunction{
+		Name: "",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // JsonSchemaFormat is a type.
 type JsonSchemaFormat struct {
-    Name string `json:"name"`
-    Description *string `json:"description,omitempty"`
-    Schema map[string]interface{} `json:"schema"`
-    Strict *bool `json:"strict,omitempty"`
+	Name        string          `json:"name"`
+	Description *string         `json:"description,omitempty"`
+	Schema      json.RawMessage `json:"schema"`
+	Strict      *bool           `json:"strict,omitempty"`
 }
-
 
 // JsonSchemaFormat option function
 type JsonSchemaFormatOption func(*JsonSchemaFormat)
 
 // WithJsonSchemaFormatName sets the name field.
 func WithJsonSchemaFormatName(v string) JsonSchemaFormatOption {
-    return func(c *JsonSchemaFormat) { c.Name = v }
+	return func(c *JsonSchemaFormat) { c.Name = v }
 }
 
 // WithJsonSchemaFormatDescription sets the description field.
 func WithJsonSchemaFormatDescription(v string) JsonSchemaFormatOption {
-    return func(c *JsonSchemaFormat) { c.Description = &v }
+	return func(c *JsonSchemaFormat) { c.Description = &v }
 }
 
 // WithJsonSchemaFormatSchema sets the schema field.
-func WithJsonSchemaFormatSchema(v map[string]interface{}) JsonSchemaFormatOption {
-    return func(c *JsonSchemaFormat) { c.Schema = v }
+func WithJsonSchemaFormatSchema(v json.RawMessage) JsonSchemaFormatOption {
+	return func(c *JsonSchemaFormat) { c.Schema = v }
 }
 
 // WithJsonSchemaFormatStrict sets the strict field.
 func WithJsonSchemaFormatStrict(v bool) JsonSchemaFormatOption {
-    return func(c *JsonSchemaFormat) { c.Strict = &v }
+	return func(c *JsonSchemaFormat) { c.Strict = &v }
 }
 
 // NewJsonSchemaFormat creates a JsonSchemaFormat with optional parameters.
 func NewJsonSchemaFormat(opts ...JsonSchemaFormatOption) *JsonSchemaFormat {
-    c := &JsonSchemaFormat {
-        Name: "",
-        Description: nil,
-        Schema: map[string]interface{}{},
-        Strict: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &JsonSchemaFormat{
+		Name:        "",
+		Description: nil,
+		Schema:      map[string]interface{}{},
+		Strict:      nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Usage is a type.
 type Usage struct {
-    // Prompt tokens used. Defaults to 0 when absent (some providers omit this).
-    PromptTokens uint64 `json:"prompt_tokens"`
-    // Completion tokens used. Defaults to 0 when absent (e.g. embedding responses).
-    CompletionTokens uint64 `json:"completion_tokens"`
-    // Total tokens used. Defaults to 0 when absent (some providers omit this).
-    TotalTokens uint64 `json:"total_tokens"`
+	// Prompt tokens used. Defaults to 0 when absent (some providers omit this).
+	PromptTokens uint64 `json:"prompt_tokens"`
+	// Completion tokens used. Defaults to 0 when absent (e.g. embedding responses).
+	CompletionTokens uint64 `json:"completion_tokens"`
+	// Total tokens used. Defaults to 0 when absent (some providers omit this).
+	TotalTokens uint64 `json:"total_tokens"`
 }
-
 
 // Usage option function
 type UsageOption func(*Usage)
 
 // WithUsagePromptTokens sets the prompt_tokens field.
 func WithUsagePromptTokens(v uint64) UsageOption {
-    return func(c *Usage) { c.PromptTokens = v }
+	return func(c *Usage) { c.PromptTokens = v }
 }
 
 // WithUsageCompletionTokens sets the completion_tokens field.
 func WithUsageCompletionTokens(v uint64) UsageOption {
-    return func(c *Usage) { c.CompletionTokens = v }
+	return func(c *Usage) { c.CompletionTokens = v }
 }
 
 // WithUsageTotalTokens sets the total_tokens field.
 func WithUsageTotalTokens(v uint64) UsageOption {
-    return func(c *Usage) { c.TotalTokens = v }
+	return func(c *Usage) { c.TotalTokens = v }
 }
 
 // NewUsage creates a Usage with optional parameters.
 func NewUsage(opts ...UsageOption) *Usage {
-    c := &Usage {
-        PromptTokens: 0,
-        CompletionTokens: 0,
-        TotalTokens: 0,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &Usage{
+		PromptTokens:     0,
+		CompletionTokens: 0,
+		TotalTokens:      0,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ChatCompletionRequest is a type.
 type ChatCompletionRequest struct {
-    Model string `json:"model"`
-    Messages []Message `json:"messages,omitempty"`
-    Temperature *float64 `json:"temperature,omitempty"`
-    TopP *float64 `json:"top_p,omitempty"`
-    N *uint32 `json:"n,omitempty"`
-    // Whether to stream the response.
-    //
-    // Managed by the client layer — do not set directly.
-    Stream *bool `json:"stream,omitempty"`
-    Stop *StopSequence `json:"stop,omitempty"`
-    MaxTokens *uint64 `json:"max_tokens,omitempty"`
-    PresencePenalty *float64 `json:"presence_penalty,omitempty"`
-    FrequencyPenalty *float64 `json:"frequency_penalty,omitempty"`
-    // Token bias map.  Uses `BTreeMap` (sorted keys) for deterministic
-    // serialization order — important when hashing or signing requests.
-    LogitBias *map[string]float64 `json:"logit_bias,omitempty"`
-    User *string `json:"user,omitempty"`
-    Tools *[]ChatCompletionTool `json:"tools,omitempty"`
-    ToolChoice *ToolChoice `json:"tool_choice,omitempty"`
-    ParallelToolCalls *bool `json:"parallel_tool_calls,omitempty"`
-    ResponseFormat *ResponseFormat `json:"response_format,omitempty"`
-    StreamOptions *StreamOptions `json:"stream_options,omitempty"`
-    Seed *int64 `json:"seed,omitempty"`
-    ReasoningEffort *ReasoningEffort `json:"reasoning_effort,omitempty"`
-    // Provider-specific extra parameters merged into the request body.
-    // Use for guardrails, safety settings, grounding config, etc.
-    ExtraBody *map[string]interface{} `json:"extra_body,omitempty"`
+	Model       string    `json:"model"`
+	Messages    []Message `json:"messages,omitempty"`
+	Temperature *float64  `json:"temperature,omitempty"`
+	TopP        *float64  `json:"top_p,omitempty"`
+	N           *uint32   `json:"n,omitempty"`
+	// Whether to stream the response.
+	//
+	// Managed by the client layer — do not set directly.
+	Stream           *bool         `json:"stream,omitempty"`
+	Stop             *StopSequence `json:"stop,omitempty"`
+	MaxTokens        *uint64       `json:"max_tokens,omitempty"`
+	PresencePenalty  *float64      `json:"presence_penalty,omitempty"`
+	FrequencyPenalty *float64      `json:"frequency_penalty,omitempty"`
+	// Token bias map.  Uses `BTreeMap` (sorted keys) for deterministic
+	// serialization order — important when hashing or signing requests.
+	LogitBias         *map[string]float64   `json:"logit_bias,omitempty"`
+	User              *string               `json:"user,omitempty"`
+	Tools             *[]ChatCompletionTool `json:"tools,omitempty"`
+	ToolChoice        *ToolChoice           `json:"tool_choice,omitempty"`
+	ParallelToolCalls *bool                 `json:"parallel_tool_calls,omitempty"`
+	ResponseFormat    *ResponseFormat       `json:"response_format,omitempty"`
+	StreamOptions     *StreamOptions        `json:"stream_options,omitempty"`
+	Seed              *int64                `json:"seed,omitempty"`
+	ReasoningEffort   *ReasoningEffort      `json:"reasoning_effort,omitempty"`
+	// Provider-specific extra parameters merged into the request body.
+	// Use for guardrails, safety settings, grounding config, etc.
+	ExtraBody *json.RawMessage `json:"extra_body,omitempty"`
 }
-
 
 // ChatCompletionRequest option function
 type ChatCompletionRequestOption func(*ChatCompletionRequest)
 
 // WithChatCompletionRequestModel sets the model field.
 func WithChatCompletionRequestModel(v string) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Model = v }
+	return func(c *ChatCompletionRequest) { c.Model = v }
 }
 
 // WithChatCompletionRequestMessages sets the messages field.
 func WithChatCompletionRequestMessages(v []Message) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Messages = v }
+	return func(c *ChatCompletionRequest) { c.Messages = v }
 }
 
 // WithChatCompletionRequestTemperature sets the temperature field.
 func WithChatCompletionRequestTemperature(v float64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Temperature = &v }
+	return func(c *ChatCompletionRequest) { c.Temperature = &v }
 }
 
 // WithChatCompletionRequestTopP sets the top_p field.
 func WithChatCompletionRequestTopP(v float64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.TopP = &v }
+	return func(c *ChatCompletionRequest) { c.TopP = &v }
 }
 
 // WithChatCompletionRequestN sets the n field.
 func WithChatCompletionRequestN(v uint32) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.N = &v }
+	return func(c *ChatCompletionRequest) { c.N = &v }
 }
 
 // WithChatCompletionRequestStream sets the stream field.
 func WithChatCompletionRequestStream(v bool) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Stream = &v }
+	return func(c *ChatCompletionRequest) { c.Stream = &v }
 }
 
 // WithChatCompletionRequestStop sets the stop field.
 func WithChatCompletionRequestStop(v StopSequence) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Stop = &v }
+	return func(c *ChatCompletionRequest) { c.Stop = &v }
 }
 
 // WithChatCompletionRequestMaxTokens sets the max_tokens field.
 func WithChatCompletionRequestMaxTokens(v uint64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.MaxTokens = &v }
+	return func(c *ChatCompletionRequest) { c.MaxTokens = &v }
 }
 
 // WithChatCompletionRequestPresencePenalty sets the presence_penalty field.
 func WithChatCompletionRequestPresencePenalty(v float64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.PresencePenalty = &v }
+	return func(c *ChatCompletionRequest) { c.PresencePenalty = &v }
 }
 
 // WithChatCompletionRequestFrequencyPenalty sets the frequency_penalty field.
 func WithChatCompletionRequestFrequencyPenalty(v float64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.FrequencyPenalty = &v }
+	return func(c *ChatCompletionRequest) { c.FrequencyPenalty = &v }
 }
 
 // WithChatCompletionRequestLogitBias sets the logit_bias field.
 func WithChatCompletionRequestLogitBias(v map[string]float64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.LogitBias = &v }
+	return func(c *ChatCompletionRequest) { c.LogitBias = &v }
 }
 
 // WithChatCompletionRequestUser sets the user field.
 func WithChatCompletionRequestUser(v string) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.User = &v }
+	return func(c *ChatCompletionRequest) { c.User = &v }
 }
 
 // WithChatCompletionRequestTools sets the tools field.
 func WithChatCompletionRequestTools(v []ChatCompletionTool) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Tools = &v }
+	return func(c *ChatCompletionRequest) { c.Tools = &v }
 }
 
 // WithChatCompletionRequestToolChoice sets the tool_choice field.
 func WithChatCompletionRequestToolChoice(v ToolChoice) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.ToolChoice = &v }
+	return func(c *ChatCompletionRequest) { c.ToolChoice = &v }
 }
 
 // WithChatCompletionRequestParallelToolCalls sets the parallel_tool_calls field.
 func WithChatCompletionRequestParallelToolCalls(v bool) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.ParallelToolCalls = &v }
+	return func(c *ChatCompletionRequest) { c.ParallelToolCalls = &v }
 }
 
 // WithChatCompletionRequestResponseFormat sets the response_format field.
 func WithChatCompletionRequestResponseFormat(v ResponseFormat) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.ResponseFormat = &v }
+	return func(c *ChatCompletionRequest) { c.ResponseFormat = &v }
 }
 
 // WithChatCompletionRequestStreamOptions sets the stream_options field.
 func WithChatCompletionRequestStreamOptions(v StreamOptions) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.StreamOptions = &v }
+	return func(c *ChatCompletionRequest) { c.StreamOptions = &v }
 }
 
 // WithChatCompletionRequestSeed sets the seed field.
 func WithChatCompletionRequestSeed(v int64) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.Seed = &v }
+	return func(c *ChatCompletionRequest) { c.Seed = &v }
 }
 
 // WithChatCompletionRequestReasoningEffort sets the reasoning_effort field.
 func WithChatCompletionRequestReasoningEffort(v ReasoningEffort) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.ReasoningEffort = &v }
+	return func(c *ChatCompletionRequest) { c.ReasoningEffort = &v }
 }
 
 // WithChatCompletionRequestExtraBody sets the extra_body field.
-func WithChatCompletionRequestExtraBody(v map[string]interface{}) ChatCompletionRequestOption {
-    return func(c *ChatCompletionRequest) { c.ExtraBody = &v }
+func WithChatCompletionRequestExtraBody(v json.RawMessage) ChatCompletionRequestOption {
+	return func(c *ChatCompletionRequest) { c.ExtraBody = &v }
 }
 
 // NewChatCompletionRequest creates a ChatCompletionRequest with optional parameters.
 func NewChatCompletionRequest(opts ...ChatCompletionRequestOption) *ChatCompletionRequest {
-    c := &ChatCompletionRequest {
-        Model: "",
-        Messages: nil,
-        Temperature: nil,
-        TopP: nil,
-        N: nil,
-        Stream: nil,
-        Stop: nil,
-        MaxTokens: nil,
-        PresencePenalty: nil,
-        FrequencyPenalty: nil,
-        LogitBias: nil,
-        User: nil,
-        Tools: nil,
-        ToolChoice: nil,
-        ParallelToolCalls: nil,
-        ResponseFormat: nil,
-        StreamOptions: nil,
-        Seed: nil,
-        ReasoningEffort: nil,
-        ExtraBody: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ChatCompletionRequest{
+		Model:             "",
+		Messages:          nil,
+		Temperature:       nil,
+		TopP:              nil,
+		N:                 nil,
+		Stream:            nil,
+		Stop:              nil,
+		MaxTokens:         nil,
+		PresencePenalty:   nil,
+		FrequencyPenalty:  nil,
+		LogitBias:         nil,
+		User:              nil,
+		Tools:             nil,
+		ToolChoice:        nil,
+		ParallelToolCalls: nil,
+		ResponseFormat:    nil,
+		StreamOptions:     nil,
+		Seed:              nil,
+		ReasoningEffort:   nil,
+		ExtraBody:         nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // StreamOptions is a type.
 type StreamOptions struct {
-    IncludeUsage *bool `json:"include_usage,omitempty"`
+	IncludeUsage *bool `json:"include_usage,omitempty"`
 }
-
 
 // StreamOptions option function
 type StreamOptionsOption func(*StreamOptions)
 
 // WithStreamOptionsIncludeUsage sets the include_usage field.
 func WithStreamOptionsIncludeUsage(v bool) StreamOptionsOption {
-    return func(c *StreamOptions) { c.IncludeUsage = &v }
+	return func(c *StreamOptions) { c.IncludeUsage = &v }
 }
 
 // NewStreamOptions creates a StreamOptions with optional parameters.
 func NewStreamOptions(opts ...StreamOptionsOption) *StreamOptions {
-    c := &StreamOptions {
-        IncludeUsage: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &StreamOptions{
+		IncludeUsage: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ChatCompletionResponse is a type.
 type ChatCompletionResponse struct {
-    Id string `json:"id"`
-    // Always `"chat.completion"` from OpenAI-compatible APIs.  Stored as a
-    // plain `String` so non-standard provider values do not break deserialization.
-    Object string `json:"object"`
-    Created uint64 `json:"created"`
-    Model string `json:"model"`
-    Choices []Choice `json:"choices,omitempty"`
-    Usage *Usage `json:"usage,omitempty"`
-    SystemFingerprint *string `json:"system_fingerprint,omitempty"`
-    ServiceTier *string `json:"service_tier,omitempty"`
+	Id string `json:"id"`
+	// Always `"chat.completion"` from OpenAI-compatible APIs.  Stored as a
+	// plain `String` so non-standard provider values do not break deserialization.
+	Object            string   `json:"object"`
+	Created           uint64   `json:"created"`
+	Model             string   `json:"model"`
+	Choices           []Choice `json:"choices,omitempty"`
+	Usage             *Usage   `json:"usage,omitempty"`
+	SystemFingerprint *string  `json:"system_fingerprint,omitempty"`
+	ServiceTier       *string  `json:"service_tier,omitempty"`
 }
-
 
 // ChatCompletionResponse option function
 type ChatCompletionResponseOption func(*ChatCompletionResponse)
 
 // WithChatCompletionResponseId sets the id field.
 func WithChatCompletionResponseId(v string) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.Id = v }
+	return func(c *ChatCompletionResponse) { c.Id = v }
 }
 
 // WithChatCompletionResponseObject sets the object field.
 func WithChatCompletionResponseObject(v string) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.Object = v }
+	return func(c *ChatCompletionResponse) { c.Object = v }
 }
 
 // WithChatCompletionResponseCreated sets the created field.
 func WithChatCompletionResponseCreated(v uint64) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.Created = v }
+	return func(c *ChatCompletionResponse) { c.Created = v }
 }
 
 // WithChatCompletionResponseModel sets the model field.
 func WithChatCompletionResponseModel(v string) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.Model = v }
+	return func(c *ChatCompletionResponse) { c.Model = v }
 }
 
 // WithChatCompletionResponseChoices sets the choices field.
 func WithChatCompletionResponseChoices(v []Choice) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.Choices = v }
+	return func(c *ChatCompletionResponse) { c.Choices = v }
 }
 
 // WithChatCompletionResponseUsage sets the usage field.
 func WithChatCompletionResponseUsage(v Usage) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.Usage = &v }
+	return func(c *ChatCompletionResponse) { c.Usage = &v }
 }
 
 // WithChatCompletionResponseSystemFingerprint sets the system_fingerprint field.
 func WithChatCompletionResponseSystemFingerprint(v string) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.SystemFingerprint = &v }
+	return func(c *ChatCompletionResponse) { c.SystemFingerprint = &v }
 }
 
 // WithChatCompletionResponseServiceTier sets the service_tier field.
 func WithChatCompletionResponseServiceTier(v string) ChatCompletionResponseOption {
-    return func(c *ChatCompletionResponse) { c.ServiceTier = &v }
+	return func(c *ChatCompletionResponse) { c.ServiceTier = &v }
 }
 
 // NewChatCompletionResponse creates a ChatCompletionResponse with optional parameters.
 func NewChatCompletionResponse(opts ...ChatCompletionResponseOption) *ChatCompletionResponse {
-    c := &ChatCompletionResponse {
-        Id: "",
-        Object: "",
-        Created: 0,
-        Model: "",
-        Choices: nil,
-        Usage: nil,
-        SystemFingerprint: nil,
-        ServiceTier: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ChatCompletionResponse{
+		Id:                "",
+		Object:            "",
+		Created:           0,
+		Model:             "",
+		Choices:           nil,
+		Usage:             nil,
+		SystemFingerprint: nil,
+		ServiceTier:       nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Choice is a type.
 type Choice struct {
-    Index uint32 `json:"index"`
-    Message AssistantMessage `json:"message"`
-    FinishReason *FinishReason `json:"finish_reason,omitempty"`
+	Index        uint32           `json:"index"`
+	Message      AssistantMessage `json:"message"`
+	FinishReason *FinishReason    `json:"finish_reason,omitempty"`
 }
-
 
 // Choice option function
 type ChoiceOption func(*Choice)
 
 // WithChoiceIndex sets the index field.
 func WithChoiceIndex(v uint32) ChoiceOption {
-    return func(c *Choice) { c.Index = v }
+	return func(c *Choice) { c.Index = v }
 }
 
 // WithChoiceMessage sets the message field.
 func WithChoiceMessage(v AssistantMessage) ChoiceOption {
-    return func(c *Choice) { c.Message = v }
+	return func(c *Choice) { c.Message = v }
 }
 
 // WithChoiceFinishReason sets the finish_reason field.
 func WithChoiceFinishReason(v FinishReason) ChoiceOption {
-    return func(c *Choice) { c.FinishReason = &v }
+	return func(c *Choice) { c.FinishReason = &v }
 }
 
 // NewChoice creates a Choice with optional parameters.
 func NewChoice(opts ...ChoiceOption) *Choice {
-    c := &Choice {
-        Index: 0,
-        Message: AssistantMessage{},
-        FinishReason: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &Choice{
+		Index:        0,
+		Message:      AssistantMessage{},
+		FinishReason: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ChatCompletionChunk is a type.
 type ChatCompletionChunk struct {
-    Id string `json:"id"`
-    // Always `"chat.completion.chunk"` from OpenAI-compatible APIs.  Stored
-    // as a plain `String` so non-standard provider values do not fail parsing.
-    Object string `json:"object"`
-    Created uint64 `json:"created"`
-    Model string `json:"model"`
-    Choices []StreamChoice `json:"choices,omitempty"`
-    Usage *Usage `json:"usage,omitempty"`
-    SystemFingerprint *string `json:"system_fingerprint,omitempty"`
-    ServiceTier *string `json:"service_tier,omitempty"`
+	Id string `json:"id"`
+	// Always `"chat.completion.chunk"` from OpenAI-compatible APIs.  Stored
+	// as a plain `String` so non-standard provider values do not fail parsing.
+	Object            string         `json:"object"`
+	Created           uint64         `json:"created"`
+	Model             string         `json:"model"`
+	Choices           []StreamChoice `json:"choices,omitempty"`
+	Usage             *Usage         `json:"usage,omitempty"`
+	SystemFingerprint *string        `json:"system_fingerprint,omitempty"`
+	ServiceTier       *string        `json:"service_tier,omitempty"`
 }
-
 
 // ChatCompletionChunk option function
 type ChatCompletionChunkOption func(*ChatCompletionChunk)
 
 // WithChatCompletionChunkId sets the id field.
 func WithChatCompletionChunkId(v string) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.Id = v }
+	return func(c *ChatCompletionChunk) { c.Id = v }
 }
 
 // WithChatCompletionChunkObject sets the object field.
 func WithChatCompletionChunkObject(v string) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.Object = v }
+	return func(c *ChatCompletionChunk) { c.Object = v }
 }
 
 // WithChatCompletionChunkCreated sets the created field.
 func WithChatCompletionChunkCreated(v uint64) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.Created = v }
+	return func(c *ChatCompletionChunk) { c.Created = v }
 }
 
 // WithChatCompletionChunkModel sets the model field.
 func WithChatCompletionChunkModel(v string) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.Model = v }
+	return func(c *ChatCompletionChunk) { c.Model = v }
 }
 
 // WithChatCompletionChunkChoices sets the choices field.
 func WithChatCompletionChunkChoices(v []StreamChoice) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.Choices = v }
+	return func(c *ChatCompletionChunk) { c.Choices = v }
 }
 
 // WithChatCompletionChunkUsage sets the usage field.
 func WithChatCompletionChunkUsage(v Usage) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.Usage = &v }
+	return func(c *ChatCompletionChunk) { c.Usage = &v }
 }
 
 // WithChatCompletionChunkSystemFingerprint sets the system_fingerprint field.
 func WithChatCompletionChunkSystemFingerprint(v string) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.SystemFingerprint = &v }
+	return func(c *ChatCompletionChunk) { c.SystemFingerprint = &v }
 }
 
 // WithChatCompletionChunkServiceTier sets the service_tier field.
 func WithChatCompletionChunkServiceTier(v string) ChatCompletionChunkOption {
-    return func(c *ChatCompletionChunk) { c.ServiceTier = &v }
+	return func(c *ChatCompletionChunk) { c.ServiceTier = &v }
 }
 
 // NewChatCompletionChunk creates a ChatCompletionChunk with optional parameters.
 func NewChatCompletionChunk(opts ...ChatCompletionChunkOption) *ChatCompletionChunk {
-    c := &ChatCompletionChunk {
-        Id: "",
-        Object: "",
-        Created: 0,
-        Model: "",
-        Choices: nil,
-        Usage: nil,
-        SystemFingerprint: nil,
-        ServiceTier: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ChatCompletionChunk{
+		Id:                "",
+		Object:            "",
+		Created:           0,
+		Model:             "",
+		Choices:           nil,
+		Usage:             nil,
+		SystemFingerprint: nil,
+		ServiceTier:       nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // StreamChoice is a type.
 type StreamChoice struct {
-    Index uint32 `json:"index"`
-    Delta StreamDelta `json:"delta"`
-    FinishReason *FinishReason `json:"finish_reason,omitempty"`
+	Index        uint32        `json:"index"`
+	Delta        StreamDelta   `json:"delta"`
+	FinishReason *FinishReason `json:"finish_reason,omitempty"`
 }
-
 
 // StreamChoice option function
 type StreamChoiceOption func(*StreamChoice)
 
 // WithStreamChoiceIndex sets the index field.
 func WithStreamChoiceIndex(v uint32) StreamChoiceOption {
-    return func(c *StreamChoice) { c.Index = v }
+	return func(c *StreamChoice) { c.Index = v }
 }
 
 // WithStreamChoiceDelta sets the delta field.
 func WithStreamChoiceDelta(v StreamDelta) StreamChoiceOption {
-    return func(c *StreamChoice) { c.Delta = v }
+	return func(c *StreamChoice) { c.Delta = v }
 }
 
 // WithStreamChoiceFinishReason sets the finish_reason field.
 func WithStreamChoiceFinishReason(v FinishReason) StreamChoiceOption {
-    return func(c *StreamChoice) { c.FinishReason = &v }
+	return func(c *StreamChoice) { c.FinishReason = &v }
 }
 
 // NewStreamChoice creates a StreamChoice with optional parameters.
 func NewStreamChoice(opts ...StreamChoiceOption) *StreamChoice {
-    c := &StreamChoice {
-        Index: 0,
-        Delta: StreamDelta{},
-        FinishReason: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &StreamChoice{
+		Index:        0,
+		Delta:        StreamDelta{},
+		FinishReason: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // StreamDelta is a type.
 type StreamDelta struct {
-    Role *string `json:"role,omitempty"`
-    Content *string `json:"content,omitempty"`
-    ToolCalls *[]StreamToolCall `json:"tool_calls,omitempty"`
-    // Deprecated legacy function_call delta; retained for API compatibility.
-    FunctionCall *StreamFunctionCall `json:"function_call,omitempty"`
-    Refusal *string `json:"refusal,omitempty"`
+	Role      *string           `json:"role,omitempty"`
+	Content   *string           `json:"content,omitempty"`
+	ToolCalls *[]StreamToolCall `json:"tool_calls,omitempty"`
+	// Deprecated legacy function_call delta; retained for API compatibility.
+	FunctionCall *StreamFunctionCall `json:"function_call,omitempty"`
+	Refusal      *string             `json:"refusal,omitempty"`
 }
-
 
 // StreamDelta option function
 type StreamDeltaOption func(*StreamDelta)
 
 // WithStreamDeltaRole sets the role field.
 func WithStreamDeltaRole(v string) StreamDeltaOption {
-    return func(c *StreamDelta) { c.Role = &v }
+	return func(c *StreamDelta) { c.Role = &v }
 }
 
 // WithStreamDeltaContent sets the content field.
 func WithStreamDeltaContent(v string) StreamDeltaOption {
-    return func(c *StreamDelta) { c.Content = &v }
+	return func(c *StreamDelta) { c.Content = &v }
 }
 
 // WithStreamDeltaToolCalls sets the tool_calls field.
 func WithStreamDeltaToolCalls(v []StreamToolCall) StreamDeltaOption {
-    return func(c *StreamDelta) { c.ToolCalls = &v }
+	return func(c *StreamDelta) { c.ToolCalls = &v }
 }
 
 // WithStreamDeltaFunctionCall sets the function_call field.
 func WithStreamDeltaFunctionCall(v StreamFunctionCall) StreamDeltaOption {
-    return func(c *StreamDelta) { c.FunctionCall = &v }
+	return func(c *StreamDelta) { c.FunctionCall = &v }
 }
 
 // WithStreamDeltaRefusal sets the refusal field.
 func WithStreamDeltaRefusal(v string) StreamDeltaOption {
-    return func(c *StreamDelta) { c.Refusal = &v }
+	return func(c *StreamDelta) { c.Refusal = &v }
 }
 
 // NewStreamDelta creates a StreamDelta with optional parameters.
 func NewStreamDelta(opts ...StreamDeltaOption) *StreamDelta {
-    c := &StreamDelta {
-        Role: nil,
-        Content: nil,
-        ToolCalls: nil,
-        FunctionCall: nil,
-        Refusal: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &StreamDelta{
+		Role:         nil,
+		Content:      nil,
+		ToolCalls:    nil,
+		FunctionCall: nil,
+		Refusal:      nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // StreamToolCall is a type.
 type StreamToolCall struct {
-    Index uint32 `json:"index"`
-    Id *string `json:"id,omitempty"`
-    CallType *ToolType `json:"call_type,omitempty"`
-    Function *StreamFunctionCall `json:"function,omitempty"`
+	Index    uint32              `json:"index"`
+	Id       *string             `json:"id,omitempty"`
+	CallType *ToolType           `json:"call_type,omitempty"`
+	Function *StreamFunctionCall `json:"function,omitempty"`
 }
-
 
 // StreamToolCall option function
 type StreamToolCallOption func(*StreamToolCall)
 
 // WithStreamToolCallIndex sets the index field.
 func WithStreamToolCallIndex(v uint32) StreamToolCallOption {
-    return func(c *StreamToolCall) { c.Index = v }
+	return func(c *StreamToolCall) { c.Index = v }
 }
 
 // WithStreamToolCallId sets the id field.
 func WithStreamToolCallId(v string) StreamToolCallOption {
-    return func(c *StreamToolCall) { c.Id = &v }
+	return func(c *StreamToolCall) { c.Id = &v }
 }
 
 // WithStreamToolCallCallType sets the call_type field.
 func WithStreamToolCallCallType(v ToolType) StreamToolCallOption {
-    return func(c *StreamToolCall) { c.CallType = &v }
+	return func(c *StreamToolCall) { c.CallType = &v }
 }
 
 // WithStreamToolCallFunction sets the function field.
 func WithStreamToolCallFunction(v StreamFunctionCall) StreamToolCallOption {
-    return func(c *StreamToolCall) { c.Function = &v }
+	return func(c *StreamToolCall) { c.Function = &v }
 }
 
 // NewStreamToolCall creates a StreamToolCall with optional parameters.
 func NewStreamToolCall(opts ...StreamToolCallOption) *StreamToolCall {
-    c := &StreamToolCall {
-        Index: 0,
-        Id: nil,
-        CallType: nil,
-        Function: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &StreamToolCall{
+		Index:    0,
+		Id:       nil,
+		CallType: nil,
+		Function: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // StreamFunctionCall is a type.
 type StreamFunctionCall struct {
-    Name *string `json:"name,omitempty"`
-    Arguments *string `json:"arguments,omitempty"`
+	Name      *string `json:"name,omitempty"`
+	Arguments *string `json:"arguments,omitempty"`
 }
-
 
 // StreamFunctionCall option function
 type StreamFunctionCallOption func(*StreamFunctionCall)
 
 // WithStreamFunctionCallName sets the name field.
 func WithStreamFunctionCallName(v string) StreamFunctionCallOption {
-    return func(c *StreamFunctionCall) { c.Name = &v }
+	return func(c *StreamFunctionCall) { c.Name = &v }
 }
 
 // WithStreamFunctionCallArguments sets the arguments field.
 func WithStreamFunctionCallArguments(v string) StreamFunctionCallOption {
-    return func(c *StreamFunctionCall) { c.Arguments = &v }
+	return func(c *StreamFunctionCall) { c.Arguments = &v }
 }
 
 // NewStreamFunctionCall creates a StreamFunctionCall with optional parameters.
 func NewStreamFunctionCall(opts ...StreamFunctionCallOption) *StreamFunctionCall {
-    c := &StreamFunctionCall {
-        Name: nil,
-        Arguments: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &StreamFunctionCall{
+		Name:      nil,
+		Arguments: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // EmbeddingRequest is a type.
 type EmbeddingRequest struct {
-    Model string `json:"model"`
-    Input EmbeddingInput `json:"input"`
-    EncodingFormat *EmbeddingFormat `json:"encoding_format,omitempty"`
-    Dimensions *uint32 `json:"dimensions,omitempty"`
-    User *string `json:"user,omitempty"`
+	Model          string           `json:"model"`
+	Input          EmbeddingInput   `json:"input"`
+	EncodingFormat *EmbeddingFormat `json:"encoding_format,omitempty"`
+	Dimensions     *uint32          `json:"dimensions,omitempty"`
+	User           *string          `json:"user,omitempty"`
 }
-
 
 // EmbeddingResponse is a type.
 type EmbeddingResponse struct {
-    // Always `"list"` from OpenAI-compatible APIs.  Stored as a plain
-    // `String` so non-standard provider values do not break deserialization.
-    Object string `json:"object"`
-    Data []EmbeddingObject `json:"data,omitempty"`
-    Model string `json:"model"`
-    Usage *Usage `json:"usage,omitempty"`
+	// Always `"list"` from OpenAI-compatible APIs.  Stored as a plain
+	// `String` so non-standard provider values do not break deserialization.
+	Object string            `json:"object"`
+	Data   []EmbeddingObject `json:"data,omitempty"`
+	Model  string            `json:"model"`
+	Usage  *Usage            `json:"usage,omitempty"`
 }
-
 
 // EmbeddingObject is a type.
 type EmbeddingObject struct {
-    // Always `"embedding"` from OpenAI-compatible APIs.  Stored as a plain
-    // `String` so non-standard provider values do not break deserialization.
-    Object string `json:"object"`
-    Embedding []float64 `json:"embedding,omitempty"`
-    Index uint32 `json:"index"`
+	// Always `"embedding"` from OpenAI-compatible APIs.  Stored as a plain
+	// `String` so non-standard provider values do not break deserialization.
+	Object    string    `json:"object"`
+	Embedding []float64 `json:"embedding,omitempty"`
+	Index     uint32    `json:"index"`
 }
-
 
 // Request to create images from a text prompt.
 type CreateImageRequest struct {
-    Prompt string `json:"prompt"`
-    Model *string `json:"model,omitempty"`
-    N *uint32 `json:"n,omitempty"`
-    Size *string `json:"size,omitempty"`
-    Quality *string `json:"quality,omitempty"`
-    Style *string `json:"style,omitempty"`
-    ResponseFormat *string `json:"response_format,omitempty"`
-    User *string `json:"user,omitempty"`
+	Prompt         string  `json:"prompt"`
+	Model          *string `json:"model,omitempty"`
+	N              *uint32 `json:"n,omitempty"`
+	Size           *string `json:"size,omitempty"`
+	Quality        *string `json:"quality,omitempty"`
+	Style          *string `json:"style,omitempty"`
+	ResponseFormat *string `json:"response_format,omitempty"`
+	User           *string `json:"user,omitempty"`
 }
-
 
 // CreateImageRequest option function
 type CreateImageRequestOption func(*CreateImageRequest)
 
 // WithCreateImageRequestPrompt sets the prompt field.
 func WithCreateImageRequestPrompt(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.Prompt = v }
+	return func(c *CreateImageRequest) { c.Prompt = v }
 }
 
 // WithCreateImageRequestModel sets the model field.
 func WithCreateImageRequestModel(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.Model = &v }
+	return func(c *CreateImageRequest) { c.Model = &v }
 }
 
 // WithCreateImageRequestN sets the n field.
 func WithCreateImageRequestN(v uint32) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.N = &v }
+	return func(c *CreateImageRequest) { c.N = &v }
 }
 
 // WithCreateImageRequestSize sets the size field.
 func WithCreateImageRequestSize(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.Size = &v }
+	return func(c *CreateImageRequest) { c.Size = &v }
 }
 
 // WithCreateImageRequestQuality sets the quality field.
 func WithCreateImageRequestQuality(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.Quality = &v }
+	return func(c *CreateImageRequest) { c.Quality = &v }
 }
 
 // WithCreateImageRequestStyle sets the style field.
 func WithCreateImageRequestStyle(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.Style = &v }
+	return func(c *CreateImageRequest) { c.Style = &v }
 }
 
 // WithCreateImageRequestResponseFormat sets the response_format field.
 func WithCreateImageRequestResponseFormat(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.ResponseFormat = &v }
+	return func(c *CreateImageRequest) { c.ResponseFormat = &v }
 }
 
 // WithCreateImageRequestUser sets the user field.
 func WithCreateImageRequestUser(v string) CreateImageRequestOption {
-    return func(c *CreateImageRequest) { c.User = &v }
+	return func(c *CreateImageRequest) { c.User = &v }
 }
 
 // NewCreateImageRequest creates a CreateImageRequest with optional parameters.
 func NewCreateImageRequest(opts ...CreateImageRequestOption) *CreateImageRequest {
-    c := &CreateImageRequest {
-        Prompt: "",
-        Model: nil,
-        N: nil,
-        Size: nil,
-        Quality: nil,
-        Style: nil,
-        ResponseFormat: nil,
-        User: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &CreateImageRequest{
+		Prompt:         "",
+		Model:          nil,
+		N:              nil,
+		Size:           nil,
+		Quality:        nil,
+		Style:          nil,
+		ResponseFormat: nil,
+		User:           nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Response containing generated images.
 type ImagesResponse struct {
-    Created uint64 `json:"created"`
-    Data []Image `json:"data,omitempty"`
+	Created uint64  `json:"created"`
+	Data    []Image `json:"data,omitempty"`
 }
-
 
 // ImagesResponse option function
 type ImagesResponseOption func(*ImagesResponse)
 
 // WithImagesResponseCreated sets the created field.
 func WithImagesResponseCreated(v uint64) ImagesResponseOption {
-    return func(c *ImagesResponse) { c.Created = v }
+	return func(c *ImagesResponse) { c.Created = v }
 }
 
 // WithImagesResponseData sets the data field.
 func WithImagesResponseData(v []Image) ImagesResponseOption {
-    return func(c *ImagesResponse) { c.Data = v }
+	return func(c *ImagesResponse) { c.Data = v }
 }
 
 // NewImagesResponse creates a ImagesResponse with optional parameters.
 func NewImagesResponse(opts ...ImagesResponseOption) *ImagesResponse {
-    c := &ImagesResponse {
-        Created: 0,
-        Data: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ImagesResponse{
+		Created: 0,
+		Data:    nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // A single generated image, returned as either a URL or base64 data.
 type Image struct {
-    Url *string `json:"url,omitempty"`
-    B64Json *string `json:"b64_json,omitempty"`
-    RevisedPrompt *string `json:"revised_prompt,omitempty"`
+	Url           *string `json:"url,omitempty"`
+	B64Json       *string `json:"b64_json,omitempty"`
+	RevisedPrompt *string `json:"revised_prompt,omitempty"`
 }
-
 
 // Image option function
 type ImageOption func(*Image)
 
 // WithImageUrl sets the url field.
 func WithImageUrl(v string) ImageOption {
-    return func(c *Image) { c.Url = &v }
+	return func(c *Image) { c.Url = &v }
 }
 
 // WithImageB64Json sets the b64_json field.
 func WithImageB64Json(v string) ImageOption {
-    return func(c *Image) { c.B64Json = &v }
+	return func(c *Image) { c.B64Json = &v }
 }
 
 // WithImageRevisedPrompt sets the revised_prompt field.
 func WithImageRevisedPrompt(v string) ImageOption {
-    return func(c *Image) { c.RevisedPrompt = &v }
+	return func(c *Image) { c.RevisedPrompt = &v }
 }
 
 // NewImage creates a Image with optional parameters.
 func NewImage(opts ...ImageOption) *Image {
-    c := &Image {
-        Url: nil,
-        B64Json: nil,
-        RevisedPrompt: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &Image{
+		Url:           nil,
+		B64Json:       nil,
+		RevisedPrompt: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Request to generate speech audio from text.
 type CreateSpeechRequest struct {
-    Model string `json:"model"`
-    Input string `json:"input"`
-    Voice string `json:"voice"`
-    ResponseFormat *string `json:"response_format,omitempty"`
-    Speed *float64 `json:"speed,omitempty"`
+	Model          string   `json:"model"`
+	Input          string   `json:"input"`
+	Voice          string   `json:"voice"`
+	ResponseFormat *string  `json:"response_format,omitempty"`
+	Speed          *float64 `json:"speed,omitempty"`
 }
-
 
 // CreateSpeechRequest option function
 type CreateSpeechRequestOption func(*CreateSpeechRequest)
 
 // WithCreateSpeechRequestModel sets the model field.
 func WithCreateSpeechRequestModel(v string) CreateSpeechRequestOption {
-    return func(c *CreateSpeechRequest) { c.Model = v }
+	return func(c *CreateSpeechRequest) { c.Model = v }
 }
 
 // WithCreateSpeechRequestInput sets the input field.
 func WithCreateSpeechRequestInput(v string) CreateSpeechRequestOption {
-    return func(c *CreateSpeechRequest) { c.Input = v }
+	return func(c *CreateSpeechRequest) { c.Input = v }
 }
 
 // WithCreateSpeechRequestVoice sets the voice field.
 func WithCreateSpeechRequestVoice(v string) CreateSpeechRequestOption {
-    return func(c *CreateSpeechRequest) { c.Voice = v }
+	return func(c *CreateSpeechRequest) { c.Voice = v }
 }
 
 // WithCreateSpeechRequestResponseFormat sets the response_format field.
 func WithCreateSpeechRequestResponseFormat(v string) CreateSpeechRequestOption {
-    return func(c *CreateSpeechRequest) { c.ResponseFormat = &v }
+	return func(c *CreateSpeechRequest) { c.ResponseFormat = &v }
 }
 
 // WithCreateSpeechRequestSpeed sets the speed field.
 func WithCreateSpeechRequestSpeed(v float64) CreateSpeechRequestOption {
-    return func(c *CreateSpeechRequest) { c.Speed = &v }
+	return func(c *CreateSpeechRequest) { c.Speed = &v }
 }
 
 // NewCreateSpeechRequest creates a CreateSpeechRequest with optional parameters.
 func NewCreateSpeechRequest(opts ...CreateSpeechRequestOption) *CreateSpeechRequest {
-    c := &CreateSpeechRequest {
-        Model: "",
-        Input: "",
-        Voice: "",
-        ResponseFormat: nil,
-        Speed: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &CreateSpeechRequest{
+		Model:          "",
+		Input:          "",
+		Voice:          "",
+		ResponseFormat: nil,
+		Speed:          nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Request to transcribe audio into text.
 type CreateTranscriptionRequest struct {
-    Model string `json:"model"`
-    // Base64-encoded audio file data.
-    File string `json:"file"`
-    Language *string `json:"language,omitempty"`
-    Prompt *string `json:"prompt,omitempty"`
-    ResponseFormat *string `json:"response_format,omitempty"`
-    Temperature *float64 `json:"temperature,omitempty"`
+	Model string `json:"model"`
+	// Base64-encoded audio file data.
+	File           string   `json:"file"`
+	Language       *string  `json:"language,omitempty"`
+	Prompt         *string  `json:"prompt,omitempty"`
+	ResponseFormat *string  `json:"response_format,omitempty"`
+	Temperature    *float64 `json:"temperature,omitempty"`
 }
-
 
 // CreateTranscriptionRequest option function
 type CreateTranscriptionRequestOption func(*CreateTranscriptionRequest)
 
 // WithCreateTranscriptionRequestModel sets the model field.
 func WithCreateTranscriptionRequestModel(v string) CreateTranscriptionRequestOption {
-    return func(c *CreateTranscriptionRequest) { c.Model = v }
+	return func(c *CreateTranscriptionRequest) { c.Model = v }
 }
 
 // WithCreateTranscriptionRequestFile sets the file field.
 func WithCreateTranscriptionRequestFile(v string) CreateTranscriptionRequestOption {
-    return func(c *CreateTranscriptionRequest) { c.File = v }
+	return func(c *CreateTranscriptionRequest) { c.File = v }
 }
 
 // WithCreateTranscriptionRequestLanguage sets the language field.
 func WithCreateTranscriptionRequestLanguage(v string) CreateTranscriptionRequestOption {
-    return func(c *CreateTranscriptionRequest) { c.Language = &v }
+	return func(c *CreateTranscriptionRequest) { c.Language = &v }
 }
 
 // WithCreateTranscriptionRequestPrompt sets the prompt field.
 func WithCreateTranscriptionRequestPrompt(v string) CreateTranscriptionRequestOption {
-    return func(c *CreateTranscriptionRequest) { c.Prompt = &v }
+	return func(c *CreateTranscriptionRequest) { c.Prompt = &v }
 }
 
 // WithCreateTranscriptionRequestResponseFormat sets the response_format field.
 func WithCreateTranscriptionRequestResponseFormat(v string) CreateTranscriptionRequestOption {
-    return func(c *CreateTranscriptionRequest) { c.ResponseFormat = &v }
+	return func(c *CreateTranscriptionRequest) { c.ResponseFormat = &v }
 }
 
 // WithCreateTranscriptionRequestTemperature sets the temperature field.
 func WithCreateTranscriptionRequestTemperature(v float64) CreateTranscriptionRequestOption {
-    return func(c *CreateTranscriptionRequest) { c.Temperature = &v }
+	return func(c *CreateTranscriptionRequest) { c.Temperature = &v }
 }
 
 // NewCreateTranscriptionRequest creates a CreateTranscriptionRequest with optional parameters.
 func NewCreateTranscriptionRequest(opts ...CreateTranscriptionRequestOption) *CreateTranscriptionRequest {
-    c := &CreateTranscriptionRequest {
-        Model: "",
-        File: "",
-        Language: nil,
-        Prompt: nil,
-        ResponseFormat: nil,
-        Temperature: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &CreateTranscriptionRequest{
+		Model:          "",
+		File:           "",
+		Language:       nil,
+		Prompt:         nil,
+		ResponseFormat: nil,
+		Temperature:    nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Response from a transcription request.
 type TranscriptionResponse struct {
-    Text string `json:"text"`
-    Language *string `json:"language,omitempty"`
-    Duration *float64 `json:"duration,omitempty"`
-    Segments *[]TranscriptionSegment `json:"segments,omitempty"`
+	Text     string                  `json:"text"`
+	Language *string                 `json:"language,omitempty"`
+	Duration *float64                `json:"duration,omitempty"`
+	Segments *[]TranscriptionSegment `json:"segments,omitempty"`
 }
-
 
 // TranscriptionResponse option function
 type TranscriptionResponseOption func(*TranscriptionResponse)
 
 // WithTranscriptionResponseText sets the text field.
 func WithTranscriptionResponseText(v string) TranscriptionResponseOption {
-    return func(c *TranscriptionResponse) { c.Text = v }
+	return func(c *TranscriptionResponse) { c.Text = v }
 }
 
 // WithTranscriptionResponseLanguage sets the language field.
 func WithTranscriptionResponseLanguage(v string) TranscriptionResponseOption {
-    return func(c *TranscriptionResponse) { c.Language = &v }
+	return func(c *TranscriptionResponse) { c.Language = &v }
 }
 
 // WithTranscriptionResponseDuration sets the duration field.
 func WithTranscriptionResponseDuration(v float64) TranscriptionResponseOption {
-    return func(c *TranscriptionResponse) { c.Duration = &v }
+	return func(c *TranscriptionResponse) { c.Duration = &v }
 }
 
 // WithTranscriptionResponseSegments sets the segments field.
 func WithTranscriptionResponseSegments(v []TranscriptionSegment) TranscriptionResponseOption {
-    return func(c *TranscriptionResponse) { c.Segments = &v }
+	return func(c *TranscriptionResponse) { c.Segments = &v }
 }
 
 // NewTranscriptionResponse creates a TranscriptionResponse with optional parameters.
 func NewTranscriptionResponse(opts ...TranscriptionResponseOption) *TranscriptionResponse {
-    c := &TranscriptionResponse {
-        Text: "",
-        Language: nil,
-        Duration: nil,
-        Segments: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &TranscriptionResponse{
+		Text:     "",
+		Language: nil,
+		Duration: nil,
+		Segments: nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // A segment of transcribed audio with timing information.
 type TranscriptionSegment struct {
-    Id uint32 `json:"id"`
-    Start float64 `json:"start"`
-    End float64 `json:"end"`
-    Text string `json:"text"`
+	Id    uint32  `json:"id"`
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
+	Text  string  `json:"text"`
 }
-
 
 // TranscriptionSegment option function
 type TranscriptionSegmentOption func(*TranscriptionSegment)
 
 // WithTranscriptionSegmentId sets the id field.
 func WithTranscriptionSegmentId(v uint32) TranscriptionSegmentOption {
-    return func(c *TranscriptionSegment) { c.Id = v }
+	return func(c *TranscriptionSegment) { c.Id = v }
 }
 
 // WithTranscriptionSegmentStart sets the start field.
 func WithTranscriptionSegmentStart(v float64) TranscriptionSegmentOption {
-    return func(c *TranscriptionSegment) { c.Start = v }
+	return func(c *TranscriptionSegment) { c.Start = v }
 }
 
 // WithTranscriptionSegmentEnd sets the end field.
 func WithTranscriptionSegmentEnd(v float64) TranscriptionSegmentOption {
-    return func(c *TranscriptionSegment) { c.End = v }
+	return func(c *TranscriptionSegment) { c.End = v }
 }
 
 // WithTranscriptionSegmentText sets the text field.
 func WithTranscriptionSegmentText(v string) TranscriptionSegmentOption {
-    return func(c *TranscriptionSegment) { c.Text = v }
+	return func(c *TranscriptionSegment) { c.Text = v }
 }
 
 // NewTranscriptionSegment creates a TranscriptionSegment with optional parameters.
 func NewTranscriptionSegment(opts ...TranscriptionSegmentOption) *TranscriptionSegment {
-    c := &TranscriptionSegment {
-        Id: 0,
-        Start: 0.0,
-        End: 0.0,
-        Text: "",
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &TranscriptionSegment{
+		Id:    0,
+		Start: 0.0,
+		End:   0.0,
+		Text:  "",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Request to classify content for policy violations.
 type ModerationRequest struct {
-    Input ModerationInput `json:"input"`
-    Model *string `json:"model,omitempty"`
+	Input ModerationInput `json:"input"`
+	Model *string         `json:"model,omitempty"`
 }
-
 
 // Response from the moderation endpoint.
 type ModerationResponse struct {
-    Id string `json:"id"`
-    Model string `json:"model"`
-    Results []ModerationResult `json:"results,omitempty"`
+	Id      string             `json:"id"`
+	Model   string             `json:"model"`
+	Results []ModerationResult `json:"results,omitempty"`
 }
-
 
 // A single moderation classification result.
 type ModerationResult struct {
-    Flagged bool `json:"flagged"`
-    Categories ModerationCategories `json:"categories"`
-    CategoryScores ModerationCategoryScores `json:"category_scores"`
+	Flagged        bool                     `json:"flagged"`
+	Categories     ModerationCategories     `json:"categories"`
+	CategoryScores ModerationCategoryScores `json:"category_scores"`
 }
-
 
 // Boolean flags for each moderation category.
 type ModerationCategories struct {
-    Sexual bool `json:"sexual"`
-    Hate bool `json:"hate"`
-    Harassment bool `json:"harassment"`
-    SelfHarm bool `json:"self_harm"`
-    SexualMinors bool `json:"sexual_minors"`
-    HateThreatening bool `json:"hate_threatening"`
-    ViolenceGraphic bool `json:"violence_graphic"`
-    SelfHarmIntent bool `json:"self_harm_intent"`
-    SelfHarmInstructions bool `json:"self_harm_instructions"`
-    HarassmentThreatening bool `json:"harassment_threatening"`
-    Violence bool `json:"violence"`
+	Sexual                bool `json:"sexual"`
+	Hate                  bool `json:"hate"`
+	Harassment            bool `json:"harassment"`
+	SelfHarm              bool `json:"self_harm"`
+	SexualMinors          bool `json:"sexual_minors"`
+	HateThreatening       bool `json:"hate_threatening"`
+	ViolenceGraphic       bool `json:"violence_graphic"`
+	SelfHarmIntent        bool `json:"self_harm_intent"`
+	SelfHarmInstructions  bool `json:"self_harm_instructions"`
+	HarassmentThreatening bool `json:"harassment_threatening"`
+	Violence              bool `json:"violence"`
 }
-
 
 // Confidence scores for each moderation category.
 type ModerationCategoryScores struct {
-    Sexual float64 `json:"sexual"`
-    Hate float64 `json:"hate"`
-    Harassment float64 `json:"harassment"`
-    SelfHarm float64 `json:"self_harm"`
-    SexualMinors float64 `json:"sexual_minors"`
-    HateThreatening float64 `json:"hate_threatening"`
-    ViolenceGraphic float64 `json:"violence_graphic"`
-    SelfHarmIntent float64 `json:"self_harm_intent"`
-    SelfHarmInstructions float64 `json:"self_harm_instructions"`
-    HarassmentThreatening float64 `json:"harassment_threatening"`
-    Violence float64 `json:"violence"`
+	Sexual                float64 `json:"sexual"`
+	Hate                  float64 `json:"hate"`
+	Harassment            float64 `json:"harassment"`
+	SelfHarm              float64 `json:"self_harm"`
+	SexualMinors          float64 `json:"sexual_minors"`
+	HateThreatening       float64 `json:"hate_threatening"`
+	ViolenceGraphic       float64 `json:"violence_graphic"`
+	SelfHarmIntent        float64 `json:"self_harm_intent"`
+	SelfHarmInstructions  float64 `json:"self_harm_instructions"`
+	HarassmentThreatening float64 `json:"harassment_threatening"`
+	Violence              float64 `json:"violence"`
 }
-
 
 // Request to rerank documents by relevance to a query.
 type RerankRequest struct {
-    Model string `json:"model"`
-    Query string `json:"query"`
-    Documents []RerankDocument `json:"documents,omitempty"`
-    TopN *uint32 `json:"top_n,omitempty"`
-    ReturnDocuments *bool `json:"return_documents,omitempty"`
+	Model           string           `json:"model"`
+	Query           string           `json:"query"`
+	Documents       []RerankDocument `json:"documents,omitempty"`
+	TopN            *uint32          `json:"top_n,omitempty"`
+	ReturnDocuments *bool            `json:"return_documents,omitempty"`
 }
-
 
 // Response from the rerank endpoint.
 type RerankResponse struct {
-    Id *string `json:"id,omitempty"`
-    Results []RerankResult `json:"results,omitempty"`
-    Meta *map[string]interface{} `json:"meta,omitempty"`
+	Id      *string          `json:"id,omitempty"`
+	Results []RerankResult   `json:"results,omitempty"`
+	Meta    *json.RawMessage `json:"meta,omitempty"`
 }
-
 
 // A single reranked document with its relevance score.
 type RerankResult struct {
-    Index uint32 `json:"index"`
-    RelevanceScore float64 `json:"relevance_score"`
-    Document *RerankResultDocument `json:"document,omitempty"`
+	Index          uint32                `json:"index"`
+	RelevanceScore float64               `json:"relevance_score"`
+	Document       *RerankResultDocument `json:"document,omitempty"`
 }
-
 
 // The text content of a reranked document, returned when `return_documents` is true.
 type RerankResultDocument struct {
-    Text string `json:"text"`
+	Text string `json:"text"`
 }
-
 
 // A search request.
 type SearchRequest struct {
-    // The model/provider to use (e.g. `"brave/web-search"`, `"tavily/search"`).
-    Model string `json:"model"`
-    // The search query.
-    Query string `json:"query"`
-    // Maximum number of results to return.
-    MaxResults *uint32 `json:"max_results,omitempty"`
-    // Domain filter — restrict results to specific domains.
-    SearchDomainFilter *[]string `json:"search_domain_filter,omitempty"`
-    // Country code for localized results (ISO 3166-1 alpha-2).
-    Country *string `json:"country,omitempty"`
+	// The model/provider to use (e.g. `"brave/web-search"`, `"tavily/search"`).
+	Model string `json:"model"`
+	// The search query.
+	Query string `json:"query"`
+	// Maximum number of results to return.
+	MaxResults *uint32 `json:"max_results,omitempty"`
+	// Domain filter — restrict results to specific domains.
+	SearchDomainFilter *[]string `json:"search_domain_filter,omitempty"`
+	// Country code for localized results (ISO 3166-1 alpha-2).
+	Country *string `json:"country,omitempty"`
 }
-
 
 // SearchRequest option function
 type SearchRequestOption func(*SearchRequest)
 
 // WithSearchRequestModel sets the model field.
 func WithSearchRequestModel(v string) SearchRequestOption {
-    return func(c *SearchRequest) { c.Model = v }
+	return func(c *SearchRequest) { c.Model = v }
 }
 
 // WithSearchRequestQuery sets the query field.
 func WithSearchRequestQuery(v string) SearchRequestOption {
-    return func(c *SearchRequest) { c.Query = v }
+	return func(c *SearchRequest) { c.Query = v }
 }
 
 // WithSearchRequestMaxResults sets the max_results field.
 func WithSearchRequestMaxResults(v uint32) SearchRequestOption {
-    return func(c *SearchRequest) { c.MaxResults = &v }
+	return func(c *SearchRequest) { c.MaxResults = &v }
 }
 
 // WithSearchRequestSearchDomainFilter sets the search_domain_filter field.
 func WithSearchRequestSearchDomainFilter(v []string) SearchRequestOption {
-    return func(c *SearchRequest) { c.SearchDomainFilter = &v }
+	return func(c *SearchRequest) { c.SearchDomainFilter = &v }
 }
 
 // WithSearchRequestCountry sets the country field.
 func WithSearchRequestCountry(v string) SearchRequestOption {
-    return func(c *SearchRequest) { c.Country = &v }
+	return func(c *SearchRequest) { c.Country = &v }
 }
 
 // NewSearchRequest creates a SearchRequest with optional parameters.
 func NewSearchRequest(opts ...SearchRequestOption) *SearchRequest {
-    c := &SearchRequest {
-        Model: "",
-        Query: "",
-        MaxResults: nil,
-        SearchDomainFilter: nil,
-        Country: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &SearchRequest{
+		Model:              "",
+		Query:              "",
+		MaxResults:         nil,
+		SearchDomainFilter: nil,
+		Country:            nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // A search response.
 type SearchResponse struct {
-    // The search results.
-    Results []SearchResult `json:"results,omitempty"`
-    // The model used.
-    Model string `json:"model"`
+	// The search results.
+	Results []SearchResult `json:"results,omitempty"`
+	// The model used.
+	Model string `json:"model"`
 }
-
 
 // An individual search result.
 type SearchResult struct {
-    // Title of the result.
-    Title string `json:"title"`
-    // URL of the result.
-    Url string `json:"url"`
-    // Text snippet / excerpt.
-    Snippet string `json:"snippet"`
-    // Publication or last-updated date, if available.
-    Date *string `json:"date,omitempty"`
+	// Title of the result.
+	Title string `json:"title"`
+	// URL of the result.
+	Url string `json:"url"`
+	// Text snippet / excerpt.
+	Snippet string `json:"snippet"`
+	// Publication or last-updated date, if available.
+	Date *string `json:"date,omitempty"`
 }
-
 
 // An OCR request.
 type OcrRequest struct {
-    // The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`).
-    Model string `json:"model"`
-    // The document to process.
-    Document OcrDocument `json:"document"`
-    // Specific pages to process (1-indexed). `None` means all pages.
-    Pages *[]uint32 `json:"pages,omitempty"`
-    // Whether to include base64-encoded images of each page.
-    IncludeImageBase64 *bool `json:"include_image_base64,omitempty"`
+	// The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`).
+	Model string `json:"model"`
+	// The document to process.
+	Document OcrDocument `json:"document"`
+	// Specific pages to process (1-indexed). `None` means all pages.
+	Pages *[]uint32 `json:"pages,omitempty"`
+	// Whether to include base64-encoded images of each page.
+	IncludeImageBase64 *bool `json:"include_image_base64,omitempty"`
 }
-
 
 // An OCR response.
 type OcrResponse struct {
-    // Extracted pages.
-    Pages []OcrPage `json:"pages,omitempty"`
-    // The model used.
-    Model string `json:"model"`
-    // Token usage, if reported by the provider.
-    Usage *Usage `json:"usage,omitempty"`
+	// Extracted pages.
+	Pages []OcrPage `json:"pages,omitempty"`
+	// The model used.
+	Model string `json:"model"`
+	// Token usage, if reported by the provider.
+	Usage *Usage `json:"usage,omitempty"`
 }
-
 
 // A single page of OCR output.
 type OcrPage struct {
-    // Page index (0-based).
-    Index uint32 `json:"index"`
-    // Extracted content as Markdown.
-    Markdown string `json:"markdown"`
-    // Extracted images, if `include_image_base64` was set.
-    Images *[]OcrImage `json:"images,omitempty"`
-    // Page dimensions in pixels, if available.
-    Dimensions *PageDimensions `json:"dimensions,omitempty"`
+	// Page index (0-based).
+	Index uint32 `json:"index"`
+	// Extracted content as Markdown.
+	Markdown string `json:"markdown"`
+	// Extracted images, if `include_image_base64` was set.
+	Images *[]OcrImage `json:"images,omitempty"`
+	// Page dimensions in pixels, if available.
+	Dimensions *PageDimensions `json:"dimensions,omitempty"`
 }
-
 
 // An image extracted from an OCR page.
 type OcrImage struct {
-    // Unique image identifier.
-    Id string `json:"id"`
-    // Base64-encoded image data.
-    ImageBase64 *string `json:"image_base64,omitempty"`
+	// Unique image identifier.
+	Id string `json:"id"`
+	// Base64-encoded image data.
+	ImageBase64 *string `json:"image_base64,omitempty"`
 }
-
 
 // Page dimensions in pixels.
 type PageDimensions struct {
-    // Width in pixels.
-    Width uint32 `json:"width"`
-    // Height in pixels.
-    Height uint32 `json:"height"`
+	// Width in pixels.
+	Width uint32 `json:"width"`
+	// Height in pixels.
+	Height uint32 `json:"height"`
 }
-
 
 // ModelsListResponse is a type.
 type ModelsListResponse struct {
-    // Always `"list"` from OpenAI-compatible APIs.  Stored as a plain
-    // `String` so non-standard provider values do not break deserialization.
-    Object string `json:"object"`
-    Data []ModelObject `json:"data,omitempty"`
+	// Always `"list"` from OpenAI-compatible APIs.  Stored as a plain
+	// `String` so non-standard provider values do not break deserialization.
+	Object string        `json:"object"`
+	Data   []ModelObject `json:"data,omitempty"`
 }
-
 
 // ModelsListResponse option function
 type ModelsListResponseOption func(*ModelsListResponse)
 
 // WithModelsListResponseObject sets the object field.
 func WithModelsListResponseObject(v string) ModelsListResponseOption {
-    return func(c *ModelsListResponse) { c.Object = v }
+	return func(c *ModelsListResponse) { c.Object = v }
 }
 
 // WithModelsListResponseData sets the data field.
 func WithModelsListResponseData(v []ModelObject) ModelsListResponseOption {
-    return func(c *ModelsListResponse) { c.Data = v }
+	return func(c *ModelsListResponse) { c.Data = v }
 }
 
 // NewModelsListResponse creates a ModelsListResponse with optional parameters.
 func NewModelsListResponse(opts ...ModelsListResponseOption) *ModelsListResponse {
-    c := &ModelsListResponse {
-        Object: "",
-        Data: nil,
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ModelsListResponse{
+		Object: "",
+		Data:   nil,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // ModelObject is a type.
 type ModelObject struct {
-    Id string `json:"id"`
-    // Always `"model"` from OpenAI-compatible APIs.  Stored as a plain
-    // `String` so non-standard provider values do not break deserialization.
-    Object string `json:"object"`
-    Created uint64 `json:"created"`
-    OwnedBy string `json:"owned_by"`
+	Id string `json:"id"`
+	// Always `"model"` from OpenAI-compatible APIs.  Stored as a plain
+	// `String` so non-standard provider values do not break deserialization.
+	Object  string `json:"object"`
+	Created uint64 `json:"created"`
+	OwnedBy string `json:"owned_by"`
 }
-
 
 // ModelObject option function
 type ModelObjectOption func(*ModelObject)
 
 // WithModelObjectId sets the id field.
 func WithModelObjectId(v string) ModelObjectOption {
-    return func(c *ModelObject) { c.Id = v }
+	return func(c *ModelObject) { c.Id = v }
 }
 
 // WithModelObjectObject sets the object field.
 func WithModelObjectObject(v string) ModelObjectOption {
-    return func(c *ModelObject) { c.Object = v }
+	return func(c *ModelObject) { c.Object = v }
 }
 
 // WithModelObjectCreated sets the created field.
 func WithModelObjectCreated(v uint64) ModelObjectOption {
-    return func(c *ModelObject) { c.Created = v }
+	return func(c *ModelObject) { c.Created = v }
 }
 
 // WithModelObjectOwnedBy sets the owned_by field.
 func WithModelObjectOwnedBy(v string) ModelObjectOption {
-    return func(c *ModelObject) { c.OwnedBy = v }
+	return func(c *ModelObject) { c.OwnedBy = v }
 }
 
 // NewModelObject creates a ModelObject with optional parameters.
 func NewModelObject(opts ...ModelObjectOption) *ModelObject {
-    c := &ModelObject {
-        Id: "",
-        Object: "",
-        Created: 0,
-        OwnedBy: "",
-    }
-    for _, opt := range opts {
-        opt(c)
-    }
-    return c
+	c := &ModelObject{
+		Id:      "",
+		Object:  "",
+		Created: 0,
+		OwnedBy: "",
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
-
 
 // Default client implementation backed by `reqwest`.
 //
@@ -1989,30 +1885,28 @@ func NewModelObject(opts ...ModelObjectOption) *ModelObject {
 // The provider is stored behind an [`Arc`] so it can be shared cheaply into
 // async closures and streaming tasks that must be `'static`.
 type DefaultClient struct {
-    ptr unsafe.Pointer
+	ptr unsafe.Pointer
 }
 
 // Free releases the resources held by this handle.
 func (h *DefaultClient) Free() {
-    if h.ptr != nil {
-        C.literllm_default_client_free((*C.LITERLLMDefaultClient)(h.ptr))
-        h.ptr = nil
-    }
+	if h.ptr != nil {
+		C.literllm_default_client_free((*C.LITERLLMDefaultClient)(h.ptr))
+		h.ptr = nil
+	}
 }
-
 
 // Configuration for registering a custom LLM provider at runtime.
 type CustomProviderConfig struct {
-    // Unique name for this provider (e.g., "my-provider").
-    Name string `json:"name"`
-    // Base URL for the provider's API (e.g., "https://api.my-provider.com/v1").
-    BaseUrl string `json:"base_url"`
-    // Authentication header format.
-    AuthHeader AuthHeaderFormat `json:"auth_header"`
-    // Model name prefixes that route to this provider (e.g., ["my-"]).
-    ModelPrefixes []string `json:"model_prefixes,omitempty"`
+	// Unique name for this provider (e.g., "my-provider").
+	Name string `json:"name"`
+	// Base URL for the provider's API (e.g., "https://api.my-provider.com/v1").
+	BaseUrl string `json:"base_url"`
+	// Authentication header format.
+	AuthHeader AuthHeaderFormat `json:"auth_header"`
+	// Model name prefixes that route to this provider (e.g., ["my-"]).
+	ModelPrefixes []string `json:"model_prefixes,omitempty"`
 }
-
 
 // Create a new LLM client with simple scalar configuration.
 //
@@ -2025,41 +1919,40 @@ type CustomProviderConfig struct {
 // Returns [`LiterLlmError`] if the underlying HTTP client cannot be
 // constructed, or if the resolved provider configuration is invalid.
 func CreateClient(api_key string, base_url *string, timeout_secs *uint64, max_retries *uint32, model_hint *string) (*DefaultClient, error) {
-    cApiKey := C.CString(api_key)
-    defer C.free(unsafe.Pointer(cApiKey))
+	cApiKey := C.CString(api_key)
+	defer C.free(unsafe.Pointer(cApiKey))
 
-    var cBaseUrl *C.char
-    if base_url != nil {
-        cBaseUrl = C.CString(*base_url)
-        defer C.free(unsafe.Pointer(cBaseUrl))
-    }
+	var cBaseUrl *C.char
+	if base_url != nil {
+		cBaseUrl = C.CString(*base_url)
+		defer C.free(unsafe.Pointer(cBaseUrl))
+	}
 
-    var cTimeoutSecs C.uint64_t = C.uint64_t(^uint64(0))
-    if timeout_secs != nil {
-        cTimeoutSecs = C.uint64_t(uint64(*timeout_secs))
-    }
+	var cTimeoutSecs C.uint64_t = C.uint64_t(^uint64(0))
+	if timeout_secs != nil {
+		cTimeoutSecs = C.uint64_t(uint64(*timeout_secs))
+	}
 
-    var cMaxRetries C.uint32_t = C.uint32_t(^uint32(0))
-    if max_retries != nil {
-        cMaxRetries = C.uint32_t(uint32(*max_retries))
-    }
+	var cMaxRetries C.uint32_t = C.uint32_t(^uint32(0))
+	if max_retries != nil {
+		cMaxRetries = C.uint32_t(uint32(*max_retries))
+	}
 
-    var cModelHint *C.char
-    if model_hint != nil {
-        cModelHint = C.CString(*model_hint)
-        defer C.free(unsafe.Pointer(cModelHint))
-    }
+	var cModelHint *C.char
+	if model_hint != nil {
+		cModelHint = C.CString(*model_hint)
+		defer C.free(unsafe.Pointer(cModelHint))
+	}
 
-    ptr := C.literllm_create_client(cApiKey, cBaseUrl, cTimeoutSecs, cMaxRetries, cModelHint)
-    if err := lastError(); err != nil {
-        if ptr != nil {
-            C.literllm_default_client_free(ptr)
-        }
-        return nil, err
-    }
-    return &DefaultClient{ptr: unsafe.Pointer(ptr)}, nil
+	ptr := C.literllm_create_client(cApiKey, cBaseUrl, cTimeoutSecs, cMaxRetries, cModelHint)
+	if err := lastError(); err != nil {
+		if ptr != nil {
+			C.literllm_default_client_free(ptr)
+		}
+		return nil, err
+	}
+	return &DefaultClient{ptr: unsafe.Pointer(ptr)}, nil
 }
-
 
 // Create a new LLM client from a JSON string.
 //
@@ -2070,19 +1963,18 @@ func CreateClient(api_key string, base_url *string, timeout_secs *uint64, max_re
 // Returns [`LiterLlmError::BadRequest`] if `json` is not valid JSON or
 // contains unknown fields.
 func CreateClientFromJson(json string) (*DefaultClient, error) {
-    cJson := C.CString(json)
-    defer C.free(unsafe.Pointer(cJson))
+	cJson := C.CString(json)
+	defer C.free(unsafe.Pointer(cJson))
 
-    ptr := C.literllm_create_client_from_json(cJson)
-    if err := lastError(); err != nil {
-        if ptr != nil {
-            C.literllm_default_client_free(ptr)
-        }
-        return nil, err
-    }
-    return &DefaultClient{ptr: unsafe.Pointer(ptr)}, nil
+	ptr := C.literllm_create_client_from_json(cJson)
+	if err := lastError(); err != nil {
+		if ptr != nil {
+			C.literllm_default_client_free(ptr)
+		}
+		return nil, err
+	}
+	return &DefaultClient{ptr: unsafe.Pointer(ptr)}, nil
 }
-
 
 // Register a custom provider in the global runtime registry.
 //
@@ -2094,19 +1986,18 @@ func CreateClientFromJson(json string) (*DefaultClient, error) {
 // Returns an error if the config is invalid (empty name, empty base_url, or
 // no model prefixes).
 func RegisterCustomProvider(config CustomProviderConfig) error {
-    jsonBytescConfig, err := json.Marshal(config)
-    if err != nil {
-        return fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcConfig := C.CString(string(jsonBytescConfig))
-    cConfig := C.literllm_custom_provider_config_from_json(tmpStrcConfig)
-    C.free(unsafe.Pointer(tmpStrcConfig))
-    defer C.literllm_custom_provider_config_free(cConfig)
+	jsonBytescConfig, err := json.Marshal(config)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcConfig := C.CString(string(jsonBytescConfig))
+	cConfig := C.literllm_custom_provider_config_from_json(tmpStrcConfig)
+	C.free(unsafe.Pointer(tmpStrcConfig))
+	defer C.literllm_custom_provider_config_free(cConfig)
 
-    C.literllm_register_custom_provider(cConfig)
-    return lastError()
+	C.literllm_register_custom_provider(cConfig)
+	return lastError()
 }
-
 
 // Remove a previously registered custom provider by name.
 //
@@ -2117,269 +2008,295 @@ func RegisterCustomProvider(config CustomProviderConfig) error {
 //
 // Returns an error only if the internal lock is poisoned.
 func UnregisterCustomProvider(name string) (*bool, error) {
-    cName := C.CString(name)
-    defer C.free(unsafe.Pointer(cName))
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
 
-    ptr := C.literllm_unregister_custom_provider(cName)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    return func() *bool { v := ptr != 0; return &v }(), nil
+	ptr := C.literllm_unregister_custom_provider(cName)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	return func() *bool { v := ptr != 0; return &v }(), nil
 }
-
 
 // Chat is a method.
 func (r *DefaultClient) Chat(req ChatCompletionRequest) (*ChatCompletionResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_chat_completion_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_chat_completion_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_chat_completion_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_chat_completion_request_free(cReq)
 
-    ptr := C.literllm_default_client_chat ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_chat_completion_response_free(ptr)
-    return func() *ChatCompletionResponse {
-	jsonPtr := C.literllm_chat_completion_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result ChatCompletionResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_chat((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_chat_completion_response_free(ptr)
+	return func() *ChatCompletionResponse {
+		jsonPtr := C.literllm_chat_completion_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result ChatCompletionResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // ChatStream is a method.
 func (r *DefaultClient) ChatStream(req ChatCompletionRequest) (*string, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_chat_completion_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_chat_completion_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_chat_completion_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_chat_completion_request_free(cReq)
 
-    ptr := C.literllm_default_client_chat_stream ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        if ptr != nil {
-            C.literllm_free_string(ptr)
-        }
-        return nil, err
-    }
-    defer C.literllm_free_string(ptr)
-    return func() *string { v := C.GoString(ptr); return &v }(), nil
+	ptr := C.literllm_default_client_chat_stream((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		if ptr != nil {
+			C.literllm_free_string(ptr)
+		}
+		return nil, err
+	}
+	defer C.literllm_free_string(ptr)
+	return func() *string { v := C.GoString(ptr); return &v }(), nil
 }
-
 
 // Embed is a method.
 func (r *DefaultClient) Embed(req EmbeddingRequest) (*EmbeddingResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_embedding_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_embedding_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_embedding_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_embedding_request_free(cReq)
 
-    ptr := C.literllm_default_client_embed ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_embedding_response_free(ptr)
-    return func() *EmbeddingResponse {
-	jsonPtr := C.literllm_embedding_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result EmbeddingResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_embed((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_embedding_response_free(ptr)
+	return func() *EmbeddingResponse {
+		jsonPtr := C.literllm_embedding_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result EmbeddingResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // ListModels is a method.
 func (r *DefaultClient) ListModels() (*ModelsListResponse, error) {
-    ptr := C.literllm_default_client_list_models ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)))
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_models_list_response_free(ptr)
-    return func() *ModelsListResponse {
-	jsonPtr := C.literllm_models_list_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result ModelsListResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_list_models((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)))
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_models_list_response_free(ptr)
+	return func() *ModelsListResponse {
+		jsonPtr := C.literllm_models_list_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result ModelsListResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // ImageGenerate is a method.
 func (r *DefaultClient) ImageGenerate(req CreateImageRequest) (*ImagesResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_create_image_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_create_image_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_create_image_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_create_image_request_free(cReq)
 
-    ptr := C.literllm_default_client_image_generate ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_images_response_free(ptr)
-    return func() *ImagesResponse {
-	jsonPtr := C.literllm_images_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result ImagesResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_image_generate((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_images_response_free(ptr)
+	return func() *ImagesResponse {
+		jsonPtr := C.literllm_images_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result ImagesResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // Transcribe is a method.
 func (r *DefaultClient) Transcribe(req CreateTranscriptionRequest) (*TranscriptionResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_create_transcription_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_create_transcription_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_create_transcription_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_create_transcription_request_free(cReq)
 
-    ptr := C.literllm_default_client_transcribe ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_transcription_response_free(ptr)
-    return func() *TranscriptionResponse {
-	jsonPtr := C.literllm_transcription_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result TranscriptionResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_transcribe((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_transcription_response_free(ptr)
+	return func() *TranscriptionResponse {
+		jsonPtr := C.literllm_transcription_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result TranscriptionResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // Moderate is a method.
 func (r *DefaultClient) Moderate(req ModerationRequest) (*ModerationResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_moderation_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_moderation_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_moderation_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_moderation_request_free(cReq)
 
-    ptr := C.literllm_default_client_moderate ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_moderation_response_free(ptr)
-    return func() *ModerationResponse {
-	jsonPtr := C.literllm_moderation_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result ModerationResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_moderate((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_moderation_response_free(ptr)
+	return func() *ModerationResponse {
+		jsonPtr := C.literllm_moderation_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result ModerationResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // Rerank is a method.
 func (r *DefaultClient) Rerank(req RerankRequest) (*RerankResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_rerank_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_rerank_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_rerank_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_rerank_request_free(cReq)
 
-    ptr := C.literllm_default_client_rerank ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_rerank_response_free(ptr)
-    return func() *RerankResponse {
-	jsonPtr := C.literllm_rerank_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result RerankResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_rerank((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_rerank_response_free(ptr)
+	return func() *RerankResponse {
+		jsonPtr := C.literllm_rerank_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result RerankResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // Search is a method.
 func (r *DefaultClient) Search(req SearchRequest) (*SearchResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_search_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_search_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_search_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_search_request_free(cReq)
 
-    ptr := C.literllm_default_client_search ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_search_response_free(ptr)
-    return func() *SearchResponse {
-	jsonPtr := C.literllm_search_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result SearchResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_search((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_search_response_free(ptr)
+	return func() *SearchResponse {
+		jsonPtr := C.literllm_search_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result SearchResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }
-
 
 // Ocr is a method.
 func (r *DefaultClient) Ocr(req OcrRequest) (*OcrResponse, error) {
-    jsonBytescReq, err := json.Marshal(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to marshal: %w", err)
-    }
-    tmpStrcReq := C.CString(string(jsonBytescReq))
-    cReq := C.literllm_ocr_request_from_json(tmpStrcReq)
-    C.free(unsafe.Pointer(tmpStrcReq))
-    defer C.literllm_ocr_request_free(cReq)
+	jsonBytescReq, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	tmpStrcReq := C.CString(string(jsonBytescReq))
+	cReq := C.literllm_ocr_request_from_json(tmpStrcReq)
+	C.free(unsafe.Pointer(tmpStrcReq))
+	defer C.literllm_ocr_request_free(cReq)
 
-    ptr := C.literllm_default_client_ocr ((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-    if err := lastError(); err != nil {
-        return nil, err
-    }
-    defer C.literllm_ocr_response_free(ptr)
-    return func() *OcrResponse {
-	jsonPtr := C.literllm_ocr_response_to_json(ptr)
-	if jsonPtr == nil { return nil }
-	defer C.literllm_free_string(jsonPtr)
-	var result OcrResponse
-	if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil { return nil }
-	return &result
-}(), nil
+	ptr := C.literllm_default_client_ocr((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
+	if err := lastError(); err != nil {
+		return nil, err
+	}
+	defer C.literllm_ocr_response_free(ptr)
+	return func() *OcrResponse {
+		jsonPtr := C.literllm_ocr_response_to_json(ptr)
+		if jsonPtr == nil {
+			return nil
+		}
+		defer C.literllm_free_string(jsonPtr)
+		var result OcrResponse
+		if err := json.Unmarshal([]byte(C.GoString(jsonPtr)), &result); err != nil {
+			return nil
+		}
+		return &result
+	}(), nil
 }

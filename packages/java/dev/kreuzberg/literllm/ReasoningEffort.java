@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * Controls how much reasoning effort the model should use.
+ */
 public enum ReasoningEffort {
     Low("low"),
     Medium("medium"),

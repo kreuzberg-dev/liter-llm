@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Request to rerank documents by relevance to a query.
+ */
 public record RerankRequest(
     String model,
     String query,

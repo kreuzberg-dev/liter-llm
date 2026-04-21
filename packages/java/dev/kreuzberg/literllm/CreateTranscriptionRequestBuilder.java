@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import java.util.Optional;
 
+/**
+ * Request to transcribe audio into text.
+ */
 public class CreateTranscriptionRequestBuilder {
 
     private String model = "";

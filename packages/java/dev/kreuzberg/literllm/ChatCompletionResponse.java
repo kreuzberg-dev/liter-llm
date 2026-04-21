@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ChatCompletionResponse(
     String id,
+    /** Always {@code "chat.completion"} from OpenAI-compatible APIs.  Stored as a */
     String object,
     long created,
     String model,

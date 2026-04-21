@@ -82,65 +82,65 @@ internal sealed class MessageJsonConverter : JsonConverter<Message>
         switch (value)
         {
             case Message.System v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("role", "system");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "role") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("role", "system");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "role") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case Message.User v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("role", "user");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "role") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("role", "user");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "role") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case Message.Assistant v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("role", "assistant");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "role") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("role", "assistant");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "role") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case Message.Tool v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("role", "tool");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "role") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("role", "tool");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "role") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case Message.Developer v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("role", "developer");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "role") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("role", "developer");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "role") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case Message.Function v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("role", "function");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "role") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("role", "function");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "role") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             default: throw new JsonException($"Unknown Message subtype: {value.GetType().Name}");
         }
     }

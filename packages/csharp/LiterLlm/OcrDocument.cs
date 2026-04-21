@@ -57,25 +57,25 @@ internal sealed class OcrDocumentJsonConverter : JsonConverter<OcrDocument>
         switch (value)
         {
             case OcrDocument.Url v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v.Value, options);
-                writer.WriteStartObject();
-                writer.WriteString("type", "document_url");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "type") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v.Value, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("type", "document_url");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "type") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             case OcrDocument.Base64 v:
-            {
-                var doc = JsonSerializer.SerializeToDocument(v, options);
-                writer.WriteStartObject();
-                writer.WriteString("type", "base64");
-                foreach (var prop in doc.RootElement.EnumerateObject())
-                    if (prop.Name != "type") prop.WriteTo(writer);
-                writer.WriteEndObject();
-                break;
-            }
+                {
+                    var doc = JsonSerializer.SerializeToDocument(v, options);
+                    writer.WriteStartObject();
+                    writer.WriteString("type", "base64");
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                        if (prop.Name != "type") prop.WriteTo(writer);
+                    writer.WriteEndObject();
+                    break;
+                }
             default: throw new JsonException($"Unknown OcrDocument subtype: {value.GetType().Name}");
         }
     }

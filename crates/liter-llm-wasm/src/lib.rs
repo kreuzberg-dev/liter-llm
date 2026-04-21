@@ -6,7 +6,8 @@
     clippy::let_unit_value,
     clippy::needless_borrow,
     clippy::map_identity,
-    clippy::just_underscores_and_digits
+    clippy::just_underscores_and_digits,
+    clippy::unused_unit
 )]
 
 use liter_llm::client::LlmClient;
@@ -380,6 +381,7 @@ impl WasmDeveloperMessage {
     }
 }
 
+/// Deprecated legacy function-role message body.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmFunctionMessage {
@@ -1813,6 +1815,7 @@ impl WasmEmbeddingObject {
     }
 }
 
+/// Request to create images from a text prompt.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmCreateImageRequest {
@@ -1933,6 +1936,7 @@ impl WasmCreateImageRequest {
     }
 }
 
+/// Response containing generated images.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmImagesResponse {
@@ -1971,6 +1975,7 @@ impl WasmImagesResponse {
     }
 }
 
+/// A single generated image, returned as either a URL or base64 data.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmImage {
@@ -2021,6 +2026,7 @@ impl WasmImage {
     }
 }
 
+/// Request to generate speech audio from text.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmCreateSpeechRequest {
@@ -2101,6 +2107,7 @@ impl WasmCreateSpeechRequest {
     }
 }
 
+/// Request to transcribe audio into text.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmCreateTranscriptionRequest {
@@ -2194,6 +2201,7 @@ impl WasmCreateTranscriptionRequest {
     }
 }
 
+/// Response from a transcription request.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmTranscriptionResponse {
@@ -2261,6 +2269,7 @@ impl WasmTranscriptionResponse {
     }
 }
 
+/// A segment of transcribed audio with timing information.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmTranscriptionSegment {
@@ -2328,6 +2337,7 @@ impl WasmTranscriptionSegment {
     }
 }
 
+/// Request to classify content for policy violations.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmModerationRequest {
@@ -2363,6 +2373,7 @@ impl WasmModerationRequest {
     }
 }
 
+/// Response from the moderation endpoint.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmModerationResponse {
@@ -2409,6 +2420,7 @@ impl WasmModerationResponse {
     }
 }
 
+/// A single moderation classification result.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmModerationResult {
@@ -2463,6 +2475,7 @@ impl WasmModerationResult {
     }
 }
 
+/// Boolean flags for each moderation category.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmModerationCategories {
@@ -2622,6 +2635,7 @@ impl WasmModerationCategories {
     }
 }
 
+/// Confidence scores for each moderation category.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmModerationCategoryScores {
@@ -2781,6 +2795,7 @@ impl WasmModerationCategoryScores {
     }
 }
 
+/// Request to rerank documents by relevance to a query.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmRerankRequest {
@@ -2861,6 +2876,7 @@ impl WasmRerankRequest {
     }
 }
 
+/// Response from the rerank endpoint.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmRerankResponse {
@@ -2907,6 +2923,7 @@ impl WasmRerankResponse {
     }
 }
 
+/// A single reranked document with its relevance score.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmRerankResult {
@@ -2957,6 +2974,7 @@ impl WasmRerankResult {
     }
 }
 
+/// The text content of a reranked document, returned when `return_documents` is true.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmRerankResultDocument {
@@ -2981,6 +2999,7 @@ impl WasmRerankResultDocument {
     }
 }
 
+/// A search request.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmSearchRequest {
@@ -3061,6 +3080,7 @@ impl WasmSearchRequest {
     }
 }
 
+/// A search response.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmSearchResponse {
@@ -3096,6 +3116,7 @@ impl WasmSearchResponse {
     }
 }
 
+/// An individual search result.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmSearchResult {
@@ -3158,6 +3179,7 @@ impl WasmSearchResult {
     }
 }
 
+/// An OCR request.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmOcrRequest {
@@ -3225,6 +3247,7 @@ impl WasmOcrRequest {
     }
 }
 
+/// An OCR response.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmOcrResponse {
@@ -3271,6 +3294,7 @@ impl WasmOcrResponse {
     }
 }
 
+/// A single page of OCR output.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmOcrPage {
@@ -3338,6 +3362,7 @@ impl WasmOcrPage {
     }
 }
 
+/// An image extracted from an OCR page.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmOcrImage {
@@ -3373,6 +3398,7 @@ impl WasmOcrImage {
     }
 }
 
+/// Page dimensions in pixels.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmPageDimensions {
@@ -3513,6 +3539,19 @@ impl WasmModelObject {
     }
 }
 
+/// Default client implementation backed by `reqwest`.
+///
+/// The provider is resolved at construction time from `model_hint` (or
+/// defaults to OpenAI).  However, individual requests can override the
+/// provider when their model string contains a prefix that clearly
+/// identifies a different provider (e.g. `"anthropic/claude-3"` will
+/// route to Anthropic even if the client was built without a hint).
+///
+/// When the model prefix does not match any known provider, the
+/// construction-time provider is used as the fallback.
+///
+/// The provider is stored behind an [`Arc`] so it can be shared cheaply into
+/// async closures and streaming tasks that must be `'static`.
 #[derive(Clone)]
 #[wasm_bindgen]
 pub struct WasmDefaultClient {
@@ -3627,6 +3666,7 @@ impl WasmDefaultClient {
     }
 }
 
+/// Configuration for registering a custom LLM provider at runtime.
 #[derive(Clone, Default)]
 #[wasm_bindgen]
 pub struct WasmCustomProviderConfig {
@@ -3694,6 +3734,7 @@ impl WasmCustomProviderConfig {
     }
 }
 
+/// A chat message in a conversation.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmMessage {
@@ -3757,6 +3798,9 @@ impl Default for WasmImageDetail {
     }
 }
 
+/// The type discriminator for tool/tool-call objects. Per the OpenAI spec this
+/// is always `"function"`. Using an enum enforces that constraint at the type
+/// level and rejects any other value on deserialization.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmToolType {
@@ -3828,6 +3872,7 @@ impl Default for WasmStopSequence {
     }
 }
 
+/// Why a choice stopped generating tokens.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmFinishReason {
@@ -3846,6 +3891,7 @@ impl Default for WasmFinishReason {
     }
 }
 
+/// Controls how much reasoning effort the model should use.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmReasoningEffort {
@@ -3861,6 +3907,7 @@ impl Default for WasmReasoningEffort {
     }
 }
 
+/// The format in which the embedding vectors are returned.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmEmbeddingFormat {
@@ -3889,6 +3936,7 @@ impl Default for WasmEmbeddingInput {
     }
 }
 
+/// Input to the moderation endpoint — a single string or multiple strings.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmModerationInput {
@@ -3903,6 +3951,7 @@ impl Default for WasmModerationInput {
     }
 }
 
+/// A document to be reranked — either a plain string or an object with a text field.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmRerankDocument {
@@ -3917,6 +3966,7 @@ impl Default for WasmRerankDocument {
     }
 }
 
+/// Document input for OCR — either a URL or inline base64 data.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmOcrDocument {
@@ -3931,6 +3981,7 @@ impl Default for WasmOcrDocument {
     }
 }
 
+/// How the API key is sent in the HTTP request.
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum WasmAuthHeaderFormat {
@@ -3946,6 +3997,16 @@ impl Default for WasmAuthHeaderFormat {
     }
 }
 
+/// Create a new LLM client with simple scalar configuration.
+///
+/// This is the primary binding entry-point. All parameters except `api_key`
+/// are optional — omitting them uses the same defaults as
+/// [`ClientConfigBuilder`].
+///
+/// # Errors
+///
+/// Returns [`LiterLlmError`] if the underlying HTTP client cannot be
+/// constructed, or if the resolved provider configuration is invalid.
 #[allow(clippy::missing_errors_doc)]
 #[wasm_bindgen(js_name = "createClient")]
 pub fn create_client(
@@ -3962,6 +4023,14 @@ pub fn create_client(
     })
 }
 
+/// Create a new LLM client from a JSON string.
+///
+/// The JSON object accepts the same fields as `liter-llm.toml` (snake_case).
+///
+/// # Errors
+///
+/// Returns [`LiterLlmError::BadRequest`] if `json` is not valid JSON or
+/// contains unknown fields.
 #[allow(clippy::missing_errors_doc)]
 #[wasm_bindgen(js_name = "createClientFromJson")]
 pub fn create_client_from_json(json: String) -> Result<WasmDefaultClient, JsValue> {
@@ -3971,6 +4040,15 @@ pub fn create_client_from_json(json: String) -> Result<WasmDefaultClient, JsValu
     })
 }
 
+/// Register a custom provider in the global runtime registry.
+///
+/// The provider will be checked **before** all built-in providers during model
+/// detection.  If a provider with the same `name` already exists it is replaced.
+///
+/// # Errors
+///
+/// Returns an error if the config is invalid (empty name, empty base_url, or
+/// no model prefixes).
 #[allow(clippy::missing_errors_doc)]
 #[wasm_bindgen(js_name = "registerCustomProvider")]
 pub fn register_custom_provider(config: WasmCustomProviderConfig) -> Result<(), JsValue> {
@@ -3980,6 +4058,14 @@ pub fn register_custom_provider(config: WasmCustomProviderConfig) -> Result<(), 
     Ok(result)
 }
 
+/// Remove a previously registered custom provider by name.
+///
+/// Returns `true` if a provider with the given name was found and removed,
+/// `false` if no such provider existed.
+///
+/// # Errors
+///
+/// Returns an error only if the internal lock is poisoned.
 #[allow(clippy::missing_errors_doc)]
 #[wasm_bindgen(js_name = "unregisterCustomProvider")]
 pub fn unregister_custom_provider(name: String) -> Result<bool, JsValue> {
@@ -5505,8 +5591,38 @@ impl From<liter_llm::provider::custom::AuthHeaderFormat> for WasmAuthHeaderForma
     }
 }
 
-/// Convert a `liter_llm::error::LiterLlmError` error to a `JsValue` string.
+/// Return the error code string for a `liter_llm::error::LiterLlmError` variant.
+#[allow(dead_code)]
+fn liter_llm_error_error_code(e: &liter_llm::error::LiterLlmError) -> &'static str {
+    #[allow(unreachable_patterns)]
+    match e {
+        liter_llm::error::LiterLlmError::Authentication { .. } => "authentication",
+        liter_llm::error::LiterLlmError::RateLimited { .. } => "rate_limited",
+        liter_llm::error::LiterLlmError::BadRequest { .. } => "bad_request",
+        liter_llm::error::LiterLlmError::ContextWindowExceeded { .. } => "context_window_exceeded",
+        liter_llm::error::LiterLlmError::ContentPolicy { .. } => "content_policy",
+        liter_llm::error::LiterLlmError::NotFound { .. } => "not_found",
+        liter_llm::error::LiterLlmError::ServerError { .. } => "server_error",
+        liter_llm::error::LiterLlmError::ServiceUnavailable { .. } => "service_unavailable",
+        liter_llm::error::LiterLlmError::Timeout => "timeout",
+        liter_llm::error::LiterLlmError::Streaming { .. } => "streaming",
+        liter_llm::error::LiterLlmError::EndpointNotSupported { .. } => "endpoint_not_supported",
+        liter_llm::error::LiterLlmError::InvalidHeader { .. } => "invalid_header",
+        liter_llm::error::LiterLlmError::Serialization(..) => "serialization",
+        liter_llm::error::LiterLlmError::BudgetExceeded { .. } => "budget_exceeded",
+        liter_llm::error::LiterLlmError::HookRejected { .. } => "hook_rejected",
+        liter_llm::error::LiterLlmError::InternalError { .. } => "internal_error",
+        _ => "liter_llm_error",
+    }
+}
+
+/// Convert a `liter_llm::error::LiterLlmError` error to a `JsValue` object with `code` and `message` fields.
 #[allow(dead_code)]
 fn liter_llm_error_to_js_value(e: liter_llm::error::LiterLlmError) -> wasm_bindgen::JsValue {
-    wasm_bindgen::JsValue::from_str(&e.to_string())
+    let code = liter_llm_error_error_code(&e);
+    let message = e.to_string();
+    let obj = js_sys::Object::new();
+    js_sys::Reflect::set(&obj, &"code".into(), &code.into()).ok();
+    js_sys::Reflect::set(&obj, &"message".into(), &message.into()).ok();
+    obj.into()
 }

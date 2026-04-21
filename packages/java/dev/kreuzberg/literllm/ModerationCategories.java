@@ -3,6 +3,9 @@ package dev.kreuzberg.literllm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Boolean flags for each moderation category.
+ */
 public record ModerationCategories(
     boolean sexual,
     boolean hate,

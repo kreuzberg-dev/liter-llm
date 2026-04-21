@@ -2,6 +2,9 @@
 package dev.kreuzberg.literllm;
 
 
+/**
+ * A segment of transcribed audio with timing information.
+ */
 public record TranscriptionSegment(int id, double start, double end, String text) {
     public static TranscriptionSegmentBuilder builder() {
         return new TranscriptionSegmentBuilder();

@@ -12,11 +12,13 @@ public record ChatCompletionRequest(
     Optional<Double> temperature,
     @JsonProperty("top_p") Optional<Double> topP,
     Optional<Integer> n,
+    /** Whether to stream the response. */
     Optional<Boolean> stream,
     Object stop,
     @JsonProperty("max_tokens") Optional<Long> maxTokens,
     @JsonProperty("presence_penalty") Optional<Double> presencePenalty,
     @JsonProperty("frequency_penalty") Optional<Double> frequencyPenalty,
+    /** Token bias map.  Uses {@code BTreeMap} (sorted keys) for deterministic */
     @JsonProperty("logit_bias") Optional<Map<String, Double>> logitBias,
     Optional<String> user,
     Optional<List<ChatCompletionTool>> tools,
@@ -26,6 +28,7 @@ public record ChatCompletionRequest(
     @JsonProperty("stream_options") Optional<StreamOptions> streamOptions,
     Optional<Long> seed,
     @JsonProperty("reasoning_effort") Optional<ReasoningEffort> reasoningEffort,
+    /** Provider-specific extra parameters merged into the request body. */
     @JsonProperty("extra_body") Optional<Object> extraBody
 ) {
     public static ChatCompletionRequestBuilder builder() {

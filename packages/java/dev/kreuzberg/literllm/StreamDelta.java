@@ -9,6 +9,7 @@ public record StreamDelta(
     Optional<String> role,
     Optional<String> content,
     @JsonProperty("tool_calls") Optional<List<StreamToolCall>> toolCalls,
+    /** Deprecated legacy function_call delta; retained for API compatibility. */
     @JsonProperty("function_call") Optional<StreamFunctionCall> functionCall,
     Optional<String> refusal
 ) {

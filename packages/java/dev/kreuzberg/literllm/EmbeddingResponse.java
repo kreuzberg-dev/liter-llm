@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record EmbeddingResponse(
+    /** Always {@code "list"} from OpenAI-compatible APIs.  Stored as a plain */
     String object,
     List<EmbeddingObject> data,
     String model,

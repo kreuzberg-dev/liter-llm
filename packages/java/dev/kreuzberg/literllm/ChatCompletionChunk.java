@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ChatCompletionChunk(
     String id,
+    /** Always {@code "chat.completion.chunk"} from OpenAI-compatible APIs.  Stored */
     String object,
     long created,
     String model,

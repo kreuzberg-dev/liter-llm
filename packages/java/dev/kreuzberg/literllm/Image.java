@@ -4,6 +4,9 @@ package dev.kreuzberg.literllm;
 import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A single generated image, returned as either a URL or base64 data.
+ */
 public record Image(
     Optional<String> url,
     @JsonProperty("b64_json") Optional<String> b64Json,

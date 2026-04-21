@@ -2,5 +2,8 @@
 package dev.kreuzberg.literllm;
 
 
+/**
+ * Page dimensions in pixels.
+ */
 public record PageDimensions(int width, int height) {
 }
