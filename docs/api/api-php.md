@@ -343,7 +343,7 @@ Return the extra headers as an ordered slice of `(name, value)` pairs.
 **Signature:**
 
 ```php
-public function headers(): array<StringString>
+public function headers(): array<array{string, string}>
 ```
 
 ###### fmt()
@@ -408,6 +408,155 @@ instead of using the static `api_key` for authentication.
 
 ```php
 public function credentialProvider(CredentialProvider $provider): ClientConfigBuilder
+```
+
+###### header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```php
+public function header(string $key, string $value): ClientConfigBuilder
+```
+
+###### cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```php
+public function cache(CacheConfig $config): ClientConfigBuilder
+```
+
+###### cacheStore()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```php
+public function cacheStore(CacheStore $store): ClientConfigBuilder
+```
+
+###### budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```php
+public function budget(BudgetConfig $config): ClientConfigBuilder
+```
+
+###### hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```php
+public function hook(LlmHook $hook): ClientConfigBuilder
+```
+
+###### hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```php
+public function hooks(array<LlmHook> $hooks): ClientConfigBuilder
+```
+
+###### cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```php
+public function cooldown(float $duration): ClientConfigBuilder
+```
+
+###### rateLimit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError::RateLimited`.
+
+**Signature:**
+
+```php
+public function rateLimit(RateLimitConfig $config): ClientConfigBuilder
+```
+
+###### healthCheck()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```php
+public function healthCheck(float $interval): ClientConfigBuilder
+```
+
+###### costTracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```php
+public function costTracking(bool $enabled): ClientConfigBuilder
+```
+
+###### tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```php
+public function tracing(bool $enabled): ClientConfigBuilder
 ```
 
 ###### build()

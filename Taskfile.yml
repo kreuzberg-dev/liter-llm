@@ -239,9 +239,10 @@ tasks:
       - alef generate
 
   alef:all:
-    desc: Run full alef pipeline (extract + generate + stubs + scaffold + readme + e2e)
+    desc: Run full alef pipeline (extract + generate + stubs + scaffold + readme + docs + e2e)
     cmds:
       - alef all
+      - task: generate:docs:sync
 
   alef:verify:
     desc: Check bindings are up-to-date (CI)
@@ -252,6 +253,29 @@ tasks:
     desc: Regenerate all generated code
     cmds:
       - alef all
+      - task: generate:docs:sync
+
+  generate:docs:
+    desc: Generate API reference documentation
+    cmds:
+      - alef docs
+      - task: generate:docs:sync
+
+  generate:docs:sync:
+    desc: Sync API reference docs from docs/reference/ to docs/api/
+    internal: true
+    cmds:
+      - cp docs/reference/api-*.md docs/api/
+      - cp docs/reference/types.md docs/api/
+      - cp docs/reference/errors.md docs/api/
+      - cp docs/reference/configuration.md docs/api/
+
+  generate:docs:check:
+    desc: Validate API reference docs are up-to-date (CI)
+    cmds:
+      - alef docs
+      - task: generate:docs:sync
+      - git diff --exit-code docs/reference/ docs/api/api-*.md docs/api/types.md docs/api/errors.md docs/api/configuration.md
 
   generate:readme:
     desc: Generate package READMEs

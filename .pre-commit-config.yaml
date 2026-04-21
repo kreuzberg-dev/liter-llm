@@ -127,14 +127,14 @@ repos:
     rev: v0.6.37
     hooks:
       - id: cpd
-        exclude: ^(\.mvn/wrapper/|e2e/|tools/e2e-generator/e2e/)
+        exclude: ^(\.mvn/wrapper/|e2e/)
       - id: checkstyle
         args:
           [
             "-c",
             "packages/java/checkstyle.xml",
           ]
-        exclude: ^(\.mvn/wrapper/|e2e/|tools/e2e-generator/e2e/)
+        exclude: ^(\.mvn/wrapper/|e2e/)
 
   # AI Rules
   - repo: https://github.com/Goldziher/ai-rulez

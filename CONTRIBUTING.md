@@ -99,7 +99,13 @@ task format
 task lint
 
 # Generate READMEs from templates
-task generate-readme
+task generate:readme
+
+# Generate API reference documentation
+task generate:docs
+
+# Regenerate all generated code (bindings, stubs, READMEs, docs, e2e)
+task generate:all
 ```
 
 ```bash
@@ -239,26 +245,18 @@ task c:e2e:test        # Run C E2E tests
 
 ## E2E Tests
 
-E2E tests are generated from JSON fixtures in `tools/e2e-generator/fixtures/` and produce runnable test suites for each language binding.
+E2E tests are generated from JSON fixtures in `fixtures/` using [Alef](https://github.com/kreuzberg-dev/alef) and produce runnable test suites for each language binding.
 
 ```bash
 # Generate E2E tests for all languages
 task e2e:generate:all
 
-# Generate for a specific language
-task e2e:generate:rust
-task e2e:generate:python
-task e2e:generate:go
-task e2e:generate:java
-task e2e:generate:elixir
-task e2e:generate:ruby
-task e2e:generate:c
-
-# Run Rust E2E tests
+# Run E2E tests
+task e2e:test:all
 task e2e:test:rust
 ```
 
-Generated test files in `e2e/` should not be edited directly — modify fixtures or the generator source instead.
+Generated test files in `e2e/` should not be edited directly — modify fixtures or `alef.toml` instead.
 
 ## Exploring Tasks
 

@@ -1,12 +1,12 @@
 ---
-title: "Java API Reference"
+title: "Rust API Reference"
 ---
 
-## Java API Reference <span class="version-badge">v1.2.2</span>
+## Rust API Reference <span class="version-badge">v1.2.2</span>
 
 ### Functions
 
-#### createClient()
+#### create_client()
 
 Create a new LLM client with simple scalar configuration.
 
@@ -21,28 +21,28 @@ constructed, or if the resolved provider configuration is invalid.
 
 **Signature:**
 
-```java
-public static DefaultClient createClient(String apiKey, String baseUrl, long timeoutSecs, int maxRetries, String modelHint) throws Error
+```rust
+pub fn create_client(api_key: &str, base_url: Option<String>, timeout_secs: Option<u64>, max_retries: Option<u32>, model_hint: Option<String>) -> Result<DefaultClient, Error>
 ```
 
 **Parameters:**
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `apiKey` | `String` | Yes | The api key |
-| `baseUrl` | `Optional<String>` | No | The base url |
-| `timeoutSecs` | `Optional<long>` | No | The timeout secs |
-| `maxRetries` | `Optional<int>` | No | The max retries |
-| `modelHint` | `Optional<String>` | No | The model hint |
+| `api_key` | `String` | Yes | The api key |
+| `base_url` | `Option<String>` | No | The base url |
+| `timeout_secs` | `Option<u64>` | No | The timeout secs |
+| `max_retries` | `Option<u32>` | No | The max retries |
+| `model_hint` | `Option<String>` | No | The model hint |
 
 **Returns:** `DefaultClient`
 
-**Errors:** Throws `ErrorException`.
+**Errors:** Returns `Err(Error)`.
 
 
 ---
 
-#### createClientFromJson()
+#### create_client_from_json()
 
 Create a new LLM client from a JSON string.
 
@@ -55,8 +55,8 @@ contains unknown fields.
 
 **Signature:**
 
-```java
-public static DefaultClient createClientFromJson(String json) throws Error
+```rust
+pub fn create_client_from_json(json: &str) -> Result<DefaultClient, Error>
 ```
 
 **Parameters:**
@@ -67,12 +67,12 @@ public static DefaultClient createClientFromJson(String json) throws Error
 
 **Returns:** `DefaultClient`
 
-**Errors:** Throws `ErrorException`.
+**Errors:** Returns `Err(Error)`.
 
 
 ---
 
-#### registerCustomProvider()
+#### register_custom_provider()
 
 Register a custom provider in the global runtime registry.
 
@@ -86,8 +86,8 @@ no model prefixes).
 
 **Signature:**
 
-```java
-public static void registerCustomProvider(CustomProviderConfig config) throws Error
+```rust
+pub fn register_custom_provider(config: CustomProviderConfig) -> Result<(), Error>
 ```
 
 **Parameters:**
@@ -96,14 +96,14 @@ public static void registerCustomProvider(CustomProviderConfig config) throws Er
 |------|------|----------|-------------|
 | `config` | `CustomProviderConfig` | Yes | The configuration options |
 
-**Returns:** `void`
+**Returns:** `()`
 
-**Errors:** Throws `ErrorException`.
+**Errors:** Returns `Err(Error)`.
 
 
 ---
 
-#### unregisterCustomProvider()
+#### unregister_custom_provider()
 
 Remove a previously registered custom provider by name.
 
@@ -116,8 +116,8 @@ Returns an error only if the internal lock is poisoned.
 
 **Signature:**
 
-```java
-public static boolean unregisterCustomProvider(String name) throws Error
+```rust
+pub fn unregister_custom_provider(name: &str) -> Result<bool, Error>
 ```
 
 **Parameters:**
@@ -126,9 +126,9 @@ public static boolean unregisterCustomProvider(String name) throws Error
 |------|------|----------|-------------|
 | `name` | `String` | Yes | The name |
 
-**Returns:** `boolean`
+**Returns:** `bool`
 
-**Errors:** Throws `ErrorException`.
+**Errors:** Returns `Err(Error)`.
 
 
 ---
@@ -142,9 +142,9 @@ Inner error object.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `message` | `String` | — | Message |
-| `errorType` | `String` | — | Error type |
-| `param` | `Optional<String>` | `null` | Param |
-| `code` | `Optional<String>` | `null` | Code |
+| `error_type` | `String` | — | Error type |
+| `param` | `Option<String>` | `None` | Param |
+| `code` | `Option<String>` | `None` | Code |
 
 
 ---
@@ -153,11 +153,11 @@ Inner error object.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `content` | `Optional<String>` | `null` | The extracted text content |
-| `name` | `Optional<String>` | `null` | The name |
-| `toolCalls` | `Optional<List<ToolCall>>` | `Collections.emptyList()` | Tool calls |
-| `refusal` | `Optional<String>` | `null` | Refusal |
-| `functionCall` | `Optional<FunctionCall>` | `null` | Deprecated legacy function_call field; retained for API compatibility. |
+| `content` | `Option<String>` | `Default::default()` | The extracted text content |
+| `name` | `Option<String>` | `Default::default()` | The name |
+| `tool_calls` | `Option<Vec<ToolCall>>` | `vec![]` | Tool calls |
+| `refusal` | `Option<String>` | `Default::default()` | Refusal |
+| `function_call` | `Option<FunctionCall>` | `Default::default()` | Deprecated legacy function_call field; retained for API compatibility. |
 
 
 ---
@@ -178,44 +178,44 @@ Batch processing operations (create, list, retrieve, cancel).
 
 ##### Methods
 
-###### createBatch()
+###### create_batch()
 
 Create a new batch job.
 
 **Signature:**
 
-```java
-public BatchObject createBatch(CreateBatchRequest req) throws Error
+```rust
+pub fn create_batch(&self, req: CreateBatchRequest) -> BatchObject
 ```
 
-###### retrieveBatch()
+###### retrieve_batch()
 
 Retrieve a batch by ID.
 
 **Signature:**
 
-```java
-public BatchObject retrieveBatch(String batchId) throws Error
+```rust
+pub fn retrieve_batch(&self, batch_id: String) -> BatchObject
 ```
 
-###### listBatches()
+###### list_batches()
 
 List batches, optionally filtered by query parameters.
 
 **Signature:**
 
-```java
-public BatchListResponse listBatches(BatchListQuery query) throws Error
+```rust
+pub fn list_batches(&self, query: Option<BatchListQuery>) -> BatchListResponse
 ```
 
-###### cancelBatch()
+###### cancel_batch()
 
 Cancel an in-progress batch.
 
 **Signature:**
 
-```java
-public BatchObject cancelBatch(String batchId) throws Error
+```rust
+pub fn cancel_batch(&self, batch_id: String) -> BatchObject
 ```
 
 
@@ -227,12 +227,12 @@ public BatchObject cancelBatch(String batchId) throws Error
 |-------|------|---------|-------------|
 | `id` | `String` | — | Unique identifier |
 | `object` | `String` | — | Always `"chat.completion.chunk"` from OpenAI-compatible APIs.  Stored as a plain `String` so non-standard provider values do not fail parsing. |
-| `created` | `long` | — | Created |
+| `created` | `u64` | — | Created |
 | `model` | `String` | — | Model |
-| `choices` | `List<StreamChoice>` | `Collections.emptyList()` | Choices |
-| `usage` | `Optional<Usage>` | `null` | Usage (usage) |
-| `systemFingerprint` | `Optional<String>` | `null` | System fingerprint |
-| `serviceTier` | `Optional<String>` | `null` | Service tier |
+| `choices` | `Vec<StreamChoice>` | `vec![]` | Choices |
+| `usage` | `Option<Usage>` | `Default::default()` | Usage (usage) |
+| `system_fingerprint` | `Option<String>` | `Default::default()` | System fingerprint |
+| `service_tier` | `Option<String>` | `Default::default()` | Service tier |
 
 
 ---
@@ -242,25 +242,25 @@ public BatchObject cancelBatch(String batchId) throws Error
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `model` | `String` | — | Model |
-| `messages` | `List<Message>` | `Collections.emptyList()` | Messages |
-| `temperature` | `Optional<double>` | `null` | Temperature |
-| `topP` | `Optional<double>` | `null` | Top p |
-| `n` | `Optional<int>` | `null` | N |
-| `stream` | `Optional<boolean>` | `null` | Whether to stream the response. Managed by the client layer — do not set directly. |
-| `stop` | `Optional<StopSequence>` | `null` | Stop (stop sequence) |
-| `maxTokens` | `Optional<long>` | `null` | Maximum tokens |
-| `presencePenalty` | `Optional<double>` | `null` | Presence penalty |
-| `frequencyPenalty` | `Optional<double>` | `null` | Frequency penalty |
-| `logitBias` | `Optional<Map<String, Double>>` | `Collections.emptyMap()` | Token bias map.  Uses `BTreeMap` (sorted keys) for deterministic serialization order — important when hashing or signing requests. |
-| `user` | `Optional<String>` | `null` | User |
-| `tools` | `Optional<List<ChatCompletionTool>>` | `Collections.emptyList()` | Tools |
-| `toolChoice` | `Optional<ToolChoice>` | `null` | Tool choice (tool choice) |
-| `parallelToolCalls` | `Optional<boolean>` | `null` | Parallel tool calls |
-| `responseFormat` | `Optional<ResponseFormat>` | `null` | Response format (response format) |
-| `streamOptions` | `Optional<StreamOptions>` | `null` | Stream options (stream options) |
-| `seed` | `Optional<long>` | `null` | Seed |
-| `reasoningEffort` | `Optional<ReasoningEffort>` | `null` | Reasoning effort (reasoning effort) |
-| `extraBody` | `Optional<Object>` | `null` | Provider-specific extra parameters merged into the request body. Use for guardrails, safety settings, grounding config, etc. |
+| `messages` | `Vec<Message>` | `vec![]` | Messages |
+| `temperature` | `Option<f64>` | `Default::default()` | Temperature |
+| `top_p` | `Option<f64>` | `Default::default()` | Top p |
+| `n` | `Option<u32>` | `Default::default()` | N |
+| `stream` | `Option<bool>` | `Default::default()` | Whether to stream the response. Managed by the client layer — do not set directly. |
+| `stop` | `Option<StopSequence>` | `Default::default()` | Stop (stop sequence) |
+| `max_tokens` | `Option<u64>` | `Default::default()` | Maximum tokens |
+| `presence_penalty` | `Option<f64>` | `Default::default()` | Presence penalty |
+| `frequency_penalty` | `Option<f64>` | `Default::default()` | Frequency penalty |
+| `logit_bias` | `Option<HashMap<String, f64>>` | `HashMap::new()` | Token bias map.  Uses `BTreeMap` (sorted keys) for deterministic serialization order — important when hashing or signing requests. |
+| `user` | `Option<String>` | `Default::default()` | User |
+| `tools` | `Option<Vec<ChatCompletionTool>>` | `vec![]` | Tools |
+| `tool_choice` | `Option<ToolChoice>` | `Default::default()` | Tool choice (tool choice) |
+| `parallel_tool_calls` | `Option<bool>` | `Default::default()` | Parallel tool calls |
+| `response_format` | `Option<ResponseFormat>` | `Default::default()` | Response format (response format) |
+| `stream_options` | `Option<StreamOptions>` | `Default::default()` | Stream options (stream options) |
+| `seed` | `Option<i64>` | `Default::default()` | Seed |
+| `reasoning_effort` | `Option<ReasoningEffort>` | `Default::default()` | Reasoning effort (reasoning effort) |
+| `extra_body` | `Option<serde_json::Value>` | `Default::default()` | Provider-specific extra parameters merged into the request body. Use for guardrails, safety settings, grounding config, etc. |
 
 
 ---
@@ -271,28 +271,28 @@ public BatchObject cancelBatch(String batchId) throws Error
 |-------|------|---------|-------------|
 | `id` | `String` | — | Unique identifier |
 | `object` | `String` | — | Always `"chat.completion"` from OpenAI-compatible APIs.  Stored as a plain `String` so non-standard provider values do not break deserialization. |
-| `created` | `long` | — | Created |
+| `created` | `u64` | — | Created |
 | `model` | `String` | — | Model |
-| `choices` | `List<Choice>` | `Collections.emptyList()` | Choices |
-| `usage` | `Optional<Usage>` | `null` | Usage (usage) |
-| `systemFingerprint` | `Optional<String>` | `null` | System fingerprint |
-| `serviceTier` | `Optional<String>` | `null` | Service tier |
+| `choices` | `Vec<Choice>` | `vec![]` | Choices |
+| `usage` | `Option<Usage>` | `Default::default()` | Usage (usage) |
+| `system_fingerprint` | `Option<String>` | `Default::default()` | System fingerprint |
+| `service_tier` | `Option<String>` | `Default::default()` | Service tier |
 
 ##### Methods
 
-###### estimatedCost()
+###### estimated_cost()
 
 Estimate the cost of this response based on embedded pricing data.
 
-Returns `null` if:
+Returns `None` if:
 
 - the `model` field is not present in the embedded pricing registry, or
 - the `usage` field is absent from the response.
 
 **Signature:**
 
-```java
-public Optional<Double> estimatedCost()
+```rust
+pub fn estimated_cost(&self) -> Option<f64>
 ```
 
 
@@ -302,7 +302,7 @@ public Optional<Double> estimatedCost()
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `toolType` | `ToolType` | — | Tool type (tool type) |
+| `tool_type` | `ToolType` | — | Tool type (tool type) |
 | `function` | `FunctionDefinition` | — | Function (function definition) |
 
 
@@ -312,9 +312,9 @@ public Optional<Double> estimatedCost()
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `index` | `int` | — | Index |
+| `index` | `u32` | — | Index |
 | `message` | `AssistantMessage` | — | Message (assistant message) |
-| `finishReason` | `Optional<FinishReason>` | `null` | Finish reason (finish reason) |
+| `finish_reason` | `Option<FinishReason>` | `Default::default()` | Finish reason (finish reason) |
 
 
 ---
@@ -328,11 +328,11 @@ printed accidentally. Access it via `secrecy.ExposeSecret`.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `apiKey` | `String` | — | API key for authentication (stored as a secret). |
-| `baseUrl` | `Optional<String>` | `null` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
-| `timeout` | `Duration` | — | Request timeout. |
-| `maxRetries` | `int` | — | Maximum number of retries on 429 / 5xx responses. |
-| `credentialProvider` | `Optional<CredentialProvider>` | `null` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `api_key` | `String` | — | API key for authentication (stored as a secret). |
+| `base_url` | `Option<String>` | `None` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `std::time::Duration` | — | Request timeout. |
+| `max_retries` | `u32` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credential_provider` | `Option<CredentialProvider>` | `None` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
 
 ##### Methods
 
@@ -342,16 +342,16 @@ Return the extra headers as an ordered slice of `(name, value)` pairs.
 
 **Signature:**
 
-```java
-public List<Tuple<String, String>> headers()
+```rust
+pub fn headers(&self) -> Vec<(String, String)>
 ```
 
 ###### fmt()
 
 **Signature:**
 
-```java
-public Unknown fmt(Formatter f)
+```rust
+pub fn fmt(&self, f: Formatter) -> Unknown
 ```
 
 
@@ -367,14 +367,14 @@ obtain a `ClientConfig`.
 
 ##### Methods
 
-###### baseUrl()
+###### base_url()
 
 Override the provider base URL for all requests.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder baseUrl(String url)
+```rust
+pub fn base_url(&self, url: String) -> ClientConfigBuilder
 ```
 
 ###### timeout()
@@ -383,21 +383,21 @@ Set the per-request timeout (default: 60 s).
 
 **Signature:**
 
-```java
-public ClientConfigBuilder timeout(Duration timeout)
+```rust
+pub fn timeout(&self, timeout: std::time::Duration) -> ClientConfigBuilder
 ```
 
-###### maxRetries()
+###### max_retries()
 
 Set the maximum number of retries on 429 / 5xx responses (default: 3).
 
 **Signature:**
 
-```java
-public ClientConfigBuilder maxRetries(int retries)
+```rust
+pub fn max_retries(&self, retries: u32) -> ClientConfigBuilder
 ```
 
-###### credentialProvider()
+###### credential_provider()
 
 Set a dynamic credential provider for token-based or refreshable auth.
 
@@ -406,8 +406,8 @@ instead of using the static `api_key` for authentication.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder credentialProvider(CredentialProvider provider)
+```rust
+pub fn credential_provider(&self, provider: CredentialProvider) -> ClientConfigBuilder
 ```
 
 ###### header()
@@ -422,8 +422,8 @@ because header validation relies on `reqwest`'s header types.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder header(String key, String value) throws Error
+```rust
+pub fn header(&self, key: String, value: String) -> ClientConfigBuilder
 ```
 
 ###### cache()
@@ -436,11 +436,11 @@ built `ClientConfig` to construct a
 
 **Signature:**
 
-```java
-public ClientConfigBuilder cache(CacheConfig config)
+```rust
+pub fn cache(&self, config: CacheConfig) -> ClientConfigBuilder
 ```
 
-###### cacheStore()
+###### cache_store()
 
 Set a custom cache store backend for the Tower cache middleware.
 
@@ -449,8 +449,8 @@ this store instead of the default in-memory LRU.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder cacheStore(CacheStore store)
+```rust
+pub fn cache_store(&self, store: CacheStore) -> ClientConfigBuilder
 ```
 
 ###### budget()
@@ -463,8 +463,8 @@ built `ClientConfig` to construct a
 
 **Signature:**
 
-```java
-public ClientConfigBuilder budget(BudgetConfig config)
+```rust
+pub fn budget(&self, config: BudgetConfig) -> ClientConfigBuilder
 ```
 
 ###### hook()
@@ -476,8 +476,8 @@ lifecycle points (pre-request, post-response, on-error).
 
 **Signature:**
 
-```java
-public ClientConfigBuilder hook(LlmHook hook)
+```rust
+pub fn hook(&self, hook: LlmHook) -> ClientConfigBuilder
 ```
 
 ###### hooks()
@@ -489,8 +489,8 @@ Hooks are invoked sequentially in registration order.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder hooks(List<LlmHook> hooks)
+```rust
+pub fn hooks(&self, hooks: Vec<LlmHook>) -> ClientConfigBuilder
 ```
 
 ###### cooldown()
@@ -503,11 +503,11 @@ server error).
 
 **Signature:**
 
-```java
-public ClientConfigBuilder cooldown(Duration duration)
+```rust
+pub fn cooldown(&self, duration: std::time::Duration) -> ClientConfigBuilder
 ```
 
-###### rateLimit()
+###### rate_limit()
 
 Set per-model rate limiting configuration.
 
@@ -516,11 +516,11 @@ rejected with `LiterLlmError.RateLimited`.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder rateLimit(RateLimitConfig config)
+```rust
+pub fn rate_limit(&self, config: RateLimitConfig) -> ClientConfigBuilder
 ```
 
-###### healthCheck()
+###### health_check()
 
 Set the background health check interval.
 
@@ -529,11 +529,11 @@ requests when the provider is unhealthy.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder healthCheck(Duration interval)
+```rust
+pub fn health_check(&self, interval: std::time::Duration) -> ClientConfigBuilder
 ```
 
-###### costTracking()
+###### cost_tracking()
 
 Enable or disable per-request cost tracking.
 
@@ -542,8 +542,8 @@ span as `gen_ai.usage.cost`.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder costTracking(boolean enabled)
+```rust
+pub fn cost_tracking(&self, enabled: bool) -> ClientConfigBuilder
 ```
 
 ###### tracing()
@@ -555,8 +555,8 @@ with semantic convention attributes.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder tracing(boolean enabled)
+```rust
+pub fn tracing(&self, enabled: bool) -> ClientConfigBuilder
 ```
 
 ###### build()
@@ -565,8 +565,8 @@ Consume the builder and return the completed `ClientConfig`.
 
 **Signature:**
 
-```java
-public ClientConfig build()
+```rust
+pub fn build(&self) -> ClientConfig
 ```
 
 
@@ -579,13 +579,13 @@ Request to create images from a text prompt.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `prompt` | `String` | — | Prompt |
-| `model` | `Optional<String>` | `null` | Model |
-| `n` | `Optional<int>` | `null` | N |
-| `size` | `Optional<String>` | `null` | Size in bytes |
-| `quality` | `Optional<String>` | `null` | Quality |
-| `style` | `Optional<String>` | `null` | Style |
-| `responseFormat` | `Optional<String>` | `null` | Response format |
-| `user` | `Optional<String>` | `null` | User |
+| `model` | `Option<String>` | `Default::default()` | Model |
+| `n` | `Option<u32>` | `Default::default()` | N |
+| `size` | `Option<String>` | `Default::default()` | Size in bytes |
+| `quality` | `Option<String>` | `Default::default()` | Quality |
+| `style` | `Option<String>` | `Default::default()` | Style |
+| `response_format` | `Option<String>` | `Default::default()` | Response format |
+| `user` | `Option<String>` | `Default::default()` | User |
 
 
 ---
@@ -599,8 +599,8 @@ Request to generate speech audio from text.
 | `model` | `String` | — | Model |
 | `input` | `String` | — | Input |
 | `voice` | `String` | — | Voice |
-| `responseFormat` | `Optional<String>` | `null` | Response format |
-| `speed` | `Optional<double>` | `null` | Speed |
+| `response_format` | `Option<String>` | `Default::default()` | Response format |
+| `speed` | `Option<f64>` | `Default::default()` | Speed |
 
 
 ---
@@ -613,10 +613,10 @@ Request to transcribe audio into text.
 |-------|------|---------|-------------|
 | `model` | `String` | — | Model |
 | `file` | `String` | — | Base64-encoded audio file data. |
-| `language` | `Optional<String>` | `null` | Language |
-| `prompt` | `Optional<String>` | `null` | Prompt |
-| `responseFormat` | `Optional<String>` | `null` | Response format |
-| `temperature` | `Optional<double>` | `null` | Temperature |
+| `language` | `Option<String>` | `Default::default()` | Language |
+| `prompt` | `Option<String>` | `Default::default()` | Prompt |
+| `response_format` | `Option<String>` | `Default::default()` | Response format |
+| `temperature` | `Option<f64>` | `Default::default()` | Temperature |
 
 
 ---
@@ -628,9 +628,9 @@ Configuration for registering a custom LLM provider at runtime.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `name` | `String` | — | Unique name for this provider (e.g., "my-provider"). |
-| `baseUrl` | `String` | — | Base URL for the provider's API (e.g., "<https://api.my-provider.com/v1">). |
-| `authHeader` | `AuthHeaderFormat` | — | Authentication header format. |
-| `modelPrefixes` | `List<String>` | — | Model name prefixes that route to this provider (e.g., ["my-"]). |
+| `base_url` | `String` | — | Base URL for the provider's API (e.g., "<https://api.my-provider.com/v1">). |
+| `auth_header` | `AuthHeaderFormat` | — | Authentication header format. |
+| `model_prefixes` | `Vec<String>` | — | Model name prefixes that route to this provider (e.g., ["my-"]). |
 
 
 ---
@@ -659,7 +659,7 @@ Build a client.
 
 `model_hint` guides provider auto-detection when no explicit
 `base_url` override is present in the config. For example, passing
-`Some("groq/llama3-70b")` selects the Groq provider. Pass `null` to
+`Some("groq/llama3-70b")` selects the Groq provider. Pass `None` to
 default to OpenAI.
 
 **Errors:**
@@ -670,264 +670,264 @@ cannot be constructed. Header names and values are pre-validated by
 
 **Signature:**
 
-```java
-public static DefaultClient new(ClientConfig config, String modelHint) throws Error
+```rust
+pub fn new(config: ClientConfig, model_hint: Option<String>) -> DefaultClient
 ```
 
 ###### chat()
 
 **Signature:**
 
-```java
-public ChatCompletionResponse chat(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat(&self, req: ChatCompletionRequest) -> ChatCompletionResponse
 ```
 
-###### chatStream()
+###### chat_stream()
 
 **Signature:**
 
-```java
-public BoxStream chatStream(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_stream(&self, req: ChatCompletionRequest) -> BoxStream
 ```
 
 ###### embed()
 
 **Signature:**
 
-```java
-public EmbeddingResponse embed(EmbeddingRequest req) throws Error
+```rust
+pub fn embed(&self, req: EmbeddingRequest) -> EmbeddingResponse
 ```
 
-###### listModels()
+###### list_models()
 
 **Signature:**
 
-```java
-public ModelsListResponse listModels() throws Error
+```rust
+pub fn list_models(&self) -> ModelsListResponse
 ```
 
-###### imageGenerate()
+###### image_generate()
 
 **Signature:**
 
-```java
-public ImagesResponse imageGenerate(CreateImageRequest req) throws Error
+```rust
+pub fn image_generate(&self, req: CreateImageRequest) -> ImagesResponse
 ```
 
 ###### speech()
 
 **Signature:**
 
-```java
-public byte[] speech(CreateSpeechRequest req) throws Error
+```rust
+pub fn speech(&self, req: CreateSpeechRequest) -> Vec<u8>
 ```
 
 ###### transcribe()
 
 **Signature:**
 
-```java
-public TranscriptionResponse transcribe(CreateTranscriptionRequest req) throws Error
+```rust
+pub fn transcribe(&self, req: CreateTranscriptionRequest) -> TranscriptionResponse
 ```
 
 ###### moderate()
 
 **Signature:**
 
-```java
-public ModerationResponse moderate(ModerationRequest req) throws Error
+```rust
+pub fn moderate(&self, req: ModerationRequest) -> ModerationResponse
 ```
 
 ###### rerank()
 
 **Signature:**
 
-```java
-public RerankResponse rerank(RerankRequest req) throws Error
+```rust
+pub fn rerank(&self, req: RerankRequest) -> RerankResponse
 ```
 
 ###### search()
 
 **Signature:**
 
-```java
-public SearchResponse search(SearchRequest req) throws Error
+```rust
+pub fn search(&self, req: SearchRequest) -> SearchResponse
 ```
 
 ###### ocr()
 
 **Signature:**
 
-```java
-public OcrResponse ocr(OcrRequest req) throws Error
+```rust
+pub fn ocr(&self, req: OcrRequest) -> OcrResponse
 ```
 
-###### chatRaw()
+###### chat_raw()
 
 **Signature:**
 
-```java
-public RawExchange chatRaw(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_raw(&self, req: ChatCompletionRequest) -> RawExchange
 ```
 
-###### chatStreamRaw()
+###### chat_stream_raw()
 
 **Signature:**
 
-```java
-public RawStreamExchange chatStreamRaw(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_stream_raw(&self, req: ChatCompletionRequest) -> RawStreamExchange
 ```
 
-###### embedRaw()
+###### embed_raw()
 
 **Signature:**
 
-```java
-public RawExchange embedRaw(EmbeddingRequest req) throws Error
+```rust
+pub fn embed_raw(&self, req: EmbeddingRequest) -> RawExchange
 ```
 
-###### imageGenerateRaw()
+###### image_generate_raw()
 
 **Signature:**
 
-```java
-public RawExchange imageGenerateRaw(CreateImageRequest req) throws Error
+```rust
+pub fn image_generate_raw(&self, req: CreateImageRequest) -> RawExchange
 ```
 
-###### transcribeRaw()
+###### transcribe_raw()
 
 **Signature:**
 
-```java
-public RawExchange transcribeRaw(CreateTranscriptionRequest req) throws Error
+```rust
+pub fn transcribe_raw(&self, req: CreateTranscriptionRequest) -> RawExchange
 ```
 
-###### moderateRaw()
+###### moderate_raw()
 
 **Signature:**
 
-```java
-public RawExchange moderateRaw(ModerationRequest req) throws Error
+```rust
+pub fn moderate_raw(&self, req: ModerationRequest) -> RawExchange
 ```
 
-###### rerankRaw()
+###### rerank_raw()
 
 **Signature:**
 
-```java
-public RawExchange rerankRaw(RerankRequest req) throws Error
+```rust
+pub fn rerank_raw(&self, req: RerankRequest) -> RawExchange
 ```
 
-###### searchRaw()
+###### search_raw()
 
 **Signature:**
 
-```java
-public RawExchange searchRaw(SearchRequest req) throws Error
+```rust
+pub fn search_raw(&self, req: SearchRequest) -> RawExchange
 ```
 
-###### ocrRaw()
+###### ocr_raw()
 
 **Signature:**
 
-```java
-public RawExchange ocrRaw(OcrRequest req) throws Error
+```rust
+pub fn ocr_raw(&self, req: OcrRequest) -> RawExchange
 ```
 
-###### createFile()
+###### create_file()
 
 **Signature:**
 
-```java
-public FileObject createFile(CreateFileRequest req) throws Error
+```rust
+pub fn create_file(&self, req: CreateFileRequest) -> FileObject
 ```
 
-###### retrieveFile()
+###### retrieve_file()
 
 **Signature:**
 
-```java
-public FileObject retrieveFile(String fileId) throws Error
+```rust
+pub fn retrieve_file(&self, file_id: String) -> FileObject
 ```
 
-###### deleteFile()
+###### delete_file()
 
 **Signature:**
 
-```java
-public DeleteResponse deleteFile(String fileId) throws Error
+```rust
+pub fn delete_file(&self, file_id: String) -> DeleteResponse
 ```
 
-###### listFiles()
+###### list_files()
 
 **Signature:**
 
-```java
-public FileListResponse listFiles(FileListQuery query) throws Error
+```rust
+pub fn list_files(&self, query: Option<FileListQuery>) -> FileListResponse
 ```
 
-###### fileContent()
+###### file_content()
 
 **Signature:**
 
-```java
-public byte[] fileContent(String fileId) throws Error
+```rust
+pub fn file_content(&self, file_id: String) -> Vec<u8>
 ```
 
-###### createBatch()
+###### create_batch()
 
 **Signature:**
 
-```java
-public BatchObject createBatch(CreateBatchRequest req) throws Error
+```rust
+pub fn create_batch(&self, req: CreateBatchRequest) -> BatchObject
 ```
 
-###### retrieveBatch()
+###### retrieve_batch()
 
 **Signature:**
 
-```java
-public BatchObject retrieveBatch(String batchId) throws Error
+```rust
+pub fn retrieve_batch(&self, batch_id: String) -> BatchObject
 ```
 
-###### listBatches()
+###### list_batches()
 
 **Signature:**
 
-```java
-public BatchListResponse listBatches(BatchListQuery query) throws Error
+```rust
+pub fn list_batches(&self, query: Option<BatchListQuery>) -> BatchListResponse
 ```
 
-###### cancelBatch()
+###### cancel_batch()
 
 **Signature:**
 
-```java
-public BatchObject cancelBatch(String batchId) throws Error
+```rust
+pub fn cancel_batch(&self, batch_id: String) -> BatchObject
 ```
 
-###### createResponse()
+###### create_response()
 
 **Signature:**
 
-```java
-public ResponseObject createResponse(CreateResponseRequest req) throws Error
+```rust
+pub fn create_response(&self, req: CreateResponseRequest) -> ResponseObject
 ```
 
-###### retrieveResponse()
+###### retrieve_response()
 
 **Signature:**
 
-```java
-public ResponseObject retrieveResponse(String id) throws Error
+```rust
+pub fn retrieve_response(&self, id: String) -> ResponseObject
 ```
 
-###### cancelResponse()
+###### cancel_response()
 
 **Signature:**
 
-```java
-public ResponseObject cancelResponse(String id) throws Error
+```rust
+pub fn cancel_response(&self, id: String) -> ResponseObject
 ```
 
 
@@ -938,7 +938,7 @@ public ResponseObject cancelResponse(String id) throws Error
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `content` | `String` | — | The extracted text content |
-| `name` | `Optional<String>` | `null` | The name |
+| `name` | `Option<String>` | `Default::default()` | The name |
 
 
 ---
@@ -948,7 +948,7 @@ public ResponseObject cancelResponse(String id) throws Error
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `data` | `String` | — | Base64-encoded document data or URL. |
-| `mediaType` | `String` | — | MIME type (e.g., "application/pdf", "text/csv"). |
+| `media_type` | `String` | — | MIME type (e.g., "application/pdf", "text/csv"). |
 
 
 ---
@@ -958,8 +958,8 @@ public ResponseObject cancelResponse(String id) throws Error
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `object` | `String` | — | Always `"embedding"` from OpenAI-compatible APIs.  Stored as a plain `String` so non-standard provider values do not break deserialization. |
-| `embedding` | `List<Double>` | — | Embedding |
-| `index` | `int` | — | Index |
+| `embedding` | `Vec<f64>` | — | Embedding |
+| `index` | `u32` | — | Index |
 
 
 ---
@@ -970,9 +970,9 @@ public ResponseObject cancelResponse(String id) throws Error
 |-------|------|---------|-------------|
 | `model` | `String` | — | Model |
 | `input` | `EmbeddingInput` | — | Input (embedding input) |
-| `encodingFormat` | `Optional<EmbeddingFormat>` | `null` | Encoding format (embedding format) |
-| `dimensions` | `Optional<int>` | `null` | Dimensions |
-| `user` | `Optional<String>` | `null` | User |
+| `encoding_format` | `Option<EmbeddingFormat>` | `None` | Encoding format (embedding format) |
+| `dimensions` | `Option<u32>` | `None` | Dimensions |
+| `user` | `Option<String>` | `None` | User |
 
 
 ---
@@ -982,17 +982,17 @@ public ResponseObject cancelResponse(String id) throws Error
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `object` | `String` | — | Always `"list"` from OpenAI-compatible APIs.  Stored as a plain `String` so non-standard provider values do not break deserialization. |
-| `data` | `List<EmbeddingObject>` | — | Data |
+| `data` | `Vec<EmbeddingObject>` | — | Data |
 | `model` | `String` | — | Model |
-| `usage` | `Optional<Usage>` | `null` | Usage (usage) |
+| `usage` | `Option<Usage>` | `None` | Usage (usage) |
 
 ##### Methods
 
-###### estimatedCost()
+###### estimated_cost()
 
 Estimate the cost of this embedding request based on embedded pricing data.
 
-Returns `null` if:
+Returns `None` if:
 
 - the `model` field is not present in the embedded pricing registry, or
 - the `usage` field is absent from the response.
@@ -1001,8 +1001,8 @@ Embedding models only charge for input tokens; output cost is zero.
 
 **Signature:**
 
-```java
-public Optional<Double> estimatedCost()
+```rust
+pub fn estimated_cost(&self) -> Option<f64>
 ```
 
 
@@ -1023,9 +1023,9 @@ Error response from an OpenAI-compatible API.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `globalLimit` | `Optional<double>` | `null` | Global limit |
-| `modelLimits` | `Optional<Map<String, Double>>` | `null` | Model limits |
-| `enforcement` | `Optional<String>` | `null` | Enforcement |
+| `global_limit` | `Option<f64>` | `None` | Global limit |
+| `model_limits` | `Option<HashMap<String, f64>>` | `None` | Model limits |
+| `enforcement` | `Option<String>` | `None` | Enforcement |
 
 
 ---
@@ -1034,10 +1034,10 @@ Error response from an OpenAI-compatible API.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `maxEntries` | `Optional<long>` | `null` | Maximum entries |
-| `ttlSeconds` | `Optional<long>` | `null` | Ttl seconds |
-| `backend` | `Optional<String>` | `null` | Backend |
-| `backendConfig` | `Optional<Map<String, String>>` | `null` | Backend config |
+| `max_entries` | `Option<usize>` | `None` | Maximum entries |
+| `ttl_seconds` | `Option<u64>` | `None` | Ttl seconds |
+| `backend` | `Option<String>` | `None` | Backend |
+| `backend_config` | `Option<HashMap<String, String>>` | `None` | Backend config |
 
 
 ---
@@ -1048,54 +1048,54 @@ File management operations (upload, list, retrieve, delete).
 
 ##### Methods
 
-###### createFile()
+###### create_file()
 
 Upload a file.
 
 **Signature:**
 
-```java
-public FileObject createFile(CreateFileRequest req) throws Error
+```rust
+pub fn create_file(&self, req: CreateFileRequest) -> FileObject
 ```
 
-###### retrieveFile()
+###### retrieve_file()
 
 Retrieve metadata for a file.
 
 **Signature:**
 
-```java
-public FileObject retrieveFile(String fileId) throws Error
+```rust
+pub fn retrieve_file(&self, file_id: String) -> FileObject
 ```
 
-###### deleteFile()
+###### delete_file()
 
 Delete a file.
 
 **Signature:**
 
-```java
-public DeleteResponse deleteFile(String fileId) throws Error
+```rust
+pub fn delete_file(&self, file_id: String) -> DeleteResponse
 ```
 
-###### listFiles()
+###### list_files()
 
 List files, optionally filtered by query parameters.
 
 **Signature:**
 
-```java
-public FileListResponse listFiles(FileListQuery query) throws Error
+```rust
+pub fn list_files(&self, query: Option<FileListQuery>) -> FileListResponse
 ```
 
-###### fileContent()
+###### file_content()
 
 Retrieve the raw content of a file.
 
 **Signature:**
 
-```java
-public byte[] fileContent(String fileId) throws Error
+```rust
+pub fn file_content(&self, file_id: String) -> Vec<u8>
 ```
 
 
@@ -1133,41 +1133,41 @@ model_prefixes = ["my-provider/"]
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `apiKey` | `Optional<String>` | `null` | Api key |
-| `baseUrl` | `Optional<String>` | `null` | Base url |
-| `modelHint` | `Optional<String>` | `null` | Model hint |
-| `timeoutSecs` | `Optional<long>` | `null` | Timeout secs |
-| `maxRetries` | `Optional<int>` | `null` | Maximum retries |
-| `extraHeaders` | `Optional<Map<String, String>>` | `null` | Extra headers |
-| `cache` | `Optional<FileCacheConfig>` | `null` | Cache (file cache config) |
-| `budget` | `Optional<FileBudgetConfig>` | `null` | Budget (file budget config) |
-| `cooldownSecs` | `Optional<long>` | `null` | Cooldown secs |
-| `rateLimit` | `Optional<FileRateLimitConfig>` | `null` | Rate limit (file rate limit config) |
-| `healthCheckSecs` | `Optional<long>` | `null` | Health check secs |
-| `costTracking` | `Optional<boolean>` | `null` | Cost tracking |
-| `tracing` | `Optional<boolean>` | `null` | Tracing |
-| `providers` | `Optional<List<FileProviderConfig>>` | `null` | Providers |
+| `api_key` | `Option<String>` | `None` | Api key |
+| `base_url` | `Option<String>` | `None` | Base url |
+| `model_hint` | `Option<String>` | `None` | Model hint |
+| `timeout_secs` | `Option<u64>` | `None` | Timeout secs |
+| `max_retries` | `Option<u32>` | `None` | Maximum retries |
+| `extra_headers` | `Option<HashMap<String, String>>` | `None` | Extra headers |
+| `cache` | `Option<FileCacheConfig>` | `None` | Cache (file cache config) |
+| `budget` | `Option<FileBudgetConfig>` | `None` | Budget (file budget config) |
+| `cooldown_secs` | `Option<u64>` | `None` | Cooldown secs |
+| `rate_limit` | `Option<FileRateLimitConfig>` | `None` | Rate limit (file rate limit config) |
+| `health_check_secs` | `Option<u64>` | `None` | Health check secs |
+| `cost_tracking` | `Option<bool>` | `None` | Cost tracking |
+| `tracing` | `Option<bool>` | `None` | Tracing |
+| `providers` | `Option<Vec<FileProviderConfig>>` | `None` | Providers |
 
 ### Methods
 
-#### fromTomlFile()
+#### from_toml_file()
 
 Load from a TOML file path.
 
 **Signature:**
 
-```java
-public static FileConfig fromTomlFile(Path path) throws Error
+```rust
+pub fn from_toml_file(path: Path) -> FileConfig
 ```
 
-##### fromTomlStr()
+##### from_toml_str()
 
 Parse from a TOML string.
 
 **Signature:**
 
-```java
-public static FileConfig fromTomlStr(String s) throws Error
+```rust
+pub fn from_toml_str(s: String) -> FileConfig
 ```
 
 ###### discover()
@@ -1178,11 +1178,11 @@ Returns `Ok(None)` if no config file is found.
 
 **Signature:**
 
-```java
-public static Optional<FileConfig> discover() throws Error
+```rust
+pub fn discover() -> Option<FileConfig>
 ```
 
-###### intoBuilder()
+###### into_builder()
 
 Convert into a `ClientConfigBuilder`,
 applying all fields that are set.
@@ -1191,8 +1191,8 @@ Fields not present in the TOML file use the builder's defaults.
 
 **Signature:**
 
-```java
-public ClientConfigBuilder intoBuilder()
+```rust
+pub fn into_builder(&self) -> ClientConfigBuilder
 ```
 
 ###### providers()
@@ -1201,8 +1201,8 @@ Get the custom provider configurations from this file config.
 
 **Signature:**
 
-```java
-public List<FileProviderConfig> providers()
+```rust
+pub fn providers(&self) -> Vec<FileProviderConfig>
 ```
 
 
@@ -1213,9 +1213,9 @@ public List<FileProviderConfig> providers()
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `name` | `String` | — | The name |
-| `baseUrl` | `String` | — | Base url |
-| `authHeader` | `Optional<String>` | `null` | Auth header |
-| `modelPrefixes` | `List<String>` | — | Model prefixes |
+| `base_url` | `String` | — | Base url |
+| `auth_header` | `Option<String>` | `None` | Auth header |
+| `model_prefixes` | `Vec<String>` | — | Model prefixes |
 
 
 ---
@@ -1224,9 +1224,9 @@ public List<FileProviderConfig> providers()
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `rpm` | `Optional<int>` | `null` | Rpm |
-| `tpm` | `Optional<long>` | `null` | Tpm |
-| `windowSeconds` | `Optional<long>` | `null` | Window seconds |
+| `rpm` | `Option<u32>` | `None` | Rpm |
+| `tpm` | `Option<u64>` | `None` | Tpm |
+| `window_seconds` | `Option<u64>` | `None` | Window seconds |
 
 
 ---
@@ -1246,9 +1246,9 @@ public List<FileProviderConfig> providers()
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `name` | `String` | — | The name |
-| `description` | `Optional<String>` | `null` | Human-readable description |
-| `parameters` | `Optional<Object>` | `null` | Parameters |
-| `strict` | `Optional<boolean>` | `null` | Strict |
+| `description` | `Option<String>` | `None` | Human-readable description |
+| `parameters` | `Option<serde_json::Value>` | `None` | Parameters |
+| `strict` | `Option<bool>` | `None` | Strict |
 
 
 ---
@@ -1271,9 +1271,9 @@ A single generated image, returned as either a URL or base64 data.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `url` | `Optional<String>` | `null` | Url |
-| `b64Json` | `Optional<String>` | `null` | B64 json |
-| `revisedPrompt` | `Optional<String>` | `null` | Revised prompt |
+| `url` | `Option<String>` | `Default::default()` | Url |
+| `b64_json` | `Option<String>` | `Default::default()` | B64 json |
+| `revised_prompt` | `Option<String>` | `Default::default()` | Revised prompt |
 
 
 ---
@@ -1283,7 +1283,7 @@ A single generated image, returned as either a URL or base64 data.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `url` | `String` | — | Url |
-| `detail` | `Optional<ImageDetail>` | `null` | Detail (image detail) |
+| `detail` | `Option<ImageDetail>` | `Default::default()` | Detail (image detail) |
 
 
 ---
@@ -1294,8 +1294,8 @@ Response containing generated images.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `created` | `long` | — | Created |
-| `data` | `List<Image>` | `Collections.emptyList()` | Data |
+| `created` | `u64` | — | Created |
+| `data` | `Vec<Image>` | `vec![]` | Data |
 
 
 ---
@@ -1305,9 +1305,9 @@ Response containing generated images.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `name` | `String` | — | The name |
-| `description` | `Optional<String>` | `null` | Human-readable description |
-| `schema` | `Object` | — | Schema |
-| `strict` | `Optional<boolean>` | `null` | Strict |
+| `description` | `Option<String>` | `Default::default()` | Human-readable description |
+| `schema` | `serde_json::Value` | — | Schema |
+| `strict` | `Option<bool>` | `Default::default()` | Strict |
 
 
 ---
@@ -1316,7 +1316,7 @@ Response containing generated images.
 
 ###### Methods
 
-###### isTransient()
+###### is_transient()
 
 Returns `true` for errors that are worth retrying on a different service
 or deployment (transient failures).
@@ -1327,11 +1327,11 @@ alternative endpoint.
 
 **Signature:**
 
-```java
-public boolean isTransient()
+```rust
+pub fn is_transient(&self) -> bool
 ```
 
-###### errorType()
+###### error_type()
 
 Return the OpenTelemetry `error.type` string for this error variant.
 
@@ -1340,11 +1340,11 @@ on failed requests per the GenAI semantic conventions.
 
 **Signature:**
 
-```java
-public String errorType()
+```rust
+pub fn error_type(&self) -> String
 ```
 
-###### fromStatus()
+###### from_status()
 
 Create from an HTTP status code, an API error response body, and an
 optional `Retry-After` duration already parsed from the response header.
@@ -1355,8 +1355,8 @@ header.
 
 **Signature:**
 
-```java
-public static LiterLlmError fromStatus(short status, String body, Duration retryAfter)
+```rust
+pub fn from_status(status: u16, body: String, retry_after: Option<std::time::Duration>) -> LiterLlmError
 ```
 
 
@@ -1374,18 +1374,18 @@ Send a chat completion request.
 
 **Signature:**
 
-```java
-public ChatCompletionResponse chat(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat(&self, req: ChatCompletionRequest) -> ChatCompletionResponse
 ```
 
-###### chatStream()
+###### chat_stream()
 
 Send a streaming chat completion request.
 
 **Signature:**
 
-```java
-public BoxStream chatStream(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_stream(&self, req: ChatCompletionRequest) -> BoxStream
 ```
 
 ###### embed()
@@ -1394,28 +1394,28 @@ Send an embedding request.
 
 **Signature:**
 
-```java
-public EmbeddingResponse embed(EmbeddingRequest req) throws Error
+```rust
+pub fn embed(&self, req: EmbeddingRequest) -> EmbeddingResponse
 ```
 
-###### listModels()
+###### list_models()
 
 List available models.
 
 **Signature:**
 
-```java
-public ModelsListResponse listModels() throws Error
+```rust
+pub fn list_models(&self) -> ModelsListResponse
 ```
 
-###### imageGenerate()
+###### image_generate()
 
 Generate an image.
 
 **Signature:**
 
-```java
-public ImagesResponse imageGenerate(CreateImageRequest req) throws Error
+```rust
+pub fn image_generate(&self, req: CreateImageRequest) -> ImagesResponse
 ```
 
 ###### speech()
@@ -1424,8 +1424,8 @@ Generate speech audio from text.
 
 **Signature:**
 
-```java
-public byte[] speech(CreateSpeechRequest req) throws Error
+```rust
+pub fn speech(&self, req: CreateSpeechRequest) -> Vec<u8>
 ```
 
 ###### transcribe()
@@ -1434,8 +1434,8 @@ Transcribe audio to text.
 
 **Signature:**
 
-```java
-public TranscriptionResponse transcribe(CreateTranscriptionRequest req) throws Error
+```rust
+pub fn transcribe(&self, req: CreateTranscriptionRequest) -> TranscriptionResponse
 ```
 
 ###### moderate()
@@ -1444,8 +1444,8 @@ Check content against moderation policies.
 
 **Signature:**
 
-```java
-public ModerationResponse moderate(ModerationRequest req) throws Error
+```rust
+pub fn moderate(&self, req: ModerationRequest) -> ModerationResponse
 ```
 
 ###### rerank()
@@ -1454,8 +1454,8 @@ Rerank documents by relevance to a query.
 
 **Signature:**
 
-```java
-public RerankResponse rerank(RerankRequest req) throws Error
+```rust
+pub fn rerank(&self, req: RerankRequest) -> RerankResponse
 ```
 
 ###### search()
@@ -1464,8 +1464,8 @@ Perform a web/document search.
 
 **Signature:**
 
-```java
-public SearchResponse search(SearchRequest req) throws Error
+```rust
+pub fn search(&self, req: SearchRequest) -> SearchResponse
 ```
 
 ###### ocr()
@@ -1474,8 +1474,8 @@ Extract text from a document via OCR.
 
 **Signature:**
 
-```java
-public OcrResponse ocr(OcrRequest req) throws Error
+```rust
+pub fn ocr(&self, req: OcrRequest) -> OcrResponse
 ```
 
 
@@ -1494,7 +1494,7 @@ transformations, capturing wire-level data, or implementing custom parsing.
 
 ###### Methods
 
-###### chatRaw()
+###### chat_raw()
 
 Send a chat completion request and return the raw exchange.
 
@@ -1504,11 +1504,11 @@ normalization.
 
 **Signature:**
 
-```java
-public RawExchange chatRaw(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_raw(&self, req: ChatCompletionRequest) -> RawExchange
 ```
 
-###### chatStreamRaw()
+###### chat_stream_raw()
 
 Send a streaming chat completion request and return the raw exchange.
 
@@ -1517,78 +1517,78 @@ returned in `stream` and consumed incrementally.
 
 **Signature:**
 
-```java
-public RawStreamExchange chatStreamRaw(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_stream_raw(&self, req: ChatCompletionRequest) -> RawStreamExchange
 ```
 
-###### embedRaw()
+###### embed_raw()
 
 Send an embedding request and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange embedRaw(EmbeddingRequest req) throws Error
+```rust
+pub fn embed_raw(&self, req: EmbeddingRequest) -> RawExchange
 ```
 
-###### imageGenerateRaw()
+###### image_generate_raw()
 
 Generate an image and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange imageGenerateRaw(CreateImageRequest req) throws Error
+```rust
+pub fn image_generate_raw(&self, req: CreateImageRequest) -> RawExchange
 ```
 
-###### transcribeRaw()
+###### transcribe_raw()
 
 Transcribe audio to text and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange transcribeRaw(CreateTranscriptionRequest req) throws Error
+```rust
+pub fn transcribe_raw(&self, req: CreateTranscriptionRequest) -> RawExchange
 ```
 
-###### moderateRaw()
+###### moderate_raw()
 
 Check content against moderation policies and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange moderateRaw(ModerationRequest req) throws Error
+```rust
+pub fn moderate_raw(&self, req: ModerationRequest) -> RawExchange
 ```
 
-###### rerankRaw()
+###### rerank_raw()
 
 Rerank documents by relevance to a query and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange rerankRaw(RerankRequest req) throws Error
+```rust
+pub fn rerank_raw(&self, req: RerankRequest) -> RawExchange
 ```
 
-###### searchRaw()
+###### search_raw()
 
 Perform a web/document search and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange searchRaw(SearchRequest req) throws Error
+```rust
+pub fn search_raw(&self, req: SearchRequest) -> RawExchange
 ```
 
-###### ocrRaw()
+###### ocr_raw()
 
 Extract text from a document via OCR and return the raw exchange.
 
 **Signature:**
 
-```java
-public RawExchange ocrRaw(OcrRequest req) throws Error
+```rust
+pub fn ocr_raw(&self, req: OcrRequest) -> RawExchange
 ```
 
 
@@ -1629,8 +1629,8 @@ constructed (e.g. invalid headers or HTTP client build failure).
 
 **Signature:**
 
-```java
-public static ManagedClient new(ClientConfig config, String modelHint) throws Error
+```rust
+pub fn new(config: ClientConfig, model_hint: Option<String>) -> ManagedClient
 ```
 
 ###### inner()
@@ -1639,11 +1639,11 @@ Return a reference to the underlying `DefaultClient`.
 
 **Signature:**
 
-```java
-public DefaultClient inner()
+```rust
+pub fn inner(&self) -> DefaultClient
 ```
 
-###### budgetState()
+###### budget_state()
 
 Return the budget state handle, if budget middleware is configured.
 
@@ -1651,203 +1651,203 @@ Use this to query accumulated spend at runtime.
 
 **Signature:**
 
-```java
-public Optional<BudgetState> budgetState()
+```rust
+pub fn budget_state(&self) -> Option<BudgetState>
 ```
 
-###### hasMiddleware()
+###### has_middleware()
 
 Return `true` when middleware is active (requests go through the Tower
 service stack).
 
 **Signature:**
 
-```java
-public boolean hasMiddleware()
+```rust
+pub fn has_middleware(&self) -> bool
 ```
 
 ###### chat()
 
 **Signature:**
 
-```java
-public ChatCompletionResponse chat(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat(&self, req: ChatCompletionRequest) -> ChatCompletionResponse
 ```
 
-###### chatStream()
+###### chat_stream()
 
 **Signature:**
 
-```java
-public BoxStream chatStream(ChatCompletionRequest req) throws Error
+```rust
+pub fn chat_stream(&self, req: ChatCompletionRequest) -> BoxStream
 ```
 
 ###### embed()
 
 **Signature:**
 
-```java
-public EmbeddingResponse embed(EmbeddingRequest req) throws Error
+```rust
+pub fn embed(&self, req: EmbeddingRequest) -> EmbeddingResponse
 ```
 
-###### listModels()
+###### list_models()
 
 **Signature:**
 
-```java
-public ModelsListResponse listModels() throws Error
+```rust
+pub fn list_models(&self) -> ModelsListResponse
 ```
 
-###### imageGenerate()
+###### image_generate()
 
 **Signature:**
 
-```java
-public ImagesResponse imageGenerate(CreateImageRequest req) throws Error
+```rust
+pub fn image_generate(&self, req: CreateImageRequest) -> ImagesResponse
 ```
 
 ###### speech()
 
 **Signature:**
 
-```java
-public byte[] speech(CreateSpeechRequest req) throws Error
+```rust
+pub fn speech(&self, req: CreateSpeechRequest) -> Vec<u8>
 ```
 
 ###### transcribe()
 
 **Signature:**
 
-```java
-public TranscriptionResponse transcribe(CreateTranscriptionRequest req) throws Error
+```rust
+pub fn transcribe(&self, req: CreateTranscriptionRequest) -> TranscriptionResponse
 ```
 
 ###### moderate()
 
 **Signature:**
 
-```java
-public ModerationResponse moderate(ModerationRequest req) throws Error
+```rust
+pub fn moderate(&self, req: ModerationRequest) -> ModerationResponse
 ```
 
 ###### rerank()
 
 **Signature:**
 
-```java
-public RerankResponse rerank(RerankRequest req) throws Error
+```rust
+pub fn rerank(&self, req: RerankRequest) -> RerankResponse
 ```
 
 ###### search()
 
 **Signature:**
 
-```java
-public SearchResponse search(SearchRequest req) throws Error
+```rust
+pub fn search(&self, req: SearchRequest) -> SearchResponse
 ```
 
 ###### ocr()
 
 **Signature:**
 
-```java
-public OcrResponse ocr(OcrRequest req) throws Error
+```rust
+pub fn ocr(&self, req: OcrRequest) -> OcrResponse
 ```
 
-###### createFile()
+###### create_file()
 
 **Signature:**
 
-```java
-public FileObject createFile(CreateFileRequest req) throws Error
+```rust
+pub fn create_file(&self, req: CreateFileRequest) -> FileObject
 ```
 
-###### retrieveFile()
+###### retrieve_file()
 
 **Signature:**
 
-```java
-public FileObject retrieveFile(String fileId) throws Error
+```rust
+pub fn retrieve_file(&self, file_id: String) -> FileObject
 ```
 
-###### deleteFile()
+###### delete_file()
 
 **Signature:**
 
-```java
-public DeleteResponse deleteFile(String fileId) throws Error
+```rust
+pub fn delete_file(&self, file_id: String) -> DeleteResponse
 ```
 
-###### listFiles()
+###### list_files()
 
 **Signature:**
 
-```java
-public FileListResponse listFiles(FileListQuery query) throws Error
+```rust
+pub fn list_files(&self, query: Option<FileListQuery>) -> FileListResponse
 ```
 
-###### fileContent()
+###### file_content()
 
 **Signature:**
 
-```java
-public byte[] fileContent(String fileId) throws Error
+```rust
+pub fn file_content(&self, file_id: String) -> Vec<u8>
 ```
 
-###### createBatch()
+###### create_batch()
 
 **Signature:**
 
-```java
-public BatchObject createBatch(CreateBatchRequest req) throws Error
+```rust
+pub fn create_batch(&self, req: CreateBatchRequest) -> BatchObject
 ```
 
-###### retrieveBatch()
+###### retrieve_batch()
 
 **Signature:**
 
-```java
-public BatchObject retrieveBatch(String batchId) throws Error
+```rust
+pub fn retrieve_batch(&self, batch_id: String) -> BatchObject
 ```
 
-###### listBatches()
+###### list_batches()
 
 **Signature:**
 
-```java
-public BatchListResponse listBatches(BatchListQuery query) throws Error
+```rust
+pub fn list_batches(&self, query: Option<BatchListQuery>) -> BatchListResponse
 ```
 
-###### cancelBatch()
+###### cancel_batch()
 
 **Signature:**
 
-```java
-public BatchObject cancelBatch(String batchId) throws Error
+```rust
+pub fn cancel_batch(&self, batch_id: String) -> BatchObject
 ```
 
-###### createResponse()
+###### create_response()
 
 **Signature:**
 
-```java
-public ResponseObject createResponse(CreateResponseRequest req) throws Error
+```rust
+pub fn create_response(&self, req: CreateResponseRequest) -> ResponseObject
 ```
 
-###### retrieveResponse()
+###### retrieve_response()
 
 **Signature:**
 
-```java
-public ResponseObject retrieveResponse(String id) throws Error
+```rust
+pub fn retrieve_response(&self, id: String) -> ResponseObject
 ```
 
-###### cancelResponse()
+###### cancel_response()
 
 **Signature:**
 
-```java
-public ResponseObject cancelResponse(String id) throws Error
+```rust
+pub fn cancel_response(&self, id: String) -> ResponseObject
 ```
 
 
@@ -1859,8 +1859,8 @@ public ResponseObject cancelResponse(String id) throws Error
 |-------|------|---------|-------------|
 | `id` | `String` | — | Unique identifier |
 | `object` | `String` | — | Always `"model"` from OpenAI-compatible APIs.  Stored as a plain `String` so non-standard provider values do not break deserialization. |
-| `created` | `long` | — | Created |
-| `ownedBy` | `String` | — | Owned by |
+| `created` | `u64` | — | Created |
+| `owned_by` | `String` | — | Owned by |
 
 
 ---
@@ -1870,7 +1870,7 @@ public ResponseObject cancelResponse(String id) throws Error
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `object` | `String` | — | Always `"list"` from OpenAI-compatible APIs.  Stored as a plain `String` so non-standard provider values do not break deserialization. |
-| `data` | `List<ModelObject>` | `Collections.emptyList()` | Data |
+| `data` | `Vec<ModelObject>` | `vec![]` | Data |
 
 
 ---
@@ -1881,17 +1881,17 @@ Boolean flags for each moderation category.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `sexual` | `boolean` | — | Sexual |
-| `hate` | `boolean` | — | Hate |
-| `harassment` | `boolean` | — | Harassment |
-| `selfHarm` | `boolean` | — | Self harm |
-| `sexualMinors` | `boolean` | — | Sexual minors |
-| `hateThreatening` | `boolean` | — | Hate threatening |
-| `violenceGraphic` | `boolean` | — | Violence graphic |
-| `selfHarmIntent` | `boolean` | — | Self harm intent |
-| `selfHarmInstructions` | `boolean` | — | Self harm instructions |
-| `harassmentThreatening` | `boolean` | — | Harassment threatening |
-| `violence` | `boolean` | — | Violence |
+| `sexual` | `bool` | — | Sexual |
+| `hate` | `bool` | — | Hate |
+| `harassment` | `bool` | — | Harassment |
+| `self_harm` | `bool` | — | Self harm |
+| `sexual_minors` | `bool` | — | Sexual minors |
+| `hate_threatening` | `bool` | — | Hate threatening |
+| `violence_graphic` | `bool` | — | Violence graphic |
+| `self_harm_intent` | `bool` | — | Self harm intent |
+| `self_harm_instructions` | `bool` | — | Self harm instructions |
+| `harassment_threatening` | `bool` | — | Harassment threatening |
+| `violence` | `bool` | — | Violence |
 
 
 ---
@@ -1902,17 +1902,17 @@ Confidence scores for each moderation category.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `sexual` | `double` | — | Sexual |
-| `hate` | `double` | — | Hate |
-| `harassment` | `double` | — | Harassment |
-| `selfHarm` | `double` | — | Self harm |
-| `sexualMinors` | `double` | — | Sexual minors |
-| `hateThreatening` | `double` | — | Hate threatening |
-| `violenceGraphic` | `double` | — | Violence graphic |
-| `selfHarmIntent` | `double` | — | Self harm intent |
-| `selfHarmInstructions` | `double` | — | Self harm instructions |
-| `harassmentThreatening` | `double` | — | Harassment threatening |
-| `violence` | `double` | — | Violence |
+| `sexual` | `f64` | — | Sexual |
+| `hate` | `f64` | — | Hate |
+| `harassment` | `f64` | — | Harassment |
+| `self_harm` | `f64` | — | Self harm |
+| `sexual_minors` | `f64` | — | Sexual minors |
+| `hate_threatening` | `f64` | — | Hate threatening |
+| `violence_graphic` | `f64` | — | Violence graphic |
+| `self_harm_intent` | `f64` | — | Self harm intent |
+| `self_harm_instructions` | `f64` | — | Self harm instructions |
+| `harassment_threatening` | `f64` | — | Harassment threatening |
+| `violence` | `f64` | — | Violence |
 
 
 ---
@@ -1924,7 +1924,7 @@ Request to classify content for policy violations.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `input` | `ModerationInput` | — | Input (moderation input) |
-| `model` | `Optional<String>` | `null` | Model |
+| `model` | `Option<String>` | `None` | Model |
 
 
 ---
@@ -1937,7 +1937,7 @@ Response from the moderation endpoint.
 |-------|------|---------|-------------|
 | `id` | `String` | — | Unique identifier |
 | `model` | `String` | — | Model |
-| `results` | `List<ModerationResult>` | — | Results |
+| `results` | `Vec<ModerationResult>` | — | Results |
 
 
 ---
@@ -1948,9 +1948,9 @@ A single moderation classification result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `flagged` | `boolean` | — | Flagged |
+| `flagged` | `bool` | — | Flagged |
 | `categories` | `ModerationCategories` | — | Categories (moderation categories) |
-| `categoryScores` | `ModerationCategoryScores` | — | Category scores (moderation category scores) |
+| `category_scores` | `ModerationCategoryScores` | — | Category scores (moderation category scores) |
 
 
 ---
@@ -1962,7 +1962,7 @@ An image extracted from an OCR page.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `id` | `String` | — | Unique image identifier. |
-| `imageBase64` | `Optional<String>` | `null` | Base64-encoded image data. |
+| `image_base64` | `Option<String>` | `None` | Base64-encoded image data. |
 
 
 ---
@@ -1973,10 +1973,10 @@ A single page of OCR output.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `index` | `int` | — | Page index (0-based). |
+| `index` | `u32` | — | Page index (0-based). |
 | `markdown` | `String` | — | Extracted content as Markdown. |
-| `images` | `Optional<List<OcrImage>>` | `null` | Extracted images, if `include_image_base64` was set. |
-| `dimensions` | `Optional<PageDimensions>` | `null` | Page dimensions in pixels, if available. |
+| `images` | `Option<Vec<OcrImage>>` | `None` | Extracted images, if `include_image_base64` was set. |
+| `dimensions` | `Option<PageDimensions>` | `None` | Page dimensions in pixels, if available. |
 
 
 ---
@@ -1989,8 +1989,8 @@ An OCR request.
 |-------|------|---------|-------------|
 | `model` | `String` | — | The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`). |
 | `document` | `OcrDocument` | — | The document to process. |
-| `pages` | `Optional<List<Integer>>` | `null` | Specific pages to process (1-indexed). `None` means all pages. |
-| `includeImageBase64` | `Optional<boolean>` | `null` | Whether to include base64-encoded images of each page. |
+| `pages` | `Option<Vec<u32>>` | `None` | Specific pages to process (1-indexed). `None` means all pages. |
+| `include_image_base64` | `Option<bool>` | `None` | Whether to include base64-encoded images of each page. |
 
 
 ---
@@ -2001,9 +2001,9 @@ An OCR response.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `pages` | `List<OcrPage>` | — | Extracted pages. |
+| `pages` | `Vec<OcrPage>` | — | Extracted pages. |
 | `model` | `String` | — | The model used. |
-| `usage` | `Optional<Usage>` | `null` | Token usage, if reported by the provider. |
+| `usage` | `Option<Usage>` | `None` | Token usage, if reported by the provider. |
 
 
 ---
@@ -2014,8 +2014,8 @@ Page dimensions in pixels.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `width` | `int` | — | Width in pixels. |
-| `height` | `int` | — | Height in pixels. |
+| `width` | `u32` | — | Width in pixels. |
+| `height` | `u32` | — | Height in pixels. |
 
 
 ---
@@ -2028,9 +2028,9 @@ Request to rerank documents by relevance to a query.
 |-------|------|---------|-------------|
 | `model` | `String` | — | Model |
 | `query` | `String` | — | Query |
-| `documents` | `List<RerankDocument>` | — | Documents |
-| `topN` | `Optional<int>` | `null` | Top n |
-| `returnDocuments` | `Optional<boolean>` | `null` | Return documents |
+| `documents` | `Vec<RerankDocument>` | — | Documents |
+| `top_n` | `Option<u32>` | `None` | Top n |
+| `return_documents` | `Option<bool>` | `None` | Return documents |
 
 
 ---
@@ -2041,9 +2041,9 @@ Response from the rerank endpoint.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `id` | `Optional<String>` | `null` | Unique identifier |
-| `results` | `List<RerankResult>` | — | Results |
-| `meta` | `Optional<Object>` | `null` | Meta |
+| `id` | `Option<String>` | `None` | Unique identifier |
+| `results` | `Vec<RerankResult>` | — | Results |
+| `meta` | `Option<serde_json::Value>` | `None` | Meta |
 
 
 ---
@@ -2054,9 +2054,9 @@ A single reranked document with its relevance score.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `index` | `int` | — | Index |
-| `relevanceScore` | `double` | — | Relevance score |
-| `document` | `Optional<RerankResultDocument>` | `null` | Document (rerank result document) |
+| `index` | `u32` | — | Index |
+| `relevance_score` | `f64` | — | Relevance score |
+| `document` | `Option<RerankResultDocument>` | `None` | Document (rerank result document) |
 
 
 ---
@@ -2078,34 +2078,34 @@ Responses API operations (create, retrieve, cancel).
 
 ###### Methods
 
-###### createResponse()
+###### create_response()
 
 Create a new response.
 
 **Signature:**
 
-```java
-public ResponseObject createResponse(CreateResponseRequest req) throws Error
+```rust
+pub fn create_response(&self, req: CreateResponseRequest) -> ResponseObject
 ```
 
-###### retrieveResponse()
+###### retrieve_response()
 
 Retrieve a response by ID.
 
 **Signature:**
 
-```java
-public ResponseObject retrieveResponse(String id) throws Error
+```rust
+pub fn retrieve_response(&self, id: String) -> ResponseObject
 ```
 
-###### cancelResponse()
+###### cancel_response()
 
 Cancel an in-progress response.
 
 **Signature:**
 
-```java
-public ResponseObject cancelResponse(String id) throws Error
+```rust
+pub fn cancel_response(&self, id: String) -> ResponseObject
 ```
 
 
@@ -2119,9 +2119,9 @@ A search request.
 |-------|------|---------|-------------|
 | `model` | `String` | — | The model/provider to use (e.g. `"brave/web-search"`, `"tavily/search"`). |
 | `query` | `String` | — | The search query. |
-| `maxResults` | `Optional<int>` | `null` | Maximum number of results to return. |
-| `searchDomainFilter` | `Optional<List<String>>` | `Collections.emptyList()` | Domain filter — restrict results to specific domains. |
-| `country` | `Optional<String>` | `null` | Country code for localized results (ISO 3166-1 alpha-2). |
+| `max_results` | `Option<u32>` | `Default::default()` | Maximum number of results to return. |
+| `search_domain_filter` | `Option<Vec<String>>` | `vec![]` | Domain filter — restrict results to specific domains. |
+| `country` | `Option<String>` | `Default::default()` | Country code for localized results (ISO 3166-1 alpha-2). |
 
 
 ---
@@ -2132,7 +2132,7 @@ A search response.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `results` | `List<SearchResult>` | — | The search results. |
+| `results` | `Vec<SearchResult>` | — | The search results. |
 | `model` | `String` | — | The model used. |
 
 
@@ -2147,7 +2147,7 @@ An individual search result.
 | `title` | `String` | — | Title of the result. |
 | `url` | `String` | — | URL of the result. |
 | `snippet` | `String` | — | Text snippet / excerpt. |
-| `date` | `Optional<String>` | `null` | Publication or last-updated date, if available. |
+| `date` | `Option<String>` | `None` | Publication or last-updated date, if available. |
 
 
 ---
@@ -2165,7 +2165,7 @@ An individual search result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `choiceType` | `ToolType` | `ToolType.FUNCTION` | Choice type (tool type) |
+| `choice_type` | `ToolType` | `ToolType::Function` | Choice type (tool type) |
 | `function` | `SpecificFunction` | — | Function (specific function) |
 
 
@@ -2175,9 +2175,9 @@ An individual search result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `index` | `int` | — | Index |
+| `index` | `u32` | — | Index |
 | `delta` | `StreamDelta` | — | Delta (stream delta) |
-| `finishReason` | `Optional<FinishReason>` | `null` | Finish reason (finish reason) |
+| `finish_reason` | `Option<FinishReason>` | `Default::default()` | Finish reason (finish reason) |
 
 
 ---
@@ -2186,11 +2186,11 @@ An individual search result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `role` | `Optional<String>` | `null` | Role |
-| `content` | `Optional<String>` | `null` | The extracted text content |
-| `toolCalls` | `Optional<List<StreamToolCall>>` | `Collections.emptyList()` | Tool calls |
-| `functionCall` | `Optional<StreamFunctionCall>` | `null` | Deprecated legacy function_call delta; retained for API compatibility. |
-| `refusal` | `Optional<String>` | `null` | Refusal |
+| `role` | `Option<String>` | `Default::default()` | Role |
+| `content` | `Option<String>` | `Default::default()` | The extracted text content |
+| `tool_calls` | `Option<Vec<StreamToolCall>>` | `vec![]` | Tool calls |
+| `function_call` | `Option<StreamFunctionCall>` | `Default::default()` | Deprecated legacy function_call delta; retained for API compatibility. |
+| `refusal` | `Option<String>` | `Default::default()` | Refusal |
 
 
 ---
@@ -2199,8 +2199,8 @@ An individual search result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `name` | `Optional<String>` | `null` | The name |
-| `arguments` | `Optional<String>` | `null` | Arguments |
+| `name` | `Option<String>` | `Default::default()` | The name |
+| `arguments` | `Option<String>` | `Default::default()` | Arguments |
 
 
 ---
@@ -2209,7 +2209,7 @@ An individual search result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `includeUsage` | `Optional<boolean>` | `null` | Include usage |
+| `include_usage` | `Option<bool>` | `Default::default()` | Include usage |
 
 
 ---
@@ -2218,10 +2218,10 @@ An individual search result.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `index` | `int` | — | Index |
-| `id` | `Optional<String>` | `null` | Unique identifier |
-| `callType` | `Optional<ToolType>` | `null` | Call type (tool type) |
-| `function` | `Optional<StreamFunctionCall>` | `null` | Function (stream function call) |
+| `index` | `u32` | — | Index |
+| `id` | `Option<String>` | `Default::default()` | Unique identifier |
+| `call_type` | `Option<ToolType>` | `Default::default()` | Call type (tool type) |
+| `function` | `Option<StreamFunctionCall>` | `Default::default()` | Function (stream function call) |
 
 
 ---
@@ -2231,7 +2231,7 @@ An individual search result.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `content` | `String` | — | The extracted text content |
-| `name` | `Optional<String>` | `null` | The name |
+| `name` | `Option<String>` | `Default::default()` | The name |
 
 
 ---
@@ -2241,7 +2241,7 @@ An individual search result.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `id` | `String` | — | Unique identifier |
-| `callType` | `ToolType` | — | Call type (tool type) |
+| `call_type` | `ToolType` | — | Call type (tool type) |
 | `function` | `FunctionCall` | — | Function (function call) |
 
 
@@ -2252,8 +2252,8 @@ An individual search result.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `content` | `String` | — | The extracted text content |
-| `toolCallId` | `String` | — | Tool call id |
-| `name` | `Optional<String>` | `null` | The name |
+| `tool_call_id` | `String` | — | Tool call id |
+| `name` | `Option<String>` | `Default::default()` | The name |
 
 
 ---
@@ -2265,9 +2265,9 @@ Response from a transcription request.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `text` | `String` | — | Text |
-| `language` | `Optional<String>` | `null` | Language |
-| `duration` | `Optional<double>` | `null` | Duration |
-| `segments` | `Optional<List<TranscriptionSegment>>` | `Collections.emptyList()` | Segments |
+| `language` | `Option<String>` | `Default::default()` | Language |
+| `duration` | `Option<f64>` | `Default::default()` | Duration |
+| `segments` | `Option<Vec<TranscriptionSegment>>` | `vec![]` | Segments |
 
 
 ---
@@ -2278,9 +2278,9 @@ A segment of transcribed audio with timing information.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `id` | `int` | — | Unique identifier |
-| `start` | `double` | — | Start |
-| `end` | `double` | — | End |
+| `id` | `u32` | — | Unique identifier |
+| `start` | `f64` | — | Start |
+| `end` | `f64` | — | End |
 | `text` | `String` | — | Text |
 
 
@@ -2290,9 +2290,9 @@ A segment of transcribed audio with timing information.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `promptTokens` | `long` | — | Prompt tokens used. Defaults to 0 when absent (some providers omit this). |
-| `completionTokens` | `long` | — | Completion tokens used. Defaults to 0 when absent (e.g. embedding responses). |
-| `totalTokens` | `long` | — | Total tokens used. Defaults to 0 when absent (some providers omit this). |
+| `prompt_tokens` | `u64` | — | Prompt tokens used. Defaults to 0 when absent (some providers omit this). |
+| `completion_tokens` | `u64` | — | Completion tokens used. Defaults to 0 when absent (e.g. embedding responses). |
+| `total_tokens` | `u64` | — | Total tokens used. Defaults to 0 when absent (some providers omit this). |
 
 
 ---
@@ -2301,8 +2301,8 @@ A segment of transcribed audio with timing information.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `content` | `UserContent` | `UserContent.TEXT` | The extracted text content |
-| `name` | `Optional<String>` | `null` | The name |
+| `content` | `UserContent` | `UserContent::Text` | The extracted text content |
+| `name` | `Option<String>` | `Default::default()` | The name |
 
 
 ---
@@ -2315,12 +2315,12 @@ A chat message in a conversation.
 
 | Value | Description |
 |-------|-------------|
-| `SYSTEM` | System — Fields: `0`: `SystemMessage` |
-| `USER` | User — Fields: `0`: `UserMessage` |
-| `ASSISTANT` | Assistant — Fields: `0`: `AssistantMessage` |
-| `TOOL` | Tool — Fields: `0`: `ToolMessage` |
-| `DEVELOPER` | Developer — Fields: `0`: `DeveloperMessage` |
-| `FUNCTION` | Deprecated legacy function-role message; retained for API compatibility. — Fields: `0`: `FunctionMessage` |
+| `System` | System — Fields: `0`: `SystemMessage` |
+| `User` | User — Fields: `0`: `UserMessage` |
+| `Assistant` | Assistant — Fields: `0`: `AssistantMessage` |
+| `Tool` | Tool — Fields: `0`: `ToolMessage` |
+| `Developer` | Developer — Fields: `0`: `DeveloperMessage` |
+| `Function` | Deprecated legacy function-role message; retained for API compatibility. — Fields: `0`: `FunctionMessage` |
 
 
 ---
@@ -2329,8 +2329,8 @@ A chat message in a conversation.
 
 | Value | Description |
 |-------|-------------|
-| `TEXT` | Text format — Fields: `0`: `String` |
-| `PARTS` | Parts — Fields: `0`: `List<ContentPart>` |
+| `Text` | Text format — Fields: `0`: `String` |
+| `Parts` | Parts — Fields: `0`: `Vec<ContentPart>` |
 
 
 ---
@@ -2339,10 +2339,10 @@ A chat message in a conversation.
 
 | Value | Description |
 |-------|-------------|
-| `TEXT` | Text format — Fields: `text`: `String` |
-| `IMAGE_URL` | Image url — Fields: `imageUrl`: `ImageUrl` |
-| `DOCUMENT` | Document — Fields: `document`: `DocumentContent` |
-| `INPUT_AUDIO` | Input audio — Fields: `inputAudio`: `AudioContent` |
+| `Text` | Text format — Fields: `text`: `String` |
+| `ImageUrl` | Image url — Fields: `image_url`: `ImageUrl` |
+| `Document` | Document — Fields: `document`: `DocumentContent` |
+| `InputAudio` | Input audio — Fields: `input_audio`: `AudioContent` |
 
 
 ---
@@ -2351,9 +2351,9 @@ A chat message in a conversation.
 
 | Value | Description |
 |-------|-------------|
-| `LOW` | Low |
-| `HIGH` | High |
-| `AUTO` | Auto |
+| `Low` | Low |
+| `High` | High |
+| `Auto` | Auto |
 
 
 ---
@@ -2366,7 +2366,7 @@ level and rejects any other value on deserialization.
 
 | Value | Description |
 |-------|-------------|
-| `FUNCTION` | Function |
+| `Function` | Function |
 
 
 ---
@@ -2375,8 +2375,8 @@ level and rejects any other value on deserialization.
 
 | Value | Description |
 |-------|-------------|
-| `MODE` | Mode — Fields: `0`: `ToolChoiceMode` |
-| `SPECIFIC` | Specific — Fields: `0`: `SpecificToolChoice` |
+| `Mode` | Mode — Fields: `0`: `ToolChoiceMode` |
+| `Specific` | Specific — Fields: `0`: `SpecificToolChoice` |
 
 
 ---
@@ -2385,9 +2385,9 @@ level and rejects any other value on deserialization.
 
 | Value | Description |
 |-------|-------------|
-| `AUTO` | Auto |
-| `REQUIRED` | Required |
-| `NONE` | None |
+| `Auto` | Auto |
+| `Required` | Required |
+| `None` | None |
 
 
 ---
@@ -2396,9 +2396,9 @@ level and rejects any other value on deserialization.
 
 | Value | Description |
 |-------|-------------|
-| `TEXT` | Text format |
-| `JSON_OBJECT` | Json object |
-| `JSON_SCHEMA` | Json schema — Fields: `jsonSchema`: `JsonSchemaFormat` |
+| `Text` | Text format |
+| `JsonObject` | Json object |
+| `JsonSchema` | Json schema — Fields: `json_schema`: `JsonSchemaFormat` |
 
 
 ---
@@ -2407,8 +2407,8 @@ level and rejects any other value on deserialization.
 
 | Value | Description |
 |-------|-------------|
-| `SINGLE` | Single — Fields: `0`: `String` |
-| `MULTIPLE` | Multiple — Fields: `0`: `List<String>` |
+| `Single` | Single — Fields: `0`: `String` |
+| `Multiple` | Multiple — Fields: `0`: `Vec<String>` |
 
 
 ---
@@ -2419,12 +2419,12 @@ Why a choice stopped generating tokens.
 
 | Value | Description |
 |-------|-------------|
-| `STOP` | Stop |
-| `LENGTH` | Length |
-| `TOOL_CALLS` | Tool calls |
-| `CONTENT_FILTER` | Content filter |
-| `FUNCTION_CALL` | Deprecated legacy finish reason; retained for API compatibility. |
-| `OTHER` | Catch-all for unknown finish reasons returned by non-OpenAI providers. Note: this intentionally does **not** carry the original string (e.g. `Other(String)`).  Using `#[serde(other)]` requires a unit variant, and switching to `#[serde(untagged)]` would change deserialization semantics for all variants.  The original value can be recovered by inspecting the raw JSON if needed. |
+| `Stop` | Stop |
+| `Length` | Length |
+| `ToolCalls` | Tool calls |
+| `ContentFilter` | Content filter |
+| `FunctionCall` | Deprecated legacy finish reason; retained for API compatibility. |
+| `Other` | Catch-all for unknown finish reasons returned by non-OpenAI providers. Note: this intentionally does **not** carry the original string (e.g. `Other(String)`).  Using `#[serde(other)]` requires a unit variant, and switching to `#[serde(untagged)]` would change deserialization semantics for all variants.  The original value can be recovered by inspecting the raw JSON if needed. |
 
 
 ---
@@ -2435,9 +2435,9 @@ Controls how much reasoning effort the model should use.
 
 | Value | Description |
 |-------|-------------|
-| `LOW` | Low |
-| `MEDIUM` | Medium |
-| `HIGH` | High |
+| `Low` | Low |
+| `Medium` | Medium |
+| `High` | High |
 
 
 ---
@@ -2448,8 +2448,8 @@ The format in which the embedding vectors are returned.
 
 | Value | Description |
 |-------|-------------|
-| `FLOAT` | 32-bit floating-point numbers (default). |
-| `BASE64` | Base64-encoded string representation of the floats. |
+| `Float` | 32-bit floating-point numbers (default). |
+| `Base64` | Base64-encoded string representation of the floats. |
 
 
 ---
@@ -2458,8 +2458,8 @@ The format in which the embedding vectors are returned.
 
 | Value | Description |
 |-------|-------------|
-| `SINGLE` | Single — Fields: `0`: `String` |
-| `MULTIPLE` | Multiple — Fields: `0`: `List<String>` |
+| `Single` | Single — Fields: `0`: `String` |
+| `Multiple` | Multiple — Fields: `0`: `Vec<String>` |
 
 
 ---
@@ -2470,8 +2470,8 @@ Input to the moderation endpoint — a single string or multiple strings.
 
 | Value | Description |
 |-------|-------------|
-| `SINGLE` | Single — Fields: `0`: `String` |
-| `MULTIPLE` | Multiple — Fields: `0`: `List<String>` |
+| `Single` | Single — Fields: `0`: `String` |
+| `Multiple` | Multiple — Fields: `0`: `Vec<String>` |
 
 
 ---
@@ -2482,8 +2482,8 @@ A document to be reranked — either a plain string or an object with a text fie
 
 | Value | Description |
 |-------|-------------|
-| `TEXT` | Text format — Fields: `0`: `String` |
-| `OBJECT` | Object — Fields: `text`: `String` |
+| `Text` | Text format — Fields: `0`: `String` |
+| `Object` | Object — Fields: `text`: `String` |
 
 
 ---
@@ -2494,8 +2494,8 @@ Document input for OCR — either a URL or inline base64 data.
 
 | Value | Description |
 |-------|-------------|
-| `URL` | A publicly accessible document URL. — Fields: `url`: `String` |
-| `BASE64` | Inline base64-encoded document data. — Fields: `data`: `String`, `mediaType`: `String` |
+| `Url` | A publicly accessible document URL. — Fields: `url`: `String` |
+| `Base64` | Inline base64-encoded document data. — Fields: `data`: `String`, `media_type`: `String` |
 
 
 ---
@@ -2506,9 +2506,9 @@ How the API key is sent in the HTTP request.
 
 | Value | Description |
 |-------|-------------|
-| `BEARER` | Bearer token: `Authorization: Bearer <key>` |
-| `API_KEY` | Custom header: e.g., `X-Api-Key: <key>` — Fields: `0`: `String` |
-| `NONE` | No authentication required. |
+| `Bearer` | Bearer token: `Authorization: Bearer <key>` |
+| `ApiKey` | Custom header: e.g., `X-Api-Key: <key>` — Fields: `0`: `String` |
+| `None` | No authentication required. |
 
 
 ---
@@ -2521,22 +2521,22 @@ All errors that can occur when using `liter-llm`.
 
 | Variant | Description |
 |---------|-------------|
-| `AUTHENTICATION` | authentication failed: {message} |
-| `RATE_LIMITED` | rate limited: {message} |
-| `BAD_REQUEST` | bad request: {message} |
-| `CONTEXT_WINDOW_EXCEEDED` | context window exceeded: {message} |
-| `CONTENT_POLICY` | content policy violation: {message} |
-| `NOT_FOUND` | not found: {message} |
-| `SERVER_ERROR` | server error: {message} |
-| `SERVICE_UNAVAILABLE` | service unavailable: {message} |
-| `TIMEOUT` | request timeout |
-| `STREAMING` | A catch-all for errors that occur during streaming response processing. This variant covers multiple sub-conditions including UTF-8 decoding failures, CRC/checksum mismatches (AWS EventStream), JSON parse errors in individual SSE chunks, and buffer overflow conditions.  The `message` field contains a human-readable description of the specific failure. |
-| `ENDPOINT_NOT_SUPPORTED` | provider {provider} does not support {endpoint} |
-| `INVALID_HEADER` | invalid header {name:?}: {reason} |
-| `SERIALIZATION` | serialization error: {0} |
-| `BUDGET_EXCEEDED` | budget exceeded: {message} |
-| `HOOK_REJECTED` | hook rejected: {message} |
-| `INTERNAL_ERROR` | An internal logic error (e.g. unexpected Tower response variant). This should never surface in normal operation — if it does, it indicates a bug in the library. |
+| `Authentication` | authentication failed: {message} |
+| `RateLimited` | rate limited: {message} |
+| `BadRequest` | bad request: {message} |
+| `ContextWindowExceeded` | context window exceeded: {message} |
+| `ContentPolicy` | content policy violation: {message} |
+| `NotFound` | not found: {message} |
+| `ServerError` | server error: {message} |
+| `ServiceUnavailable` | service unavailable: {message} |
+| `Timeout` | request timeout |
+| `Streaming` | A catch-all for errors that occur during streaming response processing. This variant covers multiple sub-conditions including UTF-8 decoding failures, CRC/checksum mismatches (AWS EventStream), JSON parse errors in individual SSE chunks, and buffer overflow conditions.  The `message` field contains a human-readable description of the specific failure. |
+| `EndpointNotSupported` | provider {provider} does not support {endpoint} |
+| `InvalidHeader` | invalid header {name:?}: {reason} |
+| `Serialization` | serialization error: {0} |
+| `BudgetExceeded` | budget exceeded: {message} |
+| `HookRejected` | hook rejected: {message} |
+| `InternalError` | An internal logic error (e.g. unexpected Tower response variant). This should never surface in normal operation — if it does, it indicates a bug in the library. |
 
 
 ---

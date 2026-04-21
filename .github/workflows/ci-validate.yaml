@@ -218,6 +218,10 @@ jobs:
         run: alef verify --exit-code
         shell: bash
 
+      - name: Verify API reference docs are up-to-date
+        run: task generate:docs:check
+        shell: bash
+
       - name: Run Pre-commit Hooks
         uses: j178/prek-action@v2
         with:

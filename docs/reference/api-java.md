@@ -343,7 +343,7 @@ Return the extra headers as an ordered slice of `(name, value)` pairs.
 **Signature:**
 
 ```java
-public List<StringString> headers()
+public List<Tuple<String, String>> headers()
 ```
 
 ###### fmt()
@@ -408,6 +408,155 @@ instead of using the static `api_key` for authentication.
 
 ```java
 public ClientConfigBuilder credentialProvider(CredentialProvider provider)
+```
+
+###### header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder header(String key, String value) throws Error
+```
+
+###### cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder cache(CacheConfig config)
+```
+
+###### cacheStore()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder cacheStore(CacheStore store)
+```
+
+###### budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder budget(BudgetConfig config)
+```
+
+###### hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```java
+public ClientConfigBuilder hook(LlmHook hook)
+```
+
+###### hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder hooks(List<LlmHook> hooks)
+```
+
+###### cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```java
+public ClientConfigBuilder cooldown(Duration duration)
+```
+
+###### rateLimit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError.RateLimited`.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder rateLimit(RateLimitConfig config)
+```
+
+###### healthCheck()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder healthCheck(Duration interval)
+```
+
+###### costTracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder costTracking(boolean enabled)
+```
+
+###### tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```java
+public ClientConfigBuilder tracing(boolean enabled)
 ```
 
 ###### build()
