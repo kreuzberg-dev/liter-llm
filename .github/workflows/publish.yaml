@@ -53,22 +53,22 @@ jobs:
     permissions:
       contents: write
     outputs:
-      tag:              ${{ steps.info.outputs.tag }}
-      version:          ${{ steps.info.outputs.version }}
-      npm_tag:          ${{ steps.info.outputs.npm_tag }}
-      dry_run:          ${{ steps.info.outputs.dry_run }}
-      force_republish:  ${{ steps.info.outputs.force_republish }}
-      release_crates:   ${{ steps.targets.outputs.crates }}
-      release_python:   ${{ steps.targets.outputs.python }}
-      release_node:     ${{ steps.targets.outputs.node }}
-      release_wasm:     ${{ steps.targets.outputs.wasm }}
-      release_ruby:     ${{ steps.targets.outputs.ruby }}
-      release_go:       ${{ steps.targets.outputs.go }}
-      release_java:     ${{ steps.targets.outputs.java }}
-      release_elixir:   ${{ steps.targets.outputs.elixir }}
-      release_csharp:   ${{ steps.targets.outputs.csharp }}
-      release_php:      ${{ steps.targets.outputs.php }}
-      release_homebrew: ${{ steps.targets.outputs.homebrew }}
+      tag:              ${{ steps.meta.outputs.tag }}
+      version:          ${{ steps.meta.outputs.version }}
+      npm_tag:          ${{ steps.meta.outputs.npm_tag }}
+      dry_run:          ${{ steps.meta.outputs.dry_run }}
+      force_republish:  ${{ steps.meta.outputs.force_republish }}
+      release_crates:   ${{ steps.meta.outputs.release_crates }}
+      release_python:   ${{ steps.meta.outputs.release_python }}
+      release_node:     ${{ steps.meta.outputs.release_node }}
+      release_wasm:     ${{ steps.meta.outputs.release_wasm }}
+      release_ruby:     ${{ steps.meta.outputs.release_ruby }}
+      release_go:       ${{ steps.meta.outputs.release_go }}
+      release_java:     ${{ steps.meta.outputs.release_java }}
+      release_elixir:   ${{ steps.meta.outputs.release_elixir }}
+      release_csharp:   ${{ steps.meta.outputs.release_csharp }}
+      release_php:      ${{ steps.meta.outputs.release_php }}
+      release_homebrew: ${{ steps.meta.outputs.release_homebrew }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -77,71 +77,15 @@ jobs:
 
       - name: Retag for republish
         if: ${{ inputs.republish == true || github.event.client_payload.republish == true }}
-        env:
-          TAG: ${{ inputs.tag || github.event.client_payload.tag }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [[ -z "${TAG}" ]]; then
-            echo "::error::republish requires a tag input"
-            exit 1
-          fi
-          sha="$(git rev-parse HEAD)"
-          echo "::notice::Republish requested — deleting and re-creating tag ${TAG} on ${sha:0:8}"
-          gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" -X DELETE 2>/dev/null || true
-          gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
-            -f "ref=refs/tags/${TAG}" \
-            -f "sha=${sha}" --silent
-          git tag -d "${TAG}" 2>/dev/null || true
-          git tag "${TAG}" "${sha}"
-        shell: bash
+        uses: kreuzberg-dev/actions/retag-for-republish@v1
+        with:
+          tag: ${{ inputs.tag || github.event.client_payload.tag }}
 
-      - name: Extract tag and version
-        id: info
-        run: |
-          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            TAG="${{ github.event.client_payload.tag }}"
-            DRY_RUN="${{ github.event.client_payload.dry_run || 'false' }}"
-            FORCE="${{ github.event.client_payload.force_republish || 'false' }}"
-          elif [[ "${{ github.event_name }}" == "release" ]]; then
-            TAG="${{ github.ref_name }}"
-            DRY_RUN="false"
-            FORCE="false"
-          else
-            TAG="${{ inputs.tag }}"
-            DRY_RUN="${{ inputs.dry_run }}"
-            FORCE="${{ inputs.force_republish }}"
-          fi
-
-          VERSION="${TAG#v}"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-          # Determine npm dist-tag: pre-releases → next, stable → latest
-          if echo "$VERSION" | grep -qE '(alpha|beta|rc)'; then
-            echo "npm_tag=next" >> "$GITHUB_OUTPUT"
-          else
-            echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
-          fi
-
-          echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
-          echo "force_republish=$FORCE" >> "$GITHUB_OUTPUT"
-        shell: bash
-
-      - name: Resolve target list
-        id: targets
-        run: |
-          REQUESTED="${{ inputs.targets || github.event.client_payload.targets }}"
-          ALL="crates python node wasm ruby go java elixir csharp php homebrew"
-          emit() {
-            local name="$1"
-            if [ -z "$REQUESTED" ] || echo ",$REQUESTED," | grep -q ",$name,"; then
-              echo "${name}=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "${name}=false" >> "$GITHUB_OUTPUT"
-            fi
-          }
-          for t in $ALL; do emit "$t"; done
-        shell: bash
+      - name: Extract release metadata
+        id: meta
+        uses: kreuzberg-dev/actions/prepare-release-metadata@v1
+        with:
+          available-targets: "crates,python,node,wasm,ruby,go,java,elixir,csharp,php,homebrew"
 
   # ─────────────────────────────────────────────────────────────────────────
   # Phase 2 — Validate version consistency
@@ -157,213 +101,80 @@ jobs:
           ref: ${{ needs.prepare.outputs.tag }}
 
       - name: Check version consistency
-        env:
-          EXPECTED: ${{ needs.prepare.outputs.version }}
-        run: |
-          fail=0
-          check() {
-            local label="$1" actual="$2"
-            if [ "$actual" != "$EXPECTED" ]; then
-              echo "::error::$label: expected $EXPECTED, got $actual"
-              fail=1
-            else
-              echo "✓ $label: $actual"
-            fi
-          }
-          # Cargo workspace (reads [workspace.package] version)
-          check "Cargo.toml" "$(grep -m1 '^version = "' Cargo.toml | grep -oP '"\K[^"]+')"
-          # Python — normalize PEP 440 to semver before comparing (e.g. 1.0.0rc1 → 1.0.0-rc.1)
-          PY_VER=$(grep -m1 '^version' packages/python/pyproject.toml | grep -oP '"\K[^"]+')
-          PY_VER_NORM=$(echo "$PY_VER" \
-            | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+)rc([0-9]+)/\1-rc.\2/' \
-            | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+)a([0-9]+)/\1-alpha.\2/' \
-            | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+)b([0-9]+)/\1-beta.\2/')
-          check "pyproject.toml" "$PY_VER_NORM"
-          # Node
-          check "package.json (node)" "$(python3 -c "import json; print(json.load(open('packages/typescript/package.json'))['version'])")"
-          # Ruby gemspec (gem format "1.0.0.pre.rc.1" → semver "1.0.0-rc.1")
-          GEM_VER=$(grep 'spec.version' packages/ruby/liter_llm.gemspec | grep -oP "['\"]\K[^'\"]+" | sed 's/\.pre\./-/')
-          check "liter_llm.gemspec" "$GEM_VER"
-          # Java
-          check "pom.xml" "$(grep -m1 '<version>' packages/java/pom.xml | grep -oP '>\K[^<]+')"
-          # Elixir
-          check "mix.exs" "$(grep '@version' packages/elixir/mix.exs | grep -oP '"\K[^"]+')"
-          # C#
-          check "LiterLlm.csproj" "$(grep '<Version>' packages/csharp/LiterLlm/LiterLlm.csproj | grep -oP '>\K[^<]+')"
-          # PHP
-          check "composer.json" "$(python3 -c "import json; print(json.load(open('composer.json')).get('version',''))")"
-          exit $fail
-        shell: bash
+        uses: kreuzberg-dev/actions/validate-versions@v1
+        with:
+          version: ${{ needs.prepare.outputs.version }}
+          manifest-paths: |
+            cargo=Cargo.toml
+            python=packages/python/pyproject.toml
+            npm=packages/typescript/package.json
+            gem=packages/ruby/liter_llm.gemspec
+            maven=packages/java/pom.xml
+            mix=packages/elixir/mix.exs
+            csproj=packages/csharp/LiterLlm/LiterLlm.csproj
+            composer=composer.json
 
   # ─────────────────────────────────────────────────────────────────────────
   # Phase 3 — Idempotency checks (all parallel)
   # ─────────────────────────────────────────────────────────────────────────
-  check-cratesio:
-    name: Check crates.io
+  check-registries:
+    name: Check registries
     needs: [prepare]
-    if: needs.prepare.outputs.release_crates == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: cratesio
-          package: liter-llm
-          version: ${{ needs.prepare.outputs.version }}
+    uses: kreuzberg-dev/actions/.github/workflows/reusable-check-registries.yml@main
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      registries: >-
+        [
+          {"name": "cratesio", "registry": "cratesio", "package": "liter-llm"},
+          {"name": "pypi", "registry": "pypi", "package": "liter-llm"},
+          {"name": "npm", "registry": "npm", "package": "@kreuzberg/liter-llm"},
+          {"name": "npm-wasm", "registry": "npm", "package": "@kreuzberg/liter-llm-wasm"},
+          {"name": "rubygems", "registry": "rubygems", "package": "liter_llm"},
+          {"name": "maven", "registry": "maven", "package": "dev.kreuzberg:liter-llm"},
+          {"name": "hex", "registry": "hex", "package": "liter_llm"},
+          {"name": "packagist", "registry": "packagist", "package": "kreuzberg/liter-llm"},
+          {"name": "nuget", "registry": "nuget", "package": "LiterLlm"},
+          {"name": "go", "registry": "github-release", "package": "liter-llm-ffi", "repo": "kreuzberg-dev/liter-llm", "asset-prefix": "liter-llm-ffi-v"}
+        ]
 
-  check-pypi:
-    name: Check PyPI
-    needs: [prepare]
-    if: needs.prepare.outputs.release_python == 'true'
+  registry-results:
+    name: Parse registry results
+    needs: [prepare, check-registries]
+    if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 2
     outputs:
-      exists: ${{ steps.check.outputs.exists }}
+      cratesio:  ${{ steps.parse.outputs.cratesio }}
+      pypi:      ${{ steps.parse.outputs.pypi }}
+      npm:       ${{ steps.parse.outputs.npm }}
+      npm_wasm:  ${{ steps.parse.outputs.npm_wasm }}
+      rubygems:  ${{ steps.parse.outputs.rubygems }}
+      maven:     ${{ steps.parse.outputs.maven }}
+      hex:       ${{ steps.parse.outputs.hex }}
+      packagist: ${{ steps.parse.outputs.packagist }}
+      nuget:     ${{ steps.parse.outputs.nuget }}
+      go:        ${{ steps.parse.outputs.go }}
     steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: pypi
-          package: liter-llm
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-npm:
-    name: Check npm (@kreuzberg/liter-llm)
-    needs: [prepare]
-    if: needs.prepare.outputs.release_node == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: npm
-          package: "@kreuzberg/liter-llm"
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-npm-wasm:
-    name: Check npm (@kreuzberg/liter-llm-wasm)
-    needs: [prepare]
-    if: needs.prepare.outputs.release_wasm == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: npm
-          package: "@kreuzberg/liter-llm-wasm"
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-rubygems:
-    name: Check RubyGems
-    needs: [prepare]
-    if: needs.prepare.outputs.release_ruby == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: rubygems
-          package: liter_llm
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-maven:
-    name: Check Maven Central
-    needs: [prepare]
-    if: needs.prepare.outputs.release_java == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: maven
-          package: "dev.kreuzberg:liter-llm"
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-hex:
-    name: Check Hex.pm
-    needs: [prepare]
-    if: needs.prepare.outputs.release_elixir == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: hex
-          package: liter_llm
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-packagist:
-    name: Check Packagist
-    needs: [prepare]
-    if: needs.prepare.outputs.release_php == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: packagist
-          package: kreuzberg/liter-llm
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-nuget:
-    name: Check NuGet
-    needs: [prepare]
-    if: needs.prepare.outputs.release_csharp == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - uses: kreuzberg-dev/actions/check-registry@v1
-        id: check
-        with:
-          registry: nuget
-          package: LiterLlm
-          version: ${{ needs.prepare.outputs.version }}
-
-  check-go:
-    name: Check Go FFI release assets
-    needs: [prepare]
-    if: needs.prepare.outputs.release_go == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
-    steps:
-      - name: Check release assets
-        id: check
+      - name: Parse check results
+        id: parse
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.prepare.outputs.tag }}
-          VERSION: ${{ needs.prepare.outputs.version }}
+          RESULTS: ${{ needs.check-registries.outputs.results }}
         run: |
-          ASSET="liter-llm-ffi-v${VERSION}-linux-x64.tar.gz"
-          if gh release view "$TAG" --repo ${{ github.repository }} --json assets \
-              | jq -e --arg name "$ASSET" '.assets[] | select(.name == $name)' > /dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+          if [ -z "$RESULTS" ] || [ "$RESULTS" = "null" ]; then
+            for key in cratesio pypi npm npm_wasm rubygems maven hex packagist nuget go; do
+              echo "${key}=false" >> "$GITHUB_OUTPUT"
+            done
           else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "$RESULTS" | python3 -c "
+          import json, sys, os
+          data = json.load(sys.stdin)
+          out = os.environ.get('GITHUB_OUTPUT', '/dev/stdout')
+          with open(out, 'a') as f:
+              for key in ['cratesio','pypi','npm','npm_wasm','rubygems','maven','hex','packagist','nuget','go']:
+                  # The reusable workflow returns 'result' from the matrix, keyed by check name
+                  val = str(data.get(key, data.get(key.replace('_','-'), 'false'))).lower()
+                  f.write(f'{key}={val}\n')
+          "
           fi
         shell: bash
 
@@ -374,11 +185,11 @@ jobs:
   # ── Python wheels ──────────────────────────────────────────────────────────
   build-python-wheels:
     name: Build Python wheels (${{ matrix.label }})
-    needs: [prepare, check-pypi]
+    needs: [prepare, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_python == 'true' &&
-      (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.pypi != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     strategy:
@@ -406,11 +217,11 @@ jobs:
 
   build-python-sdist:
     name: Build Python sdist
-    needs: [prepare, check-pypi]
+    needs: [prepare, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_python == 'true' &&
-      (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.pypi != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -433,11 +244,11 @@ jobs:
   # ── Node.js NAPI native ────────────────────────────────────────────────────
   build-node-native:
     name: Build Node native (${{ matrix.label }})
-    needs: [prepare, check-npm]
+    needs: [prepare, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_node == 'true' &&
-      (needs.check-npm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.npm != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
@@ -481,11 +292,11 @@ jobs:
   # ── WebAssembly ────────────────────────────────────────────────────────────
   build-wasm:
     name: Build WASM
-    needs: [prepare, check-npm-wasm]
+    needs: [prepare, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_wasm == 'true' &&
-      (needs.check-npm-wasm.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.npm_wasm != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -530,11 +341,11 @@ jobs:
   # ── Ruby gems ──────────────────────────────────────────────────────────────
   build-ruby-gem:
     name: Build Ruby gem (${{ matrix.label }})
-    needs: [prepare, check-rubygems]
+    needs: [prepare, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_ruby == 'true' &&
-      (needs.check-rubygems.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.rubygems != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     strategy:
@@ -639,11 +450,11 @@ jobs:
   # ── Elixir NIFs ────────────────────────────────────────────────────────────
   build-elixir-nifs:
     name: Build Elixir NIFs (${{ matrix.label }})
-    needs: [prepare, check-hex]
+    needs: [prepare, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_elixir == 'true' &&
-      (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.hex != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
@@ -768,18 +579,18 @@ jobs:
   # ── Rust FFI (shared for Go / Java / C# / C consumers) ────────────────────
   build-ffi:
     name: Build Rust FFI (${{ matrix.label }})
-    needs: [prepare, validate-versions, check-go, check-maven, check-nuget]
+    needs: [prepare, validate-versions, registry-results]
     if: |
       always() &&
       needs.prepare.result == 'success' &&
       needs.validate-versions.result == 'success' &&
       (
         (needs.prepare.outputs.release_go == 'true' &&
-         (needs.check-go.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')) ||
+         (needs.registry-results.outputs.go != 'true' || needs.prepare.outputs.force_republish == 'true')) ||
         (needs.prepare.outputs.release_java == 'true' &&
-         (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')) ||
+         (needs.registry-results.outputs.maven != 'true' || needs.prepare.outputs.force_republish == 'true')) ||
         (needs.prepare.outputs.release_csharp == 'true' &&
-         (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true'))
+         (needs.registry-results.outputs.nuget != 'true' || needs.prepare.outputs.force_republish == 'true'))
       )
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
@@ -849,12 +660,12 @@ jobs:
   # ── Java package assembly ──────────────────────────────────────────────────
   build-java-package:
     name: Build Java package
-    needs: [prepare, check-maven, build-ffi]
+    needs: [prepare, registry-results, build-ffi]
     if: |
       always() &&
       needs.prepare.outputs.release_java == 'true' &&
       needs.build-ffi.result == 'success' &&
-      (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.maven != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -894,12 +705,12 @@ jobs:
   # ── C# NuGet assembly ──────────────────────────────────────────────────────
   build-csharp-package:
     name: Build C# NuGet package
-    needs: [prepare, check-nuget, build-ffi]
+    needs: [prepare, registry-results, build-ffi]
     if: |
       always() &&
       needs.prepare.outputs.release_csharp == 'true' &&
       needs.build-ffi.result == 'success' &&
-      (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.nuget != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -936,13 +747,13 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────
   upload-go-ffi:
     name: Upload Go FFI assets
-    needs: [prepare, validate-versions, check-go, build-ffi]
+    needs: [prepare, validate-versions, registry-results, build-ffi]
     if: |
       always() &&
       needs.prepare.outputs.release_go == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.build-ffi.result == 'success' &&
-      (needs.check-go.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.go != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -952,11 +763,10 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.tag }}
       - name: Ensure GitHub release exists
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ needs.prepare.outputs.tag }}
-        run: gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1 || gh release create "$TAG" --draft --repo "${{ github.repository }}" --title "$TAG"
-        shell: bash
+        uses: kreuzberg-dev/actions/publish-github-release@v1
+        with:
+          tag: ${{ needs.prepare.outputs.tag }}
+          draft: "true"
       - uses: actions/download-artifact@v7
         with:
           pattern: ffi-*
@@ -1063,12 +873,12 @@ jobs:
 
   publish-crates:
     name: Publish crates.io
-    needs: [prepare, validate-versions, check-cratesio]
+    needs: [prepare, validate-versions, registry-results]
     if: |
       always() &&
       needs.prepare.outputs.release_crates == 'true' &&
       needs.validate-versions.result == 'success' &&
-      (needs.check-cratesio.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.cratesio != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1087,14 +897,14 @@ jobs:
 
   publish-pypi:
     name: Publish PyPI
-    needs: [prepare, validate-versions, check-pypi, build-python-wheels, build-python-sdist]
+    needs: [prepare, validate-versions, registry-results, build-python-wheels, build-python-sdist]
     if: |
       always() &&
       needs.prepare.outputs.release_python == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.build-python-wheels.result == 'success' &&
       needs.build-python-sdist.result == 'success' &&
-      (needs.check-pypi.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.pypi != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1132,13 +942,13 @@ jobs:
 
   publish-node:
     name: Publish Node packages
-    needs: [prepare, validate-versions, check-npm, build-node-native]
+    needs: [prepare, validate-versions, registry-results, build-node-native]
     if: |
       always() &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.prepare.outputs.release_node == 'true' &&
       needs.validate-versions.result == 'success' &&
-      needs.check-npm.outputs.exists != 'true' &&
+      needs.registry-results.outputs.npm != 'true' &&
       needs.build-node-native.result == 'success'
     runs-on: ubuntu-latest
     permissions:
@@ -1268,13 +1078,13 @@ jobs:
 
   publish-wasm:
     name: Publish WASM package
-    needs: [prepare, validate-versions, check-npm-wasm, build-wasm, publish-node]
+    needs: [prepare, validate-versions, registry-results, build-wasm, publish-node]
     if: |
       always() &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.prepare.outputs.release_wasm == 'true' &&
       needs.validate-versions.result == 'success' &&
-      needs.check-npm-wasm.outputs.exists != 'true' &&
+      needs.registry-results.outputs.npm_wasm != 'true' &&
       needs.build-wasm.result == 'success'
     runs-on: ubuntu-latest
     permissions:
@@ -1335,13 +1145,13 @@ jobs:
 
   publish-rubygems:
     name: Publish RubyGems
-    needs: [prepare, validate-versions, check-rubygems, build-ruby-gem]
+    needs: [prepare, validate-versions, registry-results, build-ruby-gem]
     if: |
       always() &&
       needs.prepare.outputs.release_ruby == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.build-ruby-gem.result == 'success' &&
-      (needs.check-rubygems.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.rubygems != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1441,13 +1251,13 @@ jobs:
 
   publish-maven:
     name: Publish Maven Central
-    needs: [prepare, validate-versions, check-maven, build-java-package]
+    needs: [prepare, validate-versions, registry-results, build-java-package]
     if: |
       always() &&
       needs.prepare.outputs.release_java == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.build-java-package.result == 'success' &&
-      (needs.check-maven.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.maven != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1498,13 +1308,13 @@ jobs:
 
   publish-hex:
     name: Publish Hex.pm
-    needs: [prepare, validate-versions, check-hex, publish-crates, build-elixir-nifs, upload-elixir-nifs]
+    needs: [prepare, validate-versions, registry-results, publish-crates, build-elixir-nifs, upload-elixir-nifs]
     if: |
       always() &&
       needs.prepare.outputs.release_elixir == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.upload-elixir-nifs.result == 'success' &&
-      (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.hex != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     environment: hex
     permissions:
@@ -1518,8 +1328,14 @@ jobs:
           fetch-depth: 0
 
       - name: Generate checksums from GitHub release
-        run: ./scripts/publish/generate_elixir_checksums.sh "${{ needs.prepare.outputs.version }}"
-        shell: bash
+        uses: kreuzberg-dev/actions/generate-elixir-checksums@v1
+        with:
+          github-repo: kreuzberg-dev/liter-llm
+          tag: ${{ needs.prepare.outputs.tag }}
+          version: ${{ needs.prepare.outputs.version }}
+          lib-name: liter_llm_nif
+          targets: "aarch64-apple-darwin,aarch64-unknown-linux-gnu,x86_64-unknown-linux-gnu,x86_64-pc-windows-gnu"
+          output-path: packages/elixir/checksum-Elixir.LiterLlm.Native.exs
 
       - name: Commit updated checksum file to main
         if: needs.prepare.outputs.dry_run != 'true'
@@ -1555,13 +1371,13 @@ jobs:
 
   publish-nuget:
     name: Publish NuGet
-    needs: [prepare, validate-versions, check-nuget, build-csharp-package]
+    needs: [prepare, validate-versions, registry-results, build-csharp-package]
     if: |
       always() &&
       needs.prepare.outputs.release_csharp == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.build-csharp-package.result == 'success' &&
-      (needs.check-nuget.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.nuget != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1581,13 +1397,13 @@ jobs:
 
   publish-packagist:
     name: Publish Packagist
-    needs: [prepare, validate-versions, check-packagist, upload-php-extensions]
+    needs: [prepare, validate-versions, registry-results, upload-php-extensions]
     if: |
       always() &&
       needs.prepare.outputs.release_php == 'true' &&
       needs.upload-php-extensions.result == 'success' &&
       needs.validate-versions.result == 'success' &&
-      (needs.check-packagist.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true')
+      (needs.registry-results.outputs.packagist != 'true' || needs.prepare.outputs.force_republish == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -1682,19 +1498,16 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v6
-      - name: Ensure GitHub release exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
       - uses: actions/download-artifact@v7
         with:
           pattern: homebrew-bottle-*
           path: dist/homebrew
           merge-multiple: true
-      - name: Upload bottles to release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: scripts/publish/upload-homebrew-bottles.sh "${{ needs.prepare.outputs.tag }}" dist/homebrew
+      - uses: kreuzberg-dev/actions/publish-github-release@v1
+        with:
+          tag: ${{ needs.prepare.outputs.tag }}
+          artifacts: "dist/homebrew/*.tar.gz"
+          draft: "false"
 
   publish-homebrew:
     name: Update Homebrew formula
