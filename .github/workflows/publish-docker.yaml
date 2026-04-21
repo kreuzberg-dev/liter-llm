@@ -43,7 +43,7 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
       should_publish: ${{ steps.check.outputs.should_publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref || github.event.release.tag_name || github.ref }}
 
@@ -87,7 +87,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref || github.event.release.tag_name || github.ref }}
 

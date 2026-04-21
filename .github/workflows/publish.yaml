@@ -1374,7 +1374,10 @@ jobs:
 
       - name: Install Ruby dependencies
         shell: bash
-        run: scripts/ci/ruby/install-ruby-deps.sh packages/ruby
+        working-directory: packages/ruby
+        run: |
+          bundle config set --local path vendor/bundle
+          bundle install --jobs 4
 
       - name: Vendor liter-llm core crate
         shell: bash

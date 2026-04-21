@@ -455,7 +455,7 @@ jobs:
           crate-name: liter-llm-ffi
 
       - name: Upload FFI artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffi-${{ matrix.os }}
           path: target/release/
@@ -528,7 +528,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-test-results
           path: /tmp/liter-llm-docker-test-results.json
@@ -541,7 +541,7 @@ jobs:
 
       - name: Upload image artifact
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-image-test
           path: liter-llm-test.tar.gz
@@ -823,7 +823,7 @@ jobs:
           check-latest: true
 
       - name: Download FFI artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ffi-${{ matrix.os }}
           path: target/release/
@@ -927,7 +927,7 @@ jobs:
         uses: kreuzberg-dev/actions/install-task@v1
 
       - name: Download FFI artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ffi-${{ matrix.os }}
           path: target/release/
@@ -1287,7 +1287,7 @@ jobs:
         shell: bash
 
       - name: Download FFI artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ffi-${{ matrix.runner }}
           path: target/release/
