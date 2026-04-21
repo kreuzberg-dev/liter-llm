@@ -331,20 +331,20 @@ pub trait Provider: Send + Sync {
     }
 }
 
-pub mod anthropic;
-pub mod azure;
-pub mod bedrock;
-pub mod cohere;
+pub(crate) mod anthropic;
+pub(crate) mod azure;
+pub(crate) mod bedrock;
+pub(crate) mod cohere;
 pub mod custom;
-pub mod github_copilot;
-pub mod google_ai;
-pub mod mistral;
-pub mod vertex;
+pub(crate) mod github_copilot;
+pub(crate) mod google_ai;
+pub(crate) mod mistral;
+pub(crate) mod vertex;
 
 // ── Built-in providers ───────────────────────────────────────────────────────
 
 /// Built-in OpenAI provider.
-pub struct OpenAiProvider;
+pub(crate) struct OpenAiProvider;
 
 impl Provider for OpenAiProvider {
     fn name(&self) -> &str {
@@ -381,7 +381,7 @@ impl Provider for OpenAiProvider {
 }
 
 /// A generic OpenAI-compatible provider (configurable base_url + bearer auth).
-pub struct OpenAiCompatibleProvider {
+pub(crate) struct OpenAiCompatibleProvider {
     pub name: String,
     pub base_url: String,
     #[allow(dead_code)] // reserved for future env-var based key injection
@@ -427,7 +427,7 @@ impl Provider for OpenAiCompatibleProvider {
 /// so a correctly-routed request will never produce an empty URL.  A manually
 /// constructed instance (hypothetically) would produce a clearly-broken URL
 /// (`/chat/completions`) that fails immediately at the HTTP layer.
-pub struct ConfigDrivenProvider {
+pub(crate) struct ConfigDrivenProvider {
     config: &'static ProviderConfig,
 }
 

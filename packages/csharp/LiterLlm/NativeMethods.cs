@@ -8,11 +8,11 @@ internal static partial class NativeMethods
 {
     private const string LibName = "liter_llm_ffi";
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_search_request_from_json")]
-    internal static extern IntPtr SearchRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_chat_completion_request_from_json")]
+    internal static extern IntPtr ChatCompletionRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_search_request_free")]
-    internal static extern void SearchRequestFree(IntPtr ptr);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_chat_completion_request_free")]
+    internal static extern void ChatCompletionRequestFree(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_image_request_from_json")]
     internal static extern IntPtr CreateImageRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
@@ -20,11 +20,11 @@ internal static partial class NativeMethods
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_image_request_free")]
     internal static extern void CreateImageRequestFree(IntPtr ptr);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_moderation_request_from_json")]
-    internal static extern IntPtr ModerationRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_transcription_request_from_json")]
+    internal static extern IntPtr CreateTranscriptionRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_moderation_request_free")]
-    internal static extern void ModerationRequestFree(IntPtr ptr);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_transcription_request_free")]
+    internal static extern void CreateTranscriptionRequestFree(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_custom_provider_config_from_json")]
     internal static extern IntPtr CustomProviderConfigFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
@@ -32,17 +32,17 @@ internal static partial class NativeMethods
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_custom_provider_config_free")]
     internal static extern void CustomProviderConfigFree(IntPtr ptr);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_transcription_request_from_json")]
-    internal static extern IntPtr CreateTranscriptionRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_embedding_request_from_json")]
+    internal static extern IntPtr EmbeddingRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_transcription_request_free")]
-    internal static extern void CreateTranscriptionRequestFree(IntPtr ptr);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_embedding_request_free")]
+    internal static extern void EmbeddingRequestFree(IntPtr ptr);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_chat_completion_request_from_json")]
-    internal static extern IntPtr ChatCompletionRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_moderation_request_from_json")]
+    internal static extern IntPtr ModerationRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_chat_completion_request_free")]
-    internal static extern void ChatCompletionRequestFree(IntPtr ptr);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_moderation_request_free")]
+    internal static extern void ModerationRequestFree(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_rerank_request_from_json")]
     internal static extern IntPtr RerankRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
@@ -50,11 +50,11 @@ internal static partial class NativeMethods
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_rerank_request_free")]
     internal static extern void RerankRequestFree(IntPtr ptr);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_embedding_request_from_json")]
-    internal static extern IntPtr EmbeddingRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_search_request_from_json")]
+    internal static extern IntPtr SearchRequestFromJson([MarshalAs(UnmanagedType.LPStr)] string json);
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_embedding_request_free")]
-    internal static extern void EmbeddingRequestFree(IntPtr ptr);
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_search_request_free")]
+    internal static extern void SearchRequestFree(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_chat_completion_response_to_json")]
     internal static extern IntPtr ChatCompletionResponseToJson(IntPtr ptr);
@@ -62,32 +62,14 @@ internal static partial class NativeMethods
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_chat_completion_response_free")]
     internal static extern void ChatCompletionResponseFree(IntPtr ptr);
 
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_default_client_free")]
+    internal static extern void DefaultClientFree(IntPtr ptr);
+
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_embedding_response_to_json")]
     internal static extern IntPtr EmbeddingResponseToJson(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_embedding_response_free")]
     internal static extern void EmbeddingResponseFree(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_rerank_response_to_json")]
-    internal static extern IntPtr RerankResponseToJson(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_rerank_response_free")]
-    internal static extern void RerankResponseFree(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_default_client_free")]
-    internal static extern void DefaultClientFree(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_transcription_response_to_json")]
-    internal static extern IntPtr TranscriptionResponseToJson(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_transcription_response_free")]
-    internal static extern void TranscriptionResponseFree(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_models_list_response_to_json")]
-    internal static extern IntPtr ModelsListResponseToJson(IntPtr ptr);
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_models_list_response_free")]
-    internal static extern void ModelsListResponseFree(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_images_response_to_json")]
     internal static extern IntPtr ImagesResponseToJson(IntPtr ptr);
@@ -95,17 +77,35 @@ internal static partial class NativeMethods
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_images_response_free")]
     internal static extern void ImagesResponseFree(IntPtr ptr);
 
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_models_list_response_to_json")]
+    internal static extern IntPtr ModelsListResponseToJson(IntPtr ptr);
+
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_models_list_response_free")]
+    internal static extern void ModelsListResponseFree(IntPtr ptr);
+
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_moderation_response_to_json")]
     internal static extern IntPtr ModerationResponseToJson(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_moderation_response_free")]
     internal static extern void ModerationResponseFree(IntPtr ptr);
 
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_rerank_response_to_json")]
+    internal static extern IntPtr RerankResponseToJson(IntPtr ptr);
+
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_rerank_response_free")]
+    internal static extern void RerankResponseFree(IntPtr ptr);
+
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_search_response_to_json")]
     internal static extern IntPtr SearchResponseToJson(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_search_response_free")]
     internal static extern void SearchResponseFree(IntPtr ptr);
+
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_transcription_response_to_json")]
+    internal static extern IntPtr TranscriptionResponseToJson(IntPtr ptr);
+
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_transcription_response_free")]
+    internal static extern void TranscriptionResponseFree(IntPtr ptr);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_create_client")]
     internal static extern IntPtr CreateClient(
