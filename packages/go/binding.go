@@ -2050,28 +2050,6 @@ func (r *DefaultClient) Chat(req ChatCompletionRequest) (*ChatCompletionResponse
 	}(), nil
 }
 
-// ChatStream is a method.
-func (r *DefaultClient) ChatStream(req ChatCompletionRequest) (*string, error) {
-	jsonBytescReq, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal: %w", err)
-	}
-	tmpStrcReq := C.CString(string(jsonBytescReq))
-	cReq := C.literllm_chat_completion_request_from_json(tmpStrcReq)
-	C.free(unsafe.Pointer(tmpStrcReq))
-	defer C.literllm_chat_completion_request_free(cReq)
-
-	ptr := C.literllm_default_client_chat_stream((*C.LITERLLMDefaultClient)(unsafe.Pointer(r.ptr)), cReq)
-	if err := lastError(); err != nil {
-		if ptr != nil {
-			C.literllm_free_string(ptr)
-		}
-		return nil, err
-	}
-	defer C.literllm_free_string(ptr)
-	return func() *string { v := C.GoString(ptr); return &v }(), nil
-}
-
 // Embed is a method.
 func (r *DefaultClient) Embed(req EmbeddingRequest) (*EmbeddingResponse, error) {
 	jsonBytescReq, err := json.Marshal(req)

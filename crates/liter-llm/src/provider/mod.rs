@@ -125,6 +125,18 @@ pub trait Provider: Send + Sync {
         Ok(())
     }
 
+    /// Name of the environment variable that holds the API key for this provider.
+    ///
+    /// Returns `None` for providers that do not use an API key (e.g. auth type
+    /// `none`), or for providers whose key source is handled out-of-band (e.g.
+    /// AWS Bedrock credentials resolved via the AWS SDK).
+    ///
+    /// Used by [`DefaultClient::new`] to auto-load the API key from the
+    /// environment when `load_env` is enabled and no explicit key was provided.
+    fn env_var(&self) -> Option<&str> {
+        None
+    }
+
     /// Provider name (e.g., "openai").
     fn name(&self) -> &str;
 
@@ -355,6 +367,10 @@ impl Provider for OpenAiProvider {
         "https://api.openai.com/v1"
     }
 
+    fn env_var(&self) -> Option<&str> {
+        Some("OPENAI_API_KEY")
+    }
+
     fn auth_header<'a>(&'a self, api_key: &'a str) -> Option<(Cow<'static, str>, Cow<'a, str>)> {
         Some((Cow::Borrowed("Authorization"), Cow::Owned(format!("Bearer {api_key}"))))
     }
@@ -384,7 +400,7 @@ impl Provider for OpenAiProvider {
 pub(crate) struct OpenAiCompatibleProvider {
     pub name: String,
     pub base_url: String,
-    #[allow(dead_code)] // reserved for future env-var based key injection
+    /// Environment variable name for the API key, if known.
     pub env_var: Option<&'static str>,
     pub model_prefixes: Vec<String>,
 }
@@ -396,6 +412,10 @@ impl Provider for OpenAiCompatibleProvider {
 
     fn base_url(&self) -> &str {
         &self.base_url
+    }
+
+    fn env_var(&self) -> Option<&str> {
+        self.env_var
     }
 
     fn auth_header<'a>(&'a self, api_key: &'a str) -> Option<(Cow<'static, str>, Cow<'a, str>)> {
@@ -447,6 +467,10 @@ impl Provider for ConfigDrivenProvider {
         // Return an empty string when unconfigured; `transform_request` or the
         // HTTP layer will surface a useful error before any network call goes out.
         self.config.base_url.as_deref().unwrap_or("")
+    }
+
+    fn env_var(&self) -> Option<&str> {
+        self.config.auth.as_ref().and_then(|a| a.env_var.as_deref())
     }
 
     fn transform_request(&self, body: &mut serde_json::Value) -> Result<()> {
@@ -602,6 +626,23 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
     }
 
     None
+}
+
+/// Return the environment variable name for the API key of a named provider.
+///
+/// Looks up `provider_name` in the embedded registry and returns the
+/// `auth.env_var` field, when present.  Returns `None` when the provider is
+/// not found or has no configured env var.
+///
+/// This is a registry-level helper; for a resolved [`Provider`] instance use
+/// [`Provider::env_var`] directly.
+pub fn provider_env_var(provider_name: &str) -> Option<&'static str> {
+    let reg = REGISTRY.as_ref().ok()?;
+    reg.providers
+        .iter()
+        .find(|p| p.name == provider_name)
+        .and_then(|p| p.auth.as_ref())
+        .and_then(|a| a.env_var.as_deref())
 }
 
 /// Return all provider configs from the registry.

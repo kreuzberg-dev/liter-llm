@@ -237,7 +237,7 @@ jobs:
         shell: bash
 
       - name: Install alef
-        run: cargo install --git https://github.com/kreuzberg-dev/alef --tag v0.5.5 alef-cli
+        run: cargo install --git https://github.com/kreuzberg-dev/alef --tag v0.5.6 alef-cli
         shell: bash
 
       - name: Verify alef-generated code is up-to-date

@@ -136,11 +136,6 @@ internal static partial class NativeMethods
         IntPtr req
     );
 
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_default_client_chat_stream")]
-    internal static extern IntPtr DefaultClientChatStream(
-        IntPtr req
-    );
-
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "literllm_default_client_embed")]
     internal static extern IntPtr DefaultClientEmbed(
         IntPtr req

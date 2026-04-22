@@ -90,6 +90,17 @@ pub struct ClientConfig {
     /// Enable OpenTelemetry-compatible tracing spans for every request.
     #[cfg(feature = "tower")]
     pub enable_tracing: bool,
+
+    /// Automatically load the API key from the provider's environment variable
+    /// when no explicit key is provided.
+    ///
+    /// When `true` (the default) and `api_key` is empty, [`DefaultClient::new`]
+    /// reads the provider's designated environment variable (e.g.
+    /// `OPENAI_API_KEY` for OpenAI).  Set to `false` to suppress this behaviour
+    /// and require the caller to supply the key explicitly.
+    ///
+    /// Has no effect on WASM targets, where `std::env::var` is unavailable.
+    pub load_env: bool,
 }
 
 impl ClientConfig {
@@ -102,6 +113,7 @@ impl ClientConfig {
             max_retries: 3,
             extra_headers: Vec::new(),
             credential_provider: None,
+            load_env: true,
             #[cfg(feature = "tower")]
             cache_config: None,
             #[cfg(feature = "tower")]
@@ -145,6 +157,7 @@ impl std::fmt::Debug for ClientConfig {
             .field("timeout", &self.timeout)
             .field("max_retries", &self.max_retries)
             .field("extra_headers", &redacted_headers)
+            .field("load_env", &self.load_env)
             .field(
                 "credential_provider",
                 &self.credential_provider.as_ref().map(|_| "[configured]"),
@@ -183,6 +196,29 @@ impl ClientConfigBuilder {
         Self {
             config: ClientConfig::new(api_key),
         }
+    }
+
+    /// Create a builder with no explicit API key.
+    ///
+    /// `load_env` is `true` by default, so the key will be read from the
+    /// provider's environment variable (e.g. `OPENAI_API_KEY`) at client
+    /// construction time.  Call `.load_env(false)` to opt out.
+    pub fn from_env() -> Self {
+        Self {
+            config: ClientConfig::new(""),
+        }
+    }
+
+    /// Enable or disable automatic API key loading from environment variables.
+    ///
+    /// When `true` (the default) and no explicit `api_key` was provided,
+    /// [`DefaultClient::new`] reads the provider's designated environment
+    /// variable.  Set to `false` to require an explicit key.
+    ///
+    /// Has no effect on WASM targets.
+    pub fn load_env(mut self, enabled: bool) -> Self {
+        self.config.load_env = enabled;
+        self
     }
 
     /// Override the provider base URL for all requests.
