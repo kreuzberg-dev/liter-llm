@@ -209,6 +209,10 @@ int main(void) {
     test_context_window_exceeded();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_empty_response_body...");
+    test_empty_response_body();
+    printf(" PASSED\n");
+    passed++;
     printf("  Running test_forbidden_403...");
     test_forbidden_403();
     printf(" PASSED\n");
@@ -235,6 +239,10 @@ int main(void) {
     passed++;
     printf("  Running test_service_unavailable_502...");
     test_service_unavailable_502();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_timeout_error...");
+    test_timeout_error();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_vertex_error_auth...");
@@ -327,6 +335,10 @@ int main(void) {
     test_list_models_error_401();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_list_models_error_500...");
+    test_list_models_error_500();
+    printf(" PASSED\n");
+    passed++;
 
     /* Category: moderate */
     printf("  Running test_edge_moderate_all_categories...");
@@ -359,6 +371,14 @@ int main(void) {
     passed++;
 
     /* Category: ocr */
+    printf("  Running test_ocr_error_400...");
+    test_ocr_error_400();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_ocr_error_401...");
+    test_ocr_error_401();
+    printf(" PASSED\n");
+    passed++;
     printf("  Running test_ocr_url_document...");
     test_ocr_url_document();
     printf(" PASSED\n");
@@ -493,6 +513,18 @@ int main(void) {
     test_search_basic();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_search_empty_results...");
+    test_search_empty_results();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_search_error_400...");
+    test_search_error_400();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_search_error_401...");
+    test_search_error_401();
+    printf(" PASSED\n");
+    passed++;
 
     /* Category: smoke */
     printf("  Running test_anthropic_chat...");
@@ -623,12 +655,20 @@ int main(void) {
     test_local_stream_ollama();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_stream_content_policy_error...");
+    test_stream_content_policy_error();
+    printf(" PASSED\n");
+    passed++;
     printf("  Running test_stream_done_signal...");
     test_stream_done_signal();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_stream_error_401...");
     test_stream_error_401();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_stream_multiple_choices...");
+    test_stream_multiple_choices();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_stream_with_tool_calls...");

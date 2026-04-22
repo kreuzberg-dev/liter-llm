@@ -71,6 +71,13 @@ public class StreamingTests
     }
 
     [Fact]
+    public async Task Test_StreamContentPolicyError()
+    {
+        // 400 Bad Request error on stream due to content policy violation
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
     public async Task Test_StreamDoneSignal()
     {
         // Verify that the [DONE] sentinel signal properly terminates the stream
@@ -85,6 +92,13 @@ public class StreamingTests
     {
         // 401 Unauthorized error on stream initiation before any chunks are received
         await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
+    public async Task Test_StreamMultipleChoices()
+    {
+        // Streaming chat completion with multiple choice outputs (n > 1)
+        var result = await LiterLlmLib.Chat(null);
     }
 
     [Fact]

@@ -59,6 +59,12 @@ class StreamingTest {
     }
 
     @Test
+    void testStreamContentPolicyError() throws Exception {
+        // 400 Bad Request error on stream due to content policy violation
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
     void testStreamDoneSignal() throws Exception {
         // Verify that the [DONE] sentinel signal properly terminates the stream
         var result = LiterLlm.chat(null);
@@ -71,6 +77,12 @@ class StreamingTest {
     void testStreamError401() throws Exception {
         // 401 Unauthorized error on stream initiation before any chunks are received
         assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
+    void testStreamMultipleChoices() throws Exception {
+        // Streaming chat completion with multiple choice outputs (n > 1)
+        var result = LiterLlm.chat(null);
     }
 
     @Test

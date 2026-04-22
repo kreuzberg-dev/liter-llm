@@ -21,3 +21,55 @@ async fn test_search_basic() {
     let _ = search(&request).await.expect("should succeed");
 }
 
+#[tokio::test]
+async fn test_search_empty_results() {
+    // Web search with a query that returns no results
+    let mock_route = MockRoute {
+        path: "/v1/search",
+        method: "POST",
+        status: 200,
+        body: r#"{"model":"brave/web-search","results":[]}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let _ = search(&request).await.expect("should succeed");
+}
+
+#[tokio::test]
+async fn test_search_error_400() {
+    // 400 Bad Request error when search query is empty
+    let mock_route = MockRoute {
+        path: "/v1/search",
+        method: "POST",
+        status: 400,
+        body: r#"{"error":{"code":"invalid_query","message":"Query cannot be empty","type":"invalid_request_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = search(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("BadRequest"), "error message mismatch");
+}
+
+#[tokio::test]
+async fn test_search_error_401() {
+    // 401 Unauthorized error on web search due to invalid API credentials
+    let mock_route = MockRoute {
+        path: "/v1/search",
+        method: "POST",
+        status: 401,
+        body: r#"{"error":{"code":"invalid_api_key","message":"Invalid API key","type":"invalid_request_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = search(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("Authentication"), "error message mismatch");
+}
+

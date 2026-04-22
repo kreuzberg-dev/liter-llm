@@ -164,6 +164,18 @@ void test_local_stream_ollama(void) {
     literllm_default_client_free(client);
 }
 
+void test_stream_content_policy_error(void) {
+    /* 400 Bad Request error on stream due to content policy violation */
+    LITERLLMChatCompletionChunkRequest* chat_completion_chunk_request_handle = literllm_chat_completion_chunk_request_from_json("{\"messages\":[{\"content\":\"Generate harmful content\",\"role\":\"user\"}],\"model\":\"gpt-4o\",\"stream\":true}");
+    assert(chat_completion_chunk_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionChunk* result = literllm_default_client_chat_stream(client, chat_completion_chunk_request_handle);
+    literllm_chat_completion_chunk_request_free(chat_completion_chunk_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}
+
 void test_stream_done_signal(void) {
     /* Verify that the [DONE] sentinel signal properly terminates the stream */
     LITERLLMChatCompletionChunkRequest* chat_completion_chunk_request_handle = literllm_chat_completion_chunk_request_from_json("{\"messages\":[{\"content\":\"Say done\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}");
@@ -196,6 +208,19 @@ void test_stream_error_401(void) {
     literllm_chat_completion_chunk_request_free(chat_completion_chunk_request_handle);
     literllm_default_client_free(client);
     assert(result == NULL && "expected call to fail");
+}
+
+void test_stream_multiple_choices(void) {
+    /* Streaming chat completion with multiple choice outputs (n > 1) */
+    LITERLLMChatCompletionChunkRequest* chat_completion_chunk_request_handle = literllm_chat_completion_chunk_request_from_json("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4o\",\"n\":2,\"stream\":true}");
+    assert(chat_completion_chunk_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionChunk* result = literllm_default_client_chat_stream(client, chat_completion_chunk_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    literllm_chat_completion_chunk_free(result);
+    literllm_chat_completion_chunk_request_free(chat_completion_chunk_request_handle);
+    literllm_default_client_free(client);
 }
 
 void test_stream_with_tool_calls(void) {

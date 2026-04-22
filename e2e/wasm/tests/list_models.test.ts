@@ -16,4 +16,10 @@ describe('list-models', () => {
     const options = new WasmChatCompletionRequest();
     await expect(async () => await client.chat(options)).rejects.toThrow();
   });
+
+  it('list_models_error_500: 500 Internal Server Error when listing models due to server failure', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    await expect(async () => await client.chat(options)).rejects.toThrow();
+  });
 });

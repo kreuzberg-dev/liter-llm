@@ -93,6 +93,14 @@ test_local_stream_ollama() {
     [ "$val_stream_complete" = "true" ] || exit 1
 }
 
+test_stream_content_policy_error() {
+    # 400 Bad Request error on stream due to content policy violation
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
 test_stream_done_signal() {
     # Verify that the [DONE] sentinel signal properly terminates the stream
     local output
@@ -115,6 +123,13 @@ test_stream_error_401() {
         echo 'FAIL [error]: expected command to fail but it succeeded' >&2
         return 1
     fi
+}
+
+test_stream_multiple_choices() {
+    # Streaming chat completion with multiple choice outputs (n > 1)
+    local output
+    output=$(liter_llm chat)
+
 }
 
 test_stream_with_tool_calls() {
@@ -175,8 +190,10 @@ run_tests_streaming() {
     run_test test_bedrock_stream
     run_test test_empty_stream
     run_test test_local_stream_ollama
+    run_test test_stream_content_policy_error
     run_test test_stream_done_signal
     run_test test_stream_error_401
+    run_test test_stream_multiple_choices
     run_test test_stream_with_tool_calls
     run_test test_stream_with_usage
     run_test test_vertex_stream

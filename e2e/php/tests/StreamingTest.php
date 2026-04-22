@@ -69,6 +69,14 @@ final class StreamingTest extends TestCase
         $this->assertTrue($result->stream_complete);
     }
 
+    /** 400 Bad Request error on stream due to content policy violation */
+    public function test_stream_content_policy_error(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->chat_stream_async(null);
+    }
+
     /** Verify that the [DONE] sentinel signal properly terminates the stream */
     public function test_stream_done_signal(): void
     {
@@ -85,6 +93,14 @@ final class StreamingTest extends TestCase
         $client = \Liter\Llm\LiterLlm::createClient('test-key');
         $this->expectException(\Exception::class);
         $client->chat_stream_async(null);
+    }
+
+    /** Streaming chat completion with multiple choice outputs (n > 1) */
+    public function test_stream_multiple_choices(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectNotToPerformAssertions();
+        $result = $client->chat_stream_async(null);
     }
 
     /** Streaming chat completion where the assistant responds with a tool call across multiple chunks */

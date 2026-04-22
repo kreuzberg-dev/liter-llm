@@ -16,4 +16,11 @@ describe('list-models', () => {
       await client.chat({  });
     }).rejects.toThrow();
   });
+
+  it('list_models_error_500: 500 Internal Server Error when listing models due to server failure', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/list_models_error_500`);
+    await expect(async () => {
+      await client.chat({  });
+    }).rejects.toThrow();
+  });
 });

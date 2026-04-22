@@ -41,6 +41,10 @@ test_that("local_stream_ollama: Streaming chat completion via Ollama local provi
   expect_true(result$stream_complete)
 })
 
+test_that("stream_content_policy_error: 400 Bad Request error on stream due to content policy violation", {
+  expect_error(chat())
+})
+
 test_that("stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream", {
   result <- chat()
   expect_true(result$stream_complete)
@@ -50,6 +54,10 @@ test_that("stream_done_signal: Verify that the [DONE] sentinel signal properly t
 
 test_that("stream_error_401: 401 Unauthorized error on stream initiation before any chunks are received", {
   expect_error(chat())
+})
+
+test_that("stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)", {
+  result <- chat()
 })
 
 test_that("stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks", {

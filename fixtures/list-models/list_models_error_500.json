@@ -1,0 +1,29 @@
+{
+	"id": "list_models_error_500",
+	"description": "500 Internal Server Error when listing models due to server failure",
+	"category": "list-models",
+	"tags": ["list-models", "error-handling"],
+	"call": "list_models",
+	"input": {},
+	"mock_response": {
+		"status": 500,
+		"body": {
+			"error": {
+				"message": "Internal server error",
+				"type": "server_error",
+				"code": "internal_error"
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "error",
+			"value": "ServerError"
+		},
+		{
+			"type": "equals",
+			"field": "error.status_code",
+			"value": 500
+		}
+	]
+}

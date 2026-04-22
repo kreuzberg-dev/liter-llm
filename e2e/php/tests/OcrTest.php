@@ -11,6 +11,22 @@ use Liter\Llm\LiterLlm;
 /** E2e tests for category: ocr. */
 final class OcrTest extends TestCase
 {
+    /** 400 Bad Request error when OCR input has an invalid image format */
+    public function test_ocr_error_400(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->ocr_async(null);
+    }
+
+    /** 401 Unauthorized error on OCR request due to invalid API credentials */
+    public function test_ocr_error_401(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->ocr_async(null);
+    }
+
     /** OCR request with a document URL input */
     public function test_ocr_url_document(): void
     {

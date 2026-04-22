@@ -65,6 +65,14 @@ func Test_ContextWindowExceeded(t *testing.T) {
 	}
 }
 
+func Test_EmptyResponseBody(t *testing.T) {
+	// 200 OK response with an empty JSON object body, missing required fields
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
 func Test_Forbidden403(t *testing.T) {
 	// 403 Forbidden error when the API key does not have access to the requested resource
 	_, err := pkg.chat(nil)
@@ -115,6 +123,14 @@ func Test_ServerError500(t *testing.T) {
 
 func Test_ServiceUnavailable502(t *testing.T) {
 	// 502 Bad Gateway error when the upstream service is unavailable
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
+func Test_TimeoutError(t *testing.T) {
+	// 408 Request Timeout error when the API request takes too long to complete
 	_, err := pkg.chat(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")

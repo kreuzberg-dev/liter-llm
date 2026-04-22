@@ -45,6 +45,10 @@ RSpec.describe 'streaming' do
     expect(result.stream_complete).to be true
   end
 
+  it 'stream_content_policy_error: 400 Bad Request error on stream due to content policy violation' do
+    expect { LiterLlm.chat(nil) }.to raise_error
+  end
+
   it 'stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream' do
     result = LiterLlm.chat(nil)
     expect(result.stream_complete).to be true
@@ -54,6 +58,11 @@ RSpec.describe 'streaming' do
 
   it 'stream_error_401: 401 Unauthorized error on stream initiation before any chunks are received' do
     expect { LiterLlm.chat(nil) }.to raise_error
+  end
+
+  it 'stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)' do
+    result = LiterLlm.chat(nil)
+    expect(result).not_to be_nil
   end
 
   it 'stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks' do

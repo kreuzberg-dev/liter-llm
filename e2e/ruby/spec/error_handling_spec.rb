@@ -33,6 +33,10 @@ RSpec.describe 'error-handling' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
 
+  it 'empty_response_body: 200 OK response with an empty JSON object body, missing required fields' do
+    expect { LiterLlm.chat(nil) }.to raise_error
+  end
+
   it 'forbidden_403: 403 Forbidden error when the API key does not have access to the requested resource' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
@@ -58,6 +62,10 @@ RSpec.describe 'error-handling' do
   end
 
   it 'service_unavailable_502: 502 Bad Gateway error when the upstream service is unavailable' do
+    expect { LiterLlm.chat(nil) }.to raise_error
+  end
+
+  it 'timeout_error: 408 Request Timeout error when the API request takes too long to complete' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
 

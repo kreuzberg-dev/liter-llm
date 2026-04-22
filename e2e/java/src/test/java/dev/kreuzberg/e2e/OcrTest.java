@@ -7,6 +7,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /** E2e tests for category: ocr. */
 class OcrTest {
     @Test
+    void testOcrError400() throws Exception {
+        // 400 Bad Request error when OCR input has an invalid image format
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
+    void testOcrError401() throws Exception {
+        // 401 Unauthorized error on OCR request due to invalid API credentials
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
     void testOcrUrlDocument() throws Exception {
         // OCR request with a document URL input
         var result = LiterLlm.chat(null);

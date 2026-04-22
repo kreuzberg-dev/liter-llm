@@ -1,0 +1,23 @@
+{
+	"id": "search_empty_results",
+	"description": "Web search with a query that returns no results",
+	"category": "search",
+	"tags": ["search", "edge-case"],
+	"call": "search",
+	"input": {
+		"model": "brave/web-search",
+		"query": "xyznonexistent12345xyz"
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"results": [],
+			"model": "brave/web-search"
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		}
+	]
+}

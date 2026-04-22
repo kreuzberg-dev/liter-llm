@@ -62,6 +62,13 @@ public class ErrorHandlingTests
     }
 
     [Fact]
+    public async Task Test_EmptyResponseBody()
+    {
+        // 200 OK response with an empty JSON object body, missing required fields
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
     public async Task Test_Forbidden403()
     {
         // 403 Forbidden error when the API key does not have access to the requested resource
@@ -107,6 +114,13 @@ public class ErrorHandlingTests
     public async Task Test_ServiceUnavailable502()
     {
         // 502 Bad Gateway error when the upstream service is unavailable
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
+    public async Task Test_TimeoutError()
+    {
+        // 408 Request Timeout error when the API request takes too long to complete
         await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
     }
 

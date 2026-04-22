@@ -92,6 +92,18 @@ void test_context_window_exceeded(void) {
     assert(result == NULL && "expected call to fail");
 }
 
+void test_empty_response_body(void) {
+    /* 200 OK response with an empty JSON object body, missing required fields */
+    LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+    assert(chat_completion_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionResponse* result = literllm_default_client_chat(client, chat_completion_request_handle);
+    literllm_chat_completion_request_free(chat_completion_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}
+
 void test_forbidden_403(void) {
     /* 403 Forbidden error when the API key does not have access to the requested resource */
     LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
@@ -166,6 +178,18 @@ void test_server_error_500(void) {
 
 void test_service_unavailable_502(void) {
     /* 502 Bad Gateway error when the upstream service is unavailable */
+    LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+    assert(chat_completion_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionResponse* result = literllm_default_client_chat(client, chat_completion_request_handle);
+    literllm_chat_completion_request_free(chat_completion_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}
+
+void test_timeout_error(void) {
+    /* 408 Request Timeout error when the API request takes too long to complete */
     LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"Hello\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
     assert(chat_completion_request_handle != NULL && "failed to build request");
     LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);

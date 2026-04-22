@@ -1,0 +1,35 @@
+{
+	"id": "ocr_error_401",
+	"description": "401 Unauthorized error on OCR request due to invalid API credentials",
+	"category": "ocr",
+	"tags": ["ocr", "error-handling"],
+	"call": "ocr",
+	"input": {
+		"model": "mistral/mistral-ocr-latest",
+		"document": {
+			"type": "document_url",
+			"url": "https://example.com/doc.pdf"
+		}
+	},
+	"mock_response": {
+		"status": 401,
+		"body": {
+			"error": {
+				"message": "Invalid API key",
+				"type": "invalid_request_error",
+				"code": "invalid_api_key"
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "error",
+			"value": "Authentication"
+		},
+		{
+			"type": "equals",
+			"field": "error.status_code",
+			"value": 401
+		}
+	]
+}

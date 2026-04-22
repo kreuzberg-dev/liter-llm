@@ -29,6 +29,10 @@ test_that("context_window_exceeded: 400 error when the prompt exceeds the model'
   expect_error(chat())
 })
 
+test_that("empty_response_body: 200 OK response with an empty JSON object body, missing required fields", {
+  expect_error(chat())
+})
+
 test_that("forbidden_403: 403 Forbidden error when the API key does not have access to the requested resource", {
   expect_error(chat())
 })
@@ -54,6 +58,10 @@ test_that("server_error_500: 500 Internal Server Error from the upstream API", {
 })
 
 test_that("service_unavailable_502: 502 Bad Gateway error when the upstream service is unavailable", {
+  expect_error(chat())
+})
+
+test_that("timeout_error: 408 Request Timeout error when the API request takes too long to complete", {
   expect_error(chat())
 })
 

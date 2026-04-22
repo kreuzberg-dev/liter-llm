@@ -1,0 +1,32 @@
+{
+	"id": "search_error_401",
+	"description": "401 Unauthorized error on web search due to invalid API credentials",
+	"category": "search",
+	"tags": ["search", "error-handling"],
+	"call": "search",
+	"input": {
+		"model": "brave/web-search",
+		"query": "test"
+	},
+	"mock_response": {
+		"status": 401,
+		"body": {
+			"error": {
+				"message": "Invalid API key",
+				"type": "invalid_request_error",
+				"code": "invalid_api_key"
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "error",
+			"value": "Authentication"
+		},
+		{
+			"type": "equals",
+			"field": "error.status_code",
+			"value": 401
+		}
+	]
+}

@@ -27,4 +27,12 @@ final class ListModelsTest extends TestCase
         $this->expectException(\Exception::class);
         $client->list_models_async();
     }
+
+    /** 500 Internal Server Error when listing models due to server failure */
+    public function test_list_models_error_500(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->list_models_async();
+    }
 }

@@ -40,3 +40,12 @@ void test_list_models_error_401(void) {
     literllm_default_client_free(client);
     assert(result == NULL && "expected call to fail");
 }
+
+void test_list_models_error_500(void) {
+    /* 500 Internal Server Error when listing models due to server failure */
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMListModelsResponse* result = literllm_default_client_list_models(client);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}

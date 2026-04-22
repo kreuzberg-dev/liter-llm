@@ -18,4 +18,28 @@ final class SearchTest extends TestCase
         $this->expectNotToPerformAssertions();
         $result = $client->search_async(null);
     }
+
+    /** Web search with a query that returns no results */
+    public function test_search_empty_results(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectNotToPerformAssertions();
+        $result = $client->search_async(null);
+    }
+
+    /** 400 Bad Request error when search query is empty */
+    public function test_search_error_400(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->search_async(null);
+    }
+
+    /** 401 Unauthorized error on web search due to invalid API credentials */
+    public function test_search_error_401(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->search_async(null);
+    }
 }

@@ -7,4 +7,23 @@ describe('search', () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/search_basic`);
     await client.chat({ model: "brave/web-search", query: "What is Rust programming language?" });
   });
+
+  it('search_empty_results: Web search with a query that returns no results', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/search_empty_results`);
+    await client.chat({ model: "brave/web-search", query: "xyznonexistent12345xyz" });
+  });
+
+  it('search_error_400: 400 Bad Request error when search query is empty', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/search_error_400`);
+    await expect(async () => {
+      await client.chat({ model: "brave/web-search", query: "" });
+    }).rejects.toThrow();
+  });
+
+  it('search_error_401: 401 Unauthorized error on web search due to invalid API credentials', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/search_error_401`);
+    await expect(async () => {
+      await client.chat({ model: "brave/web-search", query: "test" });
+    }).rejects.toThrow();
+  });
 });

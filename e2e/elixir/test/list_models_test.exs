@@ -16,4 +16,10 @@ defmodule E2e.ListModelsTest do
       assert {:error, _} = LiterLlm.chat_async(nil)
     end
   end
+
+  describe "list_models_error_500" do
+    test "500 Internal Server Error when listing models due to server failure" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
 end

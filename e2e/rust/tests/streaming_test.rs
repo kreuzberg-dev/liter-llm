@@ -149,6 +149,24 @@ async fn test_local_stream_ollama() {
 }
 
 #[tokio::test]
+async fn test_stream_content_policy_error() {
+    // 400 Bad Request error on stream due to content policy violation
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 400,
+        body: r#"{"error":{"code":"content_policy_violation","message":"Your request was rejected as a result of our safety system.","type":"invalid_request_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat_stream(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("ContentPolicy"), "error message mismatch");
+}
+
+#[tokio::test]
 async fn test_stream_done_signal() {
     // Verify that the [DONE] sentinel signal properly terminates the stream
     let mock_route = MockRoute {
@@ -187,6 +205,26 @@ async fn test_stream_error_401() {
     let result = chat_stream(&request).await;
     assert!(result.is_err(), "expected call to fail");
     assert!(result.as_ref().unwrap_err().to_string().contains("Authentication"), "error message mismatch");
+}
+
+#[tokio::test]
+async fn test_stream_multiple_choices() {
+    // Streaming chat completion with multiple choice outputs (n > 1)
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 200,
+        body: String::new(),
+        stream_chunks: vec![
+            r#"{"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":0},{"delta":{"content":"","role":"assistant"},"finish_reason":null,"index":1}],"created":1700000000,"id":"chatcmpl-1","model":"gpt-4o","object":"chat.completion.chunk"}"#.to_string(),
+            r#"{"choices":[{"delta":{"content":"Hi"},"finish_reason":null,"index":0},{"delta":{"content":"Hey"},"finish_reason":null,"index":1}],"created":1700000000,"id":"chatcmpl-1","model":"gpt-4o","object":"chat.completion.chunk"}"#.to_string(),
+            r#"{"choices":[{"delta":{},"finish_reason":"stop","index":0},{"delta":{},"finish_reason":"stop","index":1}],"created":1700000000,"id":"chatcmpl-1","model":"gpt-4o","object":"chat.completion.chunk"}"#.to_string(),
+        ],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let _ = chat_stream(&request).await.expect("should succeed");
 }
 
 #[tokio::test]

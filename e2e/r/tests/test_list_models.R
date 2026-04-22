@@ -10,3 +10,7 @@ test_that("empty_model_list: List models response returns an empty data array wh
 test_that("list_models_error_401: 401 Unauthorized error on list models request when API key is invalid", {
   expect_error(chat())
 })
+
+test_that("list_models_error_500: 500 Internal Server Error when listing models due to server failure", {
+  expect_error(chat())
+})

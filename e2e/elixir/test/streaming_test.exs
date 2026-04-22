@@ -55,6 +55,12 @@ defmodule E2e.StreamingTest do
     end
   end
 
+  describe "stream_content_policy_error" do
+    test "400 Bad Request error on stream due to content policy violation" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
   describe "stream_done_signal" do
     test "Verify that the [DONE] sentinel signal properly terminates the stream" do
       {:ok, result} = LiterLlm.chat_async(nil)
@@ -67,6 +73,12 @@ defmodule E2e.StreamingTest do
   describe "stream_error_401" do
     test "401 Unauthorized error on stream initiation before any chunks are received" do
       assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
+  describe "stream_multiple_choices" do
+    test "Streaming chat completion with multiple choice outputs (n > 1)" do
+      {:ok, result} = LiterLlm.chat_async(nil)
     end
   end
 

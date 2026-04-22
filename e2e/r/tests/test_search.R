@@ -4,3 +4,15 @@
 test_that("search_basic: Basic web search request with a simple query", {
   result <- chat()
 })
+
+test_that("search_empty_results: Web search with a query that returns no results", {
+  result <- chat()
+})
+
+test_that("search_error_400: 400 Bad Request error when search query is empty", {
+  expect_error(chat())
+})
+
+test_that("search_error_401: 401 Unauthorized error on web search due to invalid API credentials", {
+  expect_error(chat())
+})

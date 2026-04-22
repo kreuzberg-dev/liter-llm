@@ -24,7 +24,7 @@ async def test_extra_headers() -> None:
 
 @pytest.mark.asyncio
 async def test_local_provider_llamacpp() -> None:
-    """Llamacpp local provider routes requests via llamacpp/ model prefix with no auth."""
+    """llamacpp local provider routes requests via llamacpp/ model prefix with no auth."""
     request = None
     result = await chat(request=request)
     assert len(result.choices) == 1  # noqa: S101
@@ -44,7 +44,7 @@ async def test_local_provider_ollama() -> None:
 
 @pytest.mark.asyncio
 async def test_local_provider_vllm() -> None:
-    """VLLM local provider routes requests via vllm/ model prefix with no auth."""
+    """vLLM local provider routes requests via vllm/ model prefix with no auth."""
     request = None
     result = await chat(request=request)
     assert len(result.choices) == 1  # noqa: S101

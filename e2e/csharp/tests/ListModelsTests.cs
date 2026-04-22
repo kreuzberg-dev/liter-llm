@@ -27,4 +27,11 @@ public class ListModelsTests
         // 401 Unauthorized error on list models request when API key is invalid
         await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
     }
+
+    [Fact]
+    public async Task Test_ListModelsError500()
+    {
+        // 500 Internal Server Error when listing models due to server failure
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
 }

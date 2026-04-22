@@ -49,6 +49,13 @@ describe('streaming', () => {
     expect(result.streamComplete).toBe(true);
   });
 
+  it('stream_content_policy_error: 400 Bad Request error on stream due to content policy violation', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_content_policy_error`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Generate harmful content", role: "user" }], model: "gpt-4o", stream: true });
+    }).rejects.toThrow();
+  });
+
   it('stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_done_signal`);
     const result = await client.chat({ messages: [{ content: "Say done", role: "user" }], model: "gpt-4", stream: true });
@@ -62,6 +69,11 @@ describe('streaming', () => {
     await expect(async () => {
       await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4", stream: true });
     }).rejects.toThrow();
+  });
+
+  it('stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_multiple_choices`);
+    await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4o", n: 2, stream: true });
   });
 
   it('stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks', async () => {

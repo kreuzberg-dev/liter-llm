@@ -8,6 +8,30 @@
 #include "liter_llm.h"
 #include "test_runner.h"
 
+void test_ocr_error_400(void) {
+    /* 400 Bad Request error when OCR input has an invalid image format */
+    LITERLLMOcrRequest* ocr_request_handle = literllm_ocr_request_from_json("{\"document\":{\"type\":\"document_url\",\"url\":\"invalid://url\"},\"model\":\"mistral/mistral-ocr-latest\"}");
+    assert(ocr_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMOcrResponse* result = literllm_default_client_ocr(client, ocr_request_handle);
+    literllm_ocr_request_free(ocr_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}
+
+void test_ocr_error_401(void) {
+    /* 401 Unauthorized error on OCR request due to invalid API credentials */
+    LITERLLMOcrRequest* ocr_request_handle = literllm_ocr_request_from_json("{\"document\":{\"type\":\"document_url\",\"url\":\"https://example.com/doc.pdf\"},\"model\":\"mistral/mistral-ocr-latest\"}");
+    assert(ocr_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMOcrResponse* result = literllm_default_client_ocr(client, ocr_request_handle);
+    literllm_ocr_request_free(ocr_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}
+
 void test_ocr_url_document(void) {
     /* OCR request with a document URL input */
     LITERLLMOcrRequest* ocr_request_handle = literllm_ocr_request_from_json("{\"document\":{\"type\":\"document_url\",\"url\":\"https://example.com/doc.pdf\"},\"model\":\"mistral/mistral-ocr-latest\"}");

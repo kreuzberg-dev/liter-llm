@@ -6,6 +6,42 @@ mod mock_server;
 use mock_server::{MockRoute, MockServer};
 
 #[tokio::test]
+async fn test_ocr_error_400() {
+    // 400 Bad Request error when OCR input has an invalid image format
+    let mock_route = MockRoute {
+        path: "/v1/ocr",
+        method: "POST",
+        status: 400,
+        body: r#"{"error":{"code":"invalid_image","message":"Invalid image format","type":"invalid_request_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = ocr(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("BadRequest"), "error message mismatch");
+}
+
+#[tokio::test]
+async fn test_ocr_error_401() {
+    // 401 Unauthorized error on OCR request due to invalid API credentials
+    let mock_route = MockRoute {
+        path: "/v1/ocr",
+        method: "POST",
+        status: 401,
+        body: r#"{"error":{"code":"invalid_api_key","message":"Invalid API key","type":"invalid_request_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = ocr(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("Authentication"), "error message mismatch");
+}
+
+#[tokio::test]
 async fn test_ocr_url_document() {
     // OCR request with a document URL input
     let mock_route = MockRoute {

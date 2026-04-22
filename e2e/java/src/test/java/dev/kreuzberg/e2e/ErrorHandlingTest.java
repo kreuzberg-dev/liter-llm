@@ -49,6 +49,12 @@ class ErrorHandlingTest {
     }
 
     @Test
+    void testEmptyResponseBody() throws Exception {
+        // 200 OK response with an empty JSON object body, missing required fields
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
     void testForbidden403() throws Exception {
         // 403 Forbidden error when the API key does not have access to the requested resource
         assertThrows(Exception.class, () -> LiterLlm.chat(null));
@@ -87,6 +93,12 @@ class ErrorHandlingTest {
     @Test
     void testServiceUnavailable502() throws Exception {
         // 502 Bad Gateway error when the upstream service is unavailable
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
+    void testTimeoutError() throws Exception {
+        // 408 Request Timeout error when the API request takes too long to complete
         assertThrows(Exception.class, () -> LiterLlm.chat(null));
     }
 

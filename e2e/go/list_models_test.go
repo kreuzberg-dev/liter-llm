@@ -28,3 +28,11 @@ func Test_ListModelsError401(t *testing.T) {
 		t.Errorf("expected an error, but call succeeded")
 	}
 }
+
+func Test_ListModelsError500(t *testing.T) {
+	// 500 Internal Server Error when listing models due to server failure
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}

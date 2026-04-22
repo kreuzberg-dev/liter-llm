@@ -37,3 +37,19 @@ async fn test_list_models_error_401() {
     assert!(result.as_ref().unwrap_err().to_string().contains("Authentication"), "error message mismatch");
 }
 
+#[tokio::test]
+async fn test_list_models_error_500() {
+    // 500 Internal Server Error when listing models due to server failure
+    let mock_route = MockRoute {
+        path: "/v1/models",
+        method: "POST",
+        status: 500,
+        body: r#"{"error":{"code":"internal_error","message":"Internal server error","type":"server_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let result = list_models().await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("ServerError"), "error message mismatch");
+}
+

@@ -16,3 +16,27 @@ func Test_SearchBasic(t *testing.T) {
 		t.Fatalf("call failed: %v", err)
 	}
 }
+
+func Test_SearchEmptyResults(t *testing.T) {
+	// Web search with a query that returns no results
+	_, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+}
+
+func Test_SearchError400(t *testing.T) {
+	// 400 Bad Request error when search query is empty
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
+func Test_SearchError401(t *testing.T) {
+	// 401 Unauthorized error on web search due to invalid API credentials
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}

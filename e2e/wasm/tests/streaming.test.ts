@@ -76,6 +76,15 @@ describe('streaming', () => {
     expect(result.streamComplete).toBe(true);
   });
 
+  it('stream_content_policy_error: 400 Bad Request error on stream due to content policy violation', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Generate harmful content", role: "user" }];
+    options.model = "gpt-4o";
+    options.stream = true;
+    await expect(async () => await client.chat(options)).rejects.toThrow();
+  });
+
   it('stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();
@@ -95,6 +104,16 @@ describe('streaming', () => {
     options.model = "gpt-4";
     options.stream = true;
     await expect(async () => await client.chat(options)).rejects.toThrow();
+  });
+
+  it('stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Hello", role: "user" }];
+    options.model = "gpt-4o";
+    options.n = BigInt(2);
+    options.stream = true;
+    const result = await client.chat(options);
   });
 
   it('stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks', async () => {

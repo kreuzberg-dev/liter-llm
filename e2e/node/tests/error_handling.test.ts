@@ -52,6 +52,13 @@ describe('error-handling', () => {
     }).rejects.toThrow();
   });
 
+  it('empty_response_body: 200 OK response with an empty JSON object body, missing required fields', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/empty_response_body`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4" });
+    }).rejects.toThrow();
+  });
+
   it('forbidden_403: 403 Forbidden error when the API key does not have access to the requested resource', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/forbidden_403`);
     await expect(async () => {
@@ -96,6 +103,13 @@ describe('error-handling', () => {
 
   it('service_unavailable_502: 502 Bad Gateway error when the upstream service is unavailable', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/service_unavailable_502`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4" });
+    }).rejects.toThrow();
+  });
+
+  it('timeout_error: 408 Request Timeout error when the API request takes too long to complete', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/timeout_error`);
     await expect(async () => {
       await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4" });
     }).rejects.toThrow();

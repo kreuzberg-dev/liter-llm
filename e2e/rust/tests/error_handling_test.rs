@@ -132,6 +132,23 @@ async fn test_context_window_exceeded() {
 }
 
 #[tokio::test]
+async fn test_empty_response_body() {
+    // 200 OK response with an empty JSON object body, missing required fields
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 200,
+        body: r#"{}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+}
+
+#[tokio::test]
 async fn test_forbidden_403() {
     // 403 Forbidden error when the API key does not have access to the requested resource
     let mock_route = MockRoute {
@@ -255,6 +272,24 @@ async fn test_service_unavailable_502() {
     let result = chat(&request).await;
     assert!(result.is_err(), "expected call to fail");
     assert!(result.as_ref().unwrap_err().to_string().contains("ServiceUnavailable"), "error message mismatch");
+}
+
+#[tokio::test]
+async fn test_timeout_error() {
+    // 408 Request Timeout error when the API request takes too long to complete
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 408,
+        body: r#"{"error":{"code":"timeout","message":"Request timeout","type":"timeout_error"}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat(&request).await;
+    assert!(result.is_err(), "expected call to fail");
+    assert!(result.as_ref().unwrap_err().to_string().contains("Timeout"), "error message mismatch");
 }
 
 #[tokio::test]

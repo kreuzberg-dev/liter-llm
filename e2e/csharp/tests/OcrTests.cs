@@ -13,6 +13,20 @@ public class OcrTests
     private static readonly JsonSerializerOptions ConfigOptions = new() { Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) }, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 
     [Fact]
+    public async Task Test_OcrError400()
+    {
+        // 400 Bad Request error when OCR input has an invalid image format
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
+    public async Task Test_OcrError401()
+    {
+        // 401 Unauthorized error on OCR request due to invalid API credentials
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
     public async Task Test_OcrUrlDocument()
     {
         // OCR request with a document URL input

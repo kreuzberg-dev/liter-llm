@@ -88,6 +88,14 @@ func Test_LocalStreamOllama(t *testing.T) {
 	assert.True(t, result.StreamComplete, "expected true")
 }
 
+func Test_StreamContentPolicyError(t *testing.T) {
+	// 400 Bad Request error on stream due to content policy violation
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
 func Test_StreamDoneSignal(t *testing.T) {
 	// Verify that the [DONE] sentinel signal properly terminates the stream
 	result, err := pkg.chat(nil)
@@ -106,6 +114,14 @@ func Test_StreamError401(t *testing.T) {
 	_, err := pkg.chat(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
+func Test_StreamMultipleChoices(t *testing.T) {
+	// Streaming chat completion with multiple choice outputs (n > 1)
+	_, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
 	}
 }
 

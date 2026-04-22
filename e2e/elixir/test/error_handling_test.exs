@@ -45,6 +45,12 @@ defmodule E2e.ErrorHandlingTest do
     end
   end
 
+  describe "empty_response_body" do
+    test "200 OK response with an empty JSON object body, missing required fields" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
   describe "forbidden_403" do
     test "403 Forbidden error when the API key does not have access to the requested resource" do
       assert {:error, _} = LiterLlm.chat_async(nil)
@@ -83,6 +89,12 @@ defmodule E2e.ErrorHandlingTest do
 
   describe "service_unavailable_502" do
     test "502 Bad Gateway error when the upstream service is unavailable" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
+  describe "timeout_error" do
+    test "408 Request Timeout error when the API request takes too long to complete" do
       assert {:error, _} = LiterLlm.chat_async(nil)
     end
   end

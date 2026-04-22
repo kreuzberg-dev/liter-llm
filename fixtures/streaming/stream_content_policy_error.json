@@ -1,0 +1,38 @@
+{
+	"id": "stream_content_policy_error",
+	"description": "400 Bad Request error on stream due to content policy violation",
+	"category": "streaming",
+	"tags": ["streaming", "error-handling"],
+	"call": "chat_stream",
+	"input": {
+		"model": "gpt-4o",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Generate harmful content"
+			}
+		],
+		"stream": true
+	},
+	"mock_response": {
+		"status": 400,
+		"body": {
+			"error": {
+				"message": "Your request was rejected as a result of our safety system.",
+				"type": "invalid_request_error",
+				"code": "content_policy_violation"
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "error",
+			"value": "ContentPolicy"
+		},
+		{
+			"type": "equals",
+			"field": "error.status_code",
+			"value": 400
+		}
+	]
+}

@@ -1,0 +1,25 @@
+{
+	"id": "empty_response_body",
+	"description": "200 OK response with an empty JSON object body, missing required fields",
+	"category": "error-handling",
+	"tags": ["error-handling", "edge-case"],
+	"call": "chat",
+	"input": {
+		"model": "gpt-4",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Hello"
+			}
+		]
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {}
+	},
+	"assertions": [
+		{
+			"type": "error"
+		}
+	]
+}

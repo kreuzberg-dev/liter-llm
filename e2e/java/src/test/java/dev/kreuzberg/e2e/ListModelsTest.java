@@ -20,4 +20,10 @@ class ListModelsTest {
         assertThrows(Exception.class, () -> LiterLlm.chat(null));
     }
 
+    @Test
+    void testListModelsError500() throws Exception {
+        // 500 Internal Server Error when listing models due to server failure
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
 }

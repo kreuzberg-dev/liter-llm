@@ -61,6 +61,13 @@ async def test_context_window_exceeded() -> None:
     assert "ContextWindowExceeded" in str(exc_info.value)  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_empty_response_body() -> None:
+    """200 OK response with an empty JSON object body, missing required fields."""
+    request = None
+    with pytest.raises(Exception):
+        await chat(request=request)
+
+@pytest.mark.asyncio
 async def test_forbidden_403() -> None:
     """403 Forbidden error when the API key does not have access to the requested resource."""
     request = None
@@ -115,6 +122,14 @@ async def test_service_unavailable_502() -> None:
     with pytest.raises(Exception) as exc_info:
         await chat(request=request)
     assert "ServiceUnavailable" in str(exc_info.value)  # noqa: S101
+
+@pytest.mark.asyncio
+async def test_timeout_error() -> None:
+    """408 Request Timeout error when the API request takes too long to complete."""
+    request = None
+    with pytest.raises(Exception) as exc_info:
+        await chat(request=request)
+    assert "Timeout" in str(exc_info.value)  # noqa: S101
 
 @pytest.mark.asyncio
 async def test_vertex_error_auth() -> None:

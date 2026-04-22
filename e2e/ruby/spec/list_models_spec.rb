@@ -14,4 +14,8 @@ RSpec.describe 'list-models' do
   it 'list_models_error_401: 401 Unauthorized error on list models request when API key is invalid' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
+
+  it 'list_models_error_500: 500 Internal Server Error when listing models due to server failure' do
+    expect { LiterLlm.chat(nil) }.to raise_error
+  end
 end

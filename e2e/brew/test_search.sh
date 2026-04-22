@@ -10,6 +10,32 @@ test_search_basic() {
 
 }
 
+test_search_empty_results() {
+    # Web search with a query that returns no results
+    local output
+    output=$(liter_llm chat)
+
+}
+
+test_search_error_400() {
+    # 400 Bad Request error when search query is empty
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
+test_search_error_401() {
+    # 401 Unauthorized error on web search due to invalid API credentials
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
 run_tests_search() {
     run_test test_search_basic
+    run_test test_search_empty_results
+    run_test test_search_error_400
+    run_test test_search_error_401
 }

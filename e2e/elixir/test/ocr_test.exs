@@ -3,6 +3,18 @@
 defmodule E2e.OcrTest do
   use ExUnit.Case, async: true
 
+  describe "ocr_error_400" do
+    test "400 Bad Request error when OCR input has an invalid image format" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
+  describe "ocr_error_401" do
+    test "401 Unauthorized error on OCR request due to invalid API credentials" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
   describe "ocr_url_document" do
     test "OCR request with a document URL input" do
       {:ok, result} = LiterLlm.chat_async(nil)

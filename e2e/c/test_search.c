@@ -20,3 +20,40 @@ void test_search_basic(void) {
     literllm_search_request_free(search_request_handle);
     literllm_default_client_free(client);
 }
+
+void test_search_empty_results(void) {
+    /* Web search with a query that returns no results */
+    LITERLLMSearchRequest* search_request_handle = literllm_search_request_from_json("{\"model\":\"brave/web-search\",\"query\":\"xyznonexistent12345xyz\"}");
+    assert(search_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMSearchResponse* result = literllm_default_client_search(client, search_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    literllm_search_response_free(result);
+    literllm_search_request_free(search_request_handle);
+    literllm_default_client_free(client);
+}
+
+void test_search_error_400(void) {
+    /* 400 Bad Request error when search query is empty */
+    LITERLLMSearchRequest* search_request_handle = literllm_search_request_from_json("{\"model\":\"brave/web-search\",\"query\":\"\"}");
+    assert(search_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMSearchResponse* result = literllm_default_client_search(client, search_request_handle);
+    literllm_search_request_free(search_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}
+
+void test_search_error_401(void) {
+    /* 401 Unauthorized error on web search due to invalid API credentials */
+    LITERLLMSearchRequest* search_request_handle = literllm_search_request_from_json("{\"model\":\"brave/web-search\",\"query\":\"test\"}");
+    assert(search_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMSearchResponse* result = literllm_default_client_search(client, search_request_handle);
+    literllm_search_request_free(search_request_handle);
+    literllm_default_client_free(client);
+    assert(result == NULL && "expected call to fail");
+}

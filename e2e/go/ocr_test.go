@@ -9,6 +9,22 @@ import (
 	pkg "liter_llm"
 )
 
+func Test_OcrError400(t *testing.T) {
+	// 400 Bad Request error when OCR input has an invalid image format
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
+func Test_OcrError401(t *testing.T) {
+	// 401 Unauthorized error on OCR request due to invalid API credentials
+	_, err := pkg.chat(nil)
+	if err == nil {
+		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
 func Test_OcrUrlDocument(t *testing.T) {
 	// OCR request with a document URL input
 	_, err := pkg.chat(nil)

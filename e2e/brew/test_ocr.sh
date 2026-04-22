@@ -3,6 +3,22 @@
 # E2e tests for category: ocr
 set -euo pipefail
 
+test_ocr_error_400() {
+    # 400 Bad Request error when OCR input has an invalid image format
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
+test_ocr_error_401() {
+    # 401 Unauthorized error on OCR request due to invalid API credentials
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
 test_ocr_url_document() {
     # OCR request with a document URL input
     local output
@@ -11,5 +27,7 @@ test_ocr_url_document() {
 }
 
 run_tests_ocr() {
+    run_test test_ocr_error_400
+    run_test test_ocr_error_401
     run_test test_ocr_url_document
 }

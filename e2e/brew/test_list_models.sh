@@ -24,7 +24,16 @@ test_list_models_error_401() {
     fi
 }
 
+test_list_models_error_500() {
+    # 500 Internal Server Error when listing models due to server failure
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
 run_tests_list_models() {
     run_test test_empty_model_list
     run_test test_list_models_error_401
+    run_test test_list_models_error_500
 }

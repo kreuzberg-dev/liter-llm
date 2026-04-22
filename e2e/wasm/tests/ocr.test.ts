@@ -3,6 +3,22 @@ import { describe, it, expect } from 'vitest';
 import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
 describe('ocr', () => {
+  it('ocr_error_400: 400 Bad Request error when OCR input has an invalid image format', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.document = { type: "document_url", url: "invalid://url" };
+    options.model = "mistral/mistral-ocr-latest";
+    await expect(async () => await client.chat(options)).rejects.toThrow();
+  });
+
+  it('ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.document = { type: "document_url", url: "https://example.com/doc.pdf" };
+    options.model = "mistral/mistral-ocr-latest";
+    await expect(async () => await client.chat(options)).rejects.toThrow();
+  });
+
   it('ocr_url_document: OCR request with a document URL input', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();

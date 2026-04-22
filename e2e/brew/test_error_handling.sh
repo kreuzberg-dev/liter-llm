@@ -59,6 +59,14 @@ test_context_window_exceeded() {
     fi
 }
 
+test_empty_response_body() {
+    # 200 OK response with an empty JSON object body, missing required fields
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
 test_forbidden_403() {
     # 403 Forbidden error when the API key does not have access to the requested resource
     if liter_llm chat >/dev/null 2>&1; then
@@ -115,6 +123,14 @@ test_service_unavailable_502() {
     fi
 }
 
+test_timeout_error() {
+    # 408 Request Timeout error when the API request takes too long to complete
+    if liter_llm chat >/dev/null 2>&1; then
+        echo 'FAIL [error]: expected command to fail but it succeeded' >&2
+        return 1
+    fi
+}
+
 test_vertex_error_auth() {
     # Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication
     if liter_llm chat >/dev/null 2>&1; then
@@ -131,6 +147,7 @@ run_tests_error_handling() {
     run_test test_bedrock_error_auth
     run_test test_content_policy_violation
     run_test test_context_window_exceeded
+    run_test test_empty_response_body
     run_test test_forbidden_403
     run_test test_gateway_timeout_504
     run_test test_github_copilot_error_auth
@@ -138,5 +155,6 @@ run_tests_error_handling() {
     run_test test_rate_limit_429
     run_test test_server_error_500
     run_test test_service_unavailable_502
+    run_test test_timeout_error
     run_test test_vertex_error_auth
 }

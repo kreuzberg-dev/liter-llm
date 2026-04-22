@@ -3,6 +3,20 @@ import { describe, it, expect } from 'vitest';
 import { createClient } from '@kreuzberg/liter-llm';
 
 describe('ocr', () => {
+  it('ocr_error_400: 400 Bad Request error when OCR input has an invalid image format', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/ocr_error_400`);
+    await expect(async () => {
+      await client.chat({ document: { type: "document_url", url: "invalid://url" }, model: "mistral/mistral-ocr-latest" });
+    }).rejects.toThrow();
+  });
+
+  it('ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/ocr_error_401`);
+    await expect(async () => {
+      await client.chat({ document: { type: "document_url", url: "https://example.com/doc.pdf" }, model: "mistral/mistral-ocr-latest" });
+    }).rejects.toThrow();
+  });
+
   it('ocr_url_document: OCR request with a document URL input', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/ocr_url_document`);
     await client.chat({ document: { type: "document_url", url: "https://example.com/doc.pdf" }, model: "mistral/mistral-ocr-latest" });

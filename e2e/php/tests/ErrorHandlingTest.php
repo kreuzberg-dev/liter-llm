@@ -67,6 +67,14 @@ final class ErrorHandlingTest extends TestCase
         $client->chat_async(null);
     }
 
+    /** 200 OK response with an empty JSON object body, missing required fields */
+    public function test_empty_response_body(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->chat_async(null);
+    }
+
     /** 403 Forbidden error when the API key does not have access to the requested resource */
     public function test_forbidden_403(): void
     {
@@ -117,6 +125,14 @@ final class ErrorHandlingTest extends TestCase
 
     /** 502 Bad Gateway error when the upstream service is unavailable */
     public function test_service_unavailable_502(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $this->expectException(\Exception::class);
+        $client->chat_async(null);
+    }
+
+    /** 408 Request Timeout error when the API request takes too long to complete */
+    public function test_timeout_error(): void
     {
         $client = \Liter\Llm\LiterLlm::createClient('test-key');
         $this->expectException(\Exception::class);

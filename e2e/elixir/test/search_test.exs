@@ -8,4 +8,22 @@ defmodule E2e.SearchTest do
       {:ok, result} = LiterLlm.chat_async(nil)
     end
   end
+
+  describe "search_empty_results" do
+    test "Web search with a query that returns no results" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+    end
+  end
+
+  describe "search_error_400" do
+    test "400 Bad Request error when search query is empty" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
+
+  describe "search_error_401" do
+    test "401 Unauthorized error on web search due to invalid API credentials" do
+      assert {:error, _} = LiterLlm.chat_async(nil)
+    end
+  end
 end

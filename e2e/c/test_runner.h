@@ -143,6 +143,7 @@ void test_bad_request_400(void);
 void test_bedrock_error_auth(void);
 void test_content_policy_violation(void);
 void test_context_window_exceeded(void);
+void test_empty_response_body(void);
 void test_forbidden_403(void);
 void test_gateway_timeout_504(void);
 void test_github_copilot_error_auth(void);
@@ -150,6 +151,7 @@ void test_not_found_404(void);
 void test_rate_limit_429(void);
 void test_server_error_500(void);
 void test_service_unavailable_502(void);
+void test_timeout_error(void);
 void test_vertex_error_auth(void);
 
 /* Tests for category: files */
@@ -177,6 +179,7 @@ void test_smoke_image_with_size(void);
 /* Tests for category: list-models */
 void test_empty_model_list(void);
 void test_list_models_error_401(void);
+void test_list_models_error_500(void);
 
 /* Tests for category: moderate */
 void test_edge_moderate_all_categories(void);
@@ -188,6 +191,8 @@ void test_smoke_moderate_flagged(void);
 void test_smoke_moderate_single(void);
 
 /* Tests for category: ocr */
+void test_ocr_error_400(void);
+void test_ocr_error_401(void);
 void test_ocr_url_document(void);
 
 /* Tests for category: parity */
@@ -229,6 +234,9 @@ void test_smoke_retrieve_response(void);
 
 /* Tests for category: search */
 void test_search_basic(void);
+void test_search_empty_results(void);
+void test_search_error_400(void);
+void test_search_error_401(void);
 
 /* Tests for category: smoke */
 void test_anthropic_chat(void);
@@ -266,8 +274,10 @@ void test_basic_stream(void);
 void test_bedrock_stream(void);
 void test_empty_stream(void);
 void test_local_stream_ollama(void);
+void test_stream_content_policy_error(void);
 void test_stream_done_signal(void);
 void test_stream_error_401(void);
+void test_stream_multiple_choices(void);
 void test_stream_with_tool_calls(void);
 void test_stream_with_usage(void);
 void test_vertex_stream(void);

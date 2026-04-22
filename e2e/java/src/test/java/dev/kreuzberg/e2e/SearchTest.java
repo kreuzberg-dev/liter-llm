@@ -12,4 +12,22 @@ class SearchTest {
         var result = LiterLlm.chat(null);
     }
 
+    @Test
+    void testSearchEmptyResults() throws Exception {
+        // Web search with a query that returns no results
+        var result = LiterLlm.chat(null);
+    }
+
+    @Test
+    void testSearchError400() throws Exception {
+        // 400 Bad Request error when search query is empty
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
+    @Test
+    void testSearchError401() throws Exception {
+        // 401 Unauthorized error on web search due to invalid API credentials
+        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+    }
+
 }

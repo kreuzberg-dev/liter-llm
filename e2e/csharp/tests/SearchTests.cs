@@ -18,4 +18,25 @@ public class SearchTests
         // Basic web search request with a simple query
         var result = await LiterLlmLib.Chat(null);
     }
+
+    [Fact]
+    public async Task Test_SearchEmptyResults()
+    {
+        // Web search with a query that returns no results
+        var result = await LiterLlmLib.Chat(null);
+    }
+
+    [Fact]
+    public async Task Test_SearchError400()
+    {
+        // 400 Bad Request error when search query is empty
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
+
+    [Fact]
+    public async Task Test_SearchError401()
+    {
+        // 401 Unauthorized error on web search due to invalid API credentials
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+    }
 }
