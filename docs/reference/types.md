@@ -430,6 +430,115 @@ A search request.
 
 ---
 
+#### ClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `String` | — | API key for authentication (stored as a secret). |
+| `base_url` | `Option<String>` | `None` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `Duration` | — | Request timeout. |
+| `max_retries` | `u32` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credential_provider` | `Option<CredentialProvider>` | `None` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `load_env` | `bool` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+---
+
+#### FileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `Option<String>` | `None` | Api key |
+| `base_url` | `Option<String>` | `None` | Base url |
+| `model_hint` | `Option<String>` | `None` | Model hint |
+| `timeout_secs` | `Option<u64>` | `None` | Timeout secs |
+| `max_retries` | `Option<u32>` | `None` | Maximum retries |
+| `extra_headers` | `HashMap<String, String>` | `None` | Extra headers |
+| `cache` | `Option<FileCacheConfig>` | `None` | Cache (file cache config) |
+| `budget` | `Option<FileBudgetConfig>` | `None` | Budget (file budget config) |
+| `cooldown_secs` | `Option<u64>` | `None` | Cooldown secs |
+| `rate_limit` | `Option<FileRateLimitConfig>` | `None` | Rate limit (file rate limit config) |
+| `health_check_secs` | `Option<u64>` | `None` | Health check secs |
+| `cost_tracking` | `Option<bool>` | `None` | Cost tracking |
+| `tracing` | `Option<bool>` | `None` | Tracing |
+| `providers` | `Vec<FileProviderConfig>` | `None` | Providers |
+
+---
+
+#### FileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `max_entries` | `Option<usize>` | `None` | Maximum entries |
+| `ttl_seconds` | `Option<u64>` | `None` | Ttl seconds |
+| `backend` | `Option<String>` | `None` | Backend |
+| `backend_config` | `HashMap<String, String>` | `None` | Backend config |
+
+---
+
+#### FileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `global_limit` | `Option<f64>` | `None` | Global limit |
+| `model_limits` | `HashMap<String, f64>` | `None` | Model limits |
+| `enforcement` | `Option<String>` | `None` | Enforcement |
+
+---
+
+#### FileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rpm` | `Option<u32>` | `None` | Rpm |
+| `tpm` | `Option<u64>` | `None` | Tpm |
+| `window_seconds` | `Option<u64>` | `None` | Window seconds |
+
+---
+
+#### FileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `String` | — | The name |
+| `base_url` | `String` | — | Base url |
+| `auth_header` | `Option<String>` | `None` | Auth header |
+| `model_prefixes` | `Vec<String>` | — | Model prefixes |
+
+---
+
 #### CustomProviderConfig
 
 Configuration for registering a custom LLM provider at runtime.
@@ -495,6 +604,29 @@ An image extracted from an OCR page.
 ---
 
 ### Other Types
+
+#### ErrorResponse
+
+Error response from an OpenAI-compatible API.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `error` | `ApiError` | — | Error (api error) |
+
+---
+
+#### ApiError
+
+Inner error object.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `message` | `String` | — | Message |
+| `error_type` | `String` | — | Error type |
+| `param` | `Option<String>` | `None` | Param |
+| `code` | `Option<String>` | `None` | Code |
+
+---
 
 #### LiterLlmError
 
@@ -685,6 +817,83 @@ Page dimensions in pixels.
 
 ---
 
+#### ClientConfigBuilder
+
+Builder for `ClientConfig`.
+
+Construct with `ClientConfigBuilder.new` and call builder methods to
+customise the configuration, then call `ClientConfigBuilder.build` to
+obtain a `ClientConfig`.
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
+#### ManagedClient
+
+A managed LLM client that wraps `DefaultClient` with optional Tower
+middleware (cache, cooldown, rate limiting, health checks, cost tracking,
+budget, hooks, tracing).
+
+Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+contains any middleware configuration the corresponding Tower layers are
+composed into a service stack.  Otherwise requests pass straight through
+to the inner `DefaultClient`.
+
+`ManagedClient` implements `LlmClient` and can be used everywhere a
+`DefaultClient` is expected.
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
+#### LlmClient
+
+Core LLM client trait.
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
+#### LlmClientRaw
+
+Extension of `LlmClient` that returns raw request/response data
+alongside the typed response.
+
+Every `_raw` method mirrors its counterpart on `LlmClient` but wraps the
+result in a `RawExchange` that exposes the final request body (after
+`transform_request`) and the raw provider response (before
+`transform_response`). This is useful for debugging provider-specific
+transformations, capturing wire-level data, or implementing custom parsing.
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
+#### FileClient
+
+File management operations (upload, list, retrieve, delete).
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
+#### BatchClient
+
+Batch processing operations (create, list, retrieve, cancel).
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
+#### ResponseClient
+
+Responses API operations (create, retrieve, cancel).
+
+*Opaque type — fields are not directly accessible.*
+
+---
+
 #### DefaultClient
 
 Default client implementation backed by `reqwest`.
@@ -704,3 +913,4 @@ async closures and streaming tasks that must be `'static`.
 *Opaque type — fields are not directly accessible.*
 
 ---
+
