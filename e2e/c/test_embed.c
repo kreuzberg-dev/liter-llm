@@ -40,6 +40,57 @@ void test_batch_embed(void) {
     literllm_default_client_free(client);
 }
 
+void test_edge_embed_batch_input(void) {
+    /* Embedding request with multiple inputs returns multiple embedding objects */
+    LITERLLMEmbeddingRequest* embedding_request_handle = literllm_embedding_request_from_json("{\"input\":[\"Hello world\",\"Goodbye world\"],\"model\":\"text-embedding-3-small\"}");
+    assert(embedding_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMEmbeddingResponse* result = literllm_default_client_embed(client, embedding_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* data = literllm_embedding_response_data(result);
+    char* data_json = literllm_embedding_response_data(result);
+    assert(data_json != NULL);
+    char* data_0_index = alef_json_get_string(data_json, "0");
+    char* data_1_index = alef_json_get_string(data_json, "1");
+    {
+        /* count_equals: count elements in array */
+        assert(data != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(data);
+        assert(elem_count == 2 && "expected 2 elements");
+    }
+    assert(strcmp(data_0_index, 0) == 0 && "equals assertion failed");
+    assert(strcmp(data_1_index, 1) == 0 && "equals assertion failed");
+    literllm_free_string(data);
+    free(data_0_index);
+    free(data_1_index);
+    literllm_free_string(data_json);
+    literllm_embedding_response_free(result);
+    literllm_embedding_request_free(embedding_request_handle);
+    literllm_default_client_free(client);
+}
+
+void test_edge_embed_empty_input(void) {
+    /* Embedding request with empty string input returns empty data array */
+    LITERLLMEmbeddingRequest* embedding_request_handle = literllm_embedding_request_from_json("{\"input\":\"\",\"model\":\"text-embedding-3-small\"}");
+    assert(embedding_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMEmbeddingResponse* result = literllm_default_client_embed(client, embedding_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* data = literllm_embedding_response_data(result);
+    {
+        /* count_equals: count elements in array */
+        assert(data != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(data);
+        assert(elem_count == 0 && "expected 0 elements");
+    }
+    literllm_free_string(data);
+    literllm_embedding_response_free(result);
+    literllm_embedding_request_free(embedding_request_handle);
+    literllm_default_client_free(client);
+}
+
 void test_embed_encoding_format(void) {
     /* Embedding request with explicit encoding_format of float returns float array embeddings */
     LITERLLMEmbeddingRequest* embedding_request_handle = literllm_embedding_request_from_json("{\"encoding_format\":\"float\",\"input\":\"Test input\",\"model\":\"text-embedding-3-small\"}");

@@ -49,3 +49,27 @@ void test_list_models_error_500(void) {
     literllm_default_client_free(client);
     assert(result == NULL && "expected call to fail");
 }
+
+void test_list_models_filtered(void) {
+    /* List models response with multiple model objects */
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMListModelsResponse* result = literllm_default_client_list_models(client);
+    assert(result != NULL && "expected call to succeed");
+    char* data = literllm_list_models_response_data(result);
+    char* data_json = literllm_list_models_response_data(result);
+    assert(data_json != NULL);
+    char* data_0_object = alef_json_get_string(data_json, "0");
+    {
+        /* count_min: count top-level JSON array elements */
+        assert(data != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(data);
+        assert(elem_count >= 5 && "expected at least 5 elements");
+    }
+    assert(str_trim_eq(data_0_object, "model") == 0 && "equals assertion failed");
+    literllm_free_string(data);
+    free(data_0_object);
+    literllm_free_string(data_json);
+    literllm_list_models_response_free(result);
+    literllm_default_client_free(client);
+}

@@ -20,6 +20,24 @@ final class EmbedTest extends TestCase
         $this->assertCount(5, $result->data["0"]->embedding);
     }
 
+    /** Embedding request with multiple inputs returns multiple embedding objects */
+    public function test_edge_embed_batch_input(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->embed_async(json_encode(["Hello world", "Goodbye world"]));
+        $this->assertCount(2, $result->data);
+        $this->assertEquals(0, $result->data["0"]->index);
+        $this->assertEquals(1, $result->data["1"]->index);
+    }
+
+    /** Embedding request with empty string input returns empty data array */
+    public function test_edge_embed_empty_input(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->embed_async(json_encode(""));
+        $this->assertCount(0, $result->data);
+    }
+
     /** Embedding request with explicit encoding_format of float returns float array embeddings */
     public function test_embed_encoding_format(): void
     {

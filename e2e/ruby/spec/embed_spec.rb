@@ -11,6 +11,18 @@ RSpec.describe 'embed' do
     expect(result.data.get("0").embedding.length).to eq(5)
   end
 
+  it 'edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects' do
+    result = LiterLlm.chat(['Hello world', 'Goodbye world'])
+    expect(result.data.length).to eq(2)
+    expect(result.data.get("0").index).to eq(0)
+    expect(result.data.get("1").index).to eq(1)
+  end
+
+  it 'edge_embed_empty_input: Embedding request with empty string input returns empty data array' do
+    result = LiterLlm.chat('')
+    expect(result.data.length).to eq(0)
+  end
+
   it 'embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings' do
     result = LiterLlm.chat('Test input')
     expect(result.data.length).to eq(1)

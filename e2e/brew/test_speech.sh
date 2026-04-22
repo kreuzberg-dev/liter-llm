@@ -3,6 +3,16 @@
 # E2e tests for category: speech
 set -euo pipefail
 
+test_edge_speech_all_voices() {
+    # Text-to-speech with specific voice selection
+    local output
+    output=$(liter_llm chat)
+
+    local val_audio
+    val_audio=$(echo "$output" | jq -r '.audio')
+    assert_not_empty "$val_audio" 'audio'
+}
+
 test_edge_speech_long_input() {
     # Speech generation with a very long input text
     local output
@@ -50,6 +60,7 @@ test_smoke_speech_mp3_format() {
 }
 
 run_tests_speech() {
+    run_test test_edge_speech_all_voices
     run_test test_edge_speech_long_input
     run_test test_error_speech_auth_401
     run_test test_error_speech_bad_model

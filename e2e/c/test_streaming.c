@@ -113,6 +113,27 @@ void test_bedrock_stream(void) {
     literllm_default_client_free(client);
 }
 
+void test_edge_stream_function_call(void) {
+    /* Streaming chat completion with tool/function call chunks */
+    LITERLLMChatCompletionChunkRequest* chat_completion_chunk_request_handle = literllm_chat_completion_chunk_request_from_json("{\"messages\":[{\"content\":\"What's the weather?\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"tools\":[{\"function\":{\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"}},\"type\":\"object\"}},\"type\":\"function\"}]}");
+    assert(chat_completion_chunk_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionChunk* result = literllm_default_client_chat_stream(client, chat_completion_chunk_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* chunks = literllm_chat_completion_chunk_chunks(result);
+    {
+        /* count_min: count top-level JSON array elements */
+        assert(chunks != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(chunks);
+        assert(elem_count >= 2 && "expected at least 2 elements");
+    }
+    literllm_free_string(chunks);
+    literllm_chat_completion_chunk_free(result);
+    literllm_chat_completion_chunk_request_free(chat_completion_chunk_request_handle);
+    literllm_default_client_free(client);
+}
+
 void test_empty_stream(void) {
     /* Streaming chat completion that produces no content chunks before the DONE signal */
     LITERLLMChatCompletionChunkRequest* chat_completion_chunk_request_handle = literllm_chat_completion_chunk_request_from_json("{\"messages\":[{\"content\":\"Say nothing\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"stream\":true}");

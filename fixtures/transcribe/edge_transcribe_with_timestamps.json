@@ -1,0 +1,60 @@
+{
+	"id": "edge_transcribe_with_timestamps",
+	"description": "Transcription with verbose JSON response format including timestamp segments",
+	"category": "transcribe",
+	"tags": ["transcribe", "edge-case"],
+	"call": "transcribe",
+	"input": {
+		"model": "whisper-1",
+		"file": "audio.mp3",
+		"response_format": "verbose_json"
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"text": "Hello, this is a test transcription with timestamps.",
+			"segments": [
+				{
+					"id": 0,
+					"seek": 0,
+					"start": 0.0,
+					"end": 1.2,
+					"text": "Hello,"
+				},
+				{
+					"id": 1,
+					"seek": 100,
+					"start": 1.2,
+					"end": 2.5,
+					"text": "this is a test"
+				},
+				{
+					"id": 2,
+					"seek": 200,
+					"start": 2.5,
+					"end": 4.1,
+					"text": "transcription with timestamps."
+				}
+			]
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "not_empty",
+			"field": "text"
+		},
+		{
+			"type": "count_equals",
+			"field": "segments",
+			"value": 3
+		},
+		{
+			"type": "equals",
+			"field": "segments[0].id",
+			"value": 0
+		}
+	]
+}

@@ -22,6 +22,24 @@ public class EmbedTests
     }
 
     [Fact]
+    public async Task Test_EdgeEmbedBatchInput()
+    {
+        // Embedding request with multiple inputs returns multiple embedding objects
+        var result = await LiterLlmLib.Chat(new[] { "Hello world", "Goodbye world" });
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(0, result.Data["0"].Index);
+        Assert.Equal(1, result.Data["1"].Index);
+    }
+
+    [Fact]
+    public async Task Test_EdgeEmbedEmptyInput()
+    {
+        // Embedding request with empty string input returns empty data array
+        var result = await LiterLlmLib.Chat("");
+        Assert.Equal(0, result.Data.Count);
+    }
+
+    [Fact]
     public async Task Test_EmbedEncodingFormat()
     {
         // Embedding request with explicit encoding_format of float returns float array embeddings

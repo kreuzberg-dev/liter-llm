@@ -7,6 +7,18 @@ test_that("batch_embed: Embedding request with multiple input strings returns on
   expect_equal(length(result$data[["0"]]$embedding), 5)
 })
 
+test_that("edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects", {
+  result <- chat(request = c("hello world", "goodbye world"))
+  expect_equal(length(result$data), 2)
+  expect_equal(trimws(result$data[["0"]]$index), 0)
+  expect_equal(trimws(result$data[["1"]]$index), 1)
+})
+
+test_that("edge_embed_empty_input: Embedding request with empty string input returns empty data array", {
+  result <- chat(request = "")
+  expect_equal(length(result$data), 0)
+})
+
 test_that("embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings", {
   result <- chat(request = "test input")
   expect_equal(length(result$data), 1)

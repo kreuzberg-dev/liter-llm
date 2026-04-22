@@ -16,3 +16,8 @@ test_that("search_error_400: 400 Bad Request error when search query is empty", 
 test_that("search_error_401: 401 Unauthorized error on web search due to invalid API credentials", {
   expect_error(chat())
 })
+
+test_that("search_with_max_results: Search request with max_results parameter limiting response count", {
+  result <- chat()
+  expect_equal(length(result$results), 2)
+})

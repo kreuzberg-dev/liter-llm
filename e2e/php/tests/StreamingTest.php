@@ -50,6 +50,14 @@ final class StreamingTest extends TestCase
         $this->assertTrue($result->stream_complete);
     }
 
+    /** Streaming chat completion with tool/function call chunks */
+    public function test_edge_stream_function_call(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->chat_stream_async(null);
+        $this->assertGreaterThanOrEqual(2, count($result->chunks));
+    }
+
     /** Streaming chat completion that produces no content chunks before the DONE signal */
     public function test_empty_stream(): void
     {

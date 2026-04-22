@@ -1,0 +1,55 @@
+{
+	"id": "edge_chat_max_tokens",
+	"description": "Chat request with max_tokens=1 terminates with length finish_reason",
+	"category": "chat",
+	"tags": ["chat", "edge-case"],
+	"call": "chat",
+	"input": {
+		"model": "gpt-4",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Write a story"
+			}
+		],
+		"max_tokens": 1
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"id": "chatcmpl-max-tokens-001",
+			"object": "chat.completion",
+			"created": 1711000200,
+			"model": "gpt-4",
+			"choices": [
+				{
+					"index": 0,
+					"message": {
+						"role": "assistant",
+						"content": "Once"
+					},
+					"finish_reason": "length"
+				}
+			],
+			"usage": {
+				"prompt_tokens": 12,
+				"completion_tokens": 1,
+				"total_tokens": 13
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "equals",
+			"field": "choices[0].finish_reason",
+			"value": "length"
+		},
+		{
+			"type": "not_empty",
+			"field": "choices[0].message.content"
+		}
+	]
+}

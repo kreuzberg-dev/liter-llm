@@ -8,6 +8,22 @@ test_that("developer_message: Chat request that includes a developer role messag
   expect_equal(trimws(result$choices[["0"]]$finish_reason), "stop")
 })
 
+test_that("edge_chat_max_tokens: Chat request with max_tokens=1 terminates with length finish_reason", {
+  result <- chat()
+  expect_equal(trimws(result$choices[["0"]]$finish_reason), "length")
+  expect_true(if (is.character(result$choices[["0"]]$message$content)) nchar(result$choices[["0"]]$message$content) > 0 else length(result$choices[["0"]]$message$content) > 0)
+})
+
+test_that("edge_chat_system_only: Chat request with system message and user message", {
+  result <- chat()
+  expect_true(if (is.character(result$choices[["0"]]$message$content)) nchar(result$choices[["0"]]$message$content) > 0 else length(result$choices[["0"]]$message$content) > 0)
+})
+
+test_that("edge_chat_temperature_zero: Chat request with temperature=0 for deterministic responses", {
+  result <- chat()
+  expect_true(if (is.character(result$choices[["0"]]$message$content)) nchar(result$choices[["0"]]$message$content) > 0 else length(result$choices[["0"]]$message$content) > 0)
+})
+
 test_that("finish_reason_content_filter: Chat response stopped by content filter with finish_reason of content_filter and null content", {
   result <- chat()
   expect_equal(length(result$choices), 1)

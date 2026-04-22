@@ -21,6 +21,16 @@ class ImageGenerateTest {
     }
 
     @Test
+    void testEdgeImageMultipleN() throws Exception {
+        // Image generation requesting multiple images with n=3
+        var result = LiterLlm.chat(null);
+        assertEquals(3, result.data().size(), "expected exactly 3 elements");
+        assertFalse(result.data().get("0").url().isEmpty(), "expected non-empty value");
+        assertFalse(result.data().get("1").url().isEmpty(), "expected non-empty value");
+        assertFalse(result.data().get("2").url().isEmpty(), "expected non-empty value");
+    }
+
+    @Test
     void testErrorImageAuth401() throws Exception {
         // 401 Unauthorized when generating images with invalid API key
         assertThrows(Exception.class, () -> LiterLlm.chat(null));

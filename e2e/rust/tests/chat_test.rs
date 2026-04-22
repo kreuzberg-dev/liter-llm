@@ -25,6 +25,58 @@ async fn test_developer_message() {
 }
 
 #[tokio::test]
+async fn test_edge_chat_max_tokens() {
+    // Chat request with max_tokens=1 terminates with length finish_reason
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 200,
+        body: r#"{"choices":[{"finish_reason":"length","index":0,"message":{"content":"Once","role":"assistant"}}],"created":1711000200,"id":"chatcmpl-max-tokens-001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":1,"prompt_tokens":12,"total_tokens":13}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat(&request).await.expect("should succeed");
+    assert_eq!(result.choices.get("0").map(|s| s.as_str()).finish_reason.trim(), r#"length"#, "equals assertion failed");
+    assert!(!result.choices.get("0").map(|s| s.as_str()).message.content.is_empty(), "expected non-empty value");
+}
+
+#[tokio::test]
+async fn test_edge_chat_system_only() {
+    // Chat request with system message and user message
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 200,
+        body: r#"{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello! How can I assist you?","role":"assistant"}}],"created":1711000220,"id":"chatcmpl-system-001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":8,"prompt_tokens":18,"total_tokens":26}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat(&request).await.expect("should succeed");
+    assert!(!result.choices.get("0").map(|s| s.as_str()).message.content.is_empty(), "expected non-empty value");
+}
+
+#[tokio::test]
+async fn test_edge_chat_temperature_zero() {
+    // Chat request with temperature=0 for deterministic responses
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 200,
+        body: r#"{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"Hello! How can I help you today?","role":"assistant"}}],"created":1711000210,"id":"chatcmpl-temp-zero-001","model":"gpt-4","object":"chat.completion","usage":{"completion_tokens":9,"prompt_tokens":10,"total_tokens":19}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat(&request).await.expect("should succeed");
+    assert!(!result.choices.get("0").map(|s| s.as_str()).message.content.is_empty(), "expected non-empty value");
+}
+
+#[tokio::test]
 async fn test_finish_reason_content_filter() {
     // Chat response stopped by content filter with finish_reason of content_filter and null content
     let mock_route = MockRoute {

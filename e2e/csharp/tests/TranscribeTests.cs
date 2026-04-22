@@ -21,6 +21,16 @@ public class TranscribeTests
     }
 
     [Fact]
+    public async Task Test_EdgeTranscribeWithTimestamps()
+    {
+        // Transcription with verbose JSON response format including timestamp segments
+        var result = await LiterLlmLib.Chat(null);
+        Assert.False(string.IsNullOrEmpty(result.Text?.ToString()));
+        Assert.Equal(3, result.Segments.Count);
+        Assert.Equal(0, result.Segments["0"].Id);
+    }
+
+    [Fact]
     public async Task Test_ErrorTranscribeAuth401()
     {
         // 401 Unauthorized for transcription with invalid API key

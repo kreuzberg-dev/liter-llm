@@ -10,6 +10,15 @@ defmodule E2e.TranscribeTest do
     end
   end
 
+  describe "edge_transcribe_with_timestamps" do
+    test "Transcription with verbose JSON response format including timestamp segments" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert result.text != ""
+      assert length(result.segments) == 3
+      assert result.segments["0"].id == 0
+    end
+  end
+
   describe "error_transcribe_auth_401" do
     test "401 Unauthorized for transcription with invalid API key" do
       assert {:error, _} = LiterLlm.chat_async(nil)

@@ -13,6 +13,22 @@ async def test_batch_embed() -> None:
     assert len(result.data.get("0").embedding) == 5  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_edge_embed_batch_input() -> None:
+    """Embedding request with multiple inputs returns multiple embedding objects."""
+    request = ["Hello world", "Goodbye world"]
+    result = await embed(request=request)
+    assert len(result.data) == 2  # noqa: S101
+    assert result.data.get("0").index == 0  # noqa: S101
+    assert result.data.get("1").index == 1  # noqa: S101
+
+@pytest.mark.asyncio
+async def test_edge_embed_empty_input() -> None:
+    """Embedding request with empty string input returns empty data array."""
+    request = ""
+    result = await embed(request=request)
+    assert len(result.data) == 0  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_embed_encoding_format() -> None:
     """Embedding request with explicit encoding_format of float returns float array embeddings."""
     request = "Test input"

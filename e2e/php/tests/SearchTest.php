@@ -42,4 +42,12 @@ final class SearchTest extends TestCase
         $this->expectException(\Exception::class);
         $client->search_async(null);
     }
+
+    /** Search request with max_results parameter limiting response count */
+    public function test_search_with_max_results(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->search_async(null);
+        $this->assertCount(2, $result->results);
+    }
 }

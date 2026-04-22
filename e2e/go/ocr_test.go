@@ -25,6 +25,21 @@ func Test_OcrError401(t *testing.T) {
 	}
 }
 
+func Test_OcrMultiPage(t *testing.T) {
+	// OCR request returning multiple pages of document content
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.Equal(t, len(result.Pages), 2, "expected exactly 2 elements")
+	if result.Pages["0"].Index != 0 {
+		t.Errorf("equals mismatch: got %v", result.Pages["0"].Index)
+	}
+	if result.Pages["1"].Index != 1 {
+		t.Errorf("equals mismatch: got %v", result.Pages["1"].Index)
+	}
+}
+
 func Test_OcrUrlDocument(t *testing.T) {
 	// OCR request with a document URL input
 	_, err := pkg.chat(nil)

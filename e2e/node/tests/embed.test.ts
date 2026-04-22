@@ -10,6 +10,20 @@ describe('embed', () => {
     expect(result.data["0"].embedding.length).toBe(5);
   });
 
+  it('edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_embed_batch_input`);
+    const result = await client.chat({ input: ["Hello world", "Goodbye world"], model: "text-embedding-3-small" });
+    expect(result.data.length).toBe(2);
+    expect(result.data["0"].index).toBe(0);
+    expect(result.data["1"].index).toBe(1);
+  });
+
+  it('edge_embed_empty_input: Embedding request with empty string input returns empty data array', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_embed_empty_input`);
+    const result = await client.chat({ input: "", model: "text-embedding-3-small" });
+    expect(result.data.length).toBe(0);
+  });
+
   it('embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/embed_encoding_format`);
     const result = await client.chat({ encoding_format: "float", input: "Test input", model: "text-embedding-3-small" });

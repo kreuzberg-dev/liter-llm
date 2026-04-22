@@ -24,6 +24,42 @@ async fn test_batch_embed() {
 }
 
 #[tokio::test]
+async fn test_edge_embed_batch_input() {
+    // Embedding request with multiple inputs returns multiple embedding objects
+    let mock_route = MockRoute {
+        path: "/v1/embeddings",
+        method: "POST",
+        status: 200,
+        body: r#"{"data":[{"embedding":[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8],"index":0,"object":"embedding"},{"embedding":[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],"index":1,"object":"embedding"}],"model":"text-embedding-3-small","object":"list","usage":{"completion_tokens":0,"prompt_tokens":4,"total_tokens":4}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(["Hello world", "Goodbye world"]);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = embed(&request).await.expect("should succeed");
+    assert_eq!(result.data.len(), 2, "expected exactly 2 elements, got {}", result.data.len());
+    assert_eq!(result.data.get("0").map(|s| s.as_str()).index, 0, "equals assertion failed");
+    assert_eq!(result.data.get("1").map(|s| s.as_str()).index, 1, "equals assertion failed");
+}
+
+#[tokio::test]
+async fn test_edge_embed_empty_input() {
+    // Embedding request with empty string input returns empty data array
+    let mock_route = MockRoute {
+        path: "/v1/embeddings",
+        method: "POST",
+        status: 200,
+        body: r#"{"data":[],"model":"text-embedding-3-small","object":"list","usage":{"prompt_tokens":0,"total_tokens":0}}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!("");
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = embed(&request).await.expect("should succeed");
+    assert_eq!(result.data.len(), 0, "expected exactly 0 elements, got {}", result.data.len());
+}
+
+#[tokio::test]
 async fn test_embed_encoding_format() {
     // Embedding request with explicit encoding_format of float returns float array embeddings
     let mock_route = MockRoute {

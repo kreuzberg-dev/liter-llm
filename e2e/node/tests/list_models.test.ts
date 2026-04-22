@@ -23,4 +23,11 @@ describe('list-models', () => {
       await client.chat({  });
     }).rejects.toThrow();
   });
+
+  it('list_models_filtered: List models response with multiple model objects', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/list_models_filtered`);
+    const result = await client.chat({  });
+    expect(result.data.length).toBeGreaterThanOrEqual(5);
+    expect(result.data["0"].object.trim()).toBe("model");
+  });
 });

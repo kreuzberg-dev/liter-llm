@@ -6,6 +6,23 @@ mod mock_server;
 use mock_server::{MockRoute, MockServer};
 
 #[tokio::test]
+async fn test_edge_speech_all_voices() {
+    // Text-to-speech with specific voice selection
+    let mock_route = MockRoute {
+        path: "/v1/audio/speech",
+        method: "POST",
+        status: 200,
+        body: r#"{"_binary":true,"_content_type":"audio/mpeg","_description":"Mock binary audio data for nova voice"}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!("Hello world");
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = speech(&request).await.expect("should succeed");
+    assert!(!result.audio.is_empty(), "expected non-empty value");
+}
+
+#[tokio::test]
 async fn test_edge_speech_long_input() {
     // Speech generation with a very long input text
     let mock_route = MockRoute {

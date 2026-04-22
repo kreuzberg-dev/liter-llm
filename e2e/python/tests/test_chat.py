@@ -14,6 +14,28 @@ async def test_developer_message() -> None:
     assert result.choices.get("0").finish_reason.strip() == "stop"  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_edge_chat_max_tokens() -> None:
+    """Chat request with max_tokens=1 terminates with length finish_reason."""
+    request = None
+    result = await chat(request=request)
+    assert result.choices.get("0").finish_reason.strip() == "length"  # noqa: S101
+    assert result.choices.get("0").message.content  # noqa: S101
+
+@pytest.mark.asyncio
+async def test_edge_chat_system_only() -> None:
+    """Chat request with system message and user message."""
+    request = None
+    result = await chat(request=request)
+    assert result.choices.get("0").message.content  # noqa: S101
+
+@pytest.mark.asyncio
+async def test_edge_chat_temperature_zero() -> None:
+    """Chat request with temperature=0 for deterministic responses."""
+    request = None
+    result = await chat(request=request)
+    assert result.choices.get("0").message.content  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_finish_reason_content_filter() -> None:
     """Chat response stopped by content filter with finish_reason of content_filter and null content."""
     request = None

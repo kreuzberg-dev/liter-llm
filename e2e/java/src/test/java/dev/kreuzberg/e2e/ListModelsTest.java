@@ -26,4 +26,12 @@ class ListModelsTest {
         assertThrows(Exception.class, () -> LiterLlm.chat(null));
     }
 
+    @Test
+    void testListModelsFiltered() throws Exception {
+        // List models response with multiple model objects
+        var result = LiterLlm.chat(null);
+        assertTrue(result.data().size() >= 5, "expected at least 5 elements");
+        assertEquals("model", result.data().get("0").object().trim());
+    }
+
 }

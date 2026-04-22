@@ -26,4 +26,10 @@ describe('search', () => {
       await client.chat({ model: "brave/web-search", query: "test" });
     }).rejects.toThrow();
   });
+
+  it('search_with_max_results: Search request with max_results parameter limiting response count', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/search_with_max_results`);
+    const result = await client.chat({ max_results: 2, model: "brave/web-search", query: "Rust programming" });
+    expect(result.results.length).toBe(2);
+  });
 });

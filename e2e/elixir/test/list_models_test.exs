@@ -22,4 +22,12 @@ defmodule E2e.ListModelsTest do
       assert {:error, _} = LiterLlm.chat_async(nil)
     end
   end
+
+  describe "list_models_filtered" do
+    test "List models response with multiple model objects" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert length(result.data) >= 5
+      assert String.trim(result.data["0"].object) == "model"
+    end
+  end
 end

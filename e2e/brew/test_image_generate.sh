@@ -24,6 +24,25 @@ test_edge_image_empty_prompt() {
     fi
 }
 
+test_edge_image_multiple_n() {
+    # Image generation requesting multiple images with n=3
+    local output
+    output=$(liter_llm chat)
+
+    local count_data
+    count_data=$(echo "$output" | jq '.data | length')
+    [ "$count_data" -eq 3 ] || exit 1
+    local val_data_0__url
+    val_data_0__url=$(echo "$output" | jq -r '.data[0].url')
+    assert_not_empty "$val_data_0__url" 'data[0].url'
+    local val_data_1__url
+    val_data_1__url=$(echo "$output" | jq -r '.data[1].url')
+    assert_not_empty "$val_data_1__url" 'data[1].url'
+    local val_data_2__url
+    val_data_2__url=$(echo "$output" | jq -r '.data[2].url')
+    assert_not_empty "$val_data_2__url" 'data[2].url'
+}
+
 test_error_image_auth_401() {
     # 401 Unauthorized when generating images with invalid API key
     if liter_llm chat >/dev/null 2>&1; then
@@ -90,6 +109,7 @@ test_smoke_image_with_size() {
 run_tests_image_generate() {
     run_test test_edge_image_b64_response
     run_test test_edge_image_empty_prompt
+    run_test test_edge_image_multiple_n
     run_test test_error_image_auth_401
     run_test test_error_image_bad_request
     run_test test_error_image_rate_limit

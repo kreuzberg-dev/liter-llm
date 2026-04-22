@@ -26,4 +26,11 @@ defmodule E2e.SearchTest do
       assert {:error, _} = LiterLlm.chat_async(nil)
     end
   end
+
+  describe "search_with_max_results" do
+    test "Search request with max_results parameter limiting response count" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert length(result.results) == 2
+    end
+  end
 end

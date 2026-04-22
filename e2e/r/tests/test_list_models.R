@@ -14,3 +14,9 @@ test_that("list_models_error_401: 401 Unauthorized error on list models request 
 test_that("list_models_error_500: 500 Internal Server Error when listing models due to server failure", {
   expect_error(chat())
 })
+
+test_that("list_models_filtered: List models response with multiple model objects", {
+  result <- chat()
+  expect_true(length(result$data) >= 5)
+  expect_equal(trimws(result$data[["0"]]$object), "model")
+})

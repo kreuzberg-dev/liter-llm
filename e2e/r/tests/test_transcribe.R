@@ -6,6 +6,13 @@ test_that("edge_transcribe_empty_audio: Transcription of a silent or empty audio
   expect_true(grepl("", result$text, fixed = TRUE))
 })
 
+test_that("edge_transcribe_with_timestamps: Transcription with verbose JSON response format including timestamp segments", {
+  result <- chat()
+  expect_true(if (is.character(result$text)) nchar(result$text) > 0 else length(result$text) > 0)
+  expect_equal(length(result$segments), 3)
+  expect_equal(trimws(result$segments[["0"]]$id), 0)
+})
+
 test_that("error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key", {
   expect_error(chat())
 })

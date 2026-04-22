@@ -18,4 +18,10 @@ RSpec.describe 'list-models' do
   it 'list_models_error_500: 500 Internal Server Error when listing models due to server failure' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
+
+  it 'list_models_filtered: List models response with multiple model objects' do
+    result = LiterLlm.chat(nil)
+    expect(result.data.length).to be >= 5
+    expect(result.data.get("0").object).to eq('model')
+  end
 end

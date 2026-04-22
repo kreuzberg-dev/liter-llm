@@ -73,3 +73,20 @@ async fn test_search_error_401() {
     assert!(result.as_ref().unwrap_err().to_string().contains("Authentication"), "error message mismatch");
 }
 
+#[tokio::test]
+async fn test_search_with_max_results() {
+    // Search request with max_results parameter limiting response count
+    let mock_route = MockRoute {
+        path: "/v1/search",
+        method: "POST",
+        status: 200,
+        body: r#"{"model":"brave/web-search","results":[{"snippet":"Empowering everyone to build reliable and efficient software.","title":"The Rust Programming Language","url":"https://www.rust-lang.org"},{"snippet":"Learn Rust through practical examples.","title":"Rust by Example","url":"https://doc.rust-lang.org/rust-by-example"}]}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = search(&request).await.expect("should succeed");
+    assert_eq!(result.results.len(), 2, "expected exactly 2 elements, got {}", result.results.len());
+}
+

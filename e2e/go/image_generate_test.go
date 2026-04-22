@@ -29,6 +29,24 @@ func Test_EdgeImageEmptyPrompt(t *testing.T) {
 	}
 }
 
+func Test_EdgeImageMultipleN(t *testing.T) {
+	// Image generation requesting multiple images with n=3
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.Equal(t, len(result.Data), 3, "expected exactly 3 elements")
+	if len(result.Data["0"].Url) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+	if len(result.Data["1"].Url) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+	if len(result.Data["2"].Url) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+}
+
 func Test_ErrorImageAuth401(t *testing.T) {
 	// 401 Unauthorized when generating images with invalid API key
 	_, err := pkg.chat(nil)

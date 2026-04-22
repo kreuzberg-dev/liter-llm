@@ -23,6 +23,25 @@ async fn test_edge_transcribe_empty_audio() {
 }
 
 #[tokio::test]
+async fn test_edge_transcribe_with_timestamps() {
+    // Transcription with verbose JSON response format including timestamp segments
+    let mock_route = MockRoute {
+        path: "/v1/audio/transcriptions",
+        method: "POST",
+        status: 200,
+        body: r#"{"segments":[{"end":1.2,"id":0,"seek":0,"start":0.0,"text":"Hello,"},{"end":2.5,"id":1,"seek":100,"start":1.2,"text":"this is a test"},{"end":4.1,"id":2,"seek":200,"start":2.5,"text":"transcription with timestamps."}],"text":"Hello, this is a test transcription with timestamps."}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = transcribe(&request).await.expect("should succeed");
+    assert!(!result.text.is_empty(), "expected non-empty value");
+    assert_eq!(result.segments.len(), 3, "expected exactly 3 elements, got {}", result.segments.len());
+    assert_eq!(result.segments.get("0").map(|s| s.as_str()).id, 0, "equals assertion failed");
+}
+
+#[tokio::test]
 async fn test_error_transcribe_auth_401() {
     // 401 Unauthorized for transcription with invalid API key
     let mock_route = MockRoute {

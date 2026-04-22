@@ -12,6 +12,28 @@ defmodule E2e.ChatTest do
     end
   end
 
+  describe "edge_chat_max_tokens" do
+    test "Chat request with max_tokens=1 terminates with length finish_reason" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert String.trim(result.choices["0"].finish_reason) == "length"
+      assert result.choices["0"].message.content != ""
+    end
+  end
+
+  describe "edge_chat_system_only" do
+    test "Chat request with system message and user message" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert result.choices["0"].message.content != ""
+    end
+  end
+
+  describe "edge_chat_temperature_zero" do
+    test "Chat request with temperature=0 for deterministic responses" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert result.choices["0"].message.content != ""
+    end
+  end
+
   describe "finish_reason_content_filter" do
     test "Chat response stopped by content filter with finish_reason of content_filter and null content" do
       {:ok, result} = LiterLlm.chat_async(nil)

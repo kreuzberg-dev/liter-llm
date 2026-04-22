@@ -13,6 +13,14 @@ public class SpeechTests
     private static readonly JsonSerializerOptions ConfigOptions = new() { Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) }, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 
     [Fact]
+    public async Task Test_EdgeSpeechAllVoices()
+    {
+        // Text-to-speech with specific voice selection
+        var result = await LiterLlmLib.Chat("Hello world");
+        Assert.False(string.IsNullOrEmpty(result.Audio?.ToString()));
+    }
+
+    [Fact]
     public async Task Test_EdgeSpeechLongInput()
     {
         // Speech generation with a very long input text

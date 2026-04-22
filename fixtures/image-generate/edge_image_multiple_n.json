@@ -1,0 +1,51 @@
+{
+	"id": "edge_image_multiple_n",
+	"description": "Image generation requesting multiple images with n=3",
+	"category": "image-generate",
+	"tags": ["image-generate", "edge-case"],
+	"call": "image_generate",
+	"input": {
+		"model": "dall-e-3",
+		"prompt": "A cat",
+		"n": 3
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"created": 1711000300,
+			"data": [
+				{
+					"url": "https://example.com/images/cat-001.png"
+				},
+				{
+					"url": "https://example.com/images/cat-002.png"
+				},
+				{
+					"url": "https://example.com/images/cat-003.png"
+				}
+			]
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "count_equals",
+			"field": "data",
+			"value": 3
+		},
+		{
+			"type": "not_empty",
+			"field": "data[0].url"
+		},
+		{
+			"type": "not_empty",
+			"field": "data[1].url"
+		},
+		{
+			"type": "not_empty",
+			"field": "data[2].url"
+		}
+	]
+}

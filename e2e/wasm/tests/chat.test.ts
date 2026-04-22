@@ -14,6 +14,36 @@ describe('chat', () => {
     expect(result.choices.get("0").finishReason.trim()).toBe("stop");
   });
 
+  it('edge_chat_max_tokens: Chat request with max_tokens=1 terminates with length finish_reason', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.maxTokens = BigInt(1);
+    options.messages = [{ content: "Write a story", role: "user" }];
+    options.model = "gpt-4";
+    const result = await client.chat(options);
+    expect(result.choices.get("0").finishReason.trim()).toBe("length");
+    expect(result.choices.get("0").message.content.length).toBeGreaterThan(0);
+  });
+
+  it('edge_chat_system_only: Chat request with system message and user message', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "You are a helpful and concise assistant", role: "system" }, { content: "Hi", role: "user" }];
+    options.model = "gpt-4";
+    const result = await client.chat(options);
+    expect(result.choices.get("0").message.content.length).toBeGreaterThan(0);
+  });
+
+  it('edge_chat_temperature_zero: Chat request with temperature=0 for deterministic responses', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Say hello", role: "user" }];
+    options.model = "gpt-4";
+    options.temperature = 0;
+    const result = await client.chat(options);
+    expect(result.choices.get("0").message.content.length).toBeGreaterThan(0);
+  });
+
   it('finish_reason_content_filter: Chat response stopped by content filter with finish_reason of content_filter and null content', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();

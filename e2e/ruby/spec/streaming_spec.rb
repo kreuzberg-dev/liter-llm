@@ -32,6 +32,11 @@ RSpec.describe 'streaming' do
     expect(result.stream_complete).to be true
   end
 
+  it 'edge_stream_function_call: Streaming chat completion with tool/function call chunks' do
+    result = LiterLlm.chat(nil)
+    expect(result.chunks.length).to be >= 2
+  end
+
   it 'empty_stream: Streaming chat completion that produces no content chunks before the DONE signal' do
     result = LiterLlm.chat(nil)
     expect(result.chunks.length).to be >= 0

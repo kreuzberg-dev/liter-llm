@@ -17,6 +17,16 @@ defmodule E2e.ImageGenerateTest do
     end
   end
 
+  describe "edge_image_multiple_n" do
+    test "Image generation requesting multiple images with n=3" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert length(result.data) == 3
+      assert result.data["0"].url != ""
+      assert result.data["1"].url != ""
+      assert result.data["2"].url != ""
+    end
+  end
+
   describe "error_image_auth_401" do
     test "401 Unauthorized when generating images with invalid API key" do
       assert {:error, _} = LiterLlm.chat_async(nil)

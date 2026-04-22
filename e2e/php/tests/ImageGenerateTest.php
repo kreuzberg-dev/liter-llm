@@ -28,6 +28,17 @@ final class ImageGenerateTest extends TestCase
         $client->image_generate_async(null);
     }
 
+    /** Image generation requesting multiple images with n=3 */
+    public function test_edge_image_multiple_n(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->image_generate_async(null);
+        $this->assertCount(3, $result->data);
+        $this->assertNotEmpty($result->data["0"]->url);
+        $this->assertNotEmpty($result->data["1"]->url);
+        $this->assertNotEmpty($result->data["2"]->url);
+    }
+
     /** 401 Unauthorized when generating images with invalid API key */
     public function test_error_image_auth_401(): void
     {

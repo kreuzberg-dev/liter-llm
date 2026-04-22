@@ -5,6 +5,13 @@ from liter_llm import chat, speech
 
 
 @pytest.mark.asyncio
+async def test_edge_speech_all_voices() -> None:
+    """Text-to-speech with specific voice selection."""
+    request = "Hello world"
+    result = await speech(request=request)
+    assert result.audio  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_edge_speech_long_input() -> None:
     """Speech generation with a very long input text."""
     request = "This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input."

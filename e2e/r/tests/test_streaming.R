@@ -28,6 +28,11 @@ test_that("bedrock_stream: Streaming chat completion via the AWS Bedrock provide
   expect_true(result$stream_complete)
 })
 
+test_that("edge_stream_function_call: Streaming chat completion with tool/function call chunks", {
+  result <- chat()
+  expect_true(length(result$chunks) >= 2)
+})
+
 test_that("empty_stream: Streaming chat completion that produces no content chunks before the DONE signal", {
   result <- chat()
   expect_true(length(result$chunks) >= 0)

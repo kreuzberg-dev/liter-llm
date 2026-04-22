@@ -38,6 +38,66 @@ void test_developer_message(void) {
     literllm_default_client_free(client);
 }
 
+void test_edge_chat_max_tokens(void) {
+    /* Chat request with max_tokens=1 terminates with length finish_reason */
+    LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"max_tokens\":1,\"messages\":[{\"content\":\"Write a story\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+    assert(chat_completion_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionResponse* result = literllm_default_client_chat(client, chat_completion_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* choices_json = literllm_chat_completion_response_choices(result);
+    assert(choices_json != NULL);
+    char* choices_0_finish_reason = alef_json_get_string(choices_json, "0");
+    char* choices_0_message_content = alef_json_get_string(choices_json, "0");
+    assert(str_trim_eq(choices_0_finish_reason, "length") == 0 && "equals assertion failed");
+    assert(strlen(choices_0_message_content) > 0 && "expected non-empty value");
+    free(choices_0_finish_reason);
+    free(choices_0_message_content);
+    literllm_free_string(choices_json);
+    literllm_chat_completion_response_free(result);
+    literllm_chat_completion_request_free(chat_completion_request_handle);
+    literllm_default_client_free(client);
+}
+
+void test_edge_chat_system_only(void) {
+    /* Chat request with system message and user message */
+    LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"You are a helpful and concise assistant\",\"role\":\"system\"},{\"content\":\"Hi\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");
+    assert(chat_completion_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionResponse* result = literllm_default_client_chat(client, chat_completion_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* choices_json = literllm_chat_completion_response_choices(result);
+    assert(choices_json != NULL);
+    char* choices_0_message_content = alef_json_get_string(choices_json, "0");
+    assert(strlen(choices_0_message_content) > 0 && "expected non-empty value");
+    free(choices_0_message_content);
+    literllm_free_string(choices_json);
+    literllm_chat_completion_response_free(result);
+    literllm_chat_completion_request_free(chat_completion_request_handle);
+    literllm_default_client_free(client);
+}
+
+void test_edge_chat_temperature_zero(void) {
+    /* Chat request with temperature=0 for deterministic responses */
+    LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"Say hello\",\"role\":\"user\"}],\"model\":\"gpt-4\",\"temperature\":0}");
+    assert(chat_completion_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMChatCompletionResponse* result = literllm_default_client_chat(client, chat_completion_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* choices_json = literllm_chat_completion_response_choices(result);
+    assert(choices_json != NULL);
+    char* choices_0_message_content = alef_json_get_string(choices_json, "0");
+    assert(strlen(choices_0_message_content) > 0 && "expected non-empty value");
+    free(choices_0_message_content);
+    literllm_free_string(choices_json);
+    literllm_chat_completion_response_free(result);
+    literllm_chat_completion_request_free(chat_completion_request_handle);
+    literllm_default_client_free(client);
+}
+
 void test_finish_reason_content_filter(void) {
     /* Chat response stopped by content filter with finish_reason of content_filter and null content */
     LITERLLMChatCompletionRequest* chat_completion_request_handle = literllm_chat_completion_request_from_json("{\"messages\":[{\"content\":\"Tell me something controversial\",\"role\":\"user\"}],\"model\":\"gpt-4\"}");

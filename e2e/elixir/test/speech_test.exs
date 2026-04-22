@@ -3,6 +3,13 @@
 defmodule E2e.SpeechTest do
   use ExUnit.Case, async: true
 
+  describe "edge_speech_all_voices" do
+    test "Text-to-speech with specific voice selection" do
+      {:ok, result} = LiterLlm.chat_async("Hello world")
+      assert result.audio != ""
+    end
+  end
+
   describe "edge_speech_long_input" do
     test "Speech generation with a very long input text" do
       {:ok, result} = LiterLlm.chat_async("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.")

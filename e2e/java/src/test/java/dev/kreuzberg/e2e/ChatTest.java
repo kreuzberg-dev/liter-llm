@@ -16,6 +16,28 @@ class ChatTest {
     }
 
     @Test
+    void testEdgeChatMaxTokens() throws Exception {
+        // Chat request with max_tokens=1 terminates with length finish_reason
+        var result = LiterLlm.chat(null);
+        assertEquals("length", result.choices().get("0").finishReason().trim());
+        assertFalse(result.choices().get("0").message().content().isEmpty(), "expected non-empty value");
+    }
+
+    @Test
+    void testEdgeChatSystemOnly() throws Exception {
+        // Chat request with system message and user message
+        var result = LiterLlm.chat(null);
+        assertFalse(result.choices().get("0").message().content().isEmpty(), "expected non-empty value");
+    }
+
+    @Test
+    void testEdgeChatTemperatureZero() throws Exception {
+        // Chat request with temperature=0 for deterministic responses
+        var result = LiterLlm.chat(null);
+        assertFalse(result.choices().get("0").message().content().isEmpty(), "expected non-empty value");
+    }
+
+    @Test
     void testFinishReasonContentFilter() throws Exception {
         // Chat response stopped by content filter with finish_reason of content_filter and null content
         var result = LiterLlm.chat(null);

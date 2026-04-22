@@ -19,6 +19,39 @@ test_developer_message() {
     assert_equals "$val_choices_0__finish_reason" 'stop' 'choices[0].finish_reason'
 }
 
+test_edge_chat_max_tokens() {
+    # Chat request with max_tokens=1 terminates with length finish_reason
+    local output
+    output=$(liter_llm chat)
+
+    local val_choices_0__finish_reason
+    val_choices_0__finish_reason=$(echo "$output" | jq -r '.choices[0].finish_reason')
+    assert_equals "$val_choices_0__finish_reason" 'length' 'choices[0].finish_reason'
+    local val_choices_0__message_content
+    val_choices_0__message_content=$(echo "$output" | jq -r '.choices[0].message.content')
+    assert_not_empty "$val_choices_0__message_content" 'choices[0].message.content'
+}
+
+test_edge_chat_system_only() {
+    # Chat request with system message and user message
+    local output
+    output=$(liter_llm chat)
+
+    local val_choices_0__message_content
+    val_choices_0__message_content=$(echo "$output" | jq -r '.choices[0].message.content')
+    assert_not_empty "$val_choices_0__message_content" 'choices[0].message.content'
+}
+
+test_edge_chat_temperature_zero() {
+    # Chat request with temperature=0 for deterministic responses
+    local output
+    output=$(liter_llm chat)
+
+    local val_choices_0__message_content
+    val_choices_0__message_content=$(echo "$output" | jq -r '.choices[0].message.content')
+    assert_not_empty "$val_choices_0__message_content" 'choices[0].message.content'
+}
+
 test_finish_reason_content_filter() {
     # Chat response stopped by content filter with finish_reason of content_filter and null content
     local output
@@ -181,6 +214,9 @@ test_tool_choice_specific() {
 
 run_tests_chat() {
     run_test test_developer_message
+    run_test test_edge_chat_max_tokens
+    run_test test_edge_chat_system_only
+    run_test test_edge_chat_temperature_zero
     run_test test_finish_reason_content_filter
     run_test test_finish_reason_length
     run_test test_multi_turn_conversation

@@ -17,6 +17,14 @@ describe('ocr', () => {
     }).rejects.toThrow();
   });
 
+  it('ocr_multi_page: OCR request returning multiple pages of document content', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/ocr_multi_page`);
+    const result = await client.chat({ document: { type: "document_url", url: "https://example.com/multipage.pdf" }, model: "mistral/mistral-ocr-latest" });
+    expect(result.pages.length).toBe(2);
+    expect(result.pages["0"].index).toBe(0);
+    expect(result.pages["1"].index).toBe(1);
+  });
+
   it('ocr_url_document: OCR request with a document URL input', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/ocr_url_document`);
     await client.chat({ document: { type: "document_url", url: "https://example.com/doc.pdf" }, model: "mistral/mistral-ocr-latest" });

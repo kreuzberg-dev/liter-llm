@@ -19,6 +19,30 @@ func Test_BatchEmbed(t *testing.T) {
 	assert.Equal(t, len(result.Data["0"].Embedding), 5, "expected exactly 5 elements")
 }
 
+func Test_EdgeEmbedBatchInput(t *testing.T) {
+	// Embedding request with multiple inputs returns multiple embedding objects
+	result, err := pkg.chat(`["Hello world","Goodbye world"]`)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.Equal(t, len(result.Data), 2, "expected exactly 2 elements")
+	if result.Data["0"].Index != 0 {
+		t.Errorf("equals mismatch: got %v", result.Data["0"].Index)
+	}
+	if result.Data["1"].Index != 1 {
+		t.Errorf("equals mismatch: got %v", result.Data["1"].Index)
+	}
+}
+
+func Test_EdgeEmbedEmptyInput(t *testing.T) {
+	// Embedding request with empty string input returns empty data array
+	result, err := pkg.chat(``)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.Equal(t, len(result.Data), 0, "expected exactly 0 elements")
+}
+
 func Test_EmbedEncodingFormat(t *testing.T) {
 	// Embedding request with explicit encoding_format of float returns float array embeddings
 	result, err := pkg.chat(`Test input`)

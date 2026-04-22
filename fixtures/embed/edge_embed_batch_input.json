@@ -1,0 +1,55 @@
+{
+	"id": "edge_embed_batch_input",
+	"description": "Embedding request with multiple inputs returns multiple embedding objects",
+	"category": "embed",
+	"tags": ["embed", "edge-case"],
+	"call": "embed",
+	"input": {
+		"model": "text-embedding-3-small",
+		"input": ["Hello world", "Goodbye world"]
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"object": "list",
+			"model": "text-embedding-3-small",
+			"data": [
+				{
+					"object": "embedding",
+					"index": 0,
+					"embedding": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+				},
+				{
+					"object": "embedding",
+					"index": 1,
+					"embedding": [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+				}
+			],
+			"usage": {
+				"prompt_tokens": 4,
+				"completion_tokens": 0,
+				"total_tokens": 4
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "count_equals",
+			"field": "data",
+			"value": 2
+		},
+		{
+			"type": "equals",
+			"field": "data[0].index",
+			"value": 0
+		},
+		{
+			"type": "equals",
+			"field": "data[1].index",
+			"value": 1
+		}
+	]
+}

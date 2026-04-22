@@ -21,6 +21,15 @@ async def test_ocr_error_401() -> None:
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_ocr_multi_page() -> None:
+    """OCR request returning multiple pages of document content."""
+    request = None
+    result = await ocr(request=request)
+    assert len(result.pages) == 2  # noqa: S101
+    assert result.pages.get("0").index == 0  # noqa: S101
+    assert result.pages.get("1").index == 1  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_ocr_url_document() -> None:
     """OCR request with a document URL input."""
     request = None

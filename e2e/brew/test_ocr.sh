@@ -19,6 +19,22 @@ test_ocr_error_401() {
     fi
 }
 
+test_ocr_multi_page() {
+    # OCR request returning multiple pages of document content
+    local output
+    output=$(liter_llm chat)
+
+    local count_pages
+    count_pages=$(echo "$output" | jq '.pages | length')
+    [ "$count_pages" -eq 2 ] || exit 1
+    local val_pages_0__index
+    val_pages_0__index=$(echo "$output" | jq -r '.pages[0].index')
+    assert_equals "$val_pages_0__index" '0' 'pages[0].index'
+    local val_pages_1__index
+    val_pages_1__index=$(echo "$output" | jq -r '.pages[1].index')
+    assert_equals "$val_pages_1__index" '1' 'pages[1].index'
+}
+
 test_ocr_url_document() {
     # OCR request with a document URL input
     local output
@@ -29,5 +45,6 @@ test_ocr_url_document() {
 run_tests_ocr() {
     run_test test_ocr_error_400
     run_test test_ocr_error_401
+    run_test test_ocr_multi_page
     run_test test_ocr_url_document
 }

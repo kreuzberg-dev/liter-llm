@@ -19,6 +19,17 @@ describe('ocr', () => {
     await expect(async () => await client.chat(options)).rejects.toThrow();
   });
 
+  it('ocr_multi_page: OCR request returning multiple pages of document content', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.document = { type: "document_url", url: "https://example.com/multipage.pdf" };
+    options.model = "mistral/mistral-ocr-latest";
+    const result = await client.chat(options);
+    expect(result.pages.length).toBe(2);
+    expect(result.pages.get("0").index).toBe(0);
+    expect(result.pages.get("1").index).toBe(1);
+  });
+
   it('ocr_url_document: OCR request with a document URL input', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();

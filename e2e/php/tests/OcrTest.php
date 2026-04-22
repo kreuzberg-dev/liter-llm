@@ -27,6 +27,16 @@ final class OcrTest extends TestCase
         $client->ocr_async(null);
     }
 
+    /** OCR request returning multiple pages of document content */
+    public function test_ocr_multi_page(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->ocr_async(null);
+        $this->assertCount(2, $result->pages);
+        $this->assertEquals(0, $result->pages["0"]->index);
+        $this->assertEquals(1, $result->pages["1"]->index);
+    }
+
     /** OCR request with a document URL input */
     public function test_ocr_url_document(): void
     {

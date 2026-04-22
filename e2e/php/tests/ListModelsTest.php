@@ -35,4 +35,13 @@ final class ListModelsTest extends TestCase
         $this->expectException(\Exception::class);
         $client->list_models_async();
     }
+
+    /** List models response with multiple model objects */
+    public function test_list_models_filtered(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->list_models_async();
+        $this->assertGreaterThanOrEqual(5, count($result->data));
+        $this->assertEquals("model", $result->data["0"]->object);
+    }
 }

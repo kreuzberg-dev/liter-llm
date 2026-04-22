@@ -34,6 +34,12 @@ describe('streaming', () => {
     expect(result.streamComplete).toBe(true);
   });
 
+  it('edge_stream_function_call: Streaming chat completion with tool/function call chunks', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_stream_function_call`);
+    const result = await client.chat({ messages: [{ content: "What's the weather?", role: "user" }], model: "gpt-4", tools: [{ function: { name: "get_weather", parameters: { properties: { city: { type: "string" } }, type: "object" } }, type: "function" }] });
+    expect(result.chunks.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('empty_stream: Streaming chat completion that produces no content chunks before the DONE signal', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/empty_stream`);
     const result = await client.chat({ messages: [{ content: "Say nothing", role: "user" }], model: "gpt-4", stream: true });

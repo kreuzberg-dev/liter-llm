@@ -71,6 +71,18 @@ int main(void) {
     test_developer_message();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_edge_chat_max_tokens...");
+    test_edge_chat_max_tokens();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_edge_chat_system_only...");
+    test_edge_chat_system_only();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_edge_chat_temperature_zero...");
+    test_edge_chat_temperature_zero();
+    printf(" PASSED\n");
+    passed++;
     printf("  Running test_finish_reason_content_filter...");
     test_finish_reason_content_filter();
     printf(" PASSED\n");
@@ -161,6 +173,14 @@ int main(void) {
     /* Category: embed */
     printf("  Running test_batch_embed...");
     test_batch_embed();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_edge_embed_batch_input...");
+    test_edge_embed_batch_input();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_edge_embed_empty_input...");
+    test_edge_embed_empty_input();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_embed_encoding_format...");
@@ -301,6 +321,10 @@ int main(void) {
     test_edge_image_empty_prompt();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_edge_image_multiple_n...");
+    test_edge_image_multiple_n();
+    printf(" PASSED\n");
+    passed++;
     printf("  Running test_error_image_auth_401...");
     test_error_image_auth_401();
     printf(" PASSED\n");
@@ -337,6 +361,10 @@ int main(void) {
     passed++;
     printf("  Running test_list_models_error_500...");
     test_list_models_error_500();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_list_models_filtered...");
+    test_list_models_filtered();
     printf(" PASSED\n");
     passed++;
 
@@ -377,6 +405,10 @@ int main(void) {
     passed++;
     printf("  Running test_ocr_error_401...");
     test_ocr_error_401();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_ocr_multi_page...");
+    test_ocr_multi_page();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_ocr_url_document...");
@@ -525,6 +557,10 @@ int main(void) {
     test_search_error_401();
     printf(" PASSED\n");
     passed++;
+    printf("  Running test_search_with_max_results...");
+    test_search_with_max_results();
+    printf(" PASSED\n");
+    passed++;
 
     /* Category: smoke */
     printf("  Running test_anthropic_chat...");
@@ -609,6 +645,10 @@ int main(void) {
     passed++;
 
     /* Category: speech */
+    printf("  Running test_edge_speech_all_voices...");
+    test_edge_speech_all_voices();
+    printf(" PASSED\n");
+    passed++;
     printf("  Running test_edge_speech_long_input...");
     test_edge_speech_long_input();
     printf(" PASSED\n");
@@ -645,6 +685,10 @@ int main(void) {
     passed++;
     printf("  Running test_bedrock_stream...");
     test_bedrock_stream();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_edge_stream_function_call...");
+    test_edge_stream_function_call();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_empty_stream...");
@@ -697,6 +741,10 @@ int main(void) {
     /* Category: transcribe */
     printf("  Running test_edge_transcribe_empty_audio...");
     test_edge_transcribe_empty_audio();
+    printf(" PASSED\n");
+    passed++;
+    printf("  Running test_edge_transcribe_with_timestamps...");
+    test_edge_transcribe_with_timestamps();
     printf(" PASSED\n");
     passed++;
     printf("  Running test_error_transcribe_auth_401...");

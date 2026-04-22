@@ -15,6 +15,15 @@ defmodule E2e.OcrTest do
     end
   end
 
+  describe "ocr_multi_page" do
+    test "OCR request returning multiple pages of document content" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert length(result.pages) == 2
+      assert result.pages["0"].index == 0
+      assert result.pages["1"].index == 1
+    end
+  end
+
   describe "ocr_url_document" do
     test "OCR request with a document URL input" do
       {:ok, result} = LiterLlm.chat_async(nil)

@@ -3,6 +3,16 @@ import { describe, it, expect } from 'vitest';
 import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
 describe('speech', () => {
+  it('edge_speech_all_voices: Text-to-speech with specific voice selection', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "Hello world";
+    options.model = "tts-1";
+    options.voice = "nova";
+    const result = await client.chat(options);
+    expect(result.audio.length).toBeGreaterThan(0);
+  });
+
   it('edge_speech_long_input: Speech generation with a very long input text', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();

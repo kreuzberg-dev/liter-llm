@@ -1,0 +1,50 @@
+{
+	"id": "ocr_multi_page",
+	"description": "OCR request returning multiple pages of document content",
+	"category": "ocr",
+	"tags": ["ocr", "edge-case"],
+	"call": "ocr",
+	"input": {
+		"model": "mistral/mistral-ocr-latest",
+		"document": {
+			"type": "document_url",
+			"url": "https://example.com/multipage.pdf"
+		}
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"pages": [
+				{
+					"index": 0,
+					"markdown": "# Page 1\n\nThis is the first page of the document."
+				},
+				{
+					"index": 1,
+					"markdown": "# Page 2\n\nThis is the second page of the document."
+				}
+			],
+			"model": "mistral/mistral-ocr-latest"
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "count_equals",
+			"field": "pages",
+			"value": 2
+		},
+		{
+			"type": "equals",
+			"field": "pages[0].index",
+			"value": 0
+		},
+		{
+			"type": "equals",
+			"field": "pages[1].index",
+			"value": 1
+		}
+	]
+}

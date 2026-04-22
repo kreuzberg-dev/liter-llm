@@ -23,6 +23,31 @@ public class ChatTests
     }
 
     [Fact]
+    public async Task Test_EdgeChatMaxTokens()
+    {
+        // Chat request with max_tokens=1 terminates with length finish_reason
+        var result = await LiterLlmLib.Chat(null);
+        Assert.Equal("length", result.Choices["0"].FinishReason.Trim());
+        Assert.False(string.IsNullOrEmpty(result.Choices["0"].Message.Content?.ToString()));
+    }
+
+    [Fact]
+    public async Task Test_EdgeChatSystemOnly()
+    {
+        // Chat request with system message and user message
+        var result = await LiterLlmLib.Chat(null);
+        Assert.False(string.IsNullOrEmpty(result.Choices["0"].Message.Content?.ToString()));
+    }
+
+    [Fact]
+    public async Task Test_EdgeChatTemperatureZero()
+    {
+        // Chat request with temperature=0 for deterministic responses
+        var result = await LiterLlmLib.Chat(null);
+        Assert.False(string.IsNullOrEmpty(result.Choices["0"].Message.Content?.ToString()));
+    }
+
+    [Fact]
     public async Task Test_FinishReasonContentFilter()
     {
         // Chat response stopped by content filter with finish_reason of content_filter and null content

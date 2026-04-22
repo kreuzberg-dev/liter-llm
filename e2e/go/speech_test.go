@@ -9,6 +9,17 @@ import (
 	pkg "liter_llm"
 )
 
+func Test_EdgeSpeechAllVoices(t *testing.T) {
+	// Text-to-speech with specific voice selection
+	result, err := pkg.chat(`Hello world`)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	if len(result.Audio) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+}
+
 func Test_EdgeSpeechLongInput(t *testing.T) {
 	// Speech generation with a very long input text
 	result, err := pkg.chat(`This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.`)

@@ -42,6 +42,26 @@ async fn test_edge_image_empty_prompt() {
 }
 
 #[tokio::test]
+async fn test_edge_image_multiple_n() {
+    // Image generation requesting multiple images with n=3
+    let mock_route = MockRoute {
+        path: "/v1/images/generations",
+        method: "POST",
+        status: 200,
+        body: r#"{"created":1711000300,"data":[{"url":"https://example.com/images/cat-001.png"},{"url":"https://example.com/images/cat-002.png"},{"url":"https://example.com/images/cat-003.png"}]}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = image_generate(&request).await.expect("should succeed");
+    assert_eq!(result.data.len(), 3, "expected exactly 3 elements, got {}", result.data.len());
+    assert!(!result.data.get("0").map(|s| s.as_str()).url.is_empty(), "expected non-empty value");
+    assert!(!result.data.get("1").map(|s| s.as_str()).url.is_empty(), "expected non-empty value");
+    assert!(!result.data.get("2").map(|s| s.as_str()).url.is_empty(), "expected non-empty value");
+}
+
+#[tokio::test]
 async fn test_error_image_auth_401() {
     // 401 Unauthorized when generating images with invalid API key
     let mock_route = MockRoute {

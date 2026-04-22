@@ -16,6 +16,32 @@ test_batch_embed() {
     [ "$count_data_0__embedding" -eq 5 ] || exit 1
 }
 
+test_edge_embed_batch_input() {
+    # Embedding request with multiple inputs returns multiple embedding objects
+    local output
+    output=$(liter_llm chat)
+
+    local count_data
+    count_data=$(echo "$output" | jq '.data | length')
+    [ "$count_data" -eq 2 ] || exit 1
+    local val_data_0__index
+    val_data_0__index=$(echo "$output" | jq -r '.data[0].index')
+    assert_equals "$val_data_0__index" '0' 'data[0].index'
+    local val_data_1__index
+    val_data_1__index=$(echo "$output" | jq -r '.data[1].index')
+    assert_equals "$val_data_1__index" '1' 'data[1].index'
+}
+
+test_edge_embed_empty_input() {
+    # Embedding request with empty string input returns empty data array
+    local output
+    output=$(liter_llm chat)
+
+    local count_data
+    count_data=$(echo "$output" | jq '.data | length')
+    [ "$count_data" -eq 0 ] || exit 1
+}
+
 test_embed_encoding_format() {
     # Embedding request with explicit encoding_format of float returns float array embeddings
     local output
@@ -65,6 +91,8 @@ test_local_embed_ollama() {
 
 run_tests_embed() {
     run_test test_batch_embed
+    run_test test_edge_embed_batch_input
+    run_test test_edge_embed_empty_input
     run_test test_embed_encoding_format
     run_test test_embed_error_401
     run_test test_embed_with_dimensions

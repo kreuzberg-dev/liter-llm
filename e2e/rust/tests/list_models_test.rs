@@ -53,3 +53,19 @@ async fn test_list_models_error_500() {
     assert!(result.as_ref().unwrap_err().to_string().contains("ServerError"), "error message mismatch");
 }
 
+#[tokio::test]
+async fn test_list_models_filtered() {
+    // List models response with multiple model objects
+    let mock_route = MockRoute {
+        path: "/v1/models",
+        method: "POST",
+        status: 200,
+        body: r#"{"data":[{"created":1687882411,"id":"gpt-4","object":"model","owned_by":"openai"},{"created":1677649963,"id":"gpt-3.5-turbo","object":"model","owned_by":"openai"},{"created":1694463867,"id":"text-embedding-3-small","object":"model","owned_by":"openai"},{"created":1698785189,"id":"dall-e-3","object":"model","owned_by":"openai"},{"created":1677532384,"id":"whisper-1","object":"model","owned_by":"openai"},{"created":1681767283,"id":"tts-1","object":"model","owned_by":"openai"}],"object":"list"}"#.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let result = list_models().await.expect("should succeed");
+    assert!(result.data.len() >= 5, "expected at least 5 elements, got {}", result.data.len());
+    assert_eq!(result.data.get("0").map(|s| s.as_str()).object.trim(), r#"model"#, "equals assertion failed");
+}
+

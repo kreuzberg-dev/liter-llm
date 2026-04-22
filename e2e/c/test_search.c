@@ -57,3 +57,24 @@ void test_search_error_401(void) {
     literllm_default_client_free(client);
     assert(result == NULL && "expected call to fail");
 }
+
+void test_search_with_max_results(void) {
+    /* Search request with max_results parameter limiting response count */
+    LITERLLMSearchRequest* search_request_handle = literllm_search_request_from_json("{\"max_results\":2,\"model\":\"brave/web-search\",\"query\":\"Rust programming\"}");
+    assert(search_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMSearchResponse* result = literllm_default_client_search(client, search_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* results = literllm_search_response_results(result);
+    {
+        /* count_equals: count elements in array */
+        assert(results != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(results);
+        assert(elem_count == 2 && "expected 2 elements");
+    }
+    literllm_free_string(results);
+    literllm_search_response_free(result);
+    literllm_search_request_free(search_request_handle);
+    literllm_default_client_free(client);
+}

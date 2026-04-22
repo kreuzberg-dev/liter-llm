@@ -7,6 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /** E2e tests for category: speech. */
 class SpeechTest {
     @Test
+    void testEdgeSpeechAllVoices() throws Exception {
+        // Text-to-speech with specific voice selection
+        var result = LiterLlm.chat("Hello world");
+        assertFalse(result.audio().isEmpty(), "expected non-empty value");
+    }
+
+    @Test
     void testEdgeSpeechLongInput() throws Exception {
         // Speech generation with a very long input text
         var result = LiterLlm.chat("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.");

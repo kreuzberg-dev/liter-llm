@@ -4,6 +4,7 @@
 package e2e_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,5 +35,17 @@ func Test_ListModelsError500(t *testing.T) {
 	_, err := pkg.chat(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
+	}
+}
+
+func Test_ListModelsFiltered(t *testing.T) {
+	// List models response with multiple model objects
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.GreaterOrEqual(t, len(result.Data), 5, "expected at least 5 elements")
+	if strings.TrimSpace(result.Data["0"].Object) != `model` {
+		t.Errorf("equals mismatch: got %v", result.Data["0"].Object)
 	}
 }

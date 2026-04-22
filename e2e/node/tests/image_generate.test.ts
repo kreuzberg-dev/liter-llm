@@ -17,6 +17,15 @@ describe('image-generate', () => {
     }).rejects.toThrow();
   });
 
+  it('edge_image_multiple_n: Image generation requesting multiple images with n=3', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_image_multiple_n`);
+    const result = await client.chat({ model: "dall-e-3", n: 3, prompt: "A cat" });
+    expect(result.data.length).toBe(3);
+    expect(result.data["0"].url.length).toBeGreaterThan(0);
+    expect(result.data["1"].url.length).toBeGreaterThan(0);
+    expect(result.data["2"].url.length).toBeGreaterThan(0);
+  });
+
   it('error_image_auth_401: 401 Unauthorized when generating images with invalid API key', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_image_auth_401`);
     await expect(async () => {

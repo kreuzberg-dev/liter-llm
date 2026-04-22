@@ -53,6 +53,16 @@ describe('streaming', () => {
     expect(result.streamComplete).toBe(true);
   });
 
+  it('edge_stream_function_call: Streaming chat completion with tool/function call chunks', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "What's the weather?", role: "user" }];
+    options.model = "gpt-4";
+    options.tools = [{ function: { name: "get_weather", parameters: { properties: { city: { type: "string" } }, type: "object" } }, type: "function" }];
+    const result = await client.chat(options);
+    expect(result.chunks.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('empty_stream: Streaming chat completion that produces no content chunks before the DONE signal', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();

@@ -40,6 +40,13 @@ async def test_bedrock_stream() -> None:
     assert result.stream_complete is True  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_edge_stream_function_call() -> None:
+    """Streaming chat completion with tool/function call chunks."""
+    request = None
+    result = await chat_stream(request=request)
+    assert len(result.chunks) >= 2  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_empty_stream() -> None:
     """Streaming chat completion that produces no content chunks before the DONE signal."""
     request = None

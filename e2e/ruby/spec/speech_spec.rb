@@ -5,6 +5,11 @@ require 'liter_llm'
 require 'json'
 
 RSpec.describe 'speech' do
+  it 'edge_speech_all_voices: Text-to-speech with specific voice selection' do
+    result = LiterLlm.chat('Hello world')
+    expect(result.audio).not_to be_empty
+  end
+
   it 'edge_speech_long_input: Speech generation with a very long input text' do
     result = LiterLlm.chat('This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.')
     expect(result.audio).not_to be_empty

@@ -105,6 +105,27 @@ async fn test_bedrock_stream() {
 }
 
 #[tokio::test]
+async fn test_edge_stream_function_call() {
+    // Streaming chat completion with tool/function call chunks
+    let mock_route = MockRoute {
+        path: "/v1/chat/completions",
+        method: "POST",
+        status: 200,
+        body: String::new(),
+        stream_chunks: vec![
+            r#"{"choices":[{"delta":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"","name":"get_weather"},"id":"call-001","index":0,"type":"function"}]},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-func-001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+            r#"{"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"{\"city\": \"New York\"}"},"index":0}]},"finish_reason":null,"index":0}],"created":1711000400,"id":"chatcmpl-func-001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+            r#"{"choices":[{"delta":{},"finish_reason":"tool_calls","index":0}],"created":1711000400,"id":"chatcmpl-func-001","model":"gpt-4","object":"chat.completion.chunk"}"#.to_string(),
+        ],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = chat_stream(&request).await.expect("should succeed");
+    assert!(result.chunks.len() >= 2, "expected at least 2 elements, got {}", result.chunks.len());
+}
+
+#[tokio::test]
 async fn test_empty_stream() {
     // Streaming chat completion that produces no content chunks before the DONE signal
     let mock_route = MockRoute {

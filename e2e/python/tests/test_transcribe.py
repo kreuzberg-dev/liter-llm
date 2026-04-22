@@ -12,6 +12,15 @@ async def test_edge_transcribe_empty_audio() -> None:
     assert "" in result.text  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_edge_transcribe_with_timestamps() -> None:
+    """Transcription with verbose JSON response format including timestamp segments."""
+    request = None
+    result = await transcribe(request=request)
+    assert result.text  # noqa: S101
+    assert len(result.segments) == 3  # noqa: S101
+    assert result.segments.get("0").id == 0  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_error_transcribe_auth_401() -> None:
     """401 Unauthorized for transcription with invalid API key."""
     request = None

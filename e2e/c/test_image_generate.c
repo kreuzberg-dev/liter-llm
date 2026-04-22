@@ -47,6 +47,39 @@ void test_edge_image_empty_prompt(void) {
     assert(result == NULL && "expected call to fail");
 }
 
+void test_edge_image_multiple_n(void) {
+    /* Image generation requesting multiple images with n=3 */
+    LITERLLMImageRequest* image_request_handle = literllm_image_request_from_json("{\"model\":\"dall-e-3\",\"n\":3,\"prompt\":\"A cat\"}");
+    assert(image_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMImageResponse* result = literllm_default_client_image_generate(client, image_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* data = literllm_image_response_data(result);
+    char* data_json = literllm_image_response_data(result);
+    assert(data_json != NULL);
+    char* data_0_url = alef_json_get_string(data_json, "0");
+    char* data_1_url = alef_json_get_string(data_json, "1");
+    char* data_2_url = alef_json_get_string(data_json, "2");
+    {
+        /* count_equals: count elements in array */
+        assert(data != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(data);
+        assert(elem_count == 3 && "expected 3 elements");
+    }
+    assert(strlen(data_0_url) > 0 && "expected non-empty value");
+    assert(strlen(data_1_url) > 0 && "expected non-empty value");
+    assert(strlen(data_2_url) > 0 && "expected non-empty value");
+    literllm_free_string(data);
+    free(data_0_url);
+    free(data_1_url);
+    free(data_2_url);
+    literllm_free_string(data_json);
+    literllm_image_response_free(result);
+    literllm_image_request_free(image_request_handle);
+    literllm_default_client_free(client);
+}
+
 void test_error_image_auth_401(void) {
     /* 401 Unauthorized when generating images with invalid API key */
     LITERLLMImageRequest* image_request_handle = literllm_image_request_from_json("{\"model\":\"dall-e-3\",\"n\":1,\"prompt\":\"A cat\",\"size\":\"1024x1024\"}");

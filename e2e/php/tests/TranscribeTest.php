@@ -19,6 +19,16 @@ final class TranscribeTest extends TestCase
         $this->assertStringContainsString("", $result->text);
     }
 
+    /** Transcription with verbose JSON response format including timestamp segments */
+    public function test_edge_transcribe_with_timestamps(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->transcribe_async(null);
+        $this->assertNotEmpty($result->text);
+        $this->assertCount(3, $result->segments);
+        $this->assertEquals(0, $result->segments["0"]->id);
+    }
+
     /** 401 Unauthorized for transcription with invalid API key */
     public function test_error_transcribe_auth_401(): void
     {

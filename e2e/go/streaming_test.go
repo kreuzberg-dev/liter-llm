@@ -63,6 +63,15 @@ func Test_BedrockStream(t *testing.T) {
 	assert.True(t, result.StreamComplete, "expected true")
 }
 
+func Test_EdgeStreamFunctionCall(t *testing.T) {
+	// Streaming chat completion with tool/function call chunks
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.GreaterOrEqual(t, len(result.Chunks), 2, "expected at least 2 elements")
+}
+
 func Test_EmptyStream(t *testing.T) {
 	// Streaming chat completion that produces no content chunks before the DONE signal
 	result, err := pkg.chat(nil)

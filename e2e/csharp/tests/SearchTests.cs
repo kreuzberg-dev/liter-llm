@@ -39,4 +39,12 @@ public class SearchTests
         // 401 Unauthorized error on web search due to invalid API credentials
         await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
     }
+
+    [Fact]
+    public async Task Test_SearchWithMaxResults()
+    {
+        // Search request with max_results parameter limiting response count
+        var result = await LiterLlmLib.Chat(null);
+        Assert.Equal(2, result.Results.Count);
+    }
 }

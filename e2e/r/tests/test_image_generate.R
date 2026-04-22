@@ -11,6 +11,14 @@ test_that("edge_image_empty_prompt: Image generation with an empty prompt return
   expect_error(chat())
 })
 
+test_that("edge_image_multiple_n: Image generation requesting multiple images with n=3", {
+  result <- chat()
+  expect_equal(length(result$data), 3)
+  expect_true(if (is.character(result$data[["0"]]$url)) nchar(result$data[["0"]]$url) > 0 else length(result$data[["0"]]$url) > 0)
+  expect_true(if (is.character(result$data[["1"]]$url)) nchar(result$data[["1"]]$url) > 0 else length(result$data[["1"]]$url) > 0)
+  expect_true(if (is.character(result$data[["2"]]$url)) nchar(result$data[["2"]]$url) > 0 else length(result$data[["2"]]$url) > 0)
+})
+
 test_that("error_image_auth_401: 401 Unauthorized when generating images with invalid API key", {
   expect_error(chat())
 })

@@ -1,0 +1,40 @@
+{
+	"id": "search_with_max_results",
+	"description": "Search request with max_results parameter limiting response count",
+	"category": "search",
+	"tags": ["search", "edge-case"],
+	"call": "search",
+	"input": {
+		"model": "brave/web-search",
+		"query": "Rust programming",
+		"max_results": 2
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"results": [
+				{
+					"title": "The Rust Programming Language",
+					"url": "https://www.rust-lang.org",
+					"snippet": "Empowering everyone to build reliable and efficient software."
+				},
+				{
+					"title": "Rust by Example",
+					"url": "https://doc.rust-lang.org/rust-by-example",
+					"snippet": "Learn Rust through practical examples."
+				}
+			],
+			"model": "brave/web-search"
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "count_equals",
+			"field": "results",
+			"value": 2
+		}
+	]
+}

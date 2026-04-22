@@ -9,6 +9,14 @@ describe('transcribe', () => {
     expect(result.text).toContain("");
   });
 
+  it('edge_transcribe_with_timestamps: Transcription with verbose JSON response format including timestamp segments', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_transcribe_with_timestamps`);
+    const result = await client.chat({ file: "audio.mp3", model: "whisper-1", response_format: "verbose_json" });
+    expect(result.text.length).toBeGreaterThan(0);
+    expect(result.segments.length).toBe(3);
+    expect(result.segments["0"].id).toBe(0);
+  });
+
   it('error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_transcribe_auth_401`);
     await expect(async () => {

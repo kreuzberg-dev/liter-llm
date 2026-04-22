@@ -30,4 +30,11 @@ class SearchTest {
         assertThrows(Exception.class, () -> LiterLlm.chat(null));
     }
 
+    @Test
+    void testSearchWithMaxResults() throws Exception {
+        // Search request with max_results parameter limiting response count
+        var result = LiterLlm.chat(null);
+        assertEquals(2, result.results().size(), "expected exactly 2 elements");
+    }
+
 }

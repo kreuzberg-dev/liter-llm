@@ -33,9 +33,20 @@ test_search_error_401() {
     fi
 }
 
+test_search_with_max_results() {
+    # Search request with max_results parameter limiting response count
+    local output
+    output=$(liter_llm chat)
+
+    local count_results
+    count_results=$(echo "$output" | jq '.results | length')
+    [ "$count_results" -eq 2 ] || exit 1
+}
+
 run_tests_search() {
     run_test test_search_basic
     run_test test_search_empty_results
     run_test test_search_error_400
     run_test test_search_error_401
+    run_test test_search_with_max_results
 }

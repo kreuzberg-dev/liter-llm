@@ -15,6 +15,14 @@ RSpec.describe 'image-generate' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
 
+  it 'edge_image_multiple_n: Image generation requesting multiple images with n=3' do
+    result = LiterLlm.chat(nil)
+    expect(result.data.length).to eq(3)
+    expect(result.data.get("0").url).not_to be_empty
+    expect(result.data.get("1").url).not_to be_empty
+    expect(result.data.get("2").url).not_to be_empty
+  end
+
   it 'error_image_auth_401: 401 Unauthorized when generating images with invalid API key' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end

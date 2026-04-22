@@ -14,6 +14,15 @@ class TranscribeTest {
     }
 
     @Test
+    void testEdgeTranscribeWithTimestamps() throws Exception {
+        // Transcription with verbose JSON response format including timestamp segments
+        var result = LiterLlm.chat(null);
+        assertFalse(result.text().isEmpty(), "expected non-empty value");
+        assertEquals(3, result.segments().size(), "expected exactly 3 elements");
+        assertEquals(0, result.segments().get("0").id());
+    }
+
+    @Test
     void testErrorTranscribeAuth401() throws Exception {
         // 401 Unauthorized for transcription with invalid API key
         assertThrows(Exception.class, () -> LiterLlm.chat(null));

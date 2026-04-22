@@ -21,6 +21,16 @@ async def test_edge_image_empty_prompt() -> None:
     assert "InvalidRequest" in str(exc_info.value)  # noqa: S101
 
 @pytest.mark.asyncio
+async def test_edge_image_multiple_n() -> None:
+    """Image generation requesting multiple images with n=3."""
+    request = None
+    result = await image_generate(request=request)
+    assert len(result.data) == 3  # noqa: S101
+    assert result.data.get("0").url  # noqa: S101
+    assert result.data.get("1").url  # noqa: S101
+    assert result.data.get("2").url  # noqa: S101
+
+@pytest.mark.asyncio
 async def test_error_image_auth_401() -> None:
     """401 Unauthorized when generating images with invalid API key."""
     request = None

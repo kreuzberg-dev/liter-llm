@@ -32,3 +32,10 @@ async def test_search_error_401() -> None:
         await search(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
+@pytest.mark.asyncio
+async def test_search_with_max_results() -> None:
+    """Search request with max_results parameter limiting response count."""
+    request = None
+    result = await search(request=request)
+    assert len(result.results) == 2  # noqa: S101
+

@@ -40,3 +40,12 @@ func Test_SearchError401(t *testing.T) {
 		t.Errorf("expected an error, but call succeeded")
 	}
 }
+
+func Test_SearchWithMaxResults(t *testing.T) {
+	// Search request with max_results parameter limiting response count
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	assert.Equal(t, len(result.Results), 2, "expected exactly 2 elements")
+}

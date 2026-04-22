@@ -8,6 +8,22 @@
 #include "liter_llm.h"
 #include "test_runner.h"
 
+void test_edge_speech_all_voices(void) {
+    /* Text-to-speech with specific voice selection */
+    LITERLLMSpeechRequest* speech_request_handle = literllm_speech_request_from_json("{\"input\":\"Hello world\",\"model\":\"tts-1\",\"voice\":\"nova\"}");
+    assert(speech_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMSpeechResponse* result = literllm_default_client_speech(client, speech_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* audio = literllm_speech_response_audio(result);
+    assert(strlen(audio) > 0 && "expected non-empty value");
+    literllm_free_string(audio);
+    literllm_speech_response_free(result);
+    literllm_speech_request_free(speech_request_handle);
+    literllm_default_client_free(client);
+}
+
 void test_edge_speech_long_input(void) {
     /* Speech generation with a very long input text */
     LITERLLMSpeechRequest* speech_request_handle = literllm_speech_request_from_json("{\"input\":\"This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.\",\"model\":\"tts-1\",\"voice\":\"echo\"}");

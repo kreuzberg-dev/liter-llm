@@ -32,8 +32,22 @@ test_list_models_error_500() {
     fi
 }
 
+test_list_models_filtered() {
+    # List models response with multiple model objects
+    local output
+    output=$(liter_llm chat)
+
+    local count_data
+    count_data=$(echo "$output" | jq '.data | length')
+    assert_count_min "$count_data" 5 'data'
+    local val_data_0__object
+    val_data_0__object=$(echo "$output" | jq -r '.data[0].object')
+    assert_equals "$val_data_0__object" 'model' 'data[0].object'
+}
+
 run_tests_list_models() {
     run_test test_empty_model_list
     run_test test_list_models_error_401
     run_test test_list_models_error_500
+    run_test test_list_models_filtered
 }

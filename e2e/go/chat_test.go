@@ -25,6 +25,42 @@ func Test_DeveloperMessage(t *testing.T) {
 	}
 }
 
+func Test_EdgeChatMaxTokens(t *testing.T) {
+	// Chat request with max_tokens=1 terminates with length finish_reason
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	if strings.TrimSpace(result.Choices["0"].FinishReason) != `length` {
+		t.Errorf("equals mismatch: got %v", result.Choices["0"].FinishReason)
+	}
+	if len(result.Choices["0"].Message.Content) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+}
+
+func Test_EdgeChatSystemOnly(t *testing.T) {
+	// Chat request with system message and user message
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	if len(result.Choices["0"].Message.Content) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+}
+
+func Test_EdgeChatTemperatureZero(t *testing.T) {
+	// Chat request with temperature=0 for deterministic responses
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	if len(result.Choices["0"].Message.Content) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+}
+
 func Test_FinishReasonContentFilter(t *testing.T) {
 	// Chat response stopped by content filter with finish_reason of content_filter and null content
 	result, err := pkg.chat(nil)

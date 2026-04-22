@@ -1,0 +1,33 @@
+{
+	"id": "edge_embed_empty_input",
+	"description": "Embedding request with empty string input returns empty data array",
+	"category": "embed",
+	"tags": ["embed", "edge-case"],
+	"call": "embed",
+	"input": {
+		"model": "text-embedding-3-small",
+		"input": ""
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"object": "list",
+			"data": [],
+			"model": "text-embedding-3-small",
+			"usage": {
+				"prompt_tokens": 0,
+				"total_tokens": 0
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "count_equals",
+			"field": "data",
+			"value": 0
+		}
+	]
+}

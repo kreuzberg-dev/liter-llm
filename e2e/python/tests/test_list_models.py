@@ -25,3 +25,10 @@ async def test_list_models_error_500() -> None:
         await list_models()
     assert "ServerError" in str(exc_info.value)  # noqa: S101
 
+@pytest.mark.asyncio
+async def test_list_models_filtered() -> None:
+    """List models response with multiple model objects."""
+    result = await list_models()
+    assert len(result.data) >= 5  # noqa: S101
+    assert result.data.get("0").object.strip() == "model"  # noqa: S101
+

@@ -38,6 +38,13 @@ defmodule E2e.StreamingTest do
     end
   end
 
+  describe "edge_stream_function_call" do
+    test "Streaming chat completion with tool/function call chunks" do
+      {:ok, result} = LiterLlm.chat_async(nil)
+      assert length(result.chunks) >= 2
+    end
+  end
+
   describe "empty_stream" do
     test "Streaming chat completion that produces no content chunks before the DONE signal" do
       {:ok, result} = LiterLlm.chat_async(nil)

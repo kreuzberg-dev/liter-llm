@@ -101,6 +101,9 @@ void test_cache_stream_bypass(void);
 
 /* Tests for category: chat */
 void test_developer_message(void);
+void test_edge_chat_max_tokens(void);
+void test_edge_chat_system_only(void);
+void test_edge_chat_temperature_zero(void);
 void test_finish_reason_content_filter(void);
 void test_finish_reason_length(void);
 void test_multi_turn_conversation(void);
@@ -130,6 +133,8 @@ void test_register_provider(void);
 
 /* Tests for category: embed */
 void test_batch_embed(void);
+void test_edge_embed_batch_input(void);
+void test_edge_embed_empty_input(void);
 void test_embed_encoding_format(void);
 void test_embed_error_401(void);
 void test_embed_with_dimensions(void);
@@ -169,6 +174,7 @@ void test_smoke_retrieve_file(void);
 /* Tests for category: image-generate */
 void test_edge_image_b64_response(void);
 void test_edge_image_empty_prompt(void);
+void test_edge_image_multiple_n(void);
 void test_error_image_auth_401(void);
 void test_error_image_bad_request(void);
 void test_error_image_rate_limit(void);
@@ -180,6 +186,7 @@ void test_smoke_image_with_size(void);
 void test_empty_model_list(void);
 void test_list_models_error_401(void);
 void test_list_models_error_500(void);
+void test_list_models_filtered(void);
 
 /* Tests for category: moderate */
 void test_edge_moderate_all_categories(void);
@@ -193,6 +200,7 @@ void test_smoke_moderate_single(void);
 /* Tests for category: ocr */
 void test_ocr_error_400(void);
 void test_ocr_error_401(void);
+void test_ocr_multi_page(void);
 void test_ocr_url_document(void);
 
 /* Tests for category: parity */
@@ -237,6 +245,7 @@ void test_search_basic(void);
 void test_search_empty_results(void);
 void test_search_error_400(void);
 void test_search_error_401(void);
+void test_search_with_max_results(void);
 
 /* Tests for category: smoke */
 void test_anthropic_chat(void);
@@ -261,6 +270,7 @@ void test_vertex_chat(void);
 void test_vertex_embed(void);
 
 /* Tests for category: speech */
+void test_edge_speech_all_voices(void);
 void test_edge_speech_long_input(void);
 void test_error_speech_auth_401(void);
 void test_error_speech_bad_model(void);
@@ -272,6 +282,7 @@ void test_anthropic_stream(void);
 void test_azure_stream(void);
 void test_basic_stream(void);
 void test_bedrock_stream(void);
+void test_edge_stream_function_call(void);
 void test_empty_stream(void);
 void test_local_stream_ollama(void);
 void test_stream_content_policy_error(void);
@@ -288,6 +299,7 @@ void test_single_tool_call(void);
 
 /* Tests for category: transcribe */
 void test_edge_transcribe_empty_audio(void);
+void test_edge_transcribe_with_timestamps(void);
 void test_error_transcribe_auth_401(void);
 void test_error_transcribe_bad_format(void);
 void test_smoke_transcribe_basic(void);

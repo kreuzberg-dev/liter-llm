@@ -34,4 +34,14 @@ describe('search', () => {
     options.query = "test";
     await expect(async () => await client.chat(options)).rejects.toThrow();
   });
+
+  it('search_with_max_results: Search request with max_results parameter limiting response count', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.maxResults = 2;
+    options.model = "brave/web-search";
+    options.query = "Rust programming";
+    const result = await client.chat(options);
+    expect(result.results.length).toBe(2);
+  });
 });

@@ -9,6 +9,13 @@ test_that("ocr_error_401: 401 Unauthorized error on OCR request due to invalid A
   expect_error(chat())
 })
 
+test_that("ocr_multi_page: OCR request returning multiple pages of document content", {
+  result <- chat()
+  expect_equal(length(result$pages), 2)
+  expect_equal(trimws(result$pages[["0"]]$index), 0)
+  expect_equal(trimws(result$pages[["1"]]$index), 1)
+})
+
 test_that("ocr_url_document: OCR request with a document URL input", {
   result <- chat()
 })

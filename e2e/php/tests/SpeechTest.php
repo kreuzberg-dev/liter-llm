@@ -11,6 +11,14 @@ use Liter\Llm\LiterLlm;
 /** E2e tests for category: speech. */
 final class SpeechTest extends TestCase
 {
+    /** Text-to-speech with specific voice selection */
+    public function test_edge_speech_all_voices(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->speech_async(json_encode("Hello world"));
+        $this->assertNotEmpty($result->audio);
+    }
+
     /** Speech generation with a very long input text */
     public function test_edge_speech_long_input(): void
     {

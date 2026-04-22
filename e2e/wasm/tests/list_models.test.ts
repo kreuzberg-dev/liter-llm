@@ -22,4 +22,12 @@ describe('list-models', () => {
     const options = new WasmChatCompletionRequest();
     await expect(async () => await client.chat(options)).rejects.toThrow();
   });
+
+  it('list_models_filtered: List models response with multiple model objects', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    const result = await client.chat(options);
+    expect(result.data.length).toBeGreaterThanOrEqual(5);
+    expect(result.data.get("0").object.trim()).toBe("model");
+  });
 });

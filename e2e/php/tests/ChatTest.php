@@ -21,6 +21,31 @@ final class ChatTest extends TestCase
         $this->assertEquals("stop", $result->choices["0"]->finish_reason);
     }
 
+    /** Chat request with max_tokens=1 terminates with length finish_reason */
+    public function test_edge_chat_max_tokens(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->chat_async(null);
+        $this->assertEquals("length", $result->choices["0"]->finish_reason);
+        $this->assertNotEmpty($result->choices["0"]->message->content);
+    }
+
+    /** Chat request with system message and user message */
+    public function test_edge_chat_system_only(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->chat_async(null);
+        $this->assertNotEmpty($result->choices["0"]->message->content);
+    }
+
+    /** Chat request with temperature=0 for deterministic responses */
+    public function test_edge_chat_temperature_zero(): void
+    {
+        $client = \Liter\Llm\LiterLlm::createClient('test-key');
+        $result = $client->chat_async(null);
+        $this->assertNotEmpty($result->choices["0"]->message->content);
+    }
+
     /** Chat response stopped by content filter with finish_reason of content_filter and null content */
     public function test_finish_reason_content_filter(): void
     {

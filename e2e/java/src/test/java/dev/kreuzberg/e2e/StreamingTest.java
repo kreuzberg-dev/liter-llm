@@ -42,6 +42,13 @@ class StreamingTest {
     }
 
     @Test
+    void testEdgeStreamFunctionCall() throws Exception {
+        // Streaming chat completion with tool/function call chunks
+        var result = LiterLlm.chat(null);
+        assertTrue(result.chunks().size() >= 2, "expected at least 2 elements");
+    }
+
+    @Test
     void testEmptyStream() throws Exception {
         // Streaming chat completion that produces no content chunks before the DONE signal
         var result = LiterLlm.chat(null);

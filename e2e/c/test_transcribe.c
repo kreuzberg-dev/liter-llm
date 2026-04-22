@@ -24,6 +24,36 @@ void test_edge_transcribe_empty_audio(void) {
     literllm_default_client_free(client);
 }
 
+void test_edge_transcribe_with_timestamps(void) {
+    /* Transcription with verbose JSON response format including timestamp segments */
+    LITERLLMTranscriptionRequest* transcription_request_handle = literllm_transcription_request_from_json("{\"file\":\"audio.mp3\",\"model\":\"whisper-1\",\"response_format\":\"verbose_json\"}");
+    assert(transcription_request_handle != NULL && "failed to build request");
+    LITERLLMDefaultClient* client = literllm_create_client("test-key", NULL, 0, 0, NULL);
+    assert(client != NULL && "failed to create client");
+    LITERLLMTranscriptionResponse* result = literllm_default_client_transcribe(client, transcription_request_handle);
+    assert(result != NULL && "expected call to succeed");
+    char* text = literllm_transcription_response_text(result);
+    char* segments = literllm_transcription_response_segments(result);
+    char* segments_json = literllm_transcription_response_segments(result);
+    assert(segments_json != NULL);
+    char* segments_0_id = alef_json_get_string(segments_json, "0");
+    assert(strlen(text) > 0 && "expected non-empty value");
+    {
+        /* count_equals: count elements in array */
+        assert(segments != NULL && "expected non-null collection JSON");
+        int elem_count = alef_json_array_count(segments);
+        assert(elem_count == 3 && "expected 3 elements");
+    }
+    assert(strcmp(segments_0_id, 0) == 0 && "equals assertion failed");
+    literllm_free_string(text);
+    literllm_free_string(segments);
+    free(segments_0_id);
+    literllm_free_string(segments_json);
+    literllm_transcription_response_free(result);
+    literllm_transcription_request_free(transcription_request_handle);
+    literllm_default_client_free(client);
+}
+
 void test_error_transcribe_auth_401(void) {
     /* 401 Unauthorized for transcription with invalid API key */
     LITERLLMTranscriptionRequest* transcription_request_handle = literllm_transcription_request_from_json("{\"file\":\"audio.mp3\",\"model\":\"whisper-1\"}");

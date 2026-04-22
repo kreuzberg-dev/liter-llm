@@ -27,6 +27,16 @@ public class OcrTests
     }
 
     [Fact]
+    public async Task Test_OcrMultiPage()
+    {
+        // OCR request returning multiple pages of document content
+        var result = await LiterLlmLib.Chat(null);
+        Assert.Equal(2, result.Pages.Count);
+        Assert.Equal(0, result.Pages["0"].Index);
+        Assert.Equal(1, result.Pages["1"].Index);
+    }
+
+    [Fact]
     public async Task Test_OcrUrlDocument()
     {
         // OCR request with a document URL input

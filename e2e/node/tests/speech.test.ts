@@ -3,6 +3,12 @@ import { describe, it, expect } from 'vitest';
 import { createClient } from '@kreuzberg/liter-llm';
 
 describe('speech', () => {
+  it('edge_speech_all_voices: Text-to-speech with specific voice selection', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_speech_all_voices`);
+    const result = await client.chat({ input: "Hello world", model: "tts-1", voice: "nova" });
+    expect(result.audio.length).toBeGreaterThan(0);
+  });
+
   it('edge_speech_long_input: Speech generation with a very long input text', async () => {
     const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_speech_long_input`);
     const result = await client.chat({ input: "This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.", model: "tts-1", voice: "echo" });

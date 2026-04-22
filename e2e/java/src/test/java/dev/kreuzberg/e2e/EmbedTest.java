@@ -15,6 +15,22 @@ class EmbedTest {
     }
 
     @Test
+    void testEdgeEmbedBatchInput() throws Exception {
+        // Embedding request with multiple inputs returns multiple embedding objects
+        var result = LiterLlm.chat(java.util.List.of("Hello world", "Goodbye world"));
+        assertEquals(2, result.data().size(), "expected exactly 2 elements");
+        assertEquals(0, result.data().get("0").index());
+        assertEquals(1, result.data().get("1").index());
+    }
+
+    @Test
+    void testEdgeEmbedEmptyInput() throws Exception {
+        // Embedding request with empty string input returns empty data array
+        var result = LiterLlm.chat("");
+        assertEquals(0, result.data().size(), "expected exactly 0 elements");
+    }
+
+    @Test
     void testEmbedEncodingFormat() throws Exception {
         // Embedding request with explicit encoding_format of float returns float array embeddings
         var result = LiterLlm.chat("Test input");

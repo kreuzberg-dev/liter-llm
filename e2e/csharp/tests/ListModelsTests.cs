@@ -34,4 +34,13 @@ public class ListModelsTests
         // 500 Internal Server Error when listing models due to server failure
         await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
     }
+
+    [Fact]
+    public async Task Test_ListModelsFiltered()
+    {
+        // List models response with multiple model objects
+        var result = await LiterLlmLib.Chat(null);
+        Assert.True(result.Data.Count >= 5, "expected at least 5 elements");
+        Assert.Equal("model", result.Data["0"].Object.Trim());
+    }
 }

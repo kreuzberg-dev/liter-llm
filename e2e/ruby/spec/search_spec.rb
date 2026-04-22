@@ -22,4 +22,9 @@ RSpec.describe 'search' do
   it 'search_error_401: 401 Unauthorized error on web search due to invalid API credentials' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
+
+  it 'search_with_max_results: Search request with max_results parameter limiting response count' do
+    result = LiterLlm.chat(nil)
+    expect(result.results.length).to eq(2)
+  end
 end

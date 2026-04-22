@@ -13,6 +13,22 @@ test_edge_transcribe_empty_audio() {
     assert_contains "$val_text" '' 'text'
 }
 
+test_edge_transcribe_with_timestamps() {
+    # Transcription with verbose JSON response format including timestamp segments
+    local output
+    output=$(liter_llm chat)
+
+    local val_text
+    val_text=$(echo "$output" | jq -r '.text')
+    assert_not_empty "$val_text" 'text'
+    local count_segments
+    count_segments=$(echo "$output" | jq '.segments | length')
+    [ "$count_segments" -eq 3 ] || exit 1
+    local val_segments_0__id
+    val_segments_0__id=$(echo "$output" | jq -r '.segments[0].id')
+    assert_equals "$val_segments_0__id" '0' 'segments[0].id'
+}
+
 test_error_transcribe_auth_401() {
     # 401 Unauthorized for transcription with invalid API key
     if liter_llm chat >/dev/null 2>&1; then
@@ -51,6 +67,7 @@ test_smoke_transcribe_with_language() {
 
 run_tests_transcribe() {
     run_test test_edge_transcribe_empty_audio
+    run_test test_edge_transcribe_with_timestamps
     run_test test_error_transcribe_auth_401
     run_test test_error_transcribe_bad_format
     run_test test_smoke_transcribe_basic

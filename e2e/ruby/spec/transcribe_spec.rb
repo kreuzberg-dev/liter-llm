@@ -10,6 +10,13 @@ RSpec.describe 'transcribe' do
     expect(result.text.to_s).to include('')
   end
 
+  it 'edge_transcribe_with_timestamps: Transcription with verbose JSON response format including timestamp segments' do
+    result = LiterLlm.chat(nil)
+    expect(result.text).not_to be_empty
+    expect(result.segments.length).to eq(3)
+    expect(result.segments.get("0").id).to eq(0)
+  end
+
   it 'error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end

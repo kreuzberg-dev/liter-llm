@@ -21,6 +21,21 @@ func Test_EdgeTranscribeEmptyAudio(t *testing.T) {
 	}
 }
 
+func Test_EdgeTranscribeWithTimestamps(t *testing.T) {
+	// Transcription with verbose JSON response format including timestamp segments
+	result, err := pkg.chat(nil)
+	if err != nil {
+		t.Fatalf("call failed: %v", err)
+	}
+	if len(result.Text) == 0 {
+		t.Errorf("expected non-empty value")
+	}
+	assert.Equal(t, len(result.Segments), 3, "expected exactly 3 elements")
+	if result.Segments["0"].Id != 0 {
+		t.Errorf("equals mismatch: got %v", result.Segments["0"].Id)
+	}
+}
+
 func Test_ErrorTranscribeAuth401(t *testing.T) {
 	// 401 Unauthorized for transcription with invalid API key
 	_, err := pkg.chat(nil)

@@ -29,6 +29,17 @@ public class ImageGenerateTests
     }
 
     [Fact]
+    public async Task Test_EdgeImageMultipleN()
+    {
+        // Image generation requesting multiple images with n=3
+        var result = await LiterLlmLib.Chat(null);
+        Assert.Equal(3, result.Data.Count);
+        Assert.False(string.IsNullOrEmpty(result.Data["0"].Url?.ToString()));
+        Assert.False(string.IsNullOrEmpty(result.Data["1"].Url?.ToString()));
+        Assert.False(string.IsNullOrEmpty(result.Data["2"].Url?.ToString()));
+    }
+
+    [Fact]
     public async Task Test_ErrorImageAuth401()
     {
         // 401 Unauthorized when generating images with invalid API key

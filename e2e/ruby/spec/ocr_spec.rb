@@ -13,6 +13,13 @@ RSpec.describe 'ocr' do
     expect { LiterLlm.chat(nil) }.to raise_error
   end
 
+  it 'ocr_multi_page: OCR request returning multiple pages of document content' do
+    result = LiterLlm.chat(nil)
+    expect(result.pages.length).to eq(2)
+    expect(result.pages.get("0").index).to eq(0)
+    expect(result.pages.get("1").index).to eq(1)
+  end
+
   it 'ocr_url_document: OCR request with a document URL input' do
     result = LiterLlm.chat(nil)
     expect(result).not_to be_nil

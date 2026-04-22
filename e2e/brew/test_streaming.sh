@@ -64,6 +64,16 @@ test_bedrock_stream() {
     [ "$val_stream_complete" = "true" ] || exit 1
 }
 
+test_edge_stream_function_call() {
+    # Streaming chat completion with tool/function call chunks
+    local output
+    output=$(liter_llm chat)
+
+    local count_chunks
+    count_chunks=$(echo "$output" | jq '.chunks | length')
+    assert_count_min "$count_chunks" 2 'chunks'
+}
+
 test_empty_stream() {
     # Streaming chat completion that produces no content chunks before the DONE signal
     local output
@@ -188,6 +198,7 @@ run_tests_streaming() {
     run_test test_azure_stream
     run_test test_basic_stream
     run_test test_bedrock_stream
+    run_test test_edge_stream_function_call
     run_test test_empty_stream
     run_test test_local_stream_ollama
     run_test test_stream_content_policy_error

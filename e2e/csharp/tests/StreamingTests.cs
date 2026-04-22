@@ -52,6 +52,14 @@ public class StreamingTests
     }
 
     [Fact]
+    public async Task Test_EdgeStreamFunctionCall()
+    {
+        // Streaming chat completion with tool/function call chunks
+        var result = await LiterLlmLib.Chat(null);
+        Assert.True(result.Chunks.Count >= 2, "expected at least 2 elements");
+    }
+
+    [Fact]
     public async Task Test_EmptyStream()
     {
         // Streaming chat completion that produces no content chunks before the DONE signal

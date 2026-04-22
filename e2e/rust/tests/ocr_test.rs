@@ -42,6 +42,25 @@ async fn test_ocr_error_401() {
 }
 
 #[tokio::test]
+async fn test_ocr_multi_page() {
+    // OCR request returning multiple pages of document content
+    let mock_route = MockRoute {
+        path: "/v1/ocr",
+        method: "POST",
+        status: 200,
+        body: r##"{"model":"mistral/mistral-ocr-latest","pages":[{"index":0,"markdown":"# Page 1\n\nThis is the first page of the document."},{"index":1,"markdown":"# Page 2\n\nThis is the second page of the document."}]}"##.to_string(),
+        stream_chunks: vec![],
+    };
+    let mock_server = MockServer::start(vec![mock_route]).await;
+    let request_json = serde_json::json!(null);
+    let request = serde_json::from_value(request_json).unwrap();
+    let result = ocr(&request).await.expect("should succeed");
+    assert_eq!(result.pages.len(), 2, "expected exactly 2 elements, got {}", result.pages.len());
+    assert_eq!(result.pages.get("0").map(|s| s.as_str()).index, 0, "equals assertion failed");
+    assert_eq!(result.pages.get("1").map(|s| s.as_str()).index, 1, "equals assertion failed");
+}
+
+#[tokio::test]
 async fn test_ocr_url_document() {
     // OCR request with a document URL input
     let mock_route = MockRoute {

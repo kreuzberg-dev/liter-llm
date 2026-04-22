@@ -1,0 +1,50 @@
+{
+	"id": "edge_chat_temperature_zero",
+	"description": "Chat request with temperature=0 for deterministic responses",
+	"category": "chat",
+	"tags": ["chat", "edge-case"],
+	"call": "chat",
+	"input": {
+		"model": "gpt-4",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Say hello"
+			}
+		],
+		"temperature": 0
+	},
+	"mock_response": {
+		"status": 200,
+		"body": {
+			"id": "chatcmpl-temp-zero-001",
+			"object": "chat.completion",
+			"created": 1711000210,
+			"model": "gpt-4",
+			"choices": [
+				{
+					"index": 0,
+					"message": {
+						"role": "assistant",
+						"content": "Hello! How can I help you today?"
+					},
+					"finish_reason": "stop"
+				}
+			],
+			"usage": {
+				"prompt_tokens": 10,
+				"completion_tokens": 9,
+				"total_tokens": 19
+			}
+		}
+	},
+	"assertions": [
+		{
+			"type": "not_error"
+		},
+		{
+			"type": "not_empty",
+			"field": "choices[0].message.content"
+		}
+	]
+}

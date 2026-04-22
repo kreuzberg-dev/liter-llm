@@ -12,6 +12,22 @@ RSpec.describe 'chat' do
     expect(result.choices.get("0").finish_reason).to eq('stop')
   end
 
+  it 'edge_chat_max_tokens: Chat request with max_tokens=1 terminates with length finish_reason' do
+    result = LiterLlm.chat(nil)
+    expect(result.choices.get("0").finish_reason).to eq('length')
+    expect(result.choices.get("0").message.content).not_to be_empty
+  end
+
+  it 'edge_chat_system_only: Chat request with system message and user message' do
+    result = LiterLlm.chat(nil)
+    expect(result.choices.get("0").message.content).not_to be_empty
+  end
+
+  it 'edge_chat_temperature_zero: Chat request with temperature=0 for deterministic responses' do
+    result = LiterLlm.chat(nil)
+    expect(result.choices.get("0").message.content).not_to be_empty
+  end
+
   it 'finish_reason_content_filter: Chat response stopped by content filter with finish_reason of content_filter and null content' do
     result = LiterLlm.chat(nil)
     expect(result.choices.length).to eq(1)
