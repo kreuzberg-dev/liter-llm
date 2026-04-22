@@ -24,3 +24,6 @@ liter-llm = { path = "../liter-llm", version = "1.2.2", features = ["full"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }
+
+[lints]
+workspace = true

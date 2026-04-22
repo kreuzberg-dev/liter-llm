@@ -45,3 +45,6 @@ utoipa = { workspace = true }
 http-body-util = "0.1"
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true

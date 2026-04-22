@@ -82,6 +82,14 @@ lint.per-file-ignores."**/*.pyi" = [
   "A002", # builtin shadowing in type stubs (id, format, object)
   "D",    # docstrings not required in type stubs
 ]
+lint.per-file-ignores."e2e/python/**/*.*" = [
+  "A001",    # builtin shadowing in generated test fixtures (id, type, format)
+  "D",       # docstrings not required in generated tests
+  "PLR2004", # magic values in assertions (generated test expectations)
+  "PT011",   # broad pytest.raises in generated error-handling tests
+  "RUF100",  # unused noqa in generated code
+  "S101",    # assert usage in tests
+]
 lint.per-file-ignores."scripts/**/*.*" = [
   "B904",    # raise without from
   "BLE001",  # broad exception catch
@@ -99,6 +107,14 @@ lint.per-file-ignores."scripts/**/*.*" = [
   "S",       # security (subprocess, etc.)
   "SIM105",  # contextlib.suppress
   "T201",    # print
+]
+lint.per-file-ignores."test_apps/python/**/*.*" = [
+  "A001",    # builtin shadowing in generated test fixtures
+  "D",       # docstrings not required in generated tests
+  "PLR2004", # magic values in assertions
+  "PT011",   # broad pytest.raises in generated error-handling tests
+  "RUF100",  # unused noqa in generated code
+  "S101",    # assert usage in tests
 ]
 lint.isort.known-first-party = [ "scripts" ]
 lint.pydocstyle.convention = "google"
