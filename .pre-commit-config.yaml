@@ -63,7 +63,7 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.20.1
+    rev: v1.20.2
     hooks:
       - id: mypy
         exclude: "e2e/|scripts/|tests/|crates/"
@@ -193,7 +193,7 @@ repos:
 
   # Markdown: linting
   - repo: https://github.com/rvben/rumdl-pre-commit
-    rev: "v0.1.77"
+    rev: "v0.1.80"
     hooks:
       - id: rumdl-fmt
         exclude: ^templates/
@@ -227,7 +227,7 @@ repos:
 
   # Alef: verify generated code freshness and sync versions (must run AFTER all formatters)
   - repo: https://github.com/kreuzberg-dev/alef
-    rev: v0.6.0
+    rev: v0.6.1
     hooks:
       - id: alef-verify
       - id: alef-sync-versions
