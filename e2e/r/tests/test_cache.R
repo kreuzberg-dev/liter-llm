@@ -17,6 +17,6 @@ test_that("cache_opendal_memory: Cache hit with OpenDAL memory backend returns c
 })
 
 test_that("cache_stream_bypass: Tests that streaming requests bypass cache entirely", {
-  result <- chat()
+  result <- chat_stream()
   expect_true(result$cache_bypassed)
 })

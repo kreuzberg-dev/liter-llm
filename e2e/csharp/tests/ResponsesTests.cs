@@ -16,7 +16,7 @@ public class ResponsesTests
     public async Task Test_EdgeResponseEmptyOutput()
     {
         // Response completes with empty output items
-        var result = await LiterLlmLib.Chat("");
+        var result = await LiterLlmLib.CreateResponse("");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("completed", result.Status.Trim());
         Assert.Equal(0, result.Output.Count);
@@ -26,7 +26,7 @@ public class ResponsesTests
     public async Task Test_EdgeResponseLargeInput()
     {
         // Response created with a very large input text
-        var result = await LiterLlmLib.Chat("Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ");
+        var result = await LiterLlmLib.CreateResponse("Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("completed", result.Status.Trim());
         Assert.Equal(1, result.Output.Count);
@@ -36,28 +36,28 @@ public class ResponsesTests
     public async Task Test_ErrorResponseAuth401()
     {
         // 401 Unauthorized when creating a response with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.CreateResponse("Hello"));
     }
 
     [Fact]
     public async Task Test_ErrorResponseBadRequest()
     {
         // 400 Bad Request when creating response with invalid model
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.CreateResponse("Hello"));
     }
 
     [Fact]
     public async Task Test_ErrorResponseNotFound()
     {
         // 404 Not Found when retrieving a nonexistent response
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.RetrieveResponse(""));
     }
 
     [Fact]
     public async Task Test_SmokeCancelResponse()
     {
         // Cancel an in-progress response
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.CancelResponse("");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("cancelled", result.Status.Trim());
         Assert.Equal(0, result.Output.Count);
@@ -67,7 +67,7 @@ public class ResponsesTests
     public async Task Test_SmokeCreateResponse()
     {
         // Create a basic response using the Responses API
-        var result = await LiterLlmLib.Chat("Explain quantum computing in one sentence.");
+        var result = await LiterLlmLib.CreateResponse("Explain quantum computing in one sentence.");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("completed", result.Status.Trim());
         Assert.Equal(1, result.Output.Count);
@@ -77,7 +77,7 @@ public class ResponsesTests
     public async Task Test_SmokeResponseWithTools()
     {
         // Response that includes tool call output items
-        var result = await LiterLlmLib.Chat("What is the weather in San Francisco?");
+        var result = await LiterLlmLib.CreateResponse("What is the weather in San Francisco?");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("completed", result.Status.Trim());
         Assert.Equal(2, result.Output.Count);
@@ -88,7 +88,7 @@ public class ResponsesTests
     public async Task Test_SmokeRetrieveResponse()
     {
         // Retrieve a previously created response
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.RetrieveResponse("");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("completed", result.Status.Trim());
     }

@@ -237,15 +237,11 @@ jobs:
         shell: bash
 
       - name: Install alef
-        run: cargo install --git https://github.com/kreuzberg-dev/alef --tag v0.5.7 alef-cli
+        run: cargo install --git https://github.com/kreuzberg-dev/alef --tag v0.5.9 alef-cli
         shell: bash
 
       - name: Verify alef-generated code is up-to-date
         run: alef verify --exit-code
-        shell: bash
-
-      - name: Verify API reference docs are up-to-date
-        run: task generate:docs:check
         shell: bash
 
       - name: Run Pre-commit Hooks

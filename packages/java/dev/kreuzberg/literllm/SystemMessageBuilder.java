@@ -8,16 +8,19 @@ public class SystemMessageBuilder {
     private String content = "";
     private Optional<String> name = Optional.empty();
 
-    public SystemMessageBuilder withContent(String value) {
+    /** Sets the content field. */
+    public SystemMessageBuilder withContent(final String value) {
         this.content = value;
         return this;
     }
 
-    public SystemMessageBuilder withName(Optional<String> value) {
+    /** Sets the name field. */
+    public SystemMessageBuilder withName(final Optional<String> value) {
         this.name = value;
         return this;
     }
 
+    /** Builds the SystemMessage instance. */
     public SystemMessage build() {
         return new SystemMessage(
             content,

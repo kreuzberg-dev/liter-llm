@@ -17,41 +17,41 @@ test_that("proxy_chat_basic: Basic chat completion request routed through the pr
 })
 
 test_that("proxy_chat_streaming: Streaming chat completion routed through the proxy", {
-  result <- chat()
+  result <- chat_stream()
   expect_true(length(result$chunks) >= 3)
   expect_equal(trimws(result$stream_content), "1 2 3")
   expect_true(result$stream_complete)
 })
 
 test_that("proxy_embeddings: Embedding request routed through the proxy", {
-  result <- chat(request = "hello world")
+  result <- embed(request = "hello world")
   expect_equal(length(result$data), 1)
 })
 
 test_that("proxy_health: Health check verifying proxy connectivity via list models", {
-  result <- chat()
+  result <- list_models(list())
   expect_true(length(result$data) >= 1)
 })
 
 test_that("proxy_image_generate: Image generation request routed through the proxy", {
-  result <- chat()
+  result <- image_generate()
   expect_equal(length(result$data), 1)
   expect_true(if (is.character(result$data[["0"]]$url)) nchar(result$data[["0"]]$url) > 0 else length(result$data[["0"]]$url) > 0)
 })
 
 test_that("proxy_models_list: List models request routed through the proxy", {
-  result <- chat()
+  result <- list_models(list())
   expect_true(length(result$data) >= 1)
 })
 
 test_that("proxy_moderation: Content moderation request routed through the proxy", {
-  result <- chat(request = "the weather is nice today.")
+  result <- moderate(request = "the weather is nice today.")
   expect_equal(length(result$results), 1)
   expect_equal(trimws(result$results[["0"]]$flagged), FALSE)
 })
 
 test_that("proxy_rerank: Document reranking request routed through the proxy", {
-  result <- chat()
+  result <- rerank()
   expect_equal(length(result$results), 2)
   expect_true(result$results[["0"]]$relevance_score > 0.9)
 })

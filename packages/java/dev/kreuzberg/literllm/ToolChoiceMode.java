@@ -9,19 +9,22 @@ public enum ToolChoiceMode {
     Required("required"),
     None("none");
 
+    /** The string value. */
     private final String value;
 
-    ToolChoiceMode(String value) {
+    ToolChoiceMode(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static ToolChoiceMode fromValue(String value) {
+    public static ToolChoiceMode fromValue(final String value) {
         for (ToolChoiceMode e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

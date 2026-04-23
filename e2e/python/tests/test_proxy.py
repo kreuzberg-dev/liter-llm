@@ -8,7 +8,7 @@ from liter_llm import chat, chat_stream, embed, list_models, image_generate, mod
 async def test_proxy_auth_invalid() -> None:
     """401 Unauthorized when an invalid API key is provided through the proxy."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -16,7 +16,7 @@ async def test_proxy_auth_invalid() -> None:
 async def test_proxy_auth_missing() -> None:
     """401 Unauthorized when no API key is provided through the proxy."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -85,7 +85,7 @@ async def test_proxy_rerank() -> None:
 async def test_proxy_upstream_429() -> None:
     """429 Too Many Requests from upstream provider through the proxy."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "RateLimited" in str(exc_info.value)  # noqa: S101
 
@@ -93,7 +93,7 @@ async def test_proxy_upstream_429() -> None:
 async def test_proxy_upstream_500() -> None:
     """500 Internal Server Error from upstream provider through the proxy."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "ServerError" in str(exc_info.value)  # noqa: S101
 

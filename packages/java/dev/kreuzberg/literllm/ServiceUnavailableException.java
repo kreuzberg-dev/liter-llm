@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class ServiceUnavailableException extends LiterLlmErrorException {
-    public ServiceUnavailableException(String message) {
+    /** Creates a new ServiceUnavailableException with the given message. */
+    public ServiceUnavailableException(final String message) {
         super(message);
     }
 
-    public ServiceUnavailableException(String message, Throwable cause) {
+    /** Creates a new ServiceUnavailableException with the given message and cause. */
+    public ServiceUnavailableException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

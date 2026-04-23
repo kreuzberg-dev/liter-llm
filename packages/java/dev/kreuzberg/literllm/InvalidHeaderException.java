@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class InvalidHeaderException extends LiterLlmErrorException {
-    public InvalidHeaderException(String message) {
+    /** Creates a new InvalidHeaderException with the given message. */
+    public InvalidHeaderException(final String message) {
         super(message);
     }
 
-    public InvalidHeaderException(String message, Throwable cause) {
+    /** Creates a new InvalidHeaderException with the given message and cause. */
+    public InvalidHeaderException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

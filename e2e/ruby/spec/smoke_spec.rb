@@ -24,7 +24,7 @@ RSpec.describe 'smoke' do
   end
 
   it 'azure_embed: Embedding request via Azure OpenAI using the azure/ provider prefix — response follows the standard OpenAI embeddings shape that Azure returns unchanged' do
-    result = LiterLlm.chat('Hello world')
+    result = LiterLlm.embed('Hello world')
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").embedding.length).to eq(1536)
   end
@@ -39,13 +39,13 @@ RSpec.describe 'smoke' do
   end
 
   it 'basic_embed: Basic embedding request for a single input string' do
-    result = LiterLlm.chat('Hello world')
+    result = LiterLlm.embed('Hello world')
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").embedding.length).to eq(5)
   end
 
   it 'basic_list_models: List available models from the API' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.list_models({  })
     expect(result.data.length).to be >= 1
   end
 
@@ -73,7 +73,7 @@ RSpec.describe 'smoke' do
   end
 
   it 'local_list_models_ollama: List models from local Ollama instance' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.list_models({ 'model' => 'ollama/any' })
     expect(result.data.length).to be >= 1
   end
 
@@ -101,12 +101,12 @@ RSpec.describe 'smoke' do
   end
 
   it 'smoke_embed_openai: Embeddings request against real OpenAI API' do
-    result = LiterLlm.chat(['Hello world'])
+    result = LiterLlm.embed(['Hello world'])
     expect(result.data).not_to be_empty
   end
 
   it 'smoke_list_models_openai: List models against real OpenAI API' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.list_models({ 'model' => 'openai/gpt-4o-mini' })
     expect(result.data.length).to be >= 1
   end
 
@@ -116,7 +116,7 @@ RSpec.describe 'smoke' do
   end
 
   it 'smoke_streaming_openai: Chat streaming against real OpenAI API, verifies chunks received' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.chat_stream(nil)
     expect(result.chunks.length).to be >= 1
   end
 
@@ -130,7 +130,7 @@ RSpec.describe 'smoke' do
   end
 
   it 'vertex_embed: Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape' do
-    result = LiterLlm.chat('Hello')
+    result = LiterLlm.embed('Hello')
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").embedding.length).to eq(160)
   end

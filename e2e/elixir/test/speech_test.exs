@@ -5,40 +5,40 @@ defmodule E2e.SpeechTest do
 
   describe "edge_speech_all_voices" do
     test "Text-to-speech with specific voice selection" do
-      {:ok, result} = LiterLlm.chat_async("Hello world")
+      {:ok, result} = LiterLlm.speech_async("Hello world")
       assert result.audio != ""
     end
   end
 
   describe "edge_speech_long_input" do
     test "Speech generation with a very long input text" do
-      {:ok, result} = LiterLlm.chat_async("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.")
+      {:ok, result} = LiterLlm.speech_async("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.")
       assert result.audio != ""
     end
   end
 
   describe "error_speech_auth_401" do
     test "401 Unauthorized for speech generation with invalid API key" do
-      assert {:error, _} = LiterLlm.chat_async("Hello")
+      assert {:error, _} = LiterLlm.speech_async("Hello")
     end
   end
 
   describe "error_speech_bad_model" do
     test "400 Bad Request for speech with unsupported model" do
-      assert {:error, _} = LiterLlm.chat_async("Hello")
+      assert {:error, _} = LiterLlm.speech_async("Hello")
     end
   end
 
   describe "smoke_speech_basic" do
     test "Basic text-to-speech generation" do
-      {:ok, result} = LiterLlm.chat_async("Hello, world!")
+      {:ok, result} = LiterLlm.speech_async("Hello, world!")
       assert result.audio != ""
     end
   end
 
   describe "smoke_speech_mp3_format" do
     test "Text-to-speech with explicit MP3 response format" do
-      {:ok, result} = LiterLlm.chat_async("The quick brown fox jumps over the lazy dog.")
+      {:ok, result} = LiterLlm.speech_async("The quick brown fox jumps over the lazy dog.")
       assert result.audio != ""
     end
   end

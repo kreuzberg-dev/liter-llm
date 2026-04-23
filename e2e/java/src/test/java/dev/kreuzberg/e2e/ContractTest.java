@@ -20,13 +20,13 @@ class ContractTest {
     @Test
     void testContractOcr() throws Exception {
         // Verify ocr() method exists in all bindings
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.ocr(null);
     }
 
     @Test
     void testContractSearch() throws Exception {
         // Verify search() method exists in all bindings
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.search(null);
     }
 
 }

@@ -6,22 +6,22 @@ require 'json'
 
 RSpec.describe 'ocr' do
   it 'ocr_error_400: 400 Bad Request error when OCR input has an invalid image format' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.ocr(nil) }.to raise_error
   end
 
   it 'ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.ocr(nil) }.to raise_error
   end
 
   it 'ocr_multi_page: OCR request returning multiple pages of document content' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.ocr(nil)
     expect(result.pages.length).to eq(2)
     expect(result.pages.get("0").index).to eq(0)
     expect(result.pages.get("1").index).to eq(1)
   end
 
   it 'ocr_url_document: OCR request with a document URL input' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.ocr(nil)
     expect(result).not_to be_nil
   end
 end

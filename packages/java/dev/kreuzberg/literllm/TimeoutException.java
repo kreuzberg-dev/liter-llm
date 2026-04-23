@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class TimeoutException extends LiterLlmErrorException {
-    public TimeoutException(String message) {
+    /** Creates a new TimeoutException with the given message. */
+    public TimeoutException(final String message) {
         super(message);
     }
 
-    public TimeoutException(String message, Throwable cause) {
+    /** Creates a new TimeoutException with the given message and cause. */
+    public TimeoutException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

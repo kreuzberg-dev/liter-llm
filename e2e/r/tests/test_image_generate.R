@@ -2,17 +2,17 @@
 # E2e tests for category: image-generate
 
 test_that("edge_image_b64_response: Image generation returning base64-encoded data instead of URL", {
-  result <- chat()
+  result <- image_generate()
   expect_equal(length(result$data), 1)
   expect_true(if (is.character(result$data[["0"]]$b64_json)) nchar(result$data[["0"]]$b64_json) > 0 else length(result$data[["0"]]$b64_json) > 0)
 })
 
 test_that("edge_image_empty_prompt: Image generation with an empty prompt returns 400", {
-  expect_error(chat())
+  expect_error(image_generate())
 })
 
 test_that("edge_image_multiple_n: Image generation requesting multiple images with n=3", {
-  result <- chat()
+  result <- image_generate()
   expect_equal(length(result$data), 3)
   expect_true(if (is.character(result$data[["0"]]$url)) nchar(result$data[["0"]]$url) > 0 else length(result$data[["0"]]$url) > 0)
   expect_true(if (is.character(result$data[["1"]]$url)) nchar(result$data[["1"]]$url) > 0 else length(result$data[["1"]]$url) > 0)
@@ -20,31 +20,31 @@ test_that("edge_image_multiple_n: Image generation requesting multiple images wi
 })
 
 test_that("error_image_auth_401: 401 Unauthorized when generating images with invalid API key", {
-  expect_error(chat())
+  expect_error(image_generate())
 })
 
 test_that("error_image_bad_request: 400 Bad Request when image generation parameters are invalid", {
-  expect_error(chat())
+  expect_error(image_generate())
 })
 
 test_that("error_image_rate_limit: 429 Rate limit exceeded for image generation", {
-  expect_error(chat())
+  expect_error(image_generate())
 })
 
 test_that("smoke_image_basic: Basic image generation with a text prompt", {
-  result <- chat()
+  result <- image_generate()
   expect_equal(length(result$data), 1)
   expect_true(if (is.character(result$data[["0"]]$url)) nchar(result$data[["0"]]$url) > 0 else length(result$data[["0"]]$url) > 0)
 })
 
 test_that("smoke_image_multiple: Image generation requesting multiple images", {
-  result <- chat()
+  result <- image_generate()
   expect_equal(length(result$data), 3)
   expect_true(if (is.character(result$data[["0"]]$url)) nchar(result$data[["0"]]$url) > 0 else length(result$data[["0"]]$url) > 0)
 })
 
 test_that("smoke_image_with_size: Image generation with explicit size parameter", {
-  result <- chat()
+  result <- image_generate()
   expect_equal(length(result$data), 1)
   expect_true(if (is.character(result$data[["0"]]$url)) nchar(result$data[["0"]]$url) > 0 else length(result$data[["0"]]$url) > 0)
 })

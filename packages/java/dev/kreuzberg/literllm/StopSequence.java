@@ -8,19 +8,22 @@ public enum StopSequence {
     Single("single"),
     Multiple("multiple");
 
+    /** The string value. */
     private final String value;
 
-    StopSequence(String value) {
+    StopSequence(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static StopSequence fromValue(String value) {
+    public static StopSequence fromValue(final String value) {
         for (StopSequence e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

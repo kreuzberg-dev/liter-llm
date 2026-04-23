@@ -11,7 +11,7 @@ import (
 
 func Test_EdgeImageB64Response(t *testing.T) {
 	// Image generation returning base64-encoded data instead of URL
-	result, err := pkg.chat(nil)
+	result, err := pkg.image_generate(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -23,7 +23,7 @@ func Test_EdgeImageB64Response(t *testing.T) {
 
 func Test_EdgeImageEmptyPrompt(t *testing.T) {
 	// Image generation with an empty prompt returns 400
-	_, err := pkg.chat(nil)
+	_, err := pkg.image_generate(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -31,7 +31,7 @@ func Test_EdgeImageEmptyPrompt(t *testing.T) {
 
 func Test_EdgeImageMultipleN(t *testing.T) {
 	// Image generation requesting multiple images with n=3
-	result, err := pkg.chat(nil)
+	result, err := pkg.image_generate(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -49,7 +49,7 @@ func Test_EdgeImageMultipleN(t *testing.T) {
 
 func Test_ErrorImageAuth401(t *testing.T) {
 	// 401 Unauthorized when generating images with invalid API key
-	_, err := pkg.chat(nil)
+	_, err := pkg.image_generate(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -57,7 +57,7 @@ func Test_ErrorImageAuth401(t *testing.T) {
 
 func Test_ErrorImageBadRequest(t *testing.T) {
 	// 400 Bad Request when image generation parameters are invalid
-	_, err := pkg.chat(nil)
+	_, err := pkg.image_generate(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -65,7 +65,7 @@ func Test_ErrorImageBadRequest(t *testing.T) {
 
 func Test_ErrorImageRateLimit(t *testing.T) {
 	// 429 Rate limit exceeded for image generation
-	_, err := pkg.chat(nil)
+	_, err := pkg.image_generate(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -73,7 +73,7 @@ func Test_ErrorImageRateLimit(t *testing.T) {
 
 func Test_SmokeImageBasic(t *testing.T) {
 	// Basic image generation with a text prompt
-	result, err := pkg.chat(nil)
+	result, err := pkg.image_generate(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -85,7 +85,7 @@ func Test_SmokeImageBasic(t *testing.T) {
 
 func Test_SmokeImageMultiple(t *testing.T) {
 	// Image generation requesting multiple images
-	result, err := pkg.chat(nil)
+	result, err := pkg.image_generate(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -97,7 +97,7 @@ func Test_SmokeImageMultiple(t *testing.T) {
 
 func Test_SmokeImageWithSize(t *testing.T) {
 	// Image generation with explicit size parameter
-	result, err := pkg.chat(nil)
+	result, err := pkg.image_generate(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

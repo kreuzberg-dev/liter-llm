@@ -8,7 +8,7 @@ describe('search', () => {
     const options = new WasmChatCompletionRequest();
     options.model = "brave/web-search";
     options.query = "What is Rust programming language?";
-    const result = await client.chat(options);
+    await client.search(options);
   });
 
   it('search_empty_results: Web search with a query that returns no results', async () => {
@@ -16,7 +16,7 @@ describe('search', () => {
     const options = new WasmChatCompletionRequest();
     options.model = "brave/web-search";
     options.query = "xyznonexistent12345xyz";
-    const result = await client.chat(options);
+    await client.search(options);
   });
 
   it('search_error_400: 400 Bad Request error when search query is empty', async () => {
@@ -24,7 +24,7 @@ describe('search', () => {
     const options = new WasmChatCompletionRequest();
     options.model = "brave/web-search";
     options.query = "";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.search(options)).rejects.toThrow();
   });
 
   it('search_error_401: 401 Unauthorized error on web search due to invalid API credentials', async () => {
@@ -32,7 +32,7 @@ describe('search', () => {
     const options = new WasmChatCompletionRequest();
     options.model = "brave/web-search";
     options.query = "test";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.search(options)).rejects.toThrow();
   });
 
   it('search_with_max_results: Search request with max_results parameter limiting response count', async () => {
@@ -41,7 +41,7 @@ describe('search', () => {
     options.maxResults = 2;
     options.model = "brave/web-search";
     options.query = "Rust programming";
-    const result = await client.chat(options);
+    const result = await client.search(options);
     expect(result.results.length).toBe(2);
   });
 });

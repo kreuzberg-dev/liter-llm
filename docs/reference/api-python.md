@@ -2,7 +2,7 @@
 title: "Python API Reference"
 ---
 
-## Python API Reference <span class="version-badge">v1.2.2</span>
+## Python API Reference <span class="version-badge">v1.3.0</span>
 
 ### Functions
 
@@ -1189,4 +1189,3 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
-

@@ -21,7 +21,7 @@ describe('contract', () => {
     const options = new WasmChatCompletionRequest();
     options.document = { type: "document_url", url: "https://example.com/contract-test.pdf" };
     options.model = "mistral/mistral-ocr-latest";
-    const result = await client.chat(options);
+    await client.ocr(options);
   });
 
   it('contract_search: Verify search() method exists in all bindings', async () => {
@@ -29,6 +29,6 @@ describe('contract', () => {
     const options = new WasmChatCompletionRequest();
     options.model = "brave/web-search";
     options.query = "contract test query";
-    const result = await client.chat(options);
+    await client.search(options);
   });
 });

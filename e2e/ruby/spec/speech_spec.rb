@@ -6,30 +6,30 @@ require 'json'
 
 RSpec.describe 'speech' do
   it 'edge_speech_all_voices: Text-to-speech with specific voice selection' do
-    result = LiterLlm.chat('Hello world')
+    result = LiterLlm.speech('Hello world')
     expect(result.audio).not_to be_empty
   end
 
   it 'edge_speech_long_input: Speech generation with a very long input text' do
-    result = LiterLlm.chat('This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.')
+    result = LiterLlm.speech('This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.')
     expect(result.audio).not_to be_empty
   end
 
   it 'error_speech_auth_401: 401 Unauthorized for speech generation with invalid API key' do
-    expect { LiterLlm.chat('Hello') }.to raise_error
+    expect { LiterLlm.speech('Hello') }.to raise_error
   end
 
   it 'error_speech_bad_model: 400 Bad Request for speech with unsupported model' do
-    expect { LiterLlm.chat('Hello') }.to raise_error
+    expect { LiterLlm.speech('Hello') }.to raise_error
   end
 
   it 'smoke_speech_basic: Basic text-to-speech generation' do
-    result = LiterLlm.chat('Hello, world!')
+    result = LiterLlm.speech('Hello, world!')
     expect(result.audio).not_to be_empty
   end
 
   it 'smoke_speech_mp3_format: Text-to-speech with explicit MP3 response format' do
-    result = LiterLlm.chat('The quick brown fox jumps over the lazy dog.')
+    result = LiterLlm.speech('The quick brown fox jumps over the lazy dog.')
     expect(result.audio).not_to be_empty
   end
 end

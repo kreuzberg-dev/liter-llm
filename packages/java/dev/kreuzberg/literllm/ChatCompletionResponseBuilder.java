@@ -15,46 +15,55 @@ public class ChatCompletionResponseBuilder {
     private Optional<String> systemFingerprint = Optional.empty();
     private Optional<String> serviceTier = Optional.empty();
 
-    public ChatCompletionResponseBuilder withId(String value) {
+    /** Sets the id field. */
+    public ChatCompletionResponseBuilder withId(final String value) {
         this.id = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withObject(String value) {
+    /** Sets the object field. */
+    public ChatCompletionResponseBuilder withObject(final String value) {
         this.object = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withCreated(long value) {
+    /** Sets the created field. */
+    public ChatCompletionResponseBuilder withCreated(final long value) {
         this.created = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withModel(String value) {
+    /** Sets the model field. */
+    public ChatCompletionResponseBuilder withModel(final String value) {
         this.model = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withChoices(List<Choice> value) {
+    /** Sets the choices field. */
+    public ChatCompletionResponseBuilder withChoices(final List<Choice> value) {
         this.choices = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withUsage(Optional<Usage> value) {
+    /** Sets the usage field. */
+    public ChatCompletionResponseBuilder withUsage(final Optional<Usage> value) {
         this.usage = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withSystemFingerprint(Optional<String> value) {
+    /** Sets the systemFingerprint field. */
+    public ChatCompletionResponseBuilder withSystemFingerprint(final Optional<String> value) {
         this.systemFingerprint = value;
         return this;
     }
 
-    public ChatCompletionResponseBuilder withServiceTier(Optional<String> value) {
+    /** Sets the serviceTier field. */
+    public ChatCompletionResponseBuilder withServiceTier(final Optional<String> value) {
         this.serviceTier = value;
         return this;
     }
 
+    /** Builds the ChatCompletionResponse instance. */
     public ChatCompletionResponse build() {
         return new ChatCompletionResponse(
             id,

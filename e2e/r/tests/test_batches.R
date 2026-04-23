@@ -2,51 +2,51 @@
 # E2e tests for category: batches
 
 test_that("edge_batch_already_cancelled: Attempt to cancel an already-cancelled batch", {
-  expect_error(chat())
+  expect_error(cancel_batch(batch_id = "batch-cancelled001"))
 })
 
 test_that("edge_batch_empty_list: List batches when no batches exist", {
-  result <- chat()
+  result <- list_batches(list())
   expect_equal(length(result$data), 0)
 })
 
 test_that("error_batch_auth_401: 401 Unauthorized when creating a batch with invalid API key", {
-  expect_error(chat())
+  expect_error(create_batch())
 })
 
 test_that("error_batch_invalid_file: 400 Bad Request when creating a batch with invalid input file", {
-  expect_error(chat())
+  expect_error(create_batch())
 })
 
 test_that("error_batch_not_found: 404 Not Found when retrieving a nonexistent batch", {
-  expect_error(chat())
+  expect_error(retrieve_batch(batch_id = "batch-nonexistent"))
 })
 
 test_that("smoke_batch_completed: Retrieve a completed batch job with output file", {
-  result <- chat()
+  result <- retrieve_batch(batch_id = "batch-ghi789")
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
   expect_equal(trimws(result$status), "completed")
 })
 
 test_that("smoke_cancel_batch: Cancel a running batch job", {
-  result <- chat()
+  result <- cancel_batch(batch_id = "batch-def456")
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
   expect_equal(trimws(result$status), "cancelling")
 })
 
 test_that("smoke_create_batch: Create a new batch processing job", {
-  result <- chat()
+  result <- create_batch()
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
   expect_equal(trimws(result$status), "validating")
 })
 
 test_that("smoke_list_batches: List all batch jobs", {
-  result <- chat()
+  result <- list_batches(list())
   expect_equal(length(result$data), 2)
 })
 
 test_that("smoke_retrieve_batch: Retrieve the status of a batch job", {
-  result <- chat()
+  result <- retrieve_batch(batch_id = "batch-abc123")
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
   expect_equal(trimws(result$status), "in_progress")
 })

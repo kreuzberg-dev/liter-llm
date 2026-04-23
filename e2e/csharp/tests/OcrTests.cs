@@ -16,21 +16,21 @@ public class OcrTests
     public async Task Test_OcrError400()
     {
         // 400 Bad Request error when OCR input has an invalid image format
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Ocr(null));
     }
 
     [Fact]
     public async Task Test_OcrError401()
     {
         // 401 Unauthorized error on OCR request due to invalid API credentials
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Ocr(null));
     }
 
     [Fact]
     public async Task Test_OcrMultiPage()
     {
         // OCR request returning multiple pages of document content
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Ocr(null);
         Assert.Equal(2, result.Pages.Count);
         Assert.Equal(0, result.Pages["0"].Index);
         Assert.Equal(1, result.Pages["1"].Index);
@@ -40,6 +40,6 @@ public class OcrTests
     public async Task Test_OcrUrlDocument()
     {
         // OCR request with a document URL input
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Ocr(null);
     }
 }

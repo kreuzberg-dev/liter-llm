@@ -14,22 +14,27 @@ public enum FinishReason {
     ContentFilter("content_filter"),
     /** Deprecated legacy finish reason; retained for API compatibility. */
     FunctionCall("function_call"),
-    /** Catch-all for unknown finish reasons returned by non-OpenAI providers. */
+    /**
+     * Catch-all for unknown finish reasons returned by non-OpenAI providers.
+     */
     Other("other");
 
+    /** The string value. */
     private final String value;
 
-    FinishReason(String value) {
+    FinishReason(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static FinishReason fromValue(String value) {
+    public static FinishReason fromValue(final String value) {
         for (FinishReason e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

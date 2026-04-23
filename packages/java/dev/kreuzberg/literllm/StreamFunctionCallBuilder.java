@@ -8,16 +8,19 @@ public class StreamFunctionCallBuilder {
     private Optional<String> name = Optional.empty();
     private Optional<String> arguments = Optional.empty();
 
-    public StreamFunctionCallBuilder withName(Optional<String> value) {
+    /** Sets the name field. */
+    public StreamFunctionCallBuilder withName(final Optional<String> value) {
         this.name = value;
         return this;
     }
 
-    public StreamFunctionCallBuilder withArguments(Optional<String> value) {
+    /** Sets the arguments field. */
+    public StreamFunctionCallBuilder withArguments(final Optional<String> value) {
         this.arguments = value;
         return this;
     }
 
+    /** Builds the StreamFunctionCall instance. */
     public StreamFunctionCall build() {
         return new StreamFunctionCall(
             name,

@@ -9,40 +9,40 @@ class SpeechTest {
     @Test
     void testEdgeSpeechAllVoices() throws Exception {
         // Text-to-speech with specific voice selection
-        var result = LiterLlm.chat("Hello world");
+        var result = LiterLlm.speech("Hello world");
         assertFalse(result.audio().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testEdgeSpeechLongInput() throws Exception {
         // Speech generation with a very long input text
-        var result = LiterLlm.chat("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.");
+        var result = LiterLlm.speech("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.");
         assertFalse(result.audio().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testErrorSpeechAuth401() throws Exception {
         // 401 Unauthorized for speech generation with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello"));
+        assertThrows(Exception.class, () -> LiterLlm.speech("Hello"));
     }
 
     @Test
     void testErrorSpeechBadModel() throws Exception {
         // 400 Bad Request for speech with unsupported model
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello"));
+        assertThrows(Exception.class, () -> LiterLlm.speech("Hello"));
     }
 
     @Test
     void testSmokeSpeechBasic() throws Exception {
         // Basic text-to-speech generation
-        var result = LiterLlm.chat("Hello, world!");
+        var result = LiterLlm.speech("Hello, world!");
         assertFalse(result.audio().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testSmokeSpeechMp3Format() throws Exception {
         // Text-to-speech with explicit MP3 response format
-        var result = LiterLlm.chat("The quick brown fox jumps over the lazy dog.");
+        var result = LiterLlm.speech("The quick brown fox jumps over the lazy dog.");
         assertFalse(result.audio().isEmpty(), "expected non-empty value");
     }
 

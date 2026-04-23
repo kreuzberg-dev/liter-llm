@@ -16,7 +16,7 @@ public class TranscribeTests
     public async Task Test_EdgeTranscribeEmptyAudio()
     {
         // Transcription of a silent or empty audio file returns empty text
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Transcribe(null);
         Assert.Contains("", result.Text.ToString().ToLower());
     }
 
@@ -24,7 +24,7 @@ public class TranscribeTests
     public async Task Test_EdgeTranscribeWithTimestamps()
     {
         // Transcription with verbose JSON response format including timestamp segments
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Transcribe(null);
         Assert.False(string.IsNullOrEmpty(result.Text?.ToString()));
         Assert.Equal(3, result.Segments.Count);
         Assert.Equal(0, result.Segments["0"].Id);
@@ -34,21 +34,21 @@ public class TranscribeTests
     public async Task Test_ErrorTranscribeAuth401()
     {
         // 401 Unauthorized for transcription with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Transcribe(null));
     }
 
     [Fact]
     public async Task Test_ErrorTranscribeBadFormat()
     {
         // 400 Bad Request when audio format is unsupported
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Transcribe(null));
     }
 
     [Fact]
     public async Task Test_SmokeTranscribeBasic()
     {
         // Basic audio transcription
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Transcribe(null);
         Assert.Contains("hello, this is a test transcription.", result.Text.ToString().ToLower());
     }
 
@@ -56,7 +56,7 @@ public class TranscribeTests
     public async Task Test_SmokeTranscribeWithLanguage()
     {
         // Audio transcription with explicit language hint
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Transcribe(null);
         Assert.Contains("hallo, dies ist ein testtranskription.", result.Text.ToString().ToLower());
     }
 }

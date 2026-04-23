@@ -16,13 +16,13 @@ defmodule E2e.ContractTest do
 
   describe "contract_ocr" do
     test "Verify ocr() method exists in all bindings" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.ocr_async(nil)
     end
   end
 
   describe "contract_search" do
     test "Verify search() method exists in all bindings" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.search_async(nil)
     end
   end
 end

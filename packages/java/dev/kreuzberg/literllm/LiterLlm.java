@@ -16,12 +16,12 @@ public final class LiterLlm {
      * Returns [`LiterLlmError`] if the underlying HTTP client cannot be
      * constructed, or if the resolved provider configuration is invalid.
      */
-    public static DefaultClient createClient(String apiKey, String baseUrl, long timeoutSecs, int maxRetries, String modelHint) throws LiterLlmRsException {
+    public static DefaultClient createClient(final String apiKey, final String baseUrl, final long timeoutSecs, final int maxRetries, final String modelHint) throws LiterLlmRsException {
         java.util.Objects.requireNonNull(apiKey, "apiKey must not be null");
         return LiterLlmRs.createClient(apiKey, baseUrl, timeoutSecs, maxRetries, modelHint);
     }
 
-    public static DefaultClient createClient(String apiKey) throws LiterLlmRsException {
+    public static DefaultClient createClient(final String apiKey) throws LiterLlmRsException {
         return LiterLlmRs.createClient(apiKey, null, null, null, null);
     }
 
@@ -35,7 +35,7 @@ public final class LiterLlm {
      * Returns [`LiterLlmError::BadRequest`] if `json` is not valid JSON or
      * contains unknown fields.
      */
-    public static DefaultClient createClientFromJson(String json) throws LiterLlmRsException {
+    public static DefaultClient createClientFromJson(final String json) throws LiterLlmRsException {
         java.util.Objects.requireNonNull(json, "json must not be null");
         return LiterLlmRs.createClientFromJson(json);
     }
@@ -51,7 +51,7 @@ public final class LiterLlm {
      * Returns an error if the config is invalid (empty name, empty base_url, or
      * no model prefixes).
      */
-    public static void registerCustomProvider(CustomProviderConfig config) throws LiterLlmRsException {
+    public static void registerCustomProvider(final CustomProviderConfig config) throws LiterLlmRsException {
         java.util.Objects.requireNonNull(config, "config must not be null");
         LiterLlmRs.registerCustomProvider(config);
     }
@@ -66,7 +66,7 @@ public final class LiterLlm {
      *
      * Returns an error only if the internal lock is poisoned.
      */
-    public static boolean unregisterCustomProvider(String name) throws LiterLlmRsException {
+    public static boolean unregisterCustomProvider(final String name) throws LiterLlmRsException {
         java.util.Objects.requireNonNull(name, "name must not be null");
         return LiterLlmRs.unregisterCustomProvider(name);
     }

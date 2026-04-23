@@ -9,26 +9,31 @@ public class ModelObjectBuilder {
     private long created = 0;
     private String ownedBy = "";
 
-    public ModelObjectBuilder withId(String value) {
+    /** Sets the id field. */
+    public ModelObjectBuilder withId(final String value) {
         this.id = value;
         return this;
     }
 
-    public ModelObjectBuilder withObject(String value) {
+    /** Sets the object field. */
+    public ModelObjectBuilder withObject(final String value) {
         this.object = value;
         return this;
     }
 
-    public ModelObjectBuilder withCreated(long value) {
+    /** Sets the created field. */
+    public ModelObjectBuilder withCreated(final long value) {
         this.created = value;
         return this;
     }
 
-    public ModelObjectBuilder withOwnedBy(String value) {
+    /** Sets the ownedBy field. */
+    public ModelObjectBuilder withOwnedBy(final String value) {
         this.ownedBy = value;
         return this;
     }
 
+    /** Builds the ModelObject instance. */
     public ModelObject build() {
         return new ModelObject(
             id,

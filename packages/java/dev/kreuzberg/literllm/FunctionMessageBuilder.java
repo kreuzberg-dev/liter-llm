@@ -10,16 +10,19 @@ public class FunctionMessageBuilder {
     private String content = "";
     private String name = "";
 
-    public FunctionMessageBuilder withContent(String value) {
+    /** Sets the content field. */
+    public FunctionMessageBuilder withContent(final String value) {
         this.content = value;
         return this;
     }
 
-    public FunctionMessageBuilder withName(String value) {
+    /** Sets the name field. */
+    public FunctionMessageBuilder withName(final String value) {
         this.name = value;
         return this;
     }
 
+    /** Builds the FunctionMessage instance. */
     public FunctionMessage build() {
         return new FunctionMessage(
             content,

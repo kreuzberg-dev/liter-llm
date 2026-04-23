@@ -6,11 +6,13 @@ package dev.kreuzberg.literllm;
 This should never surface in normal operation — if it does, it
 indicates a bug in the library. */
 public class InternalErrorException extends LiterLlmErrorException {
-    public InternalErrorException(String message) {
+    /** Creates a new InternalErrorException with the given message. */
+    public InternalErrorException(final String message) {
         super(message);
     }
 
-    public InternalErrorException(String message, Throwable cause) {
+    /** Creates a new InternalErrorException with the given message and cause. */
+    public InternalErrorException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

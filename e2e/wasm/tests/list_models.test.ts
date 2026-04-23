@@ -5,28 +5,24 @@ import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 describe('list-models', () => {
   it('empty_model_list: List models response returns an empty data array when no models are available', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_models({  });
     expect(result.data.length).toBeGreaterThanOrEqual(0);
     expect(result.data.length).toBe(0);
   });
 
   it('list_models_error_401: 401 Unauthorized error on list models request when API key is invalid', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.list_models({  })).rejects.toThrow();
   });
 
   it('list_models_error_500: 500 Internal Server Error when listing models due to server failure', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.list_models({  })).rejects.toThrow();
   });
 
   it('list_models_filtered: List models response with multiple model objects', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_models({  });
     expect(result.data.length).toBeGreaterThanOrEqual(5);
     expect(result.data.get("0").object.trim()).toBe("model");
   });

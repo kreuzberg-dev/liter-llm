@@ -2,49 +2,49 @@
 # E2e tests for category: files
 
 test_that("edge_file_empty_list: List files when no files have been uploaded", {
-  result <- chat()
+  result <- list_files(list())
   expect_equal(length(result$data), 0)
 })
 
 test_that("edge_file_large_upload: Upload a large file successfully", {
-  result <- chat()
+  result <- create_file()
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
 })
 
 test_that("error_file_auth_401: 401 Unauthorized when listing files with invalid API key", {
-  expect_error(chat())
+  expect_error(list_files(list()))
 })
 
 test_that("error_file_bad_purpose: 400 Bad Request when uploading a file with invalid purpose", {
-  expect_error(chat())
+  expect_error(create_file())
 })
 
 test_that("error_file_not_found: 404 Not Found when retrieving a nonexistent file", {
-  expect_error(chat())
+  expect_error(retrieve_file(file_id = "file-nonexistent"))
 })
 
 test_that("smoke_create_file: Upload a file for use with the API", {
-  result <- chat()
+  result <- create_file()
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
 })
 
 test_that("smoke_delete_file: Delete an uploaded file", {
-  result <- chat()
+  result <- delete_file(file_id = "file-abc123")
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
   expect_equal(trimws(result$deleted), TRUE)
 })
 
 test_that("smoke_file_content: Retrieve the content of an uploaded file", {
-  result <- chat()
+  result <- file_content(file_id = "file-abc123")
   expect_true(if (is.character(result$content)) nchar(result$content) > 0 else length(result$content) > 0)
 })
 
 test_that("smoke_list_files: List all uploaded files", {
-  result <- chat()
+  result <- list_files(list())
   expect_equal(length(result$data), 2)
 })
 
 test_that("smoke_retrieve_file: Retrieve metadata for an uploaded file", {
-  result <- chat()
+  result <- retrieve_file(file_id = "file-abc123")
   expect_true(if (is.character(result$id)) nchar(result$id) > 0 else length(result$id) > 0)
 })

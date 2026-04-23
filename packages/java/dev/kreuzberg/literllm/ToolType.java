@@ -14,19 +14,22 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ToolType {
     Function("function");
 
+    /** The string value. */
     private final String value;
 
-    ToolType(String value) {
+    ToolType(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static ToolType fromValue(String value) {
+    public static ToolType fromValue(final String value) {
         for (ToolType e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

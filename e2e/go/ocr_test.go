@@ -11,7 +11,7 @@ import (
 
 func Test_OcrError400(t *testing.T) {
 	// 400 Bad Request error when OCR input has an invalid image format
-	_, err := pkg.chat(nil)
+	_, err := pkg.ocr(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -19,7 +19,7 @@ func Test_OcrError400(t *testing.T) {
 
 func Test_OcrError401(t *testing.T) {
 	// 401 Unauthorized error on OCR request due to invalid API credentials
-	_, err := pkg.chat(nil)
+	_, err := pkg.ocr(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -27,7 +27,7 @@ func Test_OcrError401(t *testing.T) {
 
 func Test_OcrMultiPage(t *testing.T) {
 	// OCR request returning multiple pages of document content
-	result, err := pkg.chat(nil)
+	result, err := pkg.ocr(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -42,7 +42,7 @@ func Test_OcrMultiPage(t *testing.T) {
 
 func Test_OcrUrlDocument(t *testing.T) {
 	// OCR request with a document URL input
-	_, err := pkg.chat(nil)
+	_, err := pkg.ocr(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

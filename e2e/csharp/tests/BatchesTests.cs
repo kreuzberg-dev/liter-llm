@@ -16,14 +16,14 @@ public class BatchesTests
     public async Task Test_EdgeBatchAlreadyCancelled()
     {
         // Attempt to cancel an already-cancelled batch
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.CancelBatch("batch-cancelled001"));
     }
 
     [Fact]
     public async Task Test_EdgeBatchEmptyList()
     {
         // List batches when no batches exist
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListBatches("{}");
         Assert.Equal(0, result.Data.Count);
     }
 
@@ -31,28 +31,28 @@ public class BatchesTests
     public async Task Test_ErrorBatchAuth401()
     {
         // 401 Unauthorized when creating a batch with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.CreateBatch(null));
     }
 
     [Fact]
     public async Task Test_ErrorBatchInvalidFile()
     {
         // 400 Bad Request when creating a batch with invalid input file
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.CreateBatch(null));
     }
 
     [Fact]
     public async Task Test_ErrorBatchNotFound()
     {
         // 404 Not Found when retrieving a nonexistent batch
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.RetrieveBatch("batch-nonexistent"));
     }
 
     [Fact]
     public async Task Test_SmokeBatchCompleted()
     {
         // Retrieve a completed batch job with output file
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.RetrieveBatch("batch-ghi789");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("completed", result.Status.Trim());
     }
@@ -61,7 +61,7 @@ public class BatchesTests
     public async Task Test_SmokeCancelBatch()
     {
         // Cancel a running batch job
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.CancelBatch("batch-def456");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("cancelling", result.Status.Trim());
     }
@@ -70,7 +70,7 @@ public class BatchesTests
     public async Task Test_SmokeCreateBatch()
     {
         // Create a new batch processing job
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.CreateBatch(null);
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("validating", result.Status.Trim());
     }
@@ -79,7 +79,7 @@ public class BatchesTests
     public async Task Test_SmokeListBatches()
     {
         // List all batch jobs
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListBatches("{}");
         Assert.Equal(2, result.Data.Count);
     }
 
@@ -87,7 +87,7 @@ public class BatchesTests
     public async Task Test_SmokeRetrieveBatch()
     {
         // Retrieve the status of a batch job
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.RetrieveBatch("batch-abc123");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal("in_progress", result.Status.Trim());
     }

@@ -2,7 +2,7 @@
 title: "C# API Reference"
 ---
 
-## C# API Reference <span class="version-badge">v1.2.2</span>
+## C# API Reference <span class="version-badge">v1.3.0</span>
 
 ### Functions
 
@@ -1187,4 +1187,3 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
-

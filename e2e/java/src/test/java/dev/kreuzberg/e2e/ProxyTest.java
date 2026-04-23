@@ -30,7 +30,7 @@ class ProxyTest {
     @Test
     void testProxyChatStreaming() throws Exception {
         // Streaming chat completion routed through the proxy
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 3, "expected at least 3 elements");
         assertEquals("1 2 3", result.streamContent().trim());
         assertTrue(result.streamComplete(), "expected true");
@@ -39,21 +39,21 @@ class ProxyTest {
     @Test
     void testProxyEmbeddings() throws Exception {
         // Embedding request routed through the proxy
-        var result = LiterLlm.chat("Hello world");
+        var result = LiterLlm.embed("Hello world");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
     }
 
     @Test
     void testProxyHealth() throws Exception {
         // Health check verifying proxy connectivity via list models
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{}");
         assertTrue(result.data().size() >= 1, "expected at least 1 elements");
     }
 
     @Test
     void testProxyImageGenerate() throws Exception {
         // Image generation request routed through the proxy
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.image_generate(null);
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertFalse(result.data().get("0").url().isEmpty(), "expected non-empty value");
     }
@@ -61,14 +61,14 @@ class ProxyTest {
     @Test
     void testProxyModelsList() throws Exception {
         // List models request routed through the proxy
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{}");
         assertTrue(result.data().size() >= 1, "expected at least 1 elements");
     }
 
     @Test
     void testProxyModeration() throws Exception {
         // Content moderation request routed through the proxy
-        var result = LiterLlm.chat("The weather is nice today.");
+        var result = LiterLlm.moderate("The weather is nice today.");
         assertEquals(1, result.results().size(), "expected exactly 1 elements");
         assertEquals(false, result.results().get("0").flagged());
     }
@@ -76,7 +76,7 @@ class ProxyTest {
     @Test
     void testProxyRerank() throws Exception {
         // Document reranking request routed through the proxy
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.rerank(null);
         assertEquals(2, result.results().size(), "expected exactly 2 elements");
         assertTrue(result.results().get("0").relevanceScore() > 0.9d, "expected > 0.9d");
     }

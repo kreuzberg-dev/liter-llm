@@ -2,29 +2,29 @@
 # E2e tests for category: speech
 
 test_that("edge_speech_all_voices: Text-to-speech with specific voice selection", {
-  result <- chat(request = "hello world")
+  result <- speech(request = "hello world")
   expect_true(if (is.character(result$audio)) nchar(result$audio) > 0 else length(result$audio) > 0)
 })
 
 test_that("edge_speech_long_input: Speech generation with a very long input text", {
-  result <- chat(request = "this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. end of input.")
+  result <- speech(request = "this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. this is a long input text. end of input.")
   expect_true(if (is.character(result$audio)) nchar(result$audio) > 0 else length(result$audio) > 0)
 })
 
 test_that("error_speech_auth_401: 401 Unauthorized for speech generation with invalid API key", {
-  expect_error(chat(request = "hello"))
+  expect_error(speech(request = "hello"))
 })
 
 test_that("error_speech_bad_model: 400 Bad Request for speech with unsupported model", {
-  expect_error(chat(request = "hello"))
+  expect_error(speech(request = "hello"))
 })
 
 test_that("smoke_speech_basic: Basic text-to-speech generation", {
-  result <- chat(request = "hello, world!")
+  result <- speech(request = "hello, world!")
   expect_true(if (is.character(result$audio)) nchar(result$audio) > 0 else length(result$audio) > 0)
 })
 
 test_that("smoke_speech_mp3_format: Text-to-speech with explicit MP3 response format", {
-  result <- chat(request = "the quick brown fox jumps over the lazy dog.")
+  result <- speech(request = "the quick brown fox jumps over the lazy dog.")
   expect_true(if (is.character(result$audio)) nchar(result$audio) > 0 else length(result$audio) > 0)
 })

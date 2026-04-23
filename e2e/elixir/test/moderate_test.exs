@@ -5,7 +5,7 @@ defmodule E2e.ModerateTest do
 
   describe "edge_moderate_all_categories" do
     test "Moderation response with multiple categories flagged" do
-      {:ok, result} = LiterLlm.chat_async("Extremely harmful content targeting multiple categories")
+      {:ok, result} = LiterLlm.moderate_async("Extremely harmful content targeting multiple categories")
       assert length(result.results) == 1
       assert result.results["0"].flagged == true
     end
@@ -13,7 +13,7 @@ defmodule E2e.ModerateTest do
 
   describe "edge_moderate_empty_input" do
     test "Moderation with empty string input" do
-      {:ok, result} = LiterLlm.chat_async("")
+      {:ok, result} = LiterLlm.moderate_async("")
       assert length(result.results) == 1
       assert result.results["0"].flagged == false
     end
@@ -21,19 +21,19 @@ defmodule E2e.ModerateTest do
 
   describe "error_moderate_auth_401" do
     test "401 Unauthorized for moderation with invalid API key" do
-      assert {:error, _} = LiterLlm.chat_async("Hello")
+      assert {:error, _} = LiterLlm.moderate_async("Hello")
     end
   end
 
   describe "error_moderate_bad_request" do
     test "400 Bad Request for moderation with invalid model" do
-      assert {:error, _} = LiterLlm.chat_async("Hello")
+      assert {:error, _} = LiterLlm.moderate_async("Hello")
     end
   end
 
   describe "smoke_moderate_batch" do
     test "Moderate multiple inputs in a single request" do
-      {:ok, result} = LiterLlm.chat_async(["Hello world", "Nice weather today"])
+      {:ok, result} = LiterLlm.moderate_async(["Hello world", "Nice weather today"])
       assert length(result.results) == 2
       assert result.results["0"].flagged == false
     end
@@ -41,7 +41,7 @@ defmodule E2e.ModerateTest do
 
   describe "smoke_moderate_flagged" do
     test "Moderation detects flagged content" do
-      {:ok, result} = LiterLlm.chat_async("I want to hurt someone very badly")
+      {:ok, result} = LiterLlm.moderate_async("I want to hurt someone very badly")
       assert length(result.results) == 1
       assert result.results["0"].flagged == true
     end
@@ -49,7 +49,7 @@ defmodule E2e.ModerateTest do
 
   describe "smoke_moderate_single" do
     test "Moderate a single non-flagged input" do
-      {:ok, result} = LiterLlm.chat_async("The weather is nice today.")
+      {:ok, result} = LiterLlm.moderate_async("The weather is nice today.")
       assert length(result.results) == 1
       assert result.results["0"].flagged == false
     end

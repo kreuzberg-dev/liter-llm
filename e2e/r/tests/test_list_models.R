@@ -2,21 +2,21 @@
 # E2e tests for category: list-models
 
 test_that("empty_model_list: List models response returns an empty data array when no models are available", {
-  result <- chat()
+  result <- list_models(list())
   expect_true(length(result$data) >= 0)
   expect_equal(length(result$data), 0)
 })
 
 test_that("list_models_error_401: 401 Unauthorized error on list models request when API key is invalid", {
-  expect_error(chat())
+  expect_error(list_models(list()))
 })
 
 test_that("list_models_error_500: 500 Internal Server Error when listing models due to server failure", {
-  expect_error(chat())
+  expect_error(list_models(list()))
 })
 
 test_that("list_models_filtered: List models response with multiple model objects", {
-  result <- chat()
+  result <- list_models(list())
   expect_true(length(result$data) >= 5)
   expect_equal(trimws(result$data[["0"]]$object), "model")
 })

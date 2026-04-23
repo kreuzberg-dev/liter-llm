@@ -9,46 +9,46 @@ class FilesTest {
     @Test
     void testEdgeFileEmptyList() throws Exception {
         // List files when no files have been uploaded
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_files("{}");
         assertEquals(0, result.data().size(), "expected exactly 0 elements");
     }
 
     @Test
     void testEdgeFileLargeUpload() throws Exception {
         // Upload a large file successfully
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.create_file(null);
         assertFalse(result.id().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testErrorFileAuth401() throws Exception {
         // 401 Unauthorized when listing files with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.list_files("{}"));
     }
 
     @Test
     void testErrorFileBadPurpose() throws Exception {
         // 400 Bad Request when uploading a file with invalid purpose
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.create_file(null));
     }
 
     @Test
     void testErrorFileNotFound() throws Exception {
         // 404 Not Found when retrieving a nonexistent file
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.retrieve_file("file-nonexistent"));
     }
 
     @Test
     void testSmokeCreateFile() throws Exception {
         // Upload a file for use with the API
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.create_file(null);
         assertFalse(result.id().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testSmokeDeleteFile() throws Exception {
         // Delete an uploaded file
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.delete_file("file-abc123");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals(true, result.deleted());
     }
@@ -56,21 +56,21 @@ class FilesTest {
     @Test
     void testSmokeFileContent() throws Exception {
         // Retrieve the content of an uploaded file
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.file_content("file-abc123");
         assertFalse(result.content().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testSmokeListFiles() throws Exception {
         // List all uploaded files
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_files("{}");
         assertEquals(2, result.data().size(), "expected exactly 2 elements");
     }
 
     @Test
     void testSmokeRetrieveFile() throws Exception {
         // Retrieve metadata for an uploaded file
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.retrieve_file("file-abc123");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
     }
 

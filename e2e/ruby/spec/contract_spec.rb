@@ -15,12 +15,12 @@ RSpec.describe 'contract' do
   end
 
   it 'contract_ocr: Verify ocr() method exists in all bindings' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.ocr(nil)
     expect(result).not_to be_nil
   end
 
   it 'contract_search: Verify search() method exists in all bindings' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.search(nil)
     expect(result).not_to be_nil
   end
 end

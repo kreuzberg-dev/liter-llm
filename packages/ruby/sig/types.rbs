@@ -3,6 +3,8 @@
 
 module Liter_llm
 
+  VERSION: String
+
   class LiterLlmError
   end
 

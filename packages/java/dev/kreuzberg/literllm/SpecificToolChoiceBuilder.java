@@ -7,16 +7,19 @@ public class SpecificToolChoiceBuilder {
     private ToolType choiceType = null;
     private SpecificFunction function = null;
 
-    public SpecificToolChoiceBuilder withChoiceType(ToolType value) {
+    /** Sets the choiceType field. */
+    public SpecificToolChoiceBuilder withChoiceType(final ToolType value) {
         this.choiceType = value;
         return this;
     }
 
-    public SpecificToolChoiceBuilder withFunction(SpecificFunction value) {
+    /** Sets the function field. */
+    public SpecificToolChoiceBuilder withFunction(final SpecificFunction value) {
         this.function = value;
         return this;
     }
 
+    /** Builds the SpecificToolChoice instance. */
     public SpecificToolChoice build() {
         return new SpecificToolChoice(
             choiceType,

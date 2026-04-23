@@ -9,21 +9,25 @@ public class StreamChoiceBuilder {
     private StreamDelta delta = null;
     private Optional<FinishReason> finishReason = Optional.empty();
 
-    public StreamChoiceBuilder withIndex(int value) {
+    /** Sets the index field. */
+    public StreamChoiceBuilder withIndex(final int value) {
         this.index = value;
         return this;
     }
 
-    public StreamChoiceBuilder withDelta(StreamDelta value) {
+    /** Sets the delta field. */
+    public StreamChoiceBuilder withDelta(final StreamDelta value) {
         this.delta = value;
         return this;
     }
 
-    public StreamChoiceBuilder withFinishReason(Optional<FinishReason> value) {
+    /** Sets the finishReason field. */
+    public StreamChoiceBuilder withFinishReason(final Optional<FinishReason> value) {
         this.finishReason = value;
         return this;
     }
 
+    /** Builds the StreamChoice instance. */
     public StreamChoice build() {
         return new StreamChoice(
             index,

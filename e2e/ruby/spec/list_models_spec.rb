@@ -6,21 +6,21 @@ require 'json'
 
 RSpec.describe 'list-models' do
   it 'empty_model_list: List models response returns an empty data array when no models are available' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.list_models({  })
     expect(result.data.length).to be >= 0
     expect(result.data.length).to eq(0)
   end
 
   it 'list_models_error_401: 401 Unauthorized error on list models request when API key is invalid' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.list_models({  }) }.to raise_error
   end
 
   it 'list_models_error_500: 500 Internal Server Error when listing models due to server failure' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.list_models({  }) }.to raise_error
   end
 
   it 'list_models_filtered: List models response with multiple model objects' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.list_models({  })
     expect(result.data.length).to be >= 5
     expect(result.data.get("0").object).to eq('model')
   end

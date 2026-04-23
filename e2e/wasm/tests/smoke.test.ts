@@ -38,7 +38,7 @@ describe('smoke', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello world";
     options.model = "azure/text-embedding-ada-002";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(1536);
   });
@@ -62,15 +62,14 @@ describe('smoke', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello world";
     options.model = "text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(5);
   });
 
   it('basic_list_models: List available models from the API', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_models({  });
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -116,9 +115,7 @@ describe('smoke', () => {
 
   it('local_list_models_ollama: List models from local Ollama instance', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.model = "ollama/any";
-    const result = await client.chat(options);
+    const result = await client.list_models({ model: "ollama/any" });
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -170,15 +167,13 @@ describe('smoke', () => {
     const options = new WasmChatCompletionRequest();
     options.input = ["Hello world"];
     options.model = "openai/text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBeGreaterThan(0);
   });
 
   it('smoke_list_models_openai: List models against real OpenAI API', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.model = "openai/gpt-4o-mini";
-    const result = await client.chat(options);
+    const result = await client.list_models({ model: "openai/gpt-4o-mini" });
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -198,7 +193,7 @@ describe('smoke', () => {
     options.maxTokens = BigInt(50);
     options.messages = [{ content: "Count from 1 to 5.", role: "user" }];
     options.model = "openai/gpt-4o-mini";
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -222,7 +217,7 @@ describe('smoke', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello";
     options.model = "vertex_ai/text-embedding-005";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(160);
   });

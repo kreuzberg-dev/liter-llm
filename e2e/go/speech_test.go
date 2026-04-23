@@ -11,7 +11,7 @@ import (
 
 func Test_EdgeSpeechAllVoices(t *testing.T) {
 	// Text-to-speech with specific voice selection
-	result, err := pkg.chat(`Hello world`)
+	result, err := pkg.speech(`Hello world`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -22,7 +22,7 @@ func Test_EdgeSpeechAllVoices(t *testing.T) {
 
 func Test_EdgeSpeechLongInput(t *testing.T) {
 	// Speech generation with a very long input text
-	result, err := pkg.chat(`This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.`)
+	result, err := pkg.speech(`This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -33,7 +33,7 @@ func Test_EdgeSpeechLongInput(t *testing.T) {
 
 func Test_ErrorSpeechAuth401(t *testing.T) {
 	// 401 Unauthorized for speech generation with invalid API key
-	_, err := pkg.chat(`Hello`)
+	_, err := pkg.speech(`Hello`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -41,7 +41,7 @@ func Test_ErrorSpeechAuth401(t *testing.T) {
 
 func Test_ErrorSpeechBadModel(t *testing.T) {
 	// 400 Bad Request for speech with unsupported model
-	_, err := pkg.chat(`Hello`)
+	_, err := pkg.speech(`Hello`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -49,7 +49,7 @@ func Test_ErrorSpeechBadModel(t *testing.T) {
 
 func Test_SmokeSpeechBasic(t *testing.T) {
 	// Basic text-to-speech generation
-	result, err := pkg.chat(`Hello, world!`)
+	result, err := pkg.speech(`Hello, world!`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -60,7 +60,7 @@ func Test_SmokeSpeechBasic(t *testing.T) {
 
 func Test_SmokeSpeechMp3Format(t *testing.T) {
 	// Text-to-speech with explicit MP3 response format
-	result, err := pkg.chat(`The quick brown fox jumps over the lazy dog.`)
+	result, err := pkg.speech(`The quick brown fox jumps over the lazy dog.`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

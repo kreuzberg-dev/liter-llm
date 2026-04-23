@@ -15,46 +15,55 @@ public class ChatCompletionChunkBuilder {
     private Optional<String> systemFingerprint = Optional.empty();
     private Optional<String> serviceTier = Optional.empty();
 
-    public ChatCompletionChunkBuilder withId(String value) {
+    /** Sets the id field. */
+    public ChatCompletionChunkBuilder withId(final String value) {
         this.id = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withObject(String value) {
+    /** Sets the object field. */
+    public ChatCompletionChunkBuilder withObject(final String value) {
         this.object = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withCreated(long value) {
+    /** Sets the created field. */
+    public ChatCompletionChunkBuilder withCreated(final long value) {
         this.created = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withModel(String value) {
+    /** Sets the model field. */
+    public ChatCompletionChunkBuilder withModel(final String value) {
         this.model = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withChoices(List<StreamChoice> value) {
+    /** Sets the choices field. */
+    public ChatCompletionChunkBuilder withChoices(final List<StreamChoice> value) {
         this.choices = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withUsage(Optional<Usage> value) {
+    /** Sets the usage field. */
+    public ChatCompletionChunkBuilder withUsage(final Optional<Usage> value) {
         this.usage = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withSystemFingerprint(Optional<String> value) {
+    /** Sets the systemFingerprint field. */
+    public ChatCompletionChunkBuilder withSystemFingerprint(final Optional<String> value) {
         this.systemFingerprint = value;
         return this;
     }
 
-    public ChatCompletionChunkBuilder withServiceTier(Optional<String> value) {
+    /** Sets the serviceTier field. */
+    public ChatCompletionChunkBuilder withServiceTier(final Optional<String> value) {
         this.serviceTier = value;
         return this;
     }
 
+    /** Builds the ChatCompletionChunk instance. */
     public ChatCompletionChunk build() {
         return new ChatCompletionChunk(
             id,

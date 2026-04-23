@@ -26,7 +26,7 @@ defmodule E2e.CacheTest do
 
   describe "cache_stream_bypass" do
     test "Tests that streaming requests bypass cache entirely" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert result.cache_bypassed == true
     end
   end

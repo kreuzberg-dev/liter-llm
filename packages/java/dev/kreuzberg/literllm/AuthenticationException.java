@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class AuthenticationException extends LiterLlmErrorException {
-    public AuthenticationException(String message) {
+    /** Creates a new AuthenticationException with the given message. */
+    public AuthenticationException(final String message) {
         super(message);
     }
 
-    public AuthenticationException(String message, Throwable cause) {
+    /** Creates a new AuthenticationException with the given message and cause. */
+    public AuthenticationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

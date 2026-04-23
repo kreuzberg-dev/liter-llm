@@ -16,7 +16,7 @@ public class RerankTests
     public async Task Test_EdgeRerankEmptyQuery()
     {
         // Reranking with an empty query string
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Rerank(null);
         Assert.Equal(2, result.Results.Count);
     }
 
@@ -24,7 +24,7 @@ public class RerankTests
     public async Task Test_EdgeRerankSingleDoc()
     {
         // Reranking with only a single document
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Rerank(null);
         Assert.Equal(1, result.Results.Count);
         Assert.True(result.Results["0"].RelevanceScore > 0.9d, "expected > 0.9d");
     }
@@ -33,21 +33,21 @@ public class RerankTests
     public async Task Test_ErrorRerankAuth401()
     {
         // 401 Unauthorized for reranking with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Rerank(null));
     }
 
     [Fact]
     public async Task Test_ErrorRerankBadRequest()
     {
         // 400 Bad Request for reranking with invalid model
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Rerank(null));
     }
 
     [Fact]
     public async Task Test_SmokeRerankBasic()
     {
         // Basic reranking of documents against a query
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Rerank(null);
         Assert.Equal(3, result.Results.Count);
         Assert.True(result.Results["0"].RelevanceScore > 0.9d, "expected > 0.9d");
     }
@@ -56,7 +56,7 @@ public class RerankTests
     public async Task Test_SmokeRerankReturnDocs()
     {
         // Reranking with return_documents flag to include document text
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Rerank(null);
         Assert.Equal(2, result.Results.Count);
         Assert.False(string.IsNullOrEmpty(result.Results["0"].Document?.ToString()));
         Assert.True(result.Results["0"].RelevanceScore > 0.9d, "expected > 0.9d");
@@ -66,7 +66,7 @@ public class RerankTests
     public async Task Test_SmokeRerankWithTopN()
     {
         // Reranking with top_n parameter to limit results
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Rerank(null);
         Assert.Equal(2, result.Results.Count);
         Assert.True(result.Results["0"].RelevanceScore > 0.9d, "expected > 0.9d");
     }

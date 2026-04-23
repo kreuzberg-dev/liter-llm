@@ -9,7 +9,7 @@ from liter_llm import chat
 async def test_budget_enforced() -> None:
     """Tests that a request is rejected when budget is exceeded."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "BudgetExceeded" in str(exc_info.value)  # noqa: S101
 
@@ -18,7 +18,7 @@ async def test_budget_enforced() -> None:
 async def test_budget_per_model() -> None:
     """Tests per-model budget limit."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "BudgetExceeded" in str(exc_info.value)  # noqa: S101
 

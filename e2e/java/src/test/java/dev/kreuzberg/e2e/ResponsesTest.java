@@ -9,7 +9,7 @@ class ResponsesTest {
     @Test
     void testEdgeResponseEmptyOutput() throws Exception {
         // Response completes with empty output items
-        var result = LiterLlm.chat("");
+        var result = LiterLlm.create_response("");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("completed", result.status().trim());
         assertEquals(0, result.output().size(), "expected exactly 0 elements");
@@ -18,7 +18,7 @@ class ResponsesTest {
     @Test
     void testEdgeResponseLargeInput() throws Exception {
         // Response created with a very large input text
-        var result = LiterLlm.chat("Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ");
+        var result = LiterLlm.create_response("Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("completed", result.status().trim());
         assertEquals(1, result.output().size(), "expected exactly 1 elements");
@@ -27,25 +27,25 @@ class ResponsesTest {
     @Test
     void testErrorResponseAuth401() throws Exception {
         // 401 Unauthorized when creating a response with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello"));
+        assertThrows(Exception.class, () -> LiterLlm.create_response("Hello"));
     }
 
     @Test
     void testErrorResponseBadRequest() throws Exception {
         // 400 Bad Request when creating response with invalid model
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello"));
+        assertThrows(Exception.class, () -> LiterLlm.create_response("Hello"));
     }
 
     @Test
     void testErrorResponseNotFound() throws Exception {
         // 404 Not Found when retrieving a nonexistent response
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.retrieve_response(""));
     }
 
     @Test
     void testSmokeCancelResponse() throws Exception {
         // Cancel an in-progress response
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.cancel_response("");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("cancelled", result.status().trim());
         assertEquals(0, result.output().size(), "expected exactly 0 elements");
@@ -54,7 +54,7 @@ class ResponsesTest {
     @Test
     void testSmokeCreateResponse() throws Exception {
         // Create a basic response using the Responses API
-        var result = LiterLlm.chat("Explain quantum computing in one sentence.");
+        var result = LiterLlm.create_response("Explain quantum computing in one sentence.");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("completed", result.status().trim());
         assertEquals(1, result.output().size(), "expected exactly 1 elements");
@@ -63,7 +63,7 @@ class ResponsesTest {
     @Test
     void testSmokeResponseWithTools() throws Exception {
         // Response that includes tool call output items
-        var result = LiterLlm.chat("What is the weather in San Francisco?");
+        var result = LiterLlm.create_response("What is the weather in San Francisco?");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("completed", result.status().trim());
         assertEquals(2, result.output().size(), "expected exactly 2 elements");
@@ -73,7 +73,7 @@ class ResponsesTest {
     @Test
     void testSmokeRetrieveResponse() throws Exception {
         // Retrieve a previously created response
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.retrieve_response("");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("completed", result.status().trim());
     }

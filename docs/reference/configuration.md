@@ -389,4 +389,3 @@ Configuration for registering a custom LLM provider at runtime.
 | `model_prefixes` | `list[str]` | — | Model name prefixes that route to this provider (e.g., ["my-"]). |
 
 ---
-

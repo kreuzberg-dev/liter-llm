@@ -8,7 +8,7 @@ describe('ocr', () => {
     const options = new WasmChatCompletionRequest();
     options.document = { type: "document_url", url: "invalid://url" };
     options.model = "mistral/mistral-ocr-latest";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.ocr(options)).rejects.toThrow();
   });
 
   it('ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials', async () => {
@@ -16,7 +16,7 @@ describe('ocr', () => {
     const options = new WasmChatCompletionRequest();
     options.document = { type: "document_url", url: "https://example.com/doc.pdf" };
     options.model = "mistral/mistral-ocr-latest";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.ocr(options)).rejects.toThrow();
   });
 
   it('ocr_multi_page: OCR request returning multiple pages of document content', async () => {
@@ -24,7 +24,7 @@ describe('ocr', () => {
     const options = new WasmChatCompletionRequest();
     options.document = { type: "document_url", url: "https://example.com/multipage.pdf" };
     options.model = "mistral/mistral-ocr-latest";
-    const result = await client.chat(options);
+    const result = await client.ocr(options);
     expect(result.pages.length).toBe(2);
     expect(result.pages.get("0").index).toBe(0);
     expect(result.pages.get("1").index).toBe(1);
@@ -35,6 +35,6 @@ describe('ocr', () => {
     const options = new WasmChatCompletionRequest();
     options.document = { type: "document_url", url: "https://example.com/doc.pdf" };
     options.model = "mistral/mistral-ocr-latest";
-    const result = await client.chat(options);
+    await client.ocr(options);
   });
 });

@@ -16,7 +16,7 @@ public class SpeechTests
     public async Task Test_EdgeSpeechAllVoices()
     {
         // Text-to-speech with specific voice selection
-        var result = await LiterLlmLib.Chat("Hello world");
+        var result = await LiterLlmLib.Speech("Hello world");
         Assert.False(string.IsNullOrEmpty(result.Audio?.ToString()));
     }
 
@@ -24,7 +24,7 @@ public class SpeechTests
     public async Task Test_EdgeSpeechLongInput()
     {
         // Speech generation with a very long input text
-        var result = await LiterLlmLib.Chat("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.");
+        var result = await LiterLlmLib.Speech("This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.");
         Assert.False(string.IsNullOrEmpty(result.Audio?.ToString()));
     }
 
@@ -32,21 +32,21 @@ public class SpeechTests
     public async Task Test_ErrorSpeechAuth401()
     {
         // 401 Unauthorized for speech generation with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Speech("Hello"));
     }
 
     [Fact]
     public async Task Test_ErrorSpeechBadModel()
     {
         // 400 Bad Request for speech with unsupported model
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Speech("Hello"));
     }
 
     [Fact]
     public async Task Test_SmokeSpeechBasic()
     {
         // Basic text-to-speech generation
-        var result = await LiterLlmLib.Chat("Hello, world!");
+        var result = await LiterLlmLib.Speech("Hello, world!");
         Assert.False(string.IsNullOrEmpty(result.Audio?.ToString()));
     }
 
@@ -54,7 +54,7 @@ public class SpeechTests
     public async Task Test_SmokeSpeechMp3Format()
     {
         // Text-to-speech with explicit MP3 response format
-        var result = await LiterLlmLib.Chat("The quick brown fox jumps over the lazy dog.");
+        var result = await LiterLlmLib.Speech("The quick brown fox jumps over the lazy dog.");
         Assert.False(string.IsNullOrEmpty(result.Audio?.ToString()));
     }
 }

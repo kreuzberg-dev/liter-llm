@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class RateLimitedException extends LiterLlmErrorException {
-    public RateLimitedException(String message) {
+    /** Creates a new RateLimitedException with the given message. */
+    public RateLimitedException(final String message) {
         super(message);
     }
 
-    public RateLimitedException(String message, Throwable cause) {
+    /** Creates a new RateLimitedException with the given message and cause. */
+    public RateLimitedException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

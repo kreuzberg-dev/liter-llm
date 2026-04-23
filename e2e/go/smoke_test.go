@@ -56,7 +56,7 @@ func Test_AzureChat(t *testing.T) {
 
 func Test_AzureEmbed(t *testing.T) {
 	// Embedding request via Azure OpenAI using the azure/ provider prefix — response follows the standard OpenAI embeddings shape that Azure returns unchanged
-	result, err := pkg.chat(`Hello world`)
+	result, err := pkg.embed(`Hello world`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -87,7 +87,7 @@ func Test_BasicChat(t *testing.T) {
 
 func Test_BasicEmbed(t *testing.T) {
 	// Basic embedding request for a single input string
-	result, err := pkg.chat(`Hello world`)
+	result, err := pkg.embed(`Hello world`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -97,7 +97,7 @@ func Test_BasicEmbed(t *testing.T) {
 
 func Test_BasicListModels(t *testing.T) {
 	// List available models from the API
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -159,7 +159,7 @@ func Test_LocalChatOllama(t *testing.T) {
 
 func Test_LocalListModelsOllama(t *testing.T) {
 	// List models from local Ollama instance
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{"model":"ollama/any"}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -221,7 +221,7 @@ func Test_SmokeChatOpenai(t *testing.T) {
 
 func Test_SmokeEmbedOpenai(t *testing.T) {
 	// Embeddings request against real OpenAI API
-	result, err := pkg.chat(`["Hello world"]`)
+	result, err := pkg.embed(`["Hello world"]`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -232,7 +232,7 @@ func Test_SmokeEmbedOpenai(t *testing.T) {
 
 func Test_SmokeListModelsOpenai(t *testing.T) {
 	// List models against real OpenAI API
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{"model":"openai/gpt-4o-mini"}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -252,7 +252,7 @@ func Test_SmokeProviderRouting(t *testing.T) {
 
 func Test_SmokeStreamingOpenai(t *testing.T) {
 	// Chat streaming against real OpenAI API, verifies chunks received
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -282,7 +282,7 @@ func Test_VertexChat(t *testing.T) {
 
 func Test_VertexEmbed(t *testing.T) {
 	// Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape
-	result, err := pkg.chat(`Hello`)
+	result, err := pkg.embed(`Hello`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

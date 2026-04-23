@@ -5,7 +5,7 @@ defmodule E2e.ImageGenerateTest do
 
   describe "edge_image_b64_response" do
     test "Image generation returning base64-encoded data instead of URL" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.image_generate_async(nil)
       assert length(result.data) == 1
       assert result.data["0"].b64_json != ""
     end
@@ -13,13 +13,13 @@ defmodule E2e.ImageGenerateTest do
 
   describe "edge_image_empty_prompt" do
     test "Image generation with an empty prompt returns 400" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.image_generate_async(nil)
     end
   end
 
   describe "edge_image_multiple_n" do
     test "Image generation requesting multiple images with n=3" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.image_generate_async(nil)
       assert length(result.data) == 3
       assert result.data["0"].url != ""
       assert result.data["1"].url != ""
@@ -29,25 +29,25 @@ defmodule E2e.ImageGenerateTest do
 
   describe "error_image_auth_401" do
     test "401 Unauthorized when generating images with invalid API key" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.image_generate_async(nil)
     end
   end
 
   describe "error_image_bad_request" do
     test "400 Bad Request when image generation parameters are invalid" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.image_generate_async(nil)
     end
   end
 
   describe "error_image_rate_limit" do
     test "429 Rate limit exceeded for image generation" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.image_generate_async(nil)
     end
   end
 
   describe "smoke_image_basic" do
     test "Basic image generation with a text prompt" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.image_generate_async(nil)
       assert length(result.data) == 1
       assert result.data["0"].url != ""
     end
@@ -55,7 +55,7 @@ defmodule E2e.ImageGenerateTest do
 
   describe "smoke_image_multiple" do
     test "Image generation requesting multiple images" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.image_generate_async(nil)
       assert length(result.data) == 3
       assert result.data["0"].url != ""
     end
@@ -63,7 +63,7 @@ defmodule E2e.ImageGenerateTest do
 
   describe "smoke_image_with_size" do
     test "Image generation with explicit size parameter" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.image_generate_async(nil)
       assert length(result.data) == 1
       assert result.data["0"].url != ""
     end

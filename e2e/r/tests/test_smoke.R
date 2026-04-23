@@ -20,7 +20,7 @@ test_that("azure_chat: Chat completion via Azure OpenAI with the azure/ prefix f
 })
 
 test_that("azure_embed: Embedding request via Azure OpenAI using the azure/ provider prefix — response follows the standard OpenAI embeddings shape that Azure returns unchanged", {
-  result <- chat(request = "hello world")
+  result <- embed(request = "hello world")
   expect_equal(length(result$data), 1)
   expect_equal(length(result$data[["0"]]$embedding), 1536)
 })
@@ -35,13 +35,13 @@ test_that("basic_chat: Basic chat completion with a single user message", {
 })
 
 test_that("basic_embed: Basic embedding request for a single input string", {
-  result <- chat(request = "hello world")
+  result <- embed(request = "hello world")
   expect_equal(length(result$data), 1)
   expect_equal(length(result$data[["0"]]$embedding), 5)
 })
 
 test_that("basic_list_models: List available models from the API", {
-  result <- chat()
+  result <- list_models(list())
   expect_true(length(result$data) >= 1)
 })
 
@@ -69,7 +69,7 @@ test_that("local_chat_ollama: Chat completion against local Ollama with qwen2:0.
 })
 
 test_that("local_list_models_ollama: List models from local Ollama instance", {
-  result <- chat()
+  result <- list_models(list("model" = "ollama/any"))
   expect_true(length(result$data) >= 1)
 })
 
@@ -97,12 +97,12 @@ test_that("smoke_chat_openai: Basic chat completion against real OpenAI API", {
 })
 
 test_that("smoke_embed_openai: Embeddings request against real OpenAI API", {
-  result <- chat(request = c("hello world"))
+  result <- embed(request = c("hello world"))
   expect_true(if (is.character(result$data)) nchar(result$data) > 0 else length(result$data) > 0)
 })
 
 test_that("smoke_list_models_openai: List models against real OpenAI API", {
-  result <- chat()
+  result <- list_models(list("model" = "openai/gpt-4o-mini"))
   expect_true(length(result$data) >= 1)
 })
 
@@ -112,7 +112,7 @@ test_that("smoke_provider_routing: Test provider routing by sending requests to 
 })
 
 test_that("smoke_streaming_openai: Chat streaming against real OpenAI API, verifies chunks received", {
-  result <- chat()
+  result <- chat_stream()
   expect_true(length(result$chunks) >= 1)
 })
 
@@ -126,7 +126,7 @@ test_that("vertex_chat: Basic chat completion via the Google Vertex AI provider 
 })
 
 test_that("vertex_embed: Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape", {
-  result <- chat(request = "hello")
+  result <- embed(request = "hello")
   expect_equal(length(result$data), 1)
   expect_equal(length(result$data[["0"]]$embedding), 160)
 })

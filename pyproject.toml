@@ -84,6 +84,7 @@ lint.per-file-ignores."**/*.pyi" = [
 ]
 lint.per-file-ignores."e2e/python/**/*.*" = [
   "A001",    # builtin shadowing in generated test fixtures (id, type, format)
+  "B017",    # blind pytest.raises(Exception) in generated error-handling tests
   "D",       # docstrings not required in generated tests
   "PLR2004", # magic values in assertions (generated test expectations)
   "PT011",   # broad pytest.raises in generated error-handling tests

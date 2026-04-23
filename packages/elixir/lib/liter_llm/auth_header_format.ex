@@ -6,5 +6,5 @@ defmodule LiterLlm.AuthHeaderFormat do
 
   @type bearer :: :bearer
   @type api_key :: %{type: :api_key, value_0: term()}
-  @type none :: :none
+  @type none_variant :: :none
 end

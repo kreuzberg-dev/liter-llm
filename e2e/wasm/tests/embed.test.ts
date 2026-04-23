@@ -8,7 +8,7 @@ describe('embed', () => {
     const options = new WasmChatCompletionRequest();
     options.input = ["Hello", "World"];
     options.model = "text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(2);
     expect(result.data.get("0").embedding.length).toBe(5);
   });
@@ -18,7 +18,7 @@ describe('embed', () => {
     const options = new WasmChatCompletionRequest();
     options.input = ["Hello world", "Goodbye world"];
     options.model = "text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(2);
     expect(result.data.get("0").index).toBe(0);
     expect(result.data.get("1").index).toBe(1);
@@ -29,7 +29,7 @@ describe('embed', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "";
     options.model = "text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(0);
   });
 
@@ -39,7 +39,7 @@ describe('embed', () => {
     options.encodingFormat = "float";
     options.input = "Test input";
     options.model = "text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(5);
   });
@@ -49,7 +49,7 @@ describe('embed', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello world";
     options.model = "text-embedding-3-small";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.embed(options)).rejects.toThrow();
   });
 
   it('embed_with_dimensions: Embedding request with explicit dimensions parameter returns embeddings of the requested size', async () => {
@@ -58,7 +58,7 @@ describe('embed', () => {
     options.dimensions = 256;
     options.input = "Hello world";
     options.model = "text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(8);
   });
@@ -68,7 +68,7 @@ describe('embed', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "The quick brown fox jumps over the lazy dog";
     options.model = "ollama/all-minilm";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").embedding.length).toBe(32);
   });

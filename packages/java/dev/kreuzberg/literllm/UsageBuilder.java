@@ -8,21 +8,25 @@ public class UsageBuilder {
     private long completionTokens = 0;
     private long totalTokens = 0;
 
-    public UsageBuilder withPromptTokens(long value) {
+    /** Sets the promptTokens field. */
+    public UsageBuilder withPromptTokens(final long value) {
         this.promptTokens = value;
         return this;
     }
 
-    public UsageBuilder withCompletionTokens(long value) {
+    /** Sets the completionTokens field. */
+    public UsageBuilder withCompletionTokens(final long value) {
         this.completionTokens = value;
         return this;
     }
 
-    public UsageBuilder withTotalTokens(long value) {
+    /** Sets the totalTokens field. */
+    public UsageBuilder withTotalTokens(final long value) {
         this.totalTokens = value;
         return this;
     }
 
+    /** Builds the Usage instance. */
     public Usage build() {
         return new Usage(
             promptTokens,

@@ -12,7 +12,7 @@ import (
 
 func Test_EdgeBatchAlreadyCancelled(t *testing.T) {
 	// Attempt to cancel an already-cancelled batch
-	_, err := pkg.chat(nil)
+	_, err := pkg.cancel_batch(`batch-cancelled001`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -20,7 +20,7 @@ func Test_EdgeBatchAlreadyCancelled(t *testing.T) {
 
 func Test_EdgeBatchEmptyList(t *testing.T) {
 	// List batches when no batches exist
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_batches(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -29,7 +29,7 @@ func Test_EdgeBatchEmptyList(t *testing.T) {
 
 func Test_ErrorBatchAuth401(t *testing.T) {
 	// 401 Unauthorized when creating a batch with invalid API key
-	_, err := pkg.chat(nil)
+	_, err := pkg.create_batch(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -37,7 +37,7 @@ func Test_ErrorBatchAuth401(t *testing.T) {
 
 func Test_ErrorBatchInvalidFile(t *testing.T) {
 	// 400 Bad Request when creating a batch with invalid input file
-	_, err := pkg.chat(nil)
+	_, err := pkg.create_batch(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -45,7 +45,7 @@ func Test_ErrorBatchInvalidFile(t *testing.T) {
 
 func Test_ErrorBatchNotFound(t *testing.T) {
 	// 404 Not Found when retrieving a nonexistent batch
-	_, err := pkg.chat(nil)
+	_, err := pkg.retrieve_batch(`batch-nonexistent`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -53,7 +53,7 @@ func Test_ErrorBatchNotFound(t *testing.T) {
 
 func Test_SmokeBatchCompleted(t *testing.T) {
 	// Retrieve a completed batch job with output file
-	result, err := pkg.chat(nil)
+	result, err := pkg.retrieve_batch(`batch-ghi789`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -67,7 +67,7 @@ func Test_SmokeBatchCompleted(t *testing.T) {
 
 func Test_SmokeCancelBatch(t *testing.T) {
 	// Cancel a running batch job
-	result, err := pkg.chat(nil)
+	result, err := pkg.cancel_batch(`batch-def456`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -81,7 +81,7 @@ func Test_SmokeCancelBatch(t *testing.T) {
 
 func Test_SmokeCreateBatch(t *testing.T) {
 	// Create a new batch processing job
-	result, err := pkg.chat(nil)
+	result, err := pkg.create_batch(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -95,7 +95,7 @@ func Test_SmokeCreateBatch(t *testing.T) {
 
 func Test_SmokeListBatches(t *testing.T) {
 	// List all batch jobs
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_batches(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -104,7 +104,7 @@ func Test_SmokeListBatches(t *testing.T) {
 
 func Test_SmokeRetrieveBatch(t *testing.T) {
 	// Retrieve the status of a batch job
-	result, err := pkg.chat(nil)
+	result, err := pkg.retrieve_batch(`batch-abc123`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

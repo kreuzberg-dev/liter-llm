@@ -8,19 +8,22 @@ public enum UserContent {
     Text("text"),
     Parts("parts");
 
+    /** The string value. */
     private final String value;
 
-    UserContent(String value) {
+    UserContent(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static UserContent fromValue(String value) {
+    public static UserContent fromValue(final String value) {
         for (UserContent e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

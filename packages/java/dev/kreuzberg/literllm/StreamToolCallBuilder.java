@@ -10,26 +10,31 @@ public class StreamToolCallBuilder {
     private Optional<ToolType> callType = Optional.empty();
     private Optional<StreamFunctionCall> function = Optional.empty();
 
-    public StreamToolCallBuilder withIndex(int value) {
+    /** Sets the index field. */
+    public StreamToolCallBuilder withIndex(final int value) {
         this.index = value;
         return this;
     }
 
-    public StreamToolCallBuilder withId(Optional<String> value) {
+    /** Sets the id field. */
+    public StreamToolCallBuilder withId(final Optional<String> value) {
         this.id = value;
         return this;
     }
 
-    public StreamToolCallBuilder withCallType(Optional<ToolType> value) {
+    /** Sets the callType field. */
+    public StreamToolCallBuilder withCallType(final Optional<ToolType> value) {
         this.callType = value;
         return this;
     }
 
-    public StreamToolCallBuilder withFunction(Optional<StreamFunctionCall> value) {
+    /** Sets the function field. */
+    public StreamToolCallBuilder withFunction(final Optional<StreamFunctionCall> value) {
         this.function = value;
         return this;
     }
 
+    /** Builds the StreamToolCall instance. */
     public StreamToolCall build() {
         return new StreamToolCall(
             index,

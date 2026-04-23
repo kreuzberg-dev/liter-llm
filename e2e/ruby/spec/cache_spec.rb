@@ -21,7 +21,7 @@ RSpec.describe 'cache' do
   end
 
   it 'cache_stream_bypass: Tests that streaming requests bypass cache entirely' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.chat_stream(nil)
     expect(result.cache_bypassed).to be true
   end
 end

@@ -36,7 +36,7 @@ describe('proxy', () => {
     options.messages = [{ content: "Count to 3", role: "user" }];
     options.model = "openai/gpt-4o";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
     expect(result.streamComplete).toBe(true);
@@ -47,14 +47,13 @@ describe('proxy', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello world";
     options.model = "openai/text-embedding-3-small";
-    const result = await client.chat(options);
+    const result = await client.embed(options);
     expect(result.data.length).toBe(1);
   });
 
   it('proxy_health: Health check verifying proxy connectivity via list models', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_models({  });
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -65,15 +64,14 @@ describe('proxy', () => {
     options.n = BigInt(1);
     options.prompt = "A sunset over the ocean";
     options.size = "1024x1024";
-    const result = await client.chat(options);
+    const result = await client.image_generate(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });
 
   it('proxy_models_list: List models request routed through the proxy', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_models({  });
     expect(result.data.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -82,7 +80,7 @@ describe('proxy', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "The weather is nice today.";
     options.model = "omni-moderation-latest";
-    const result = await client.chat(options);
+    const result = await client.moderate(options);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(false);
   });
@@ -93,7 +91,7 @@ describe('proxy', () => {
     options.documents = ["Deep learning is a subset of machine learning using neural networks.", "The stock market closed higher today."];
     options.model = "rerank-v3.5";
     options.query = "What is deep learning?";
-    const result = await client.chat(options);
+    const result = await client.rerank(options);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });

@@ -9,7 +9,7 @@ class ListModelsTest {
     @Test
     void testEmptyModelList() throws Exception {
         // List models response returns an empty data array when no models are available
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{}");
         assertTrue(result.data().size() >= 0, "expected at least 0 elements");
         assertEquals(0, result.data().size(), "expected exactly 0 elements");
     }
@@ -17,19 +17,19 @@ class ListModelsTest {
     @Test
     void testListModelsError401() throws Exception {
         // 401 Unauthorized error on list models request when API key is invalid
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.list_models("{}"));
     }
 
     @Test
     void testListModelsError500() throws Exception {
         // 500 Internal Server Error when listing models due to server failure
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.list_models("{}"));
     }
 
     @Test
     void testListModelsFiltered() throws Exception {
         // List models response with multiple model objects
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{}");
         assertTrue(result.data().size() >= 5, "expected at least 5 elements");
         assertEquals("model", result.data().get("0").object().trim());
     }

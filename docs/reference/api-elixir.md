@@ -2,7 +2,7 @@
 title: "Elixir API Reference"
 ---
 
-## Elixir API Reference <span class="version-badge">v1.2.2</span>
+## Elixir API Reference <span class="version-badge">v1.3.0</span>
 
 ### Functions
 
@@ -1191,4 +1191,3 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
-

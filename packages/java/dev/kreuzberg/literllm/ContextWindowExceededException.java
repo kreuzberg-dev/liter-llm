@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class ContextWindowExceededException extends LiterLlmErrorException {
-    public ContextWindowExceededException(String message) {
+    /** Creates a new ContextWindowExceededException with the given message. */
+    public ContextWindowExceededException(final String message) {
         super(message);
     }
 
-    public ContextWindowExceededException(String message, Throwable cause) {
+    /** Creates a new ContextWindowExceededException with the given message and cause. */
+    public ContextWindowExceededException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

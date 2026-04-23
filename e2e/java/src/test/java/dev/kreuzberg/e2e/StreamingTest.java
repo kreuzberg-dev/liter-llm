@@ -9,7 +9,7 @@ class StreamingTest {
     @Test
     void testAnthropicStream() throws Exception {
         // Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 3, "expected at least 3 elements");
         assertEquals("One Two Three", result.streamContent().trim());
         assertTrue(result.streamComplete(), "expected true");
@@ -18,7 +18,7 @@ class StreamingTest {
     @Test
     void testAzureStream() throws Exception {
         // Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 3, "expected at least 3 elements");
         assertEquals("1 2 3", result.streamContent().trim());
         assertTrue(result.streamComplete(), "expected true");
@@ -27,7 +27,7 @@ class StreamingTest {
     @Test
     void testBasicStream() throws Exception {
         // Streaming chat completion that produces content across multiple SSE chunks
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 3, "expected at least 3 elements");
         assertEquals("1 2 3", result.streamContent().trim());
     }
@@ -35,7 +35,7 @@ class StreamingTest {
     @Test
     void testBedrockStream() throws Exception {
         // Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 2, "expected at least 2 elements");
         assertEquals("One Two Three", result.streamContent().trim());
         assertTrue(result.streamComplete(), "expected true");
@@ -44,14 +44,14 @@ class StreamingTest {
     @Test
     void testEdgeStreamFunctionCall() throws Exception {
         // Streaming chat completion with tool/function call chunks
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 2, "expected at least 2 elements");
     }
 
     @Test
     void testEmptyStream() throws Exception {
         // Streaming chat completion that produces no content chunks before the DONE signal
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 0, "expected at least 0 elements");
         assertEquals("", result.streamContent().trim());
     }
@@ -59,7 +59,7 @@ class StreamingTest {
     @Test
     void testLocalStreamOllama() throws Exception {
         // Streaming chat completion via Ollama local provider with SSE chunks
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 3, "expected at least 3 elements");
         assertEquals("1 2 3", result.streamContent().trim());
         assertTrue(result.streamComplete(), "expected true");
@@ -68,13 +68,13 @@ class StreamingTest {
     @Test
     void testStreamContentPolicyError() throws Exception {
         // 400 Bad Request error on stream due to content policy violation
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.chat_stream(null));
     }
 
     @Test
     void testStreamDoneSignal() throws Exception {
         // Verify that the [DONE] sentinel signal properly terminates the stream
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.streamComplete(), "expected true");
         assertEquals("Done", result.streamContent().trim());
         assertTrue(result.noChunksAfterDone(), "expected true");
@@ -83,19 +83,19 @@ class StreamingTest {
     @Test
     void testStreamError401() throws Exception {
         // 401 Unauthorized error on stream initiation before any chunks are received
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.chat_stream(null));
     }
 
     @Test
     void testStreamMultipleChoices() throws Exception {
         // Streaming chat completion with multiple choice outputs (n > 1)
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
     }
 
     @Test
     void testStreamWithToolCalls() throws Exception {
         // Streaming chat completion where the assistant responds with a tool call across multiple chunks
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 4, "expected at least 4 elements");
         assertEquals("tool_calls", result.finishReason().trim());
         assertFalse(result.toolCalls().isEmpty(), "expected non-empty value");
@@ -105,7 +105,7 @@ class StreamingTest {
     @Test
     void testStreamWithUsage() throws Exception {
         // Streaming chat completion that includes a usage summary in the final chunk
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 3, "expected at least 3 elements");
         assertEquals("Hi there!", result.streamContent().trim());
         assertEquals(18, result.usage().totalTokens());
@@ -114,7 +114,7 @@ class StreamingTest {
     @Test
     void testVertexStream() throws Exception {
         // Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 2, "expected at least 2 elements");
         assertEquals("One Two Three", result.streamContent().trim());
         assertTrue(result.streamComplete(), "expected true");

@@ -7,16 +7,19 @@ public class DocumentContentBuilder {
     private String data = "";
     private String mediaType = "";
 
-    public DocumentContentBuilder withData(String value) {
+    /** Sets the data field. */
+    public DocumentContentBuilder withData(final String value) {
         this.data = value;
         return this;
     }
 
-    public DocumentContentBuilder withMediaType(String value) {
+    /** Sets the mediaType field. */
+    public DocumentContentBuilder withMediaType(final String value) {
         this.mediaType = value;
         return this;
     }
 
+    /** Builds the DocumentContent instance. */
     public DocumentContent build() {
         return new DocumentContent(
             data,

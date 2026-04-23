@@ -2,41 +2,41 @@
 # E2e tests for category: embed
 
 test_that("batch_embed: Embedding request with multiple input strings returns one embedding object per input", {
-  result <- chat(request = c("hello", "world"))
+  result <- embed(request = c("hello", "world"))
   expect_equal(length(result$data), 2)
   expect_equal(length(result$data[["0"]]$embedding), 5)
 })
 
 test_that("edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects", {
-  result <- chat(request = c("hello world", "goodbye world"))
+  result <- embed(request = c("hello world", "goodbye world"))
   expect_equal(length(result$data), 2)
   expect_equal(trimws(result$data[["0"]]$index), 0)
   expect_equal(trimws(result$data[["1"]]$index), 1)
 })
 
 test_that("edge_embed_empty_input: Embedding request with empty string input returns empty data array", {
-  result <- chat(request = "")
+  result <- embed(request = "")
   expect_equal(length(result$data), 0)
 })
 
 test_that("embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings", {
-  result <- chat(request = "test input")
+  result <- embed(request = "test input")
   expect_equal(length(result$data), 1)
   expect_equal(length(result$data[["0"]]$embedding), 5)
 })
 
 test_that("embed_error_401: 401 Unauthorized error on embedding request when API key is invalid", {
-  expect_error(chat(request = "hello world"))
+  expect_error(embed(request = "hello world"))
 })
 
 test_that("embed_with_dimensions: Embedding request with explicit dimensions parameter returns embeddings of the requested size", {
-  result <- chat(request = "hello world")
+  result <- embed(request = "hello world")
   expect_equal(length(result$data), 1)
   expect_equal(length(result$data[["0"]]$embedding), 8)
 })
 
 test_that("local_embed_ollama: Embedding request via Ollama local provider with all-minilm model", {
-  result <- chat(request = "the quick brown fox jumps over the lazy dog")
+  result <- embed(request = "the quick brown fox jumps over the lazy dog")
   expect_equal(length(result$data), 1)
   expect_equal(length(result$data[["0"]]$embedding), 32)
 })

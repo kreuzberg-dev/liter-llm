@@ -11,19 +11,22 @@ public enum ModerationInput {
     Single("single"),
     Multiple("multiple");
 
+    /** The string value. */
     private final String value;
 
-    ModerationInput(String value) {
+    ModerationInput(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static ModerationInput fromValue(String value) {
+    public static ModerationInput fromValue(final String value) {
         for (ModerationInput e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

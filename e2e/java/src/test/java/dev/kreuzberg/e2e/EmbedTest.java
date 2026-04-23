@@ -9,7 +9,7 @@ class EmbedTest {
     @Test
     void testBatchEmbed() throws Exception {
         // Embedding request with multiple input strings returns one embedding object per input
-        var result = LiterLlm.chat(java.util.List.of("Hello", "World"));
+        var result = LiterLlm.embed(java.util.List.of("Hello", "World"));
         assertEquals(2, result.data().size(), "expected exactly 2 elements");
         assertEquals(5, result.data().get("0").embedding().size(), "expected exactly 5 elements");
     }
@@ -17,7 +17,7 @@ class EmbedTest {
     @Test
     void testEdgeEmbedBatchInput() throws Exception {
         // Embedding request with multiple inputs returns multiple embedding objects
-        var result = LiterLlm.chat(java.util.List.of("Hello world", "Goodbye world"));
+        var result = LiterLlm.embed(java.util.List.of("Hello world", "Goodbye world"));
         assertEquals(2, result.data().size(), "expected exactly 2 elements");
         assertEquals(0, result.data().get("0").index());
         assertEquals(1, result.data().get("1").index());
@@ -26,14 +26,14 @@ class EmbedTest {
     @Test
     void testEdgeEmbedEmptyInput() throws Exception {
         // Embedding request with empty string input returns empty data array
-        var result = LiterLlm.chat("");
+        var result = LiterLlm.embed("");
         assertEquals(0, result.data().size(), "expected exactly 0 elements");
     }
 
     @Test
     void testEmbedEncodingFormat() throws Exception {
         // Embedding request with explicit encoding_format of float returns float array embeddings
-        var result = LiterLlm.chat("Test input");
+        var result = LiterLlm.embed("Test input");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertEquals(5, result.data().get("0").embedding().size(), "expected exactly 5 elements");
     }
@@ -41,13 +41,13 @@ class EmbedTest {
     @Test
     void testEmbedError401() throws Exception {
         // 401 Unauthorized error on embedding request when API key is invalid
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello world"));
+        assertThrows(Exception.class, () -> LiterLlm.embed("Hello world"));
     }
 
     @Test
     void testEmbedWithDimensions() throws Exception {
         // Embedding request with explicit dimensions parameter returns embeddings of the requested size
-        var result = LiterLlm.chat("Hello world");
+        var result = LiterLlm.embed("Hello world");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertEquals(8, result.data().get("0").embedding().size(), "expected exactly 8 elements");
     }
@@ -55,7 +55,7 @@ class EmbedTest {
     @Test
     void testLocalEmbedOllama() throws Exception {
         // Embedding request via Ollama local provider with all-minilm model
-        var result = LiterLlm.chat("The quick brown fox jumps over the lazy dog");
+        var result = LiterLlm.embed("The quick brown fox jumps over the lazy dog");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertEquals(32, result.data().get("0").embedding().size(), "expected exactly 32 elements");
     }

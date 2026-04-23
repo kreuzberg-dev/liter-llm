@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class HookRejectedException extends LiterLlmErrorException {
-    public HookRejectedException(String message) {
+    /** Creates a new HookRejectedException with the given message. */
+    public HookRejectedException(final String message) {
         super(message);
     }
 
-    public HookRejectedException(String message, Throwable cause) {
+    /** Creates a new HookRejectedException with the given message and cause. */
+    public HookRejectedException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

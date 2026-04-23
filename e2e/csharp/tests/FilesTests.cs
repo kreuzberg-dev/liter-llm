@@ -16,7 +16,7 @@ public class FilesTests
     public async Task Test_EdgeFileEmptyList()
     {
         // List files when no files have been uploaded
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListFiles("{}");
         Assert.Equal(0, result.Data.Count);
     }
 
@@ -24,7 +24,7 @@ public class FilesTests
     public async Task Test_EdgeFileLargeUpload()
     {
         // Upload a large file successfully
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.CreateFile(null);
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
     }
 
@@ -32,28 +32,28 @@ public class FilesTests
     public async Task Test_ErrorFileAuth401()
     {
         // 401 Unauthorized when listing files with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ListFiles("{}"));
     }
 
     [Fact]
     public async Task Test_ErrorFileBadPurpose()
     {
         // 400 Bad Request when uploading a file with invalid purpose
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.CreateFile(null));
     }
 
     [Fact]
     public async Task Test_ErrorFileNotFound()
     {
         // 404 Not Found when retrieving a nonexistent file
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.RetrieveFile("file-nonexistent"));
     }
 
     [Fact]
     public async Task Test_SmokeCreateFile()
     {
         // Upload a file for use with the API
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.CreateFile(null);
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
     }
 
@@ -61,7 +61,7 @@ public class FilesTests
     public async Task Test_SmokeDeleteFile()
     {
         // Delete an uploaded file
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.DeleteFile("file-abc123");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
         Assert.Equal(true, result.Deleted);
     }
@@ -70,7 +70,7 @@ public class FilesTests
     public async Task Test_SmokeFileContent()
     {
         // Retrieve the content of an uploaded file
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.FileContent("file-abc123");
         Assert.False(string.IsNullOrEmpty(result.Content?.ToString()));
     }
 
@@ -78,7 +78,7 @@ public class FilesTests
     public async Task Test_SmokeListFiles()
     {
         // List all uploaded files
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListFiles("{}");
         Assert.Equal(2, result.Data.Count);
     }
 
@@ -86,7 +86,7 @@ public class FilesTests
     public async Task Test_SmokeRetrieveFile()
     {
         // Retrieve metadata for an uploaded file
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.RetrieveFile("file-abc123");
         Assert.False(string.IsNullOrEmpty(result.Id?.ToString()));
     }
 }

@@ -9,7 +9,7 @@ class ImageGenerateTest {
     @Test
     void testEdgeImageB64Response() throws Exception {
         // Image generation returning base64-encoded data instead of URL
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.image_generate(null);
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertFalse(result.data().get("0").b64Json().isEmpty(), "expected non-empty value");
     }
@@ -17,13 +17,13 @@ class ImageGenerateTest {
     @Test
     void testEdgeImageEmptyPrompt() throws Exception {
         // Image generation with an empty prompt returns 400
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.image_generate(null));
     }
 
     @Test
     void testEdgeImageMultipleN() throws Exception {
         // Image generation requesting multiple images with n=3
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.image_generate(null);
         assertEquals(3, result.data().size(), "expected exactly 3 elements");
         assertFalse(result.data().get("0").url().isEmpty(), "expected non-empty value");
         assertFalse(result.data().get("1").url().isEmpty(), "expected non-empty value");
@@ -33,25 +33,25 @@ class ImageGenerateTest {
     @Test
     void testErrorImageAuth401() throws Exception {
         // 401 Unauthorized when generating images with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.image_generate(null));
     }
 
     @Test
     void testErrorImageBadRequest() throws Exception {
         // 400 Bad Request when image generation parameters are invalid
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.image_generate(null));
     }
 
     @Test
     void testErrorImageRateLimit() throws Exception {
         // 429 Rate limit exceeded for image generation
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.image_generate(null));
     }
 
     @Test
     void testSmokeImageBasic() throws Exception {
         // Basic image generation with a text prompt
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.image_generate(null);
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertFalse(result.data().get("0").url().isEmpty(), "expected non-empty value");
     }
@@ -59,7 +59,7 @@ class ImageGenerateTest {
     @Test
     void testSmokeImageMultiple() throws Exception {
         // Image generation requesting multiple images
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.image_generate(null);
         assertEquals(3, result.data().size(), "expected exactly 3 elements");
         assertFalse(result.data().get("0").url().isEmpty(), "expected non-empty value");
     }
@@ -67,7 +67,7 @@ class ImageGenerateTest {
     @Test
     void testSmokeImageWithSize() throws Exception {
         // Image generation with explicit size parameter
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.image_generate(null);
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertFalse(result.data().get("0").url().isEmpty(), "expected non-empty value");
     }

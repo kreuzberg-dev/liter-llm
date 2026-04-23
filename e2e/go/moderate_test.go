@@ -11,7 +11,7 @@ import (
 
 func Test_EdgeModerateAllCategories(t *testing.T) {
 	// Moderation response with multiple categories flagged
-	result, err := pkg.chat(`Extremely harmful content targeting multiple categories`)
+	result, err := pkg.moderate(`Extremely harmful content targeting multiple categories`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -23,7 +23,7 @@ func Test_EdgeModerateAllCategories(t *testing.T) {
 
 func Test_EdgeModerateEmptyInput(t *testing.T) {
 	// Moderation with empty string input
-	result, err := pkg.chat(``)
+	result, err := pkg.moderate(``)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -35,7 +35,7 @@ func Test_EdgeModerateEmptyInput(t *testing.T) {
 
 func Test_ErrorModerateAuth401(t *testing.T) {
 	// 401 Unauthorized for moderation with invalid API key
-	_, err := pkg.chat(`Hello`)
+	_, err := pkg.moderate(`Hello`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -43,7 +43,7 @@ func Test_ErrorModerateAuth401(t *testing.T) {
 
 func Test_ErrorModerateBadRequest(t *testing.T) {
 	// 400 Bad Request for moderation with invalid model
-	_, err := pkg.chat(`Hello`)
+	_, err := pkg.moderate(`Hello`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -51,7 +51,7 @@ func Test_ErrorModerateBadRequest(t *testing.T) {
 
 func Test_SmokeModerateBatch(t *testing.T) {
 	// Moderate multiple inputs in a single request
-	result, err := pkg.chat(`["Hello world","Nice weather today"]`)
+	result, err := pkg.moderate(`["Hello world","Nice weather today"]`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -63,7 +63,7 @@ func Test_SmokeModerateBatch(t *testing.T) {
 
 func Test_SmokeModerateFlagged(t *testing.T) {
 	// Moderation detects flagged content
-	result, err := pkg.chat(`I want to hurt someone very badly`)
+	result, err := pkg.moderate(`I want to hurt someone very badly`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -75,7 +75,7 @@ func Test_SmokeModerateFlagged(t *testing.T) {
 
 func Test_SmokeModerateSingle(t *testing.T) {
 	// Moderate a single non-flagged input
-	result, err := pkg.chat(`The weather is nice today.`)
+	result, err := pkg.moderate(`The weather is nice today.`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

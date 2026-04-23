@@ -28,13 +28,13 @@ public class ContractTests
     public async Task Test_ContractOcr()
     {
         // Verify ocr() method exists in all bindings
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Ocr(null);
     }
 
     [Fact]
     public async Task Test_ContractSearch()
     {
         // Verify search() method exists in all bindings
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Search(null);
     }
 }

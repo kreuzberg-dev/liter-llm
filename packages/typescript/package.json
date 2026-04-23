@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm",
-	"version": "1.2.2",
+	"version": "1.3.0",
 	"description": "Universal LLM API client \u2014 unified interface for streaming, tool calling, and provider routing across 142+ providers. Rust-powered.",
 	"keywords": [
 		"llm",

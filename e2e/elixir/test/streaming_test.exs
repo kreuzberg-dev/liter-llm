@@ -5,7 +5,7 @@ defmodule E2e.StreamingTest do
 
   describe "anthropic_stream" do
     test "Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 3
       assert String.trim(result.stream_content) == "One Two Three"
       assert result.stream_complete == true
@@ -14,7 +14,7 @@ defmodule E2e.StreamingTest do
 
   describe "azure_stream" do
     test "Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 3
       assert String.trim(result.stream_content) == "1 2 3"
       assert result.stream_complete == true
@@ -23,7 +23,7 @@ defmodule E2e.StreamingTest do
 
   describe "basic_stream" do
     test "Streaming chat completion that produces content across multiple SSE chunks" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 3
       assert String.trim(result.stream_content) == "1 2 3"
     end
@@ -31,7 +31,7 @@ defmodule E2e.StreamingTest do
 
   describe "bedrock_stream" do
     test "Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 2
       assert String.trim(result.stream_content) == "One Two Three"
       assert result.stream_complete == true
@@ -40,14 +40,14 @@ defmodule E2e.StreamingTest do
 
   describe "edge_stream_function_call" do
     test "Streaming chat completion with tool/function call chunks" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 2
     end
   end
 
   describe "empty_stream" do
     test "Streaming chat completion that produces no content chunks before the DONE signal" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 0
       assert String.trim(result.stream_content) == ""
     end
@@ -55,7 +55,7 @@ defmodule E2e.StreamingTest do
 
   describe "local_stream_ollama" do
     test "Streaming chat completion via Ollama local provider with SSE chunks" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 3
       assert String.trim(result.stream_content) == "1 2 3"
       assert result.stream_complete == true
@@ -64,13 +64,13 @@ defmodule E2e.StreamingTest do
 
   describe "stream_content_policy_error" do
     test "400 Bad Request error on stream due to content policy violation" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.chat_stream_async(nil)
     end
   end
 
   describe "stream_done_signal" do
     test "Verify that the [DONE] sentinel signal properly terminates the stream" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert result.stream_complete == true
       assert String.trim(result.stream_content) == "Done"
       assert result.no_chunks_after_done == true
@@ -79,19 +79,19 @@ defmodule E2e.StreamingTest do
 
   describe "stream_error_401" do
     test "401 Unauthorized error on stream initiation before any chunks are received" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.chat_stream_async(nil)
     end
   end
 
   describe "stream_multiple_choices" do
     test "Streaming chat completion with multiple choice outputs (n > 1)" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
     end
   end
 
   describe "stream_with_tool_calls" do
     test "Streaming chat completion where the assistant responds with a tool call across multiple chunks" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 4
       assert String.trim(result.finish_reason) == "tool_calls"
       assert result.tool_calls != ""
@@ -101,7 +101,7 @@ defmodule E2e.StreamingTest do
 
   describe "stream_with_usage" do
     test "Streaming chat completion that includes a usage summary in the final chunk" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 3
       assert String.trim(result.stream_content) == "Hi there!"
       assert result.usage.total_tokens == 18
@@ -110,7 +110,7 @@ defmodule E2e.StreamingTest do
 
   describe "vertex_stream" do
     test "Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 2
       assert String.trim(result.stream_content) == "One Two Three"
       assert result.stream_complete == true

@@ -10,7 +10,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Count to three, one word per response.", role: "user" }];
     options.model = "anthropic/claude-3-5-sonnet-20241022";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("One Two Three");
     expect(result.streamComplete).toBe(true);
@@ -23,7 +23,7 @@ describe('streaming', () => {
     options.model = "azure/gpt-4";
     options.stream = true;
     options.temperature = 0;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
     expect(result.streamComplete).toBe(true);
@@ -35,7 +35,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Count to 3", role: "user" }];
     options.model = "gpt-4";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
   });
@@ -47,7 +47,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Count to three, one word per response.", role: "user" }];
     options.model = "bedrock/anthropic.claude-3-sonnet-20240229-v1:0";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(2);
     expect(result.streamContent.trim()).toBe("One Two Three");
     expect(result.streamComplete).toBe(true);
@@ -59,7 +59,7 @@ describe('streaming', () => {
     options.messages = [{ content: "What's the weather?", role: "user" }];
     options.model = "gpt-4";
     options.tools = [{ function: { name: "get_weather", parameters: { properties: { city: { type: "string" } }, type: "object" } }, type: "function" }];
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -69,7 +69,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Say nothing", role: "user" }];
     options.model = "gpt-4";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(0);
     expect(result.streamContent.trim()).toBe("");
   });
@@ -80,7 +80,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Count to 3", role: "user" }];
     options.model = "ollama/qwen2:0.5b";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("1 2 3");
     expect(result.streamComplete).toBe(true);
@@ -92,7 +92,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Generate harmful content", role: "user" }];
     options.model = "gpt-4o";
     options.stream = true;
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.chat_stream(options)).rejects.toThrow();
   });
 
   it('stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream', async () => {
@@ -101,7 +101,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Say done", role: "user" }];
     options.model = "gpt-4";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.streamComplete).toBe(true);
     expect(result.streamContent.trim()).toBe("Done");
     expect(result.noChunksAfterDone).toBe(true);
@@ -113,7 +113,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Hello", role: "user" }];
     options.model = "gpt-4";
     options.stream = true;
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.chat_stream(options)).rejects.toThrow();
   });
 
   it('stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)', async () => {
@@ -123,7 +123,7 @@ describe('streaming', () => {
     options.model = "gpt-4o";
     options.n = BigInt(2);
     options.stream = true;
-    const result = await client.chat(options);
+    await client.chat_stream(options);
   });
 
   it('stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks', async () => {
@@ -133,7 +133,7 @@ describe('streaming', () => {
     options.model = "gpt-4";
     options.stream = true;
     options.tools = [{ function: { description: "Get the current weather for a given location", name: "get_weather", parameters: { properties: { location: { description: "The city and state, e.g. New York, NY", type: "string" } }, required: ["location"], type: "object" } }, type: "function" }];
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(4);
     expect(result.finishReason.trim()).toBe("tool_calls");
     expect(result.toolCalls.length).toBeGreaterThan(0);
@@ -147,7 +147,7 @@ describe('streaming', () => {
     options.model = "gpt-4";
     options.stream = true;
     options.streamOptions = { include_usage: true };
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(3);
     expect(result.streamContent.trim()).toBe("Hi there!");
     expect(result.usage.totalTokens).toBe(18);
@@ -160,7 +160,7 @@ describe('streaming', () => {
     options.messages = [{ content: "Count to three, one word per response.", role: "user" }];
     options.model = "vertex_ai/gemini-2.0-flash";
     options.stream = true;
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.chunks.length).toBeGreaterThanOrEqual(2);
     expect(result.streamContent.trim()).toBe("One Two Three");
     expect(result.streamComplete).toBe(true);

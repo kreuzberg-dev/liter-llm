@@ -5,14 +5,14 @@ defmodule E2e.RerankTest do
 
   describe "edge_rerank_empty_query" do
     test "Reranking with an empty query string" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.rerank_async(nil)
       assert length(result.results) == 2
     end
   end
 
   describe "edge_rerank_single_doc" do
     test "Reranking with only a single document" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.rerank_async(nil)
       assert length(result.results) == 1
       assert result.results["0"].relevance_score > 0.9
     end
@@ -20,19 +20,19 @@ defmodule E2e.RerankTest do
 
   describe "error_rerank_auth_401" do
     test "401 Unauthorized for reranking with invalid API key" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.rerank_async(nil)
     end
   end
 
   describe "error_rerank_bad_request" do
     test "400 Bad Request for reranking with invalid model" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.rerank_async(nil)
     end
   end
 
   describe "smoke_rerank_basic" do
     test "Basic reranking of documents against a query" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.rerank_async(nil)
       assert length(result.results) == 3
       assert result.results["0"].relevance_score > 0.9
     end
@@ -40,7 +40,7 @@ defmodule E2e.RerankTest do
 
   describe "smoke_rerank_return_docs" do
     test "Reranking with return_documents flag to include document text" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.rerank_async(nil)
       assert length(result.results) == 2
       assert result.results["0"].document != ""
       assert result.results["0"].relevance_score > 0.9
@@ -49,7 +49,7 @@ defmodule E2e.RerankTest do
 
   describe "smoke_rerank_with_top_n" do
     test "Reranking with top_n parameter to limit results" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.rerank_async(nil)
       assert length(result.results) == 2
       assert result.results["0"].relevance_score > 0.9
     end

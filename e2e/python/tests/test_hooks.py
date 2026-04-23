@@ -9,7 +9,7 @@ from liter_llm import chat
 async def test_hook_guardrail() -> None:
     """Tests that on_request hook can reject a request."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "HookRejected" in str(exc_info.value)  # noqa: S101
 

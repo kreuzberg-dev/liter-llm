@@ -5,14 +5,14 @@ defmodule E2e.TranscribeTest do
 
   describe "edge_transcribe_empty_audio" do
     test "Transcription of a silent or empty audio file returns empty text" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.transcribe_async(nil)
       assert String.contains?(to_string(result.text), "")
     end
   end
 
   describe "edge_transcribe_with_timestamps" do
     test "Transcription with verbose JSON response format including timestamp segments" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.transcribe_async(nil)
       assert result.text != ""
       assert length(result.segments) == 3
       assert result.segments["0"].id == 0
@@ -21,26 +21,26 @@ defmodule E2e.TranscribeTest do
 
   describe "error_transcribe_auth_401" do
     test "401 Unauthorized for transcription with invalid API key" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.transcribe_async(nil)
     end
   end
 
   describe "error_transcribe_bad_format" do
     test "400 Bad Request when audio format is unsupported" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.transcribe_async(nil)
     end
   end
 
   describe "smoke_transcribe_basic" do
     test "Basic audio transcription" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.transcribe_async(nil)
       assert String.contains?(to_string(result.text), "Hello, this is a test transcription.")
     end
   end
 
   describe "smoke_transcribe_with_language" do
     test "Audio transcription with explicit language hint" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.transcribe_async(nil)
       assert String.contains?(to_string(result.text), "Hallo, dies ist ein Testtranskription.")
     end
   end

@@ -6,6 +6,6 @@ describe('parity', () => {
   it('api_surface_parity: Canonical API surface definition for cross-binding parity verification', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
     const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    await client.chat(options);
   });
 });

@@ -11,16 +11,19 @@ public class ImagesResponseBuilder {
     private long created = 0;
     private List<Image> data = List.of();
 
-    public ImagesResponseBuilder withCreated(long value) {
+    /** Sets the created field. */
+    public ImagesResponseBuilder withCreated(final long value) {
         this.created = value;
         return this;
     }
 
-    public ImagesResponseBuilder withData(List<Image> value) {
+    /** Sets the data field. */
+    public ImagesResponseBuilder withData(final List<Image> value) {
         this.data = value;
         return this;
     }
 
+    /** Builds the ImagesResponse instance. */
     public ImagesResponse build() {
         return new ImagesResponse(
             created,

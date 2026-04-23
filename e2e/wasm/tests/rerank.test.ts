@@ -9,7 +9,7 @@ describe('rerank', () => {
     options.documents = ["Some document", "Another document"];
     options.model = "rerank-v3.5";
     options.query = "";
-    const result = await client.chat(options);
+    const result = await client.rerank(options);
     expect(result.results.length).toBe(2);
   });
 
@@ -19,7 +19,7 @@ describe('rerank', () => {
     options.documents = ["Artificial intelligence is the simulation of human intelligence."];
     options.model = "rerank-v3.5";
     options.query = "What is AI?";
-    const result = await client.chat(options);
+    const result = await client.rerank(options);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });
@@ -30,7 +30,7 @@ describe('rerank', () => {
     options.documents = ["doc1"];
     options.model = "rerank-v3.5";
     options.query = "test";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.rerank(options)).rejects.toThrow();
   });
 
   it('error_rerank_bad_request: 400 Bad Request for reranking with invalid model', async () => {
@@ -39,7 +39,7 @@ describe('rerank', () => {
     options.documents = ["doc1"];
     options.model = "nonexistent-rerank";
     options.query = "test";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.rerank(options)).rejects.toThrow();
   });
 
   it('smoke_rerank_basic: Basic reranking of documents against a query', async () => {
@@ -48,7 +48,7 @@ describe('rerank', () => {
     options.documents = ["Machine learning is a subset of AI.", "The weather is sunny today.", "Deep learning uses neural networks."];
     options.model = "rerank-v3.5";
     options.query = "What is machine learning?";
-    const result = await client.chat(options);
+    const result = await client.rerank(options);
     expect(result.results.length).toBe(3);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });
@@ -60,7 +60,7 @@ describe('rerank', () => {
     options.model = "rerank-v3.5";
     options.query = "What is Rust?";
     options.returnDocuments = true;
-    const result = await client.chat(options);
+    const result = await client.rerank(options);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").document.length).toBeGreaterThan(0);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
@@ -73,7 +73,7 @@ describe('rerank', () => {
     options.model = "rerank-v3.5";
     options.query = "What is Python?";
     options.topN = 2;
-    const result = await client.chat(options);
+    const result = await client.rerank(options);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
   });

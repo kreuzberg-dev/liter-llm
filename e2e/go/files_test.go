@@ -11,7 +11,7 @@ import (
 
 func Test_EdgeFileEmptyList(t *testing.T) {
 	// List files when no files have been uploaded
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_files(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -20,7 +20,7 @@ func Test_EdgeFileEmptyList(t *testing.T) {
 
 func Test_EdgeFileLargeUpload(t *testing.T) {
 	// Upload a large file successfully
-	result, err := pkg.chat(nil)
+	result, err := pkg.create_file(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -31,7 +31,7 @@ func Test_EdgeFileLargeUpload(t *testing.T) {
 
 func Test_ErrorFileAuth401(t *testing.T) {
 	// 401 Unauthorized when listing files with invalid API key
-	_, err := pkg.chat(nil)
+	_, err := pkg.list_files(`{}`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -39,7 +39,7 @@ func Test_ErrorFileAuth401(t *testing.T) {
 
 func Test_ErrorFileBadPurpose(t *testing.T) {
 	// 400 Bad Request when uploading a file with invalid purpose
-	_, err := pkg.chat(nil)
+	_, err := pkg.create_file(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -47,7 +47,7 @@ func Test_ErrorFileBadPurpose(t *testing.T) {
 
 func Test_ErrorFileNotFound(t *testing.T) {
 	// 404 Not Found when retrieving a nonexistent file
-	_, err := pkg.chat(nil)
+	_, err := pkg.retrieve_file(`file-nonexistent`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -55,7 +55,7 @@ func Test_ErrorFileNotFound(t *testing.T) {
 
 func Test_SmokeCreateFile(t *testing.T) {
 	// Upload a file for use with the API
-	result, err := pkg.chat(nil)
+	result, err := pkg.create_file(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -66,7 +66,7 @@ func Test_SmokeCreateFile(t *testing.T) {
 
 func Test_SmokeDeleteFile(t *testing.T) {
 	// Delete an uploaded file
-	result, err := pkg.chat(nil)
+	result, err := pkg.delete_file(`file-abc123`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -80,7 +80,7 @@ func Test_SmokeDeleteFile(t *testing.T) {
 
 func Test_SmokeFileContent(t *testing.T) {
 	// Retrieve the content of an uploaded file
-	result, err := pkg.chat(nil)
+	result, err := pkg.file_content(`file-abc123`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -91,7 +91,7 @@ func Test_SmokeFileContent(t *testing.T) {
 
 func Test_SmokeListFiles(t *testing.T) {
 	// List all uploaded files
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_files(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -100,7 +100,7 @@ func Test_SmokeListFiles(t *testing.T) {
 
 func Test_SmokeRetrieveFile(t *testing.T) {
 	// Retrieve metadata for an uploaded file
-	result, err := pkg.chat(nil)
+	result, err := pkg.retrieve_file(`file-abc123`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

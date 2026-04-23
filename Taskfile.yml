@@ -261,10 +261,7 @@ tasks:
   generate:docs:check:
     desc: Validate API reference docs are up-to-date (CI)
     cmds:
-      - alef extract
-      - alef docs
-      - task: generate:docs:normalize
-      - git diff --exit-code docs/reference/
+      - alef verify --exit-code
 
   generate:docs:normalize:
     desc: Normalize generated docs to match pre-commit formatting

@@ -3,11 +3,13 @@ package dev.kreuzberg.literllm;
 
 /** All errors that can occur when using `liter-llm`. */
 public class LiterLlmErrorException extends Exception {
-    public LiterLlmErrorException(String message) {
+    /** Creates a new LiterLlmErrorException with the given message. */
+    public LiterLlmErrorException(final String message) {
         super(message);
     }
 
-    public LiterLlmErrorException(String message, Throwable cause) {
+    /** Creates a new LiterLlmErrorException with the given message and cause. */
+    public LiterLlmErrorException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

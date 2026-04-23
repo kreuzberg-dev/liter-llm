@@ -14,31 +14,37 @@ public class CreateSpeechRequestBuilder {
     private Optional<String> responseFormat = Optional.empty();
     private Optional<Double> speed = Optional.empty();
 
-    public CreateSpeechRequestBuilder withModel(String value) {
+    /** Sets the model field. */
+    public CreateSpeechRequestBuilder withModel(final String value) {
         this.model = value;
         return this;
     }
 
-    public CreateSpeechRequestBuilder withInput(String value) {
+    /** Sets the input field. */
+    public CreateSpeechRequestBuilder withInput(final String value) {
         this.input = value;
         return this;
     }
 
-    public CreateSpeechRequestBuilder withVoice(String value) {
+    /** Sets the voice field. */
+    public CreateSpeechRequestBuilder withVoice(final String value) {
         this.voice = value;
         return this;
     }
 
-    public CreateSpeechRequestBuilder withResponseFormat(Optional<String> value) {
+    /** Sets the responseFormat field. */
+    public CreateSpeechRequestBuilder withResponseFormat(final Optional<String> value) {
         this.responseFormat = value;
         return this;
     }
 
-    public CreateSpeechRequestBuilder withSpeed(Optional<Double> value) {
+    /** Sets the speed field. */
+    public CreateSpeechRequestBuilder withSpeed(final Optional<Double> value) {
         this.speed = value;
         return this;
     }
 
+    /** Builds the CreateSpeechRequest instance. */
     public CreateSpeechRequest build() {
         return new CreateSpeechRequest(
             model,

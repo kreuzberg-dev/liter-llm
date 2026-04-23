@@ -6,30 +6,30 @@ from typing import Any, Literal, TypeAlias, TypedDict
 class SystemMessage:
     content: str
     name: str | None
-    def __init__(self, content: str, name: str | None = None) -> None: ...
+    def __init__(self, content: str | None = None, name: str | None = None) -> None: ...
 
 class UserMessage:
     content: UserContent
     name: str | None
-    def __init__(self, content: UserContent, name: str | None = None) -> None: ...
+    def __init__(self, content: UserContent | None = None, name: str | None = None) -> None: ...
 
 class ImageUrl:
     url: str
     detail: ImageDetail | None
-    def __init__(self, url: str, detail: ImageDetail | str | None = None) -> None: ...
+    def __init__(self, url: str | None = None, detail: ImageDetail | str | None = None) -> None: ...
 
 class DocumentContent:
     data: str
     media_type: str
-    def __init__(self, data: str, media_type: str) -> None: ...
+    def __init__(self, data: str | None = None, media_type: str | None = None) -> None: ...
 
 class AudioContent:
     data: str
     format: str
     def __init__(
         self,
-        data: str,
-        format: str,
+        data: str | None = None,
+        format: str | None = None,
     ) -> None: ...
 
 class AssistantMessage:
@@ -51,17 +51,22 @@ class ToolMessage:
     content: str
     tool_call_id: str
     name: str | None
-    def __init__(self, content: str, tool_call_id: str, name: str | None = None) -> None: ...
+    def __init__(
+        self,
+        content: str | None = None,
+        tool_call_id: str | None = None,
+        name: str | None = None,
+    ) -> None: ...
 
 class DeveloperMessage:
     content: str
     name: str | None
-    def __init__(self, content: str, name: str | None = None) -> None: ...
+    def __init__(self, content: str | None = None, name: str | None = None) -> None: ...
 
 class FunctionMessage:
     content: str
     name: str
-    def __init__(self, content: str, name: str) -> None: ...
+    def __init__(self, content: str | None = None, name: str | None = None) -> None: ...
 
 class ChatCompletionTool:
     tool_type: ToolType
@@ -100,11 +105,15 @@ class FunctionCall:
 class SpecificToolChoice:
     choice_type: ToolType
     function: SpecificFunction
-    def __init__(self, choice_type: ToolType | str, function: SpecificFunction) -> None: ...
+    def __init__(
+        self,
+        choice_type: ToolType | str | None = None,
+        function: SpecificFunction | None = None,
+    ) -> None: ...
 
 class SpecificFunction:
     name: str
-    def __init__(self, name: str) -> None: ...
+    def __init__(self, name: str | None = None) -> None: ...
 
 class JsonSchemaFormat:
     name: str
@@ -113,9 +122,9 @@ class JsonSchemaFormat:
     strict: bool | None
     def __init__(
         self,
-        name: str,
-        schema: dict[str, Any],
+        name: str | None = None,
         description: str | None = None,
+        schema: dict[str, Any] | None = None,
         strict: bool | None = None,
     ) -> None: ...
 
@@ -123,7 +132,12 @@ class Usage:
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
-    def __init__(self, prompt_tokens: int, completion_tokens: int, total_tokens: int) -> None: ...
+    def __init__(
+        self,
+        prompt_tokens: int | None = None,
+        completion_tokens: int | None = None,
+        total_tokens: int | None = None,
+    ) -> None: ...
 
 class ChatCompletionRequest:
     model: str
@@ -148,8 +162,8 @@ class ChatCompletionRequest:
     extra_body: dict[str, Any] | None
     def __init__(
         self,
-        model: str,
-        messages: list[Message],
+        model: str | None = None,
+        messages: list[Message] | None = None,
         temperature: float | None = None,
         top_p: float | None = None,
         n: int | None = None,
@@ -185,11 +199,11 @@ class ChatCompletionResponse:
     service_tier: str | None
     def __init__(
         self,
-        id: str,
-        object: str,
-        created: int,
-        model: str,
-        choices: list[Choice],
+        id: str | None = None,
+        object: str | None = None,
+        created: int | None = None,
+        model: str | None = None,
+        choices: list[Choice] | None = None,
         usage: Usage | None = None,
         system_fingerprint: str | None = None,
         service_tier: str | None = None,
@@ -201,8 +215,8 @@ class Choice:
     finish_reason: FinishReason | None
     def __init__(
         self,
-        index: int,
-        message: AssistantMessage,
+        index: int | None = None,
+        message: AssistantMessage | None = None,
         finish_reason: FinishReason | str | None = None,
     ) -> None: ...
 
@@ -217,11 +231,11 @@ class ChatCompletionChunk:
     service_tier: str | None
     def __init__(
         self,
-        id: str,
-        object: str,
-        created: int,
-        model: str,
-        choices: list[StreamChoice],
+        id: str | None = None,
+        object: str | None = None,
+        created: int | None = None,
+        model: str | None = None,
+        choices: list[StreamChoice] | None = None,
         usage: Usage | None = None,
         system_fingerprint: str | None = None,
         service_tier: str | None = None,
@@ -233,8 +247,8 @@ class StreamChoice:
     finish_reason: FinishReason | None
     def __init__(
         self,
-        index: int,
-        delta: StreamDelta,
+        index: int | None = None,
+        delta: StreamDelta | None = None,
         finish_reason: FinishReason | str | None = None,
     ) -> None: ...
 
@@ -260,7 +274,7 @@ class StreamToolCall:
     function: StreamFunctionCall | None
     def __init__(
         self,
-        index: int,
+        index: int | None = None,
         id: str | None = None,
         call_type: ToolType | str | None = None,
         function: StreamFunctionCall | None = None,
@@ -321,7 +335,7 @@ class CreateImageRequest:
     user: str | None
     def __init__(
         self,
-        prompt: str,
+        prompt: str | None = None,
         model: str | None = None,
         n: int | None = None,
         size: str | None = None,
@@ -334,7 +348,7 @@ class CreateImageRequest:
 class ImagesResponse:
     created: int
     data: list[Image]
-    def __init__(self, created: int, data: list[Image]) -> None: ...
+    def __init__(self, created: int | None = None, data: list[Image] | None = None) -> None: ...
 
 class Image:
     url: str | None
@@ -355,9 +369,9 @@ class CreateSpeechRequest:
     speed: float | None
     def __init__(
         self,
-        model: str,
-        input: str,
-        voice: str,
+        model: str | None = None,
+        input: str | None = None,
+        voice: str | None = None,
         response_format: str | None = None,
         speed: float | None = None,
     ) -> None: ...
@@ -371,8 +385,8 @@ class CreateTranscriptionRequest:
     temperature: float | None
     def __init__(
         self,
-        model: str,
-        file: str,
+        model: str | None = None,
+        file: str | None = None,
         language: str | None = None,
         prompt: str | None = None,
         response_format: str | None = None,
@@ -386,7 +400,7 @@ class TranscriptionResponse:
     segments: list[TranscriptionSegment] | None
     def __init__(
         self,
-        text: str,
+        text: str | None = None,
         language: str | None = None,
         duration: float | None = None,
         segments: list[TranscriptionSegment] | None = None,
@@ -399,10 +413,10 @@ class TranscriptionSegment:
     text: str
     def __init__(
         self,
-        id: int,
-        start: float,
-        end: float,
-        text: str,
+        id: int | None = None,
+        start: float | None = None,
+        end: float | None = None,
+        text: str | None = None,
     ) -> None: ...
 
 class ModerationRequest:
@@ -539,8 +553,8 @@ class SearchRequest:
     country: str | None
     def __init__(
         self,
-        model: str,
-        query: str,
+        model: str | None = None,
+        query: str | None = None,
         max_results: int | None = None,
         search_domain_filter: list[str] | None = None,
         country: str | None = None,
@@ -609,8 +623,8 @@ class ModelsListResponse:
     data: list[ModelObject]
     def __init__(
         self,
-        object: str,
-        data: list[ModelObject],
+        object: str | None = None,
+        data: list[ModelObject] | None = None,
     ) -> None: ...
 
 class ModelObject:
@@ -620,10 +634,10 @@ class ModelObject:
     owned_by: str
     def __init__(
         self,
-        id: str,
-        object: str,
-        created: int,
-        owned_by: str,
+        id: str | None = None,
+        object: str | None = None,
+        created: int | None = None,
+        owned_by: str | None = None,
     ) -> None: ...
 
 class CustomProviderConfig:

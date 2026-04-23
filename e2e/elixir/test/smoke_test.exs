@@ -27,7 +27,7 @@ defmodule E2e.SmokeTest do
 
   describe "azure_embed" do
     test "Embedding request via Azure OpenAI using the azure/ provider prefix — response follows the standard OpenAI embeddings shape that Azure returns unchanged" do
-      {:ok, result} = LiterLlm.chat_async("Hello world")
+      {:ok, result} = LiterLlm.embed_async("Hello world")
       assert length(result.data) == 1
       assert length(result.data["0"].embedding) == 1536
     end
@@ -46,7 +46,7 @@ defmodule E2e.SmokeTest do
 
   describe "basic_embed" do
     test "Basic embedding request for a single input string" do
-      {:ok, result} = LiterLlm.chat_async("Hello world")
+      {:ok, result} = LiterLlm.embed_async("Hello world")
       assert length(result.data) == 1
       assert length(result.data["0"].embedding) == 5
     end
@@ -54,7 +54,7 @@ defmodule E2e.SmokeTest do
 
   describe "basic_list_models" do
     test "List available models from the API" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 1
     end
   end
@@ -90,7 +90,7 @@ defmodule E2e.SmokeTest do
 
   describe "local_list_models_ollama" do
     test "List models from local Ollama instance" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 1
     end
   end
@@ -128,14 +128,14 @@ defmodule E2e.SmokeTest do
 
   describe "smoke_embed_openai" do
     test "Embeddings request against real OpenAI API" do
-      {:ok, result} = LiterLlm.chat_async(["Hello world"])
+      {:ok, result} = LiterLlm.embed_async(["Hello world"])
       assert result.data != ""
     end
   end
 
   describe "smoke_list_models_openai" do
     test "List models against real OpenAI API" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 1
     end
   end
@@ -149,7 +149,7 @@ defmodule E2e.SmokeTest do
 
   describe "smoke_streaming_openai" do
     test "Chat streaming against real OpenAI API, verifies chunks received" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 1
     end
   end
@@ -167,7 +167,7 @@ defmodule E2e.SmokeTest do
 
   describe "vertex_embed" do
     test "Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape" do
-      {:ok, result} = LiterLlm.chat_async("Hello")
+      {:ok, result} = LiterLlm.embed_async("Hello")
       assert length(result.data) == 1
       assert length(result.data["0"].embedding) == 160
     end

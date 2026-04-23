@@ -9,14 +9,14 @@ class RerankTest {
     @Test
     void testEdgeRerankEmptyQuery() throws Exception {
         // Reranking with an empty query string
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.rerank(null);
         assertEquals(2, result.results().size(), "expected exactly 2 elements");
     }
 
     @Test
     void testEdgeRerankSingleDoc() throws Exception {
         // Reranking with only a single document
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.rerank(null);
         assertEquals(1, result.results().size(), "expected exactly 1 elements");
         assertTrue(result.results().get("0").relevanceScore() > 0.9d, "expected > 0.9d");
     }
@@ -24,19 +24,19 @@ class RerankTest {
     @Test
     void testErrorRerankAuth401() throws Exception {
         // 401 Unauthorized for reranking with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.rerank(null));
     }
 
     @Test
     void testErrorRerankBadRequest() throws Exception {
         // 400 Bad Request for reranking with invalid model
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.rerank(null));
     }
 
     @Test
     void testSmokeRerankBasic() throws Exception {
         // Basic reranking of documents against a query
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.rerank(null);
         assertEquals(3, result.results().size(), "expected exactly 3 elements");
         assertTrue(result.results().get("0").relevanceScore() > 0.9d, "expected > 0.9d");
     }
@@ -44,7 +44,7 @@ class RerankTest {
     @Test
     void testSmokeRerankReturnDocs() throws Exception {
         // Reranking with return_documents flag to include document text
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.rerank(null);
         assertEquals(2, result.results().size(), "expected exactly 2 elements");
         assertFalse(result.results().get("0").document().isEmpty(), "expected non-empty value");
         assertTrue(result.results().get("0").relevanceScore() > 0.9d, "expected > 0.9d");
@@ -53,7 +53,7 @@ class RerankTest {
     @Test
     void testSmokeRerankWithTopN() throws Exception {
         // Reranking with top_n parameter to limit results
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.rerank(null);
         assertEquals(2, result.results().size(), "expected exactly 2 elements");
         assertTrue(result.results().get("0").relevanceScore() > 0.9d, "expected > 0.9d");
     }

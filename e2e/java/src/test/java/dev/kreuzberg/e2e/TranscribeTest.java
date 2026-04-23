@@ -9,14 +9,14 @@ class TranscribeTest {
     @Test
     void testEdgeTranscribeEmptyAudio() throws Exception {
         // Transcription of a silent or empty audio file returns empty text
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.transcribe(null);
         assertTrue(result.text().contains(""), "expected to contain: " + "");
     }
 
     @Test
     void testEdgeTranscribeWithTimestamps() throws Exception {
         // Transcription with verbose JSON response format including timestamp segments
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.transcribe(null);
         assertFalse(result.text().isEmpty(), "expected non-empty value");
         assertEquals(3, result.segments().size(), "expected exactly 3 elements");
         assertEquals(0, result.segments().get("0").id());
@@ -25,26 +25,26 @@ class TranscribeTest {
     @Test
     void testErrorTranscribeAuth401() throws Exception {
         // 401 Unauthorized for transcription with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.transcribe(null));
     }
 
     @Test
     void testErrorTranscribeBadFormat() throws Exception {
         // 400 Bad Request when audio format is unsupported
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.transcribe(null));
     }
 
     @Test
     void testSmokeTranscribeBasic() throws Exception {
         // Basic audio transcription
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.transcribe(null);
         assertTrue(result.text().contains("Hello, this is a test transcription."), "expected to contain: " + "Hello, this is a test transcription.");
     }
 
     @Test
     void testSmokeTranscribeWithLanguage() throws Exception {
         // Audio transcription with explicit language hint
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.transcribe(null);
         assertTrue(result.text().contains("Hallo, dies ist ein Testtranskription."), "expected to contain: " + "Hallo, dies ist ein Testtranskription.");
     }
 

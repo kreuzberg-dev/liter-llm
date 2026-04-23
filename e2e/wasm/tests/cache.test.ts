@@ -35,7 +35,7 @@ describe('cache', () => {
     const options = new WasmChatCompletionRequest();
     options.messages = [{ content: "Hello", role: "user" }];
     options.model = "gpt-4";
-    const result = await client.chat(options);
+    const result = await client.chat_stream(options);
     expect(result.cacheBypassed).toBe(true);
   });
 });

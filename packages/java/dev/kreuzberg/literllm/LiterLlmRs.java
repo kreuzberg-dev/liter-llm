@@ -7,7 +7,7 @@ import java.lang.foreign.MemorySegment;
 public final class LiterLlmRs {
     private LiterLlmRs() { }
 
-    public static DefaultClient createClient(String apiKey, String baseUrl, long timeoutSecs, int maxRetries, String modelHint) throws LiterLlmRsException {
+    public static DefaultClient createClient(final String apiKey, final String baseUrl, final long timeoutSecs, final int maxRetries, final String modelHint) throws LiterLlmRsException {
         try (var arena = Arena.ofConfined()) {
             var capiKey = arena.allocateFrom(apiKey);
             var cbaseUrl = arena.allocateFrom(baseUrl);
@@ -23,7 +23,7 @@ public final class LiterLlmRs {
         }
     }
 
-    public static DefaultClient createClientFromJson(String json) throws LiterLlmRsException {
+    public static DefaultClient createClientFromJson(final String json) throws LiterLlmRsException {
         try (var arena = Arena.ofConfined()) {
             var cjson = arena.allocateFrom(json);
             var resultPtr = (MemorySegment) NativeLib.LITERLLM_CREATE_CLIENT_FROM_JSON.invoke(cjson);
@@ -37,7 +37,7 @@ public final class LiterLlmRs {
         }
     }
 
-    public static void registerCustomProvider(CustomProviderConfig config) throws LiterLlmRsException {
+    public static void registerCustomProvider(final CustomProviderConfig config) throws LiterLlmRsException {
         try (var arena = Arena.ofConfined()) {
             var cconfigJson = config != null ? createObjectMapper().writeValueAsString(config) : null;
             var cconfigJsonSeg = cconfigJson != null ? arena.allocateFrom(cconfigJson) : MemorySegment.NULL;
@@ -53,7 +53,7 @@ public final class LiterLlmRs {
         }
     }
 
-    public static boolean unregisterCustomProvider(String name) throws LiterLlmRsException {
+    public static boolean unregisterCustomProvider(final String name) throws LiterLlmRsException {
         try (var arena = Arena.ofConfined()) {
             var cname = arena.allocateFrom(name);
             var primitiveResult = (boolean) NativeLib.LITERLLM_UNREGISTER_CUSTOM_PROVIDER.invoke(cname);

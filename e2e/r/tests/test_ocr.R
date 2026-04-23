@@ -2,20 +2,20 @@
 # E2e tests for category: ocr
 
 test_that("ocr_error_400: 400 Bad Request error when OCR input has an invalid image format", {
-  expect_error(chat())
+  expect_error(ocr())
 })
 
 test_that("ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials", {
-  expect_error(chat())
+  expect_error(ocr())
 })
 
 test_that("ocr_multi_page: OCR request returning multiple pages of document content", {
-  result <- chat()
+  result <- ocr()
   expect_equal(length(result$pages), 2)
   expect_equal(trimws(result$pages[["0"]]$index), 0)
   expect_equal(trimws(result$pages[["1"]]$index), 1)
 })
 
 test_that("ocr_url_document: OCR request with a document URL input", {
-  result <- chat()
+  result <- ocr()
 })

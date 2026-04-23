@@ -8,19 +8,22 @@ public enum ToolChoice {
     Mode("mode"),
     Specific("specific");
 
+    /** The string value. */
     private final String value;
 
-    ToolChoice(String value) {
+    ToolChoice(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static ToolChoice fromValue(String value) {
+    public static ToolChoice fromValue(final String value) {
         for (ToolChoice e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

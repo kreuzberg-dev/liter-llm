@@ -12,7 +12,7 @@ import (
 
 func Test_EdgeTranscribeEmptyAudio(t *testing.T) {
 	// Transcription of a silent or empty audio file returns empty text
-	result, err := pkg.chat(nil)
+	result, err := pkg.transcribe(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -23,7 +23,7 @@ func Test_EdgeTranscribeEmptyAudio(t *testing.T) {
 
 func Test_EdgeTranscribeWithTimestamps(t *testing.T) {
 	// Transcription with verbose JSON response format including timestamp segments
-	result, err := pkg.chat(nil)
+	result, err := pkg.transcribe(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -38,7 +38,7 @@ func Test_EdgeTranscribeWithTimestamps(t *testing.T) {
 
 func Test_ErrorTranscribeAuth401(t *testing.T) {
 	// 401 Unauthorized for transcription with invalid API key
-	_, err := pkg.chat(nil)
+	_, err := pkg.transcribe(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -46,7 +46,7 @@ func Test_ErrorTranscribeAuth401(t *testing.T) {
 
 func Test_ErrorTranscribeBadFormat(t *testing.T) {
 	// 400 Bad Request when audio format is unsupported
-	_, err := pkg.chat(nil)
+	_, err := pkg.transcribe(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -54,7 +54,7 @@ func Test_ErrorTranscribeBadFormat(t *testing.T) {
 
 func Test_SmokeTranscribeBasic(t *testing.T) {
 	// Basic audio transcription
-	result, err := pkg.chat(nil)
+	result, err := pkg.transcribe(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -65,7 +65,7 @@ func Test_SmokeTranscribeBasic(t *testing.T) {
 
 func Test_SmokeTranscribeWithLanguage(t *testing.T) {
 	// Audio transcription with explicit language hint
-	result, err := pkg.chat(nil)
+	result, err := pkg.transcribe(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

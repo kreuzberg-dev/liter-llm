@@ -2,22 +2,22 @@
 # E2e tests for category: search
 
 test_that("search_basic: Basic web search request with a simple query", {
-  result <- chat()
+  result <- search()
 })
 
 test_that("search_empty_results: Web search with a query that returns no results", {
-  result <- chat()
+  result <- search()
 })
 
 test_that("search_error_400: 400 Bad Request error when search query is empty", {
-  expect_error(chat())
+  expect_error(search())
 })
 
 test_that("search_error_401: 401 Unauthorized error on web search due to invalid API credentials", {
-  expect_error(chat())
+  expect_error(search())
 })
 
 test_that("search_with_max_results: Search request with max_results parameter limiting response count", {
-  result <- chat()
+  result <- search()
   expect_equal(length(result$results), 2)
 })

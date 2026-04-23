@@ -14,7 +14,7 @@ import (
 
 func Test_AnthropicStream(t *testing.T) {
 	// Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -27,7 +27,7 @@ func Test_AnthropicStream(t *testing.T) {
 
 func Test_AzureStream(t *testing.T) {
 	// Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -40,7 +40,7 @@ func Test_AzureStream(t *testing.T) {
 
 func Test_BasicStream(t *testing.T) {
 	// Streaming chat completion that produces content across multiple SSE chunks
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -52,7 +52,7 @@ func Test_BasicStream(t *testing.T) {
 
 func Test_BedrockStream(t *testing.T) {
 	// Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -65,7 +65,7 @@ func Test_BedrockStream(t *testing.T) {
 
 func Test_EdgeStreamFunctionCall(t *testing.T) {
 	// Streaming chat completion with tool/function call chunks
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -74,7 +74,7 @@ func Test_EdgeStreamFunctionCall(t *testing.T) {
 
 func Test_EmptyStream(t *testing.T) {
 	// Streaming chat completion that produces no content chunks before the DONE signal
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -86,7 +86,7 @@ func Test_EmptyStream(t *testing.T) {
 
 func Test_LocalStreamOllama(t *testing.T) {
 	// Streaming chat completion via Ollama local provider with SSE chunks
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -99,7 +99,7 @@ func Test_LocalStreamOllama(t *testing.T) {
 
 func Test_StreamContentPolicyError(t *testing.T) {
 	// 400 Bad Request error on stream due to content policy violation
-	_, err := pkg.chat(nil)
+	_, err := pkg.chat_stream(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -107,7 +107,7 @@ func Test_StreamContentPolicyError(t *testing.T) {
 
 func Test_StreamDoneSignal(t *testing.T) {
 	// Verify that the [DONE] sentinel signal properly terminates the stream
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -120,7 +120,7 @@ func Test_StreamDoneSignal(t *testing.T) {
 
 func Test_StreamError401(t *testing.T) {
 	// 401 Unauthorized error on stream initiation before any chunks are received
-	_, err := pkg.chat(nil)
+	_, err := pkg.chat_stream(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -128,7 +128,7 @@ func Test_StreamError401(t *testing.T) {
 
 func Test_StreamMultipleChoices(t *testing.T) {
 	// Streaming chat completion with multiple choice outputs (n > 1)
-	_, err := pkg.chat(nil)
+	_, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -136,7 +136,7 @@ func Test_StreamMultipleChoices(t *testing.T) {
 
 func Test_StreamWithToolCalls(t *testing.T) {
 	// Streaming chat completion where the assistant responds with a tool call across multiple chunks
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -154,7 +154,7 @@ func Test_StreamWithToolCalls(t *testing.T) {
 
 func Test_StreamWithUsage(t *testing.T) {
 	// Streaming chat completion that includes a usage summary in the final chunk
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -169,7 +169,7 @@ func Test_StreamWithUsage(t *testing.T) {
 
 func Test_VertexStream(t *testing.T) {
 	// Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

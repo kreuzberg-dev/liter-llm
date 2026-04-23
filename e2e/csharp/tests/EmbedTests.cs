@@ -16,7 +16,7 @@ public class EmbedTests
     public async Task Test_BatchEmbed()
     {
         // Embedding request with multiple input strings returns one embedding object per input
-        var result = await LiterLlmLib.Chat(new[] { "Hello", "World" });
+        var result = await LiterLlmLib.Embed(new[] { "Hello", "World" });
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(5, result.Data["0"].Embedding.Count);
     }
@@ -25,7 +25,7 @@ public class EmbedTests
     public async Task Test_EdgeEmbedBatchInput()
     {
         // Embedding request with multiple inputs returns multiple embedding objects
-        var result = await LiterLlmLib.Chat(new[] { "Hello world", "Goodbye world" });
+        var result = await LiterLlmLib.Embed(new[] { "Hello world", "Goodbye world" });
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(0, result.Data["0"].Index);
         Assert.Equal(1, result.Data["1"].Index);
@@ -35,7 +35,7 @@ public class EmbedTests
     public async Task Test_EdgeEmbedEmptyInput()
     {
         // Embedding request with empty string input returns empty data array
-        var result = await LiterLlmLib.Chat("");
+        var result = await LiterLlmLib.Embed("");
         Assert.Equal(0, result.Data.Count);
     }
 
@@ -43,7 +43,7 @@ public class EmbedTests
     public async Task Test_EmbedEncodingFormat()
     {
         // Embedding request with explicit encoding_format of float returns float array embeddings
-        var result = await LiterLlmLib.Chat("Test input");
+        var result = await LiterLlmLib.Embed("Test input");
         Assert.Equal(1, result.Data.Count);
         Assert.Equal(5, result.Data["0"].Embedding.Count);
     }
@@ -52,14 +52,14 @@ public class EmbedTests
     public async Task Test_EmbedError401()
     {
         // 401 Unauthorized error on embedding request when API key is invalid
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello world"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Embed("Hello world"));
     }
 
     [Fact]
     public async Task Test_EmbedWithDimensions()
     {
         // Embedding request with explicit dimensions parameter returns embeddings of the requested size
-        var result = await LiterLlmLib.Chat("Hello world");
+        var result = await LiterLlmLib.Embed("Hello world");
         Assert.Equal(1, result.Data.Count);
         Assert.Equal(8, result.Data["0"].Embedding.Count);
     }
@@ -68,7 +68,7 @@ public class EmbedTests
     public async Task Test_LocalEmbedOllama()
     {
         // Embedding request via Ollama local provider with all-minilm model
-        var result = await LiterLlmLib.Chat("The quick brown fox jumps over the lazy dog");
+        var result = await LiterLlmLib.Embed("The quick brown fox jumps over the lazy dog");
         Assert.Equal(1, result.Data.Count);
         Assert.Equal(32, result.Data["0"].Embedding.Count);
     }

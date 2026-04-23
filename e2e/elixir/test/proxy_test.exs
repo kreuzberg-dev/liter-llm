@@ -26,7 +26,7 @@ defmodule E2e.ProxyTest do
 
   describe "proxy_chat_streaming" do
     test "Streaming chat completion routed through the proxy" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.chat_stream_async(nil)
       assert length(result.chunks) >= 3
       assert String.trim(result.stream_content) == "1 2 3"
       assert result.stream_complete == true
@@ -35,21 +35,21 @@ defmodule E2e.ProxyTest do
 
   describe "proxy_embeddings" do
     test "Embedding request routed through the proxy" do
-      {:ok, result} = LiterLlm.chat_async("Hello world")
+      {:ok, result} = LiterLlm.embed_async("Hello world")
       assert length(result.data) == 1
     end
   end
 
   describe "proxy_health" do
     test "Health check verifying proxy connectivity via list models" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 1
     end
   end
 
   describe "proxy_image_generate" do
     test "Image generation request routed through the proxy" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.image_generate_async(nil)
       assert length(result.data) == 1
       assert result.data["0"].url != ""
     end
@@ -57,14 +57,14 @@ defmodule E2e.ProxyTest do
 
   describe "proxy_models_list" do
     test "List models request routed through the proxy" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 1
     end
   end
 
   describe "proxy_moderation" do
     test "Content moderation request routed through the proxy" do
-      {:ok, result} = LiterLlm.chat_async("The weather is nice today.")
+      {:ok, result} = LiterLlm.moderate_async("The weather is nice today.")
       assert length(result.results) == 1
       assert result.results["0"].flagged == false
     end
@@ -72,7 +72,7 @@ defmodule E2e.ProxyTest do
 
   describe "proxy_rerank" do
     test "Document reranking request routed through the proxy" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.rerank_async(nil)
       assert length(result.results) == 2
       assert result.results["0"].relevance_score > 0.9
     end

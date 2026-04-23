@@ -33,7 +33,7 @@ func Test_BindingApiParity(t *testing.T) {
 
 func Test_ContractOcr(t *testing.T) {
 	// Verify ocr() method exists in all bindings
-	_, err := pkg.chat(nil)
+	_, err := pkg.ocr(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -41,7 +41,7 @@ func Test_ContractOcr(t *testing.T) {
 
 func Test_ContractSearch(t *testing.T) {
 	// Verify search() method exists in all bindings
-	_, err := pkg.chat(nil)
+	_, err := pkg.search(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

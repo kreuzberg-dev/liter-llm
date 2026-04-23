@@ -2,39 +2,39 @@
 # E2e tests for category: moderate
 
 test_that("edge_moderate_all_categories: Moderation response with multiple categories flagged", {
-  result <- chat(request = "extremely harmful content targeting multiple categories")
+  result <- moderate(request = "extremely harmful content targeting multiple categories")
   expect_equal(length(result$results), 1)
   expect_equal(trimws(result$results[["0"]]$flagged), TRUE)
 })
 
 test_that("edge_moderate_empty_input: Moderation with empty string input", {
-  result <- chat(request = "")
+  result <- moderate(request = "")
   expect_equal(length(result$results), 1)
   expect_equal(trimws(result$results[["0"]]$flagged), FALSE)
 })
 
 test_that("error_moderate_auth_401: 401 Unauthorized for moderation with invalid API key", {
-  expect_error(chat(request = "hello"))
+  expect_error(moderate(request = "hello"))
 })
 
 test_that("error_moderate_bad_request: 400 Bad Request for moderation with invalid model", {
-  expect_error(chat(request = "hello"))
+  expect_error(moderate(request = "hello"))
 })
 
 test_that("smoke_moderate_batch: Moderate multiple inputs in a single request", {
-  result <- chat(request = c("hello world", "nice weather today"))
+  result <- moderate(request = c("hello world", "nice weather today"))
   expect_equal(length(result$results), 2)
   expect_equal(trimws(result$results[["0"]]$flagged), FALSE)
 })
 
 test_that("smoke_moderate_flagged: Moderation detects flagged content", {
-  result <- chat(request = "i want to hurt someone very badly")
+  result <- moderate(request = "i want to hurt someone very badly")
   expect_equal(length(result$results), 1)
   expect_equal(trimws(result$results[["0"]]$flagged), TRUE)
 })
 
 test_that("smoke_moderate_single: Moderate a single non-flagged input", {
-  result <- chat(request = "the weather is nice today.")
+  result <- moderate(request = "the weather is nice today.")
   expect_equal(length(result$results), 1)
   expect_equal(trimws(result$results[["0"]]$flagged), FALSE)
 })

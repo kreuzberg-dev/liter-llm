@@ -6,6 +6,8 @@ package e2e_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	pkg "liter_llm"
 )
 
@@ -38,7 +40,7 @@ func Test_CacheOpendalMemory(t *testing.T) {
 
 func Test_CacheStreamBypass(t *testing.T) {
 	// Tests that streaming requests bypass cache entirely
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

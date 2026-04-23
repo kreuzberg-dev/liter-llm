@@ -40,7 +40,7 @@ public class ProxyTests
     public async Task Test_ProxyChatStreaming()
     {
         // Streaming chat completion routed through the proxy
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ChatStream(null);
         Assert.True(result.Chunks.Count >= 3, "expected at least 3 elements");
         Assert.Equal("1 2 3", result.StreamContent.Trim());
         Assert.True(result.StreamComplete);
@@ -50,7 +50,7 @@ public class ProxyTests
     public async Task Test_ProxyEmbeddings()
     {
         // Embedding request routed through the proxy
-        var result = await LiterLlmLib.Chat("Hello world");
+        var result = await LiterLlmLib.Embed("Hello world");
         Assert.Equal(1, result.Data.Count);
     }
 
@@ -58,7 +58,7 @@ public class ProxyTests
     public async Task Test_ProxyHealth()
     {
         // Health check verifying proxy connectivity via list models
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{}");
         Assert.True(result.Data.Count >= 1, "expected at least 1 elements");
     }
 
@@ -66,7 +66,7 @@ public class ProxyTests
     public async Task Test_ProxyImageGenerate()
     {
         // Image generation request routed through the proxy
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ImageGenerate(null);
         Assert.Equal(1, result.Data.Count);
         Assert.False(string.IsNullOrEmpty(result.Data["0"].Url?.ToString()));
     }
@@ -75,7 +75,7 @@ public class ProxyTests
     public async Task Test_ProxyModelsList()
     {
         // List models request routed through the proxy
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{}");
         Assert.True(result.Data.Count >= 1, "expected at least 1 elements");
     }
 
@@ -83,7 +83,7 @@ public class ProxyTests
     public async Task Test_ProxyModeration()
     {
         // Content moderation request routed through the proxy
-        var result = await LiterLlmLib.Chat("The weather is nice today.");
+        var result = await LiterLlmLib.Moderate("The weather is nice today.");
         Assert.Equal(1, result.Results.Count);
         Assert.Equal(false, result.Results["0"].Flagged);
     }
@@ -92,7 +92,7 @@ public class ProxyTests
     public async Task Test_ProxyRerank()
     {
         // Document reranking request routed through the proxy
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.Rerank(null);
         Assert.Equal(2, result.Results.Count);
         Assert.True(result.Results["0"].RelevanceScore > 0.9d, "expected > 0.9d");
     }

@@ -8,11 +8,13 @@ failures, CRC/checksum mismatches (AWS EventStream), JSON parse errors
 in individual SSE chunks, and buffer overflow conditions.  The `message`
 field contains a human-readable description of the specific failure. */
 public class StreamingException extends LiterLlmErrorException {
-    public StreamingException(String message) {
+    /** Creates a new StreamingException with the given message. */
+    public StreamingException(final String message) {
         super(message);
     }
 
-    public StreamingException(String message, Throwable cause) {
+    /** Creates a new StreamingException with the given message and cause. */
+    public StreamingException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

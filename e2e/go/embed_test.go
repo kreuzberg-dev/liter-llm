@@ -11,7 +11,7 @@ import (
 
 func Test_BatchEmbed(t *testing.T) {
 	// Embedding request with multiple input strings returns one embedding object per input
-	result, err := pkg.chat(`["Hello","World"]`)
+	result, err := pkg.embed(`["Hello","World"]`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -21,7 +21,7 @@ func Test_BatchEmbed(t *testing.T) {
 
 func Test_EdgeEmbedBatchInput(t *testing.T) {
 	// Embedding request with multiple inputs returns multiple embedding objects
-	result, err := pkg.chat(`["Hello world","Goodbye world"]`)
+	result, err := pkg.embed(`["Hello world","Goodbye world"]`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -36,7 +36,7 @@ func Test_EdgeEmbedBatchInput(t *testing.T) {
 
 func Test_EdgeEmbedEmptyInput(t *testing.T) {
 	// Embedding request with empty string input returns empty data array
-	result, err := pkg.chat(``)
+	result, err := pkg.embed(``)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -45,7 +45,7 @@ func Test_EdgeEmbedEmptyInput(t *testing.T) {
 
 func Test_EmbedEncodingFormat(t *testing.T) {
 	// Embedding request with explicit encoding_format of float returns float array embeddings
-	result, err := pkg.chat(`Test input`)
+	result, err := pkg.embed(`Test input`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -55,7 +55,7 @@ func Test_EmbedEncodingFormat(t *testing.T) {
 
 func Test_EmbedError401(t *testing.T) {
 	// 401 Unauthorized error on embedding request when API key is invalid
-	_, err := pkg.chat(`Hello world`)
+	_, err := pkg.embed(`Hello world`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -63,7 +63,7 @@ func Test_EmbedError401(t *testing.T) {
 
 func Test_EmbedWithDimensions(t *testing.T) {
 	// Embedding request with explicit dimensions parameter returns embeddings of the requested size
-	result, err := pkg.chat(`Hello world`)
+	result, err := pkg.embed(`Hello world`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -73,7 +73,7 @@ func Test_EmbedWithDimensions(t *testing.T) {
 
 func Test_LocalEmbedOllama(t *testing.T) {
 	// Embedding request via Ollama local provider with all-minilm model
-	result, err := pkg.chat(`The quick brown fox jumps over the lazy dog`)
+	result, err := pkg.embed(`The quick brown fox jumps over the lazy dog`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

@@ -15,19 +15,22 @@ public enum AuthHeaderFormat {
     /** No authentication required. */
     None("none");
 
+    /** The string value. */
     private final String value;
 
-    AuthHeaderFormat(String value) {
+    AuthHeaderFormat(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static AuthHeaderFormat fromValue(String value) {
+    public static AuthHeaderFormat fromValue(final String value) {
         for (AuthHeaderFormat e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

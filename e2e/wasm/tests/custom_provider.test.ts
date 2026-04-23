@@ -8,7 +8,7 @@ describe('custom_provider', () => {
     const options = new WasmChatCompletionRequest();
     options.messages = [{ content: "Hello", role: "user" }];
     options.model = "my-auth-model-v1";
-    const result = await client.chat(options);
+    await client.chat(options);
   });
 
   it('register_provider: Tests that a custom provider can be registered and routes requests', async () => {
@@ -16,6 +16,6 @@ describe('custom_provider', () => {
     const options = new WasmChatCompletionRequest();
     options.messages = [{ content: "Hello", role: "user" }];
     options.model = "my-model-v1";
-    const result = await client.chat(options);
+    await client.chat(options);
   });
 });

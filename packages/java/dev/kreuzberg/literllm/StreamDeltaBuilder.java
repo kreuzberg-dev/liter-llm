@@ -12,31 +12,37 @@ public class StreamDeltaBuilder {
     private Optional<StreamFunctionCall> functionCall = Optional.empty();
     private Optional<String> refusal = Optional.empty();
 
-    public StreamDeltaBuilder withRole(Optional<String> value) {
+    /** Sets the role field. */
+    public StreamDeltaBuilder withRole(final Optional<String> value) {
         this.role = value;
         return this;
     }
 
-    public StreamDeltaBuilder withContent(Optional<String> value) {
+    /** Sets the content field. */
+    public StreamDeltaBuilder withContent(final Optional<String> value) {
         this.content = value;
         return this;
     }
 
-    public StreamDeltaBuilder withToolCalls(Optional<List<StreamToolCall>> value) {
+    /** Sets the toolCalls field. */
+    public StreamDeltaBuilder withToolCalls(final Optional<List<StreamToolCall>> value) {
         this.toolCalls = value;
         return this;
     }
 
-    public StreamDeltaBuilder withFunctionCall(Optional<StreamFunctionCall> value) {
+    /** Sets the functionCall field. */
+    public StreamDeltaBuilder withFunctionCall(final Optional<StreamFunctionCall> value) {
         this.functionCall = value;
         return this;
     }
 
-    public StreamDeltaBuilder withRefusal(Optional<String> value) {
+    /** Sets the refusal field. */
+    public StreamDeltaBuilder withRefusal(final Optional<String> value) {
         this.refusal = value;
         return this;
     }
 
+    /** Builds the StreamDelta instance. */
     public StreamDelta build() {
         return new StreamDelta(
             role,

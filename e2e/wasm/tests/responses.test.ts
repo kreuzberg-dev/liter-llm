@@ -8,7 +8,7 @@ describe('responses', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "";
     options.model = "gpt-4o";
-    const result = await client.chat(options);
+    const result = await client.create_response(options);
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.status.trim()).toBe("completed");
     expect(result.output.length).toBe(0);
@@ -19,7 +19,7 @@ describe('responses', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ";
     options.model = "gpt-4o";
-    const result = await client.chat(options);
+    const result = await client.create_response(options);
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.status.trim()).toBe("completed");
     expect(result.output.length).toBe(1);
@@ -30,7 +30,7 @@ describe('responses', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello";
     options.model = "gpt-4o";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.create_response(options)).rejects.toThrow();
   });
 
   it('error_response_bad_request: 400 Bad Request when creating response with invalid model', async () => {
@@ -38,21 +38,17 @@ describe('responses', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello";
     options.model = "nonexistent-model";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.create_response(options)).rejects.toThrow();
   });
 
   it('error_response_not_found: 404 Not Found when retrieving a nonexistent response', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.responseId = "resp-nonexistent";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.retrieve_response('')).rejects.toThrow();
   });
 
   it('smoke_cancel_response: Cancel an in-progress response', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.responseId = "resp-def456";
-    const result = await client.chat(options);
+    const result = await client.cancel_response('');
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.status.trim()).toBe("cancelled");
     expect(result.output.length).toBe(0);
@@ -63,7 +59,7 @@ describe('responses', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Explain quantum computing in one sentence.";
     options.model = "gpt-4o";
-    const result = await client.chat(options);
+    const result = await client.create_response(options);
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.status.trim()).toBe("completed");
     expect(result.output.length).toBe(1);
@@ -75,7 +71,7 @@ describe('responses', () => {
     options.input = "What is the weather in San Francisco?";
     options.model = "gpt-4o";
     options.tools = [{ description: "Get current weather for a location", name: "get_weather", parameters: { properties: { location: { type: "string" } }, required: ["location"], type: "object" }, type: "function" }];
-    const result = await client.chat(options);
+    const result = await client.create_response(options);
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.status.trim()).toBe("completed");
     expect(result.output.length).toBe(2);
@@ -84,9 +80,7 @@ describe('responses', () => {
 
   it('smoke_retrieve_response: Retrieve a previously created response', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.responseId = "resp-abc123";
-    const result = await client.chat(options);
+    const result = await client.retrieve_response('');
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.status.trim()).toBe("completed");
   });

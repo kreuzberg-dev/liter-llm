@@ -17,46 +17,55 @@ public class CreateImageRequestBuilder {
     private Optional<String> responseFormat = Optional.empty();
     private Optional<String> user = Optional.empty();
 
-    public CreateImageRequestBuilder withPrompt(String value) {
+    /** Sets the prompt field. */
+    public CreateImageRequestBuilder withPrompt(final String value) {
         this.prompt = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withModel(Optional<String> value) {
+    /** Sets the model field. */
+    public CreateImageRequestBuilder withModel(final Optional<String> value) {
         this.model = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withN(Optional<Integer> value) {
+    /** Sets the n field. */
+    public CreateImageRequestBuilder withN(final Optional<Integer> value) {
         this.n = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withSize(Optional<String> value) {
+    /** Sets the size field. */
+    public CreateImageRequestBuilder withSize(final Optional<String> value) {
         this.size = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withQuality(Optional<String> value) {
+    /** Sets the quality field. */
+    public CreateImageRequestBuilder withQuality(final Optional<String> value) {
         this.quality = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withStyle(Optional<String> value) {
+    /** Sets the style field. */
+    public CreateImageRequestBuilder withStyle(final Optional<String> value) {
         this.style = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withResponseFormat(Optional<String> value) {
+    /** Sets the responseFormat field. */
+    public CreateImageRequestBuilder withResponseFormat(final Optional<String> value) {
         this.responseFormat = value;
         return this;
     }
 
-    public CreateImageRequestBuilder withUser(Optional<String> value) {
+    /** Sets the user field. */
+    public CreateImageRequestBuilder withUser(final Optional<String> value) {
         this.user = value;
         return this;
     }
 
+    /** Builds the CreateImageRequest instance. */
     public CreateImageRequest build() {
         return new CreateImageRequest(
             prompt,

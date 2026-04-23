@@ -15,31 +15,37 @@ public class SearchRequestBuilder {
     private Optional<List<String>> searchDomainFilter = Optional.empty();
     private Optional<String> country = Optional.empty();
 
-    public SearchRequestBuilder withModel(String value) {
+    /** Sets the model field. */
+    public SearchRequestBuilder withModel(final String value) {
         this.model = value;
         return this;
     }
 
-    public SearchRequestBuilder withQuery(String value) {
+    /** Sets the query field. */
+    public SearchRequestBuilder withQuery(final String value) {
         this.query = value;
         return this;
     }
 
-    public SearchRequestBuilder withMaxResults(Optional<Integer> value) {
+    /** Sets the maxResults field. */
+    public SearchRequestBuilder withMaxResults(final Optional<Integer> value) {
         this.maxResults = value;
         return this;
     }
 
-    public SearchRequestBuilder withSearchDomainFilter(Optional<List<String>> value) {
+    /** Sets the searchDomainFilter field. */
+    public SearchRequestBuilder withSearchDomainFilter(final Optional<List<String>> value) {
         this.searchDomainFilter = value;
         return this;
     }
 
-    public SearchRequestBuilder withCountry(Optional<String> value) {
+    /** Sets the country field. */
+    public SearchRequestBuilder withCountry(final Optional<String> value) {
         this.country = value;
         return this;
     }
 
+    /** Builds the SearchRequest instance. */
     public SearchRequest build() {
         return new SearchRequest(
             model,

@@ -8,7 +8,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Extremely harmful content targeting multiple categories";
     options.model = "omni-moderation-latest";
-    const result = await client.chat(options);
+    const result = await client.moderate(options);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(true);
   });
@@ -18,7 +18,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "";
     options.model = "omni-moderation-latest";
-    const result = await client.chat(options);
+    const result = await client.moderate(options);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(false);
   });
@@ -28,7 +28,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello";
     options.model = "omni-moderation-latest";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.moderate(options)).rejects.toThrow();
   });
 
   it('error_moderate_bad_request: 400 Bad Request for moderation with invalid model', async () => {
@@ -36,7 +36,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "Hello";
     options.model = "nonexistent-moderation";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.moderate(options)).rejects.toThrow();
   });
 
   it('smoke_moderate_batch: Moderate multiple inputs in a single request', async () => {
@@ -44,7 +44,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = ["Hello world", "Nice weather today"];
     options.model = "omni-moderation-latest";
-    const result = await client.chat(options);
+    const result = await client.moderate(options);
     expect(result.results.length).toBe(2);
     expect(result.results.get("0").flagged).toBe(false);
   });
@@ -54,7 +54,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "I want to hurt someone very badly";
     options.model = "omni-moderation-latest";
-    const result = await client.chat(options);
+    const result = await client.moderate(options);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(true);
   });
@@ -64,7 +64,7 @@ describe('moderate', () => {
     const options = new WasmChatCompletionRequest();
     options.input = "The weather is nice today.";
     options.model = "omni-moderation-latest";
-    const result = await client.chat(options);
+    const result = await client.moderate(options);
     expect(result.results.length).toBe(1);
     expect(result.results.get("0").flagged).toBe(false);
   });

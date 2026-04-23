@@ -5,19 +5,19 @@ defmodule E2e.OcrTest do
 
   describe "ocr_error_400" do
     test "400 Bad Request error when OCR input has an invalid image format" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.ocr_async(nil)
     end
   end
 
   describe "ocr_error_401" do
     test "401 Unauthorized error on OCR request due to invalid API credentials" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.ocr_async(nil)
     end
   end
 
   describe "ocr_multi_page" do
     test "OCR request returning multiple pages of document content" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.ocr_async(nil)
       assert length(result.pages) == 2
       assert result.pages["0"].index == 0
       assert result.pages["1"].index == 1
@@ -26,7 +26,7 @@ defmodule E2e.OcrTest do
 
   describe "ocr_url_document" do
     test "OCR request with a document URL input" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.ocr_async(nil)
     end
   end
 end

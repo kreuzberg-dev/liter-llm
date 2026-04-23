@@ -11,9 +11,9 @@ test_that("binding_api_parity: Verify all bindings expose the full API surface â
 })
 
 test_that("contract_ocr: Verify ocr() method exists in all bindings", {
-  result <- chat()
+  result <- ocr()
 })
 
 test_that("contract_search: Verify search() method exists in all bindings", {
-  result <- chat()
+  result <- search()
 })

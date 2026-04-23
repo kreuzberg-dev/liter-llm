@@ -12,19 +12,22 @@ public enum ReasoningEffort {
     Medium("medium"),
     High("high");
 
+    /** The string value. */
     private final String value;
 
-    ReasoningEffort(String value) {
+    ReasoningEffort(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static ReasoningEffort fromValue(String value) {
+    public static ReasoningEffort fromValue(final String value) {
         for (ReasoningEffort e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

@@ -2,39 +2,39 @@
 # E2e tests for category: rerank
 
 test_that("edge_rerank_empty_query: Reranking with an empty query string", {
-  result <- chat()
+  result <- rerank()
   expect_equal(length(result$results), 2)
 })
 
 test_that("edge_rerank_single_doc: Reranking with only a single document", {
-  result <- chat()
+  result <- rerank()
   expect_equal(length(result$results), 1)
   expect_true(result$results[["0"]]$relevance_score > 0.9)
 })
 
 test_that("error_rerank_auth_401: 401 Unauthorized for reranking with invalid API key", {
-  expect_error(chat())
+  expect_error(rerank())
 })
 
 test_that("error_rerank_bad_request: 400 Bad Request for reranking with invalid model", {
-  expect_error(chat())
+  expect_error(rerank())
 })
 
 test_that("smoke_rerank_basic: Basic reranking of documents against a query", {
-  result <- chat()
+  result <- rerank()
   expect_equal(length(result$results), 3)
   expect_true(result$results[["0"]]$relevance_score > 0.9)
 })
 
 test_that("smoke_rerank_return_docs: Reranking with return_documents flag to include document text", {
-  result <- chat()
+  result <- rerank()
   expect_equal(length(result$results), 2)
   expect_true(if (is.character(result$results[["0"]]$document)) nchar(result$results[["0"]]$document) > 0 else length(result$results[["0"]]$document) > 0)
   expect_true(result$results[["0"]]$relevance_score > 0.9)
 })
 
 test_that("smoke_rerank_with_top_n: Reranking with top_n parameter to limit results", {
-  result <- chat()
+  result <- rerank()
   expect_equal(length(result$results), 2)
   expect_true(result$results[["0"]]$relevance_score > 0.9)
 })

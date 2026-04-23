@@ -6,41 +6,41 @@ require 'json'
 
 RSpec.describe 'embed' do
   it 'batch_embed: Embedding request with multiple input strings returns one embedding object per input' do
-    result = LiterLlm.chat(['Hello', 'World'])
+    result = LiterLlm.embed(['Hello', 'World'])
     expect(result.data.length).to eq(2)
     expect(result.data.get("0").embedding.length).to eq(5)
   end
 
   it 'edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects' do
-    result = LiterLlm.chat(['Hello world', 'Goodbye world'])
+    result = LiterLlm.embed(['Hello world', 'Goodbye world'])
     expect(result.data.length).to eq(2)
     expect(result.data.get("0").index).to eq(0)
     expect(result.data.get("1").index).to eq(1)
   end
 
   it 'edge_embed_empty_input: Embedding request with empty string input returns empty data array' do
-    result = LiterLlm.chat('')
+    result = LiterLlm.embed('')
     expect(result.data.length).to eq(0)
   end
 
   it 'embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings' do
-    result = LiterLlm.chat('Test input')
+    result = LiterLlm.embed('Test input')
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").embedding.length).to eq(5)
   end
 
   it 'embed_error_401: 401 Unauthorized error on embedding request when API key is invalid' do
-    expect { LiterLlm.chat('Hello world') }.to raise_error
+    expect { LiterLlm.embed('Hello world') }.to raise_error
   end
 
   it 'embed_with_dimensions: Embedding request with explicit dimensions parameter returns embeddings of the requested size' do
-    result = LiterLlm.chat('Hello world')
+    result = LiterLlm.embed('Hello world')
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").embedding.length).to eq(8)
   end
 
   it 'local_embed_ollama: Embedding request via Ollama local provider with all-minilm model' do
-    result = LiterLlm.chat('The quick brown fox jumps over the lazy dog')
+    result = LiterLlm.embed('The quick brown fox jumps over the lazy dog')
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").embedding.length).to eq(32)
   end

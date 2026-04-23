@@ -58,6 +58,7 @@ pub unsafe extern "C" fn literllm_last_error_context() -> *const c_char {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_free_string(ptr: *mut c_char) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by CString::into_raw; caller ensures no aliases.
         unsafe {
             drop(CString::from_raw(ptr));
         }
@@ -85,6 +86,7 @@ pub type LiterLlmStreamCallback =
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_liter_llm_error_free(ptr: *mut liter_llm::LiterLlmError) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -104,6 +106,7 @@ pub unsafe extern "C" fn literllm_system_message_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -131,6 +134,7 @@ pub unsafe extern "C" fn literllm_system_message_to_json(ptr: *const liter_llm::
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -153,6 +157,7 @@ pub unsafe extern "C" fn literllm_system_message_to_json(ptr: *const liter_llm::
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_system_message_free(ptr: *mut liter_llm::types::SystemMessage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -169,6 +174,7 @@ pub unsafe extern "C" fn literllm_system_message_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.content.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -186,6 +192,7 @@ pub unsafe extern "C" fn literllm_system_message_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.name {
         Some(val) => match CString::new(val.to_string()) {
@@ -207,6 +214,7 @@ pub unsafe extern "C" fn literllm_user_message_from_json(json: *const c_char) ->
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -234,6 +242,7 @@ pub unsafe extern "C" fn literllm_user_message_to_json(ptr: *const liter_llm::ty
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -256,6 +265,7 @@ pub unsafe extern "C" fn literllm_user_message_to_json(ptr: *const liter_llm::ty
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_user_message_free(ptr: *mut liter_llm::types::UserMessage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -272,6 +282,7 @@ pub unsafe extern "C" fn literllm_user_message_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.content.clone()))
 }
@@ -286,6 +297,7 @@ pub unsafe extern "C" fn literllm_user_message_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.name {
         Some(val) => match CString::new(val.to_string()) {
@@ -307,6 +319,7 @@ pub unsafe extern "C" fn literllm_image_url_from_json(json: *const c_char) -> *m
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -334,6 +347,7 @@ pub unsafe extern "C" fn literllm_image_url_to_json(ptr: *const liter_llm::types
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -356,6 +370,7 @@ pub unsafe extern "C" fn literllm_image_url_to_json(ptr: *const liter_llm::types
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_image_url_free(ptr: *mut liter_llm::types::ImageUrl) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -370,6 +385,7 @@ pub unsafe extern "C" fn literllm_image_url_url(ptr: *const liter_llm::types::Im
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.url.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -387,6 +403,7 @@ pub unsafe extern "C" fn literllm_image_url_detail(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.detail {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -407,6 +424,7 @@ pub unsafe extern "C" fn literllm_document_content_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -436,6 +454,7 @@ pub unsafe extern "C" fn literllm_document_content_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -458,6 +477,7 @@ pub unsafe extern "C" fn literllm_document_content_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_document_content_free(ptr: *mut liter_llm::types::DocumentContent) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -474,6 +494,7 @@ pub unsafe extern "C" fn literllm_document_content_data(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.data.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -491,6 +512,7 @@ pub unsafe extern "C" fn literllm_document_content_media_type(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.media_type.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -509,6 +531,7 @@ pub unsafe extern "C" fn literllm_audio_content_from_json(json: *const c_char) -
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -536,6 +559,7 @@ pub unsafe extern "C" fn literllm_audio_content_to_json(ptr: *const liter_llm::t
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -558,6 +582,7 @@ pub unsafe extern "C" fn literllm_audio_content_to_json(ptr: *const liter_llm::t
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_audio_content_free(ptr: *mut liter_llm::types::AudioContent) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -574,6 +599,7 @@ pub unsafe extern "C" fn literllm_audio_content_data(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.data.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -591,6 +617,7 @@ pub unsafe extern "C" fn literllm_audio_content_format(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.format.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -611,6 +638,7 @@ pub unsafe extern "C" fn literllm_assistant_message_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -640,6 +668,7 @@ pub unsafe extern "C" fn literllm_assistant_message_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -662,6 +691,7 @@ pub unsafe extern "C" fn literllm_assistant_message_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_assistant_message_free(ptr: *mut liter_llm::types::AssistantMessage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -678,6 +708,7 @@ pub unsafe extern "C" fn literllm_assistant_message_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.content {
         Some(val) => match CString::new(val.to_string()) {
@@ -698,6 +729,7 @@ pub unsafe extern "C" fn literllm_assistant_message_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.name {
         Some(val) => match CString::new(val.to_string()) {
@@ -718,6 +750,7 @@ pub unsafe extern "C" fn literllm_assistant_message_tool_calls(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.tool_calls {
         Some(val) => match serde_json::to_string(&val) {
@@ -741,6 +774,7 @@ pub unsafe extern "C" fn literllm_assistant_message_refusal(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.refusal {
         Some(val) => match CString::new(val.to_string()) {
@@ -761,6 +795,7 @@ pub unsafe extern "C" fn literllm_assistant_message_function_call(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.function_call {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -779,6 +814,7 @@ pub unsafe extern "C" fn literllm_tool_message_from_json(json: *const c_char) ->
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -806,6 +842,7 @@ pub unsafe extern "C" fn literllm_tool_message_to_json(ptr: *const liter_llm::ty
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -828,6 +865,7 @@ pub unsafe extern "C" fn literllm_tool_message_to_json(ptr: *const liter_llm::ty
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_tool_message_free(ptr: *mut liter_llm::types::ToolMessage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -844,6 +882,7 @@ pub unsafe extern "C" fn literllm_tool_message_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.content.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -861,6 +900,7 @@ pub unsafe extern "C" fn literllm_tool_message_tool_call_id(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.tool_call_id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -878,6 +918,7 @@ pub unsafe extern "C" fn literllm_tool_message_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.name {
         Some(val) => match CString::new(val.to_string()) {
@@ -901,6 +942,7 @@ pub unsafe extern "C" fn literllm_developer_message_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -930,6 +972,7 @@ pub unsafe extern "C" fn literllm_developer_message_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -952,6 +995,7 @@ pub unsafe extern "C" fn literllm_developer_message_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_developer_message_free(ptr: *mut liter_llm::types::DeveloperMessage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -968,6 +1012,7 @@ pub unsafe extern "C" fn literllm_developer_message_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.content.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -985,6 +1030,7 @@ pub unsafe extern "C" fn literllm_developer_message_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.name {
         Some(val) => match CString::new(val.to_string()) {
@@ -1008,6 +1054,7 @@ pub unsafe extern "C" fn literllm_function_message_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1037,6 +1084,7 @@ pub unsafe extern "C" fn literllm_function_message_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1059,6 +1107,7 @@ pub unsafe extern "C" fn literllm_function_message_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_function_message_free(ptr: *mut liter_llm::types::FunctionMessage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1075,6 +1124,7 @@ pub unsafe extern "C" fn literllm_function_message_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.content.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1092,6 +1142,7 @@ pub unsafe extern "C" fn literllm_function_message_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.name.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1112,6 +1163,7 @@ pub unsafe extern "C" fn literllm_chat_completion_tool_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1141,6 +1193,7 @@ pub unsafe extern "C" fn literllm_chat_completion_tool_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1163,6 +1216,7 @@ pub unsafe extern "C" fn literllm_chat_completion_tool_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_chat_completion_tool_free(ptr: *mut liter_llm::types::ChatCompletionTool) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1179,6 +1233,7 @@ pub unsafe extern "C" fn literllm_chat_completion_tool_tool_type(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.tool_type.clone()))
 }
@@ -1193,6 +1248,7 @@ pub unsafe extern "C" fn literllm_chat_completion_tool_function(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.function.clone()))
 }
@@ -1210,6 +1266,7 @@ pub unsafe extern "C" fn literllm_function_definition_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1239,6 +1296,7 @@ pub unsafe extern "C" fn literllm_function_definition_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1261,6 +1319,7 @@ pub unsafe extern "C" fn literllm_function_definition_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_function_definition_free(ptr: *mut liter_llm::types::FunctionDefinition) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1277,6 +1336,7 @@ pub unsafe extern "C" fn literllm_function_definition_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.name.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1294,6 +1354,7 @@ pub unsafe extern "C" fn literllm_function_definition_description(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.description {
         Some(val) => match CString::new(val.to_string()) {
@@ -1314,6 +1375,7 @@ pub unsafe extern "C" fn literllm_function_definition_parameters(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.parameters {
         Some(val) => match serde_json::to_string(&val) {
@@ -1335,6 +1397,7 @@ pub unsafe extern "C" fn literllm_function_definition_strict(ptr: *const liter_l
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.strict {
         Some(val) => *val as i32,
@@ -1353,6 +1416,7 @@ pub unsafe extern "C" fn literllm_tool_call_from_json(json: *const c_char) -> *m
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1380,6 +1444,7 @@ pub unsafe extern "C" fn literllm_tool_call_to_json(ptr: *const liter_llm::types
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1402,6 +1467,7 @@ pub unsafe extern "C" fn literllm_tool_call_to_json(ptr: *const liter_llm::types
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_tool_call_free(ptr: *mut liter_llm::types::ToolCall) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1416,6 +1482,7 @@ pub unsafe extern "C" fn literllm_tool_call_id(ptr: *const liter_llm::types::Too
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1433,6 +1500,7 @@ pub unsafe extern "C" fn literllm_tool_call_call_type(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.call_type.clone()))
 }
@@ -1447,6 +1515,7 @@ pub unsafe extern "C" fn literllm_tool_call_function(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.function.clone()))
 }
@@ -1462,6 +1531,7 @@ pub unsafe extern "C" fn literllm_function_call_from_json(json: *const c_char) -
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1489,6 +1559,7 @@ pub unsafe extern "C" fn literllm_function_call_to_json(ptr: *const liter_llm::t
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1511,6 +1582,7 @@ pub unsafe extern "C" fn literllm_function_call_to_json(ptr: *const liter_llm::t
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_function_call_free(ptr: *mut liter_llm::types::FunctionCall) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1527,6 +1599,7 @@ pub unsafe extern "C" fn literllm_function_call_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.name.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1544,6 +1617,7 @@ pub unsafe extern "C" fn literllm_function_call_arguments(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.arguments.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1564,6 +1638,7 @@ pub unsafe extern "C" fn literllm_specific_tool_choice_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1593,6 +1668,7 @@ pub unsafe extern "C" fn literllm_specific_tool_choice_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1615,6 +1691,7 @@ pub unsafe extern "C" fn literllm_specific_tool_choice_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_specific_tool_choice_free(ptr: *mut liter_llm::types::SpecificToolChoice) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1631,6 +1708,7 @@ pub unsafe extern "C" fn literllm_specific_tool_choice_choice_type(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.choice_type.clone()))
 }
@@ -1645,6 +1723,7 @@ pub unsafe extern "C" fn literllm_specific_tool_choice_function(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.function.clone()))
 }
@@ -1662,6 +1741,7 @@ pub unsafe extern "C" fn literllm_specific_function_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1691,6 +1771,7 @@ pub unsafe extern "C" fn literllm_specific_function_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1713,6 +1794,7 @@ pub unsafe extern "C" fn literllm_specific_function_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_specific_function_free(ptr: *mut liter_llm::types::SpecificFunction) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1729,6 +1811,7 @@ pub unsafe extern "C" fn literllm_specific_function_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.name.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1749,6 +1832,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1778,6 +1862,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1800,6 +1885,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_json_schema_format_free(ptr: *mut liter_llm::types::JsonSchemaFormat) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1816,6 +1902,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.name.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -1833,6 +1920,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_description(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.description {
         Some(val) => match CString::new(val.to_string()) {
@@ -1853,6 +1941,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_schema(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.schema) {
         Ok(s) => match CString::new(s) {
@@ -1871,6 +1960,7 @@ pub unsafe extern "C" fn literllm_json_schema_format_strict(ptr: *const liter_ll
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.strict {
         Some(val) => *val as i32,
@@ -1889,6 +1979,7 @@ pub unsafe extern "C" fn literllm_usage_from_json(json: *const c_char) -> *mut l
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -1916,6 +2007,7 @@ pub unsafe extern "C" fn literllm_usage_to_json(ptr: *const liter_llm::types::Us
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -1938,6 +2030,7 @@ pub unsafe extern "C" fn literllm_usage_to_json(ptr: *const liter_llm::types::Us
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_usage_free(ptr: *mut liter_llm::types::Usage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -1952,6 +2045,7 @@ pub unsafe extern "C" fn literllm_usage_prompt_tokens(ptr: *const liter_llm::typ
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.prompt_tokens
 }
@@ -1964,6 +2058,7 @@ pub unsafe extern "C" fn literllm_usage_completion_tokens(ptr: *const liter_llm:
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.completion_tokens
 }
@@ -1976,6 +2071,7 @@ pub unsafe extern "C" fn literllm_usage_total_tokens(ptr: *const liter_llm::type
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.total_tokens
 }
@@ -1993,6 +2089,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -2022,6 +2119,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -2044,6 +2142,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_chat_completion_request_free(ptr: *mut liter_llm::types::ChatCompletionRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -2060,6 +2159,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2077,6 +2177,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_messages(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.messages) {
         Ok(s) => match CString::new(s) {
@@ -2097,6 +2198,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_temperature(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.temperature {
         Some(val) => *val,
@@ -2114,6 +2216,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_top_p(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.top_p {
         Some(val) => *val,
@@ -2131,6 +2234,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_n(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.n {
         Some(val) => *val,
@@ -2148,6 +2252,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_stream(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.stream {
         Some(val) => *val as i32,
@@ -2165,6 +2270,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_stop(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.stop {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2182,6 +2288,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_max_tokens(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.max_tokens {
         Some(val) => *val,
@@ -2199,6 +2306,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_presence_penalty(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.presence_penalty {
         Some(val) => *val,
@@ -2216,6 +2324,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_frequency_penalty(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.frequency_penalty {
         Some(val) => *val,
@@ -2233,6 +2342,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_logit_bias(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.logit_bias {
         Some(val) => match serde_json::to_string(&val) {
@@ -2256,6 +2366,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_user(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.user {
         Some(val) => match CString::new(val.to_string()) {
@@ -2276,6 +2387,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_tools(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.tools {
         Some(val) => match serde_json::to_string(&val) {
@@ -2299,6 +2411,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_tool_choice(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.tool_choice {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2316,6 +2429,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_parallel_tool_calls(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.parallel_tool_calls {
         Some(val) => *val as i32,
@@ -2333,6 +2447,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_response_format(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.response_format {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2350,6 +2465,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_stream_options(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.stream_options {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2367,6 +2483,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_seed(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.seed {
         Some(val) => *val,
@@ -2384,6 +2501,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_reasoning_effort(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.reasoning_effort {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2401,6 +2519,7 @@ pub unsafe extern "C" fn literllm_chat_completion_request_extra_body(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.extra_body {
         Some(val) => match serde_json::to_string(&val) {
@@ -2427,6 +2546,7 @@ pub unsafe extern "C" fn literllm_stream_options_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -2454,6 +2574,7 @@ pub unsafe extern "C" fn literllm_stream_options_to_json(ptr: *const liter_llm::
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -2476,6 +2597,7 @@ pub unsafe extern "C" fn literllm_stream_options_to_json(ptr: *const liter_llm::
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_stream_options_free(ptr: *mut liter_llm::types::StreamOptions) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -2490,6 +2612,7 @@ pub unsafe extern "C" fn literllm_stream_options_include_usage(ptr: *const liter
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.include_usage {
         Some(val) => *val as i32,
@@ -2510,6 +2633,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -2539,6 +2663,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -2561,6 +2686,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_chat_completion_response_free(ptr: *mut liter_llm::types::ChatCompletionResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -2577,6 +2703,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_id(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2594,6 +2721,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_object(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.object.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2611,6 +2739,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_created(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.created
 }
@@ -2625,6 +2754,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2642,6 +2772,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_choices(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.choices) {
         Ok(s) => match CString::new(s) {
@@ -2662,6 +2793,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_usage(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.usage {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2679,6 +2811,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_system_fingerprint(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.system_fingerprint {
         Some(val) => match CString::new(val.to_string()) {
@@ -2699,6 +2832,7 @@ pub unsafe extern "C" fn literllm_chat_completion_response_service_tier(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.service_tier {
         Some(val) => match CString::new(val.to_string()) {
@@ -2720,6 +2854,7 @@ pub unsafe extern "C" fn literllm_choice_from_json(json: *const c_char) -> *mut 
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -2747,6 +2882,7 @@ pub unsafe extern "C" fn literllm_choice_to_json(ptr: *const liter_llm::types::C
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -2769,6 +2905,7 @@ pub unsafe extern "C" fn literllm_choice_to_json(ptr: *const liter_llm::types::C
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_choice_free(ptr: *mut liter_llm::types::Choice) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -2783,6 +2920,7 @@ pub unsafe extern "C" fn literllm_choice_index(ptr: *const liter_llm::types::Cho
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.index
 }
@@ -2797,6 +2935,7 @@ pub unsafe extern "C" fn literllm_choice_message(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.message.clone()))
 }
@@ -2811,6 +2950,7 @@ pub unsafe extern "C" fn literllm_choice_finish_reason(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.finish_reason {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -2831,6 +2971,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -2860,6 +3001,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -2882,6 +3024,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_chat_completion_chunk_free(ptr: *mut liter_llm::types::ChatCompletionChunk) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -2898,6 +3041,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_id(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2915,6 +3059,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_object(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.object.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2932,6 +3077,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_created(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.created
 }
@@ -2946,6 +3092,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -2963,6 +3110,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_choices(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.choices) {
         Ok(s) => match CString::new(s) {
@@ -2983,6 +3131,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_usage(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.usage {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3000,6 +3149,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_system_fingerprint(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.system_fingerprint {
         Some(val) => match CString::new(val.to_string()) {
@@ -3020,6 +3170,7 @@ pub unsafe extern "C" fn literllm_chat_completion_chunk_service_tier(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.service_tier {
         Some(val) => match CString::new(val.to_string()) {
@@ -3041,6 +3192,7 @@ pub unsafe extern "C" fn literllm_stream_choice_from_json(json: *const c_char) -
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3068,6 +3220,7 @@ pub unsafe extern "C" fn literllm_stream_choice_to_json(ptr: *const liter_llm::t
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3090,6 +3243,7 @@ pub unsafe extern "C" fn literllm_stream_choice_to_json(ptr: *const liter_llm::t
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_stream_choice_free(ptr: *mut liter_llm::types::StreamChoice) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3104,6 +3258,7 @@ pub unsafe extern "C" fn literllm_stream_choice_index(ptr: *const liter_llm::typ
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.index
 }
@@ -3118,6 +3273,7 @@ pub unsafe extern "C" fn literllm_stream_choice_delta(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.delta.clone()))
 }
@@ -3132,6 +3288,7 @@ pub unsafe extern "C" fn literllm_stream_choice_finish_reason(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.finish_reason {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3150,6 +3307,7 @@ pub unsafe extern "C" fn literllm_stream_delta_from_json(json: *const c_char) ->
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3177,6 +3335,7 @@ pub unsafe extern "C" fn literllm_stream_delta_to_json(ptr: *const liter_llm::ty
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3199,6 +3358,7 @@ pub unsafe extern "C" fn literllm_stream_delta_to_json(ptr: *const liter_llm::ty
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_stream_delta_free(ptr: *mut liter_llm::types::StreamDelta) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3215,6 +3375,7 @@ pub unsafe extern "C" fn literllm_stream_delta_role(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.role {
         Some(val) => match CString::new(val.to_string()) {
@@ -3235,6 +3396,7 @@ pub unsafe extern "C" fn literllm_stream_delta_content(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.content {
         Some(val) => match CString::new(val.to_string()) {
@@ -3255,6 +3417,7 @@ pub unsafe extern "C" fn literllm_stream_delta_tool_calls(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.tool_calls {
         Some(val) => match serde_json::to_string(&val) {
@@ -3278,6 +3441,7 @@ pub unsafe extern "C" fn literllm_stream_delta_function_call(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.function_call {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3295,6 +3459,7 @@ pub unsafe extern "C" fn literllm_stream_delta_refusal(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.refusal {
         Some(val) => match CString::new(val.to_string()) {
@@ -3318,6 +3483,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3347,6 +3513,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3369,6 +3536,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_stream_tool_call_free(ptr: *mut liter_llm::types::StreamToolCall) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3383,6 +3551,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_index(ptr: *const liter_llm::
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.index
 }
@@ -3397,6 +3566,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_id(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.id {
         Some(val) => match CString::new(val.to_string()) {
@@ -3417,6 +3587,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_call_type(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.call_type {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3434,6 +3605,7 @@ pub unsafe extern "C" fn literllm_stream_tool_call_function(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.function {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3454,6 +3626,7 @@ pub unsafe extern "C" fn literllm_stream_function_call_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3483,6 +3656,7 @@ pub unsafe extern "C" fn literllm_stream_function_call_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3505,6 +3679,7 @@ pub unsafe extern "C" fn literllm_stream_function_call_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_stream_function_call_free(ptr: *mut liter_llm::types::StreamFunctionCall) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3521,6 +3696,7 @@ pub unsafe extern "C" fn literllm_stream_function_call_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.name {
         Some(val) => match CString::new(val.to_string()) {
@@ -3541,6 +3717,7 @@ pub unsafe extern "C" fn literllm_stream_function_call_arguments(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.arguments {
         Some(val) => match CString::new(val.to_string()) {
@@ -3564,6 +3741,7 @@ pub unsafe extern "C" fn literllm_embedding_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3593,6 +3771,7 @@ pub unsafe extern "C" fn literllm_embedding_request_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3615,6 +3794,7 @@ pub unsafe extern "C" fn literllm_embedding_request_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_embedding_request_free(ptr: *mut liter_llm::types::EmbeddingRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3631,6 +3811,7 @@ pub unsafe extern "C" fn literllm_embedding_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -3648,6 +3829,7 @@ pub unsafe extern "C" fn literllm_embedding_request_input(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.input.clone()))
 }
@@ -3662,6 +3844,7 @@ pub unsafe extern "C" fn literllm_embedding_request_encoding_format(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.encoding_format {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3677,6 +3860,7 @@ pub unsafe extern "C" fn literllm_embedding_request_dimensions(ptr: *const liter
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.dimensions {
         Some(val) => *val,
@@ -3694,6 +3878,7 @@ pub unsafe extern "C" fn literllm_embedding_request_user(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.user {
         Some(val) => match CString::new(val.to_string()) {
@@ -3717,6 +3902,7 @@ pub unsafe extern "C" fn literllm_embedding_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3746,6 +3932,7 @@ pub unsafe extern "C" fn literllm_embedding_response_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3768,6 +3955,7 @@ pub unsafe extern "C" fn literllm_embedding_response_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_embedding_response_free(ptr: *mut liter_llm::types::EmbeddingResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3784,6 +3972,7 @@ pub unsafe extern "C" fn literllm_embedding_response_object(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.object.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -3801,6 +3990,7 @@ pub unsafe extern "C" fn literllm_embedding_response_data(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.data) {
         Ok(s) => match CString::new(s) {
@@ -3821,6 +4011,7 @@ pub unsafe extern "C" fn literllm_embedding_response_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -3838,6 +4029,7 @@ pub unsafe extern "C" fn literllm_embedding_response_usage(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.usage {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -3858,6 +4050,7 @@ pub unsafe extern "C" fn literllm_embedding_object_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -3887,6 +4080,7 @@ pub unsafe extern "C" fn literllm_embedding_object_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -3909,6 +4103,7 @@ pub unsafe extern "C" fn literllm_embedding_object_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_embedding_object_free(ptr: *mut liter_llm::types::EmbeddingObject) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -3925,6 +4120,7 @@ pub unsafe extern "C" fn literllm_embedding_object_object(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.object.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -3942,6 +4138,7 @@ pub unsafe extern "C" fn literllm_embedding_object_embedding(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.embedding) {
         Ok(s) => match CString::new(s) {
@@ -3960,6 +4157,7 @@ pub unsafe extern "C" fn literllm_embedding_object_index(ptr: *const liter_llm::
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.index
 }
@@ -3977,6 +4175,7 @@ pub unsafe extern "C" fn literllm_create_image_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4006,6 +4205,7 @@ pub unsafe extern "C" fn literllm_create_image_request_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4028,6 +4228,7 @@ pub unsafe extern "C" fn literllm_create_image_request_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_create_image_request_free(ptr: *mut liter_llm::types::CreateImageRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4044,6 +4245,7 @@ pub unsafe extern "C" fn literllm_create_image_request_prompt(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.prompt.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4061,6 +4263,7 @@ pub unsafe extern "C" fn literllm_create_image_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.model {
         Some(val) => match CString::new(val.to_string()) {
@@ -4079,6 +4282,7 @@ pub unsafe extern "C" fn literllm_create_image_request_n(ptr: *const liter_llm::
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.n {
         Some(val) => *val,
@@ -4096,6 +4300,7 @@ pub unsafe extern "C" fn literllm_create_image_request_size(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.size {
         Some(val) => match CString::new(val.to_string()) {
@@ -4116,6 +4321,7 @@ pub unsafe extern "C" fn literllm_create_image_request_quality(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.quality {
         Some(val) => match CString::new(val.to_string()) {
@@ -4136,6 +4342,7 @@ pub unsafe extern "C" fn literllm_create_image_request_style(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.style {
         Some(val) => match CString::new(val.to_string()) {
@@ -4156,6 +4363,7 @@ pub unsafe extern "C" fn literllm_create_image_request_response_format(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.response_format {
         Some(val) => match CString::new(val.to_string()) {
@@ -4176,6 +4384,7 @@ pub unsafe extern "C" fn literllm_create_image_request_user(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.user {
         Some(val) => match CString::new(val.to_string()) {
@@ -4199,6 +4408,7 @@ pub unsafe extern "C" fn literllm_images_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4226,6 +4436,7 @@ pub unsafe extern "C" fn literllm_images_response_to_json(ptr: *const liter_llm:
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4248,6 +4459,7 @@ pub unsafe extern "C" fn literllm_images_response_to_json(ptr: *const liter_llm:
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_images_response_free(ptr: *mut liter_llm::types::ImagesResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4262,6 +4474,7 @@ pub unsafe extern "C" fn literllm_images_response_created(ptr: *const liter_llm:
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.created
 }
@@ -4276,6 +4489,7 @@ pub unsafe extern "C" fn literllm_images_response_data(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.data) {
         Ok(s) => match CString::new(s) {
@@ -4297,6 +4511,7 @@ pub unsafe extern "C" fn literllm_image_from_json(json: *const c_char) -> *mut l
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4324,6 +4539,7 @@ pub unsafe extern "C" fn literllm_image_to_json(ptr: *const liter_llm::types::Im
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4346,6 +4562,7 @@ pub unsafe extern "C" fn literllm_image_to_json(ptr: *const liter_llm::types::Im
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_image_free(ptr: *mut liter_llm::types::Image) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4360,6 +4577,7 @@ pub unsafe extern "C" fn literllm_image_url(ptr: *const liter_llm::types::Image)
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.url {
         Some(val) => match CString::new(val.to_string()) {
@@ -4378,6 +4596,7 @@ pub unsafe extern "C" fn literllm_image_b64_json(ptr: *const liter_llm::types::I
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.b64_json {
         Some(val) => match CString::new(val.to_string()) {
@@ -4396,6 +4615,7 @@ pub unsafe extern "C" fn literllm_image_revised_prompt(ptr: *const liter_llm::ty
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.revised_prompt {
         Some(val) => match CString::new(val.to_string()) {
@@ -4419,6 +4639,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4448,6 +4669,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4470,6 +4692,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_create_speech_request_free(ptr: *mut liter_llm::types::CreateSpeechRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4486,6 +4709,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4503,6 +4727,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_input(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.input.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4520,6 +4745,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_voice(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.voice.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4537,6 +4763,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_response_format(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.response_format {
         Some(val) => match CString::new(val.to_string()) {
@@ -4557,6 +4784,7 @@ pub unsafe extern "C" fn literllm_create_speech_request_speed(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.speed {
         Some(val) => *val,
@@ -4577,6 +4805,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4606,6 +4835,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4630,6 +4860,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_free(
     ptr: *mut liter_llm::types::CreateTranscriptionRequest,
 ) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4646,6 +4877,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4663,6 +4895,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_file(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.file.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4680,6 +4913,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_language(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.language {
         Some(val) => match CString::new(val.to_string()) {
@@ -4700,6 +4934,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_prompt(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.prompt {
         Some(val) => match CString::new(val.to_string()) {
@@ -4720,6 +4955,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_response_format(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.response_format {
         Some(val) => match CString::new(val.to_string()) {
@@ -4740,6 +4976,7 @@ pub unsafe extern "C" fn literllm_create_transcription_request_temperature(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.temperature {
         Some(val) => *val,
@@ -4760,6 +4997,7 @@ pub unsafe extern "C" fn literllm_transcription_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4789,6 +5027,7 @@ pub unsafe extern "C" fn literllm_transcription_response_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4811,6 +5050,7 @@ pub unsafe extern "C" fn literllm_transcription_response_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_transcription_response_free(ptr: *mut liter_llm::types::TranscriptionResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4827,6 +5067,7 @@ pub unsafe extern "C" fn literllm_transcription_response_text(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.text.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -4844,6 +5085,7 @@ pub unsafe extern "C" fn literllm_transcription_response_language(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.language {
         Some(val) => match CString::new(val.to_string()) {
@@ -4864,6 +5106,7 @@ pub unsafe extern "C" fn literllm_transcription_response_duration(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.duration {
         Some(val) => *val,
@@ -4881,6 +5124,7 @@ pub unsafe extern "C" fn literllm_transcription_response_segments(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.segments {
         Some(val) => match serde_json::to_string(&val) {
@@ -4907,6 +5151,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -4936,6 +5181,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -4958,6 +5204,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_transcription_segment_free(ptr: *mut liter_llm::types::TranscriptionSegment) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -4972,6 +5219,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_id(ptr: *const liter_llm
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.id
 }
@@ -4986,6 +5234,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_start(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.start
 }
@@ -4998,6 +5247,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_end(ptr: *const liter_ll
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.end
 }
@@ -5012,6 +5262,7 @@ pub unsafe extern "C" fn literllm_transcription_segment_text(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.text.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -5032,6 +5283,7 @@ pub unsafe extern "C" fn literllm_moderation_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5061,6 +5313,7 @@ pub unsafe extern "C" fn literllm_moderation_request_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -5083,6 +5336,7 @@ pub unsafe extern "C" fn literllm_moderation_request_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_moderation_request_free(ptr: *mut liter_llm::types::ModerationRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -5099,6 +5353,7 @@ pub unsafe extern "C" fn literllm_moderation_request_input(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.input.clone()))
 }
@@ -5113,6 +5368,7 @@ pub unsafe extern "C" fn literllm_moderation_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.model {
         Some(val) => match CString::new(val.to_string()) {
@@ -5136,6 +5392,7 @@ pub unsafe extern "C" fn literllm_moderation_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5165,6 +5422,7 @@ pub unsafe extern "C" fn literllm_moderation_response_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -5187,6 +5445,7 @@ pub unsafe extern "C" fn literllm_moderation_response_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_moderation_response_free(ptr: *mut liter_llm::types::ModerationResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -5203,6 +5462,7 @@ pub unsafe extern "C" fn literllm_moderation_response_id(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -5220,6 +5480,7 @@ pub unsafe extern "C" fn literllm_moderation_response_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -5237,6 +5498,7 @@ pub unsafe extern "C" fn literllm_moderation_response_results(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.results) {
         Ok(s) => match CString::new(s) {
@@ -5260,6 +5522,7 @@ pub unsafe extern "C" fn literllm_moderation_result_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5289,6 +5552,7 @@ pub unsafe extern "C" fn literllm_moderation_result_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -5311,6 +5575,7 @@ pub unsafe extern "C" fn literllm_moderation_result_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_moderation_result_free(ptr: *mut liter_llm::types::ModerationResult) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -5325,6 +5590,7 @@ pub unsafe extern "C" fn literllm_moderation_result_flagged(ptr: *const liter_ll
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.flagged as i32
 }
@@ -5339,6 +5605,7 @@ pub unsafe extern "C" fn literllm_moderation_result_categories(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.categories.clone()))
 }
@@ -5353,6 +5620,7 @@ pub unsafe extern "C" fn literllm_moderation_result_category_scores(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.category_scores.clone()))
 }
@@ -5370,6 +5638,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5399,6 +5668,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -5421,6 +5691,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_moderation_categories_free(ptr: *mut liter_llm::types::ModerationCategories) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -5437,6 +5708,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_sexual(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.sexual as i32
 }
@@ -5451,6 +5723,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_hate(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.hate as i32
 }
@@ -5465,6 +5738,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_harassment(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.harassment as i32
 }
@@ -5479,6 +5753,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_self_harm(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.self_harm as i32
 }
@@ -5493,6 +5768,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_sexual_minors(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.sexual_minors as i32
 }
@@ -5507,6 +5783,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_hate_threatening(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.hate_threatening as i32
 }
@@ -5521,6 +5798,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_violence_graphic(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.violence_graphic as i32
 }
@@ -5535,6 +5813,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_self_harm_intent(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.self_harm_intent as i32
 }
@@ -5549,6 +5828,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_self_harm_instructions(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.self_harm_instructions as i32
 }
@@ -5563,6 +5843,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_harassment_threatening(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.harassment_threatening as i32
 }
@@ -5577,6 +5858,7 @@ pub unsafe extern "C" fn literllm_moderation_categories_violence(
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.violence as i32
 }
@@ -5594,6 +5876,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5623,6 +5906,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -5647,6 +5931,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_free(
     ptr: *mut liter_llm::types::ModerationCategoryScores,
 ) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -5663,6 +5948,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_sexual(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.sexual
 }
@@ -5677,6 +5963,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_hate(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.hate
 }
@@ -5691,6 +5978,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_harassment(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.harassment
 }
@@ -5705,6 +5993,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_self_harm(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.self_harm
 }
@@ -5719,6 +6008,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_sexual_minors(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.sexual_minors
 }
@@ -5733,6 +6023,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_hate_threatening(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.hate_threatening
 }
@@ -5747,6 +6038,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_violence_graphic(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.violence_graphic
 }
@@ -5761,6 +6053,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_self_harm_intent(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.self_harm_intent
 }
@@ -5775,6 +6068,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_self_harm_instructi
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.self_harm_instructions
 }
@@ -5789,6 +6083,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_harassment_threaten
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.harassment_threatening
 }
@@ -5803,6 +6098,7 @@ pub unsafe extern "C" fn literllm_moderation_category_scores_violence(
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.violence
 }
@@ -5820,6 +6116,7 @@ pub unsafe extern "C" fn literllm_rerank_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5847,6 +6144,7 @@ pub unsafe extern "C" fn literllm_rerank_request_to_json(ptr: *const liter_llm::
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -5869,6 +6167,7 @@ pub unsafe extern "C" fn literllm_rerank_request_to_json(ptr: *const liter_llm::
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_rerank_request_free(ptr: *mut liter_llm::types::RerankRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -5885,6 +6184,7 @@ pub unsafe extern "C" fn literllm_rerank_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -5902,6 +6202,7 @@ pub unsafe extern "C" fn literllm_rerank_request_query(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.query.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -5919,6 +6220,7 @@ pub unsafe extern "C" fn literllm_rerank_request_documents(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.documents) {
         Ok(s) => match CString::new(s) {
@@ -5937,6 +6239,7 @@ pub unsafe extern "C" fn literllm_rerank_request_top_n(ptr: *const liter_llm::ty
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.top_n {
         Some(val) => *val,
@@ -5952,6 +6255,7 @@ pub unsafe extern "C" fn literllm_rerank_request_return_documents(ptr: *const li
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.return_documents {
         Some(val) => *val as i32,
@@ -5972,6 +6276,7 @@ pub unsafe extern "C" fn literllm_rerank_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -5999,6 +6304,7 @@ pub unsafe extern "C" fn literllm_rerank_response_to_json(ptr: *const liter_llm:
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6021,6 +6327,7 @@ pub unsafe extern "C" fn literllm_rerank_response_to_json(ptr: *const liter_llm:
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_rerank_response_free(ptr: *mut liter_llm::types::RerankResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6037,6 +6344,7 @@ pub unsafe extern "C" fn literllm_rerank_response_id(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.id {
         Some(val) => match CString::new(val.to_string()) {
@@ -6057,6 +6365,7 @@ pub unsafe extern "C" fn literllm_rerank_response_results(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.results) {
         Ok(s) => match CString::new(s) {
@@ -6077,6 +6386,7 @@ pub unsafe extern "C" fn literllm_rerank_response_meta(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.meta {
         Some(val) => match serde_json::to_string(&val) {
@@ -6101,6 +6411,7 @@ pub unsafe extern "C" fn literllm_rerank_result_from_json(json: *const c_char) -
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6128,6 +6439,7 @@ pub unsafe extern "C" fn literllm_rerank_result_to_json(ptr: *const liter_llm::t
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6150,6 +6462,7 @@ pub unsafe extern "C" fn literllm_rerank_result_to_json(ptr: *const liter_llm::t
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_rerank_result_free(ptr: *mut liter_llm::types::RerankResult) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6164,6 +6477,7 @@ pub unsafe extern "C" fn literllm_rerank_result_index(ptr: *const liter_llm::typ
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.index
 }
@@ -6176,6 +6490,7 @@ pub unsafe extern "C" fn literllm_rerank_result_relevance_score(ptr: *const lite
     if ptr.is_null() {
         return 0.0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.relevance_score
 }
@@ -6190,6 +6505,7 @@ pub unsafe extern "C" fn literllm_rerank_result_document(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.document {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -6210,6 +6526,7 @@ pub unsafe extern "C" fn literllm_rerank_result_document_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6239,6 +6556,7 @@ pub unsafe extern "C" fn literllm_rerank_result_document_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6261,6 +6579,7 @@ pub unsafe extern "C" fn literllm_rerank_result_document_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_rerank_result_document_free(ptr: *mut liter_llm::types::RerankResultDocument) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6277,6 +6596,7 @@ pub unsafe extern "C" fn literllm_rerank_result_document_text(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.text.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6297,6 +6617,7 @@ pub unsafe extern "C" fn literllm_search_request_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6324,6 +6645,7 @@ pub unsafe extern "C" fn literllm_search_request_to_json(ptr: *const liter_llm::
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6346,6 +6668,7 @@ pub unsafe extern "C" fn literllm_search_request_to_json(ptr: *const liter_llm::
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_search_request_free(ptr: *mut liter_llm::types::SearchRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6362,6 +6685,7 @@ pub unsafe extern "C" fn literllm_search_request_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6379,6 +6703,7 @@ pub unsafe extern "C" fn literllm_search_request_query(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.query.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6394,6 +6719,7 @@ pub unsafe extern "C" fn literllm_search_request_max_results(ptr: *const liter_l
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.max_results {
         Some(val) => *val,
@@ -6411,6 +6737,7 @@ pub unsafe extern "C" fn literllm_search_request_search_domain_filter(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.search_domain_filter {
         Some(val) => match serde_json::to_string(&val) {
@@ -6434,6 +6761,7 @@ pub unsafe extern "C" fn literllm_search_request_country(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.country {
         Some(val) => match CString::new(val.to_string()) {
@@ -6457,6 +6785,7 @@ pub unsafe extern "C" fn literllm_search_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6484,6 +6813,7 @@ pub unsafe extern "C" fn literllm_search_response_to_json(ptr: *const liter_llm:
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6506,6 +6836,7 @@ pub unsafe extern "C" fn literllm_search_response_to_json(ptr: *const liter_llm:
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_search_response_free(ptr: *mut liter_llm::types::SearchResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6522,6 +6853,7 @@ pub unsafe extern "C" fn literllm_search_response_results(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.results) {
         Ok(s) => match CString::new(s) {
@@ -6542,6 +6874,7 @@ pub unsafe extern "C" fn literllm_search_response_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6560,6 +6893,7 @@ pub unsafe extern "C" fn literllm_search_result_from_json(json: *const c_char) -
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6587,6 +6921,7 @@ pub unsafe extern "C" fn literllm_search_result_to_json(ptr: *const liter_llm::t
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6609,6 +6944,7 @@ pub unsafe extern "C" fn literllm_search_result_to_json(ptr: *const liter_llm::t
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_search_result_free(ptr: *mut liter_llm::types::SearchResult) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6625,6 +6961,7 @@ pub unsafe extern "C" fn literllm_search_result_title(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.title.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6642,6 +6979,7 @@ pub unsafe extern "C" fn literllm_search_result_url(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.url.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6659,6 +6997,7 @@ pub unsafe extern "C" fn literllm_search_result_snippet(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.snippet.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6676,6 +7015,7 @@ pub unsafe extern "C" fn literllm_search_result_date(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.date {
         Some(val) => match CString::new(val.to_string()) {
@@ -6697,6 +7037,7 @@ pub unsafe extern "C" fn literllm_ocr_request_from_json(json: *const c_char) -> 
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6724,6 +7065,7 @@ pub unsafe extern "C" fn literllm_ocr_request_to_json(ptr: *const liter_llm::typ
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6746,6 +7088,7 @@ pub unsafe extern "C" fn literllm_ocr_request_to_json(ptr: *const liter_llm::typ
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_ocr_request_free(ptr: *mut liter_llm::types::OcrRequest) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6760,6 +7103,7 @@ pub unsafe extern "C" fn literllm_ocr_request_model(ptr: *const liter_llm::types
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6777,6 +7121,7 @@ pub unsafe extern "C" fn literllm_ocr_request_document(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.document.clone()))
 }
@@ -6789,6 +7134,7 @@ pub unsafe extern "C" fn literllm_ocr_request_pages(ptr: *const liter_llm::types
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.pages {
         Some(val) => match serde_json::to_string(&val) {
@@ -6810,6 +7156,7 @@ pub unsafe extern "C" fn literllm_ocr_request_include_image_base64(ptr: *const l
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.include_image_base64 {
         Some(val) => *val as i32,
@@ -6828,6 +7175,7 @@ pub unsafe extern "C" fn literllm_ocr_response_from_json(json: *const c_char) ->
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6855,6 +7203,7 @@ pub unsafe extern "C" fn literllm_ocr_response_to_json(ptr: *const liter_llm::ty
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6877,6 +7226,7 @@ pub unsafe extern "C" fn literllm_ocr_response_to_json(ptr: *const liter_llm::ty
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_ocr_response_free(ptr: *mut liter_llm::types::OcrResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -6893,6 +7243,7 @@ pub unsafe extern "C" fn literllm_ocr_response_pages(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.pages) {
         Ok(s) => match CString::new(s) {
@@ -6913,6 +7264,7 @@ pub unsafe extern "C" fn literllm_ocr_response_model(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.model.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -6930,6 +7282,7 @@ pub unsafe extern "C" fn literllm_ocr_response_usage(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.usage {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -6948,6 +7301,7 @@ pub unsafe extern "C" fn literllm_ocr_page_from_json(json: *const c_char) -> *mu
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -6975,6 +7329,7 @@ pub unsafe extern "C" fn literllm_ocr_page_to_json(ptr: *const liter_llm::types:
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -6997,6 +7352,7 @@ pub unsafe extern "C" fn literllm_ocr_page_to_json(ptr: *const liter_llm::types:
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_ocr_page_free(ptr: *mut liter_llm::types::OcrPage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7011,6 +7367,7 @@ pub unsafe extern "C" fn literllm_ocr_page_index(ptr: *const liter_llm::types::O
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.index
 }
@@ -7023,6 +7380,7 @@ pub unsafe extern "C" fn literllm_ocr_page_markdown(ptr: *const liter_llm::types
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.markdown.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7038,6 +7396,7 @@ pub unsafe extern "C" fn literllm_ocr_page_images(ptr: *const liter_llm::types::
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.images {
         Some(val) => match serde_json::to_string(&val) {
@@ -7061,6 +7420,7 @@ pub unsafe extern "C" fn literllm_ocr_page_dimensions(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.dimensions {
         Some(val) => Box::into_raw(Box::new(val.clone())),
@@ -7079,6 +7439,7 @@ pub unsafe extern "C" fn literllm_ocr_image_from_json(json: *const c_char) -> *m
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -7106,6 +7467,7 @@ pub unsafe extern "C" fn literllm_ocr_image_to_json(ptr: *const liter_llm::types
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -7128,6 +7490,7 @@ pub unsafe extern "C" fn literllm_ocr_image_to_json(ptr: *const liter_llm::types
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_ocr_image_free(ptr: *mut liter_llm::types::OcrImage) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7142,6 +7505,7 @@ pub unsafe extern "C" fn literllm_ocr_image_id(ptr: *const liter_llm::types::Ocr
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7159,6 +7523,7 @@ pub unsafe extern "C" fn literllm_ocr_image_image_base64(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match &obj.image_base64 {
         Some(val) => match CString::new(val.to_string()) {
@@ -7182,6 +7547,7 @@ pub unsafe extern "C" fn literllm_page_dimensions_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -7209,6 +7575,7 @@ pub unsafe extern "C" fn literllm_page_dimensions_to_json(ptr: *const liter_llm:
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -7231,6 +7598,7 @@ pub unsafe extern "C" fn literllm_page_dimensions_to_json(ptr: *const liter_llm:
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_page_dimensions_free(ptr: *mut liter_llm::types::PageDimensions) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7245,6 +7613,7 @@ pub unsafe extern "C" fn literllm_page_dimensions_width(ptr: *const liter_llm::t
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.width
 }
@@ -7257,6 +7626,7 @@ pub unsafe extern "C" fn literllm_page_dimensions_height(ptr: *const liter_llm::
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.height
 }
@@ -7274,6 +7644,7 @@ pub unsafe extern "C" fn literllm_models_list_response_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -7303,6 +7674,7 @@ pub unsafe extern "C" fn literllm_models_list_response_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -7325,6 +7697,7 @@ pub unsafe extern "C" fn literllm_models_list_response_to_json(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_models_list_response_free(ptr: *mut liter_llm::types::ModelsListResponse) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7341,6 +7714,7 @@ pub unsafe extern "C" fn literllm_models_list_response_object(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.object.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7358,6 +7732,7 @@ pub unsafe extern "C" fn literllm_models_list_response_data(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.data) {
         Ok(s) => match CString::new(s) {
@@ -7379,6 +7754,7 @@ pub unsafe extern "C" fn literllm_model_object_from_json(json: *const c_char) ->
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -7406,6 +7782,7 @@ pub unsafe extern "C" fn literllm_model_object_to_json(ptr: *const liter_llm::ty
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -7428,6 +7805,7 @@ pub unsafe extern "C" fn literllm_model_object_to_json(ptr: *const liter_llm::ty
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_model_object_free(ptr: *mut liter_llm::types::ModelObject) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7442,6 +7820,7 @@ pub unsafe extern "C" fn literllm_model_object_id(ptr: *const liter_llm::types::
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.id.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7459,6 +7838,7 @@ pub unsafe extern "C" fn literllm_model_object_object(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.object.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7474,6 +7854,7 @@ pub unsafe extern "C" fn literllm_model_object_created(ptr: *const liter_llm::ty
     if ptr.is_null() {
         return 0;
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     obj.created
 }
@@ -7488,6 +7869,7 @@ pub unsafe extern "C" fn literllm_model_object_owned_by(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.owned_by.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7501,6 +7883,7 @@ pub unsafe extern "C" fn literllm_model_object_owned_by(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn literllm_default_client_free(ptr: *mut liter_llm::client::DefaultClient) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7526,6 +7909,7 @@ pub unsafe extern "C" fn literllm_default_client_chat(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.chat(req_rs).await });
     match result {
@@ -7641,6 +8025,7 @@ pub unsafe extern "C" fn literllm_default_client_embed(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.embed(req_rs).await });
     match result {
@@ -7695,6 +8080,7 @@ pub unsafe extern "C" fn literllm_default_client_image_generate(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.image_generate(req_rs).await });
     match result {
@@ -7725,6 +8111,7 @@ pub unsafe extern "C" fn literllm_default_client_transcribe(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.transcribe(req_rs).await });
     match result {
@@ -7755,6 +8142,7 @@ pub unsafe extern "C" fn literllm_default_client_moderate(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.moderate(req_rs).await });
     match result {
@@ -7785,6 +8173,7 @@ pub unsafe extern "C" fn literllm_default_client_rerank(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.rerank(req_rs).await });
     match result {
@@ -7815,6 +8204,7 @@ pub unsafe extern "C" fn literllm_default_client_search(
         set_last_error(1, "Null pointer passed for parameter 'req'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees req is a valid pointer.
     let req_rs = unsafe { &*req }.clone();
     let result = get_ffi_runtime().block_on(async { obj.search(req_rs).await });
     match result {
@@ -7839,6 +8229,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_from_json(
         set_last_error(1, "Null pointer passed for JSON string");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let c_str = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -7868,6 +8259,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_to_json(
         set_last_error(1, "Null pointer passed to to_json");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let val = unsafe { &*ptr };
     match serde_json::to_string(val) {
         Ok(s) => match CString::new(s) {
@@ -7892,6 +8284,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_free(
     ptr: *mut liter_llm::provider::custom::CustomProviderConfig,
 ) {
     if !ptr.is_null() {
+        // SAFETY: ptr was allocated by Box::into_raw; caller ensures no aliases.
         unsafe {
             drop(Box::from_raw(ptr));
         }
@@ -7908,6 +8301,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_name(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.name.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7925,6 +8319,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_base_url(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match CString::new(obj.base_url.to_string()) {
         Ok(cs) => cs.into_raw(),
@@ -7942,6 +8337,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_auth_header(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     Box::into_raw(Box::new(obj.auth_header.clone()))
 }
@@ -7956,6 +8352,7 @@ pub unsafe extern "C" fn literllm_custom_provider_config_model_prefixes(
     if ptr.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees ptr is a valid pointer.
     let obj = unsafe { &*ptr };
     match serde_json::to_string(&obj.model_prefixes) {
         Ok(s) => match CString::new(s) {
@@ -7995,6 +8392,7 @@ pub unsafe extern "C" fn literllm_message_from_str(name: *const c_char) -> i32 {
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8041,6 +8439,7 @@ pub unsafe extern "C" fn literllm_user_content_from_str(name: *const c_char) -> 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8085,6 +8484,7 @@ pub unsafe extern "C" fn literllm_content_part_from_str(name: *const c_char) -> 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8130,6 +8530,7 @@ pub unsafe extern "C" fn literllm_image_detail_from_str(name: *const c_char) -> 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8172,6 +8573,7 @@ pub unsafe extern "C" fn literllm_tool_type_from_str(name: *const c_char) -> i32
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8213,6 +8615,7 @@ pub unsafe extern "C" fn literllm_tool_choice_from_str(name: *const c_char) -> i
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8256,6 +8659,7 @@ pub unsafe extern "C" fn literllm_tool_choice_mode_from_str(name: *const c_char)
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8300,6 +8704,7 @@ pub unsafe extern "C" fn literllm_response_format_from_str(name: *const c_char) 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8343,6 +8748,7 @@ pub unsafe extern "C" fn literllm_stop_sequence_from_str(name: *const c_char) ->
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8389,6 +8795,7 @@ pub unsafe extern "C" fn literllm_finish_reason_from_str(name: *const c_char) ->
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8436,6 +8843,7 @@ pub unsafe extern "C" fn literllm_reasoning_effort_from_str(name: *const c_char)
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8479,6 +8887,7 @@ pub unsafe extern "C" fn literllm_embedding_format_from_str(name: *const c_char)
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8521,6 +8930,7 @@ pub unsafe extern "C" fn literllm_embedding_input_from_str(name: *const c_char) 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8563,6 +8973,7 @@ pub unsafe extern "C" fn literllm_moderation_input_from_str(name: *const c_char)
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8605,6 +9016,7 @@ pub unsafe extern "C" fn literllm_rerank_document_from_str(name: *const c_char) 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8647,6 +9059,7 @@ pub unsafe extern "C" fn literllm_ocr_document_from_str(name: *const c_char) -> 
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8690,6 +9103,7 @@ pub unsafe extern "C" fn literllm_auth_header_format_from_str(name: *const c_cha
         set_last_error(1, "Null pointer passed for enum name");
         return -1;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let s = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s,
         Err(_) => {
@@ -8740,6 +9154,7 @@ pub unsafe extern "C" fn literllm_create_client(
         set_last_error(1, "Null pointer passed for parameter 'api_key'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees api_key is a valid pointer; string is valid UTF-8 from caller.
     let api_key_rs = match unsafe { CStr::from_ptr(api_key) }.to_str() {
         Ok(s) => s.to_string(),
         Err(_) => {
@@ -8750,6 +9165,7 @@ pub unsafe extern "C" fn literllm_create_client(
     let base_url_rs = if base_url.is_null() {
         None
     } else {
+        // SAFETY: null check above guarantees base_url is a valid pointer; string is valid UTF-8 from caller.
         match unsafe { CStr::from_ptr(base_url) }.to_str() {
             Ok(s) => Some(s.to_string()),
             Err(_) => {
@@ -8771,6 +9187,7 @@ pub unsafe extern "C" fn literllm_create_client(
     let model_hint_rs = if model_hint.is_null() {
         None
     } else {
+        // SAFETY: null check above guarantees model_hint is a valid pointer; string is valid UTF-8 from caller.
         match unsafe { CStr::from_ptr(model_hint) }.to_str() {
             Ok(s) => Some(s.to_string()),
             Err(_) => {
@@ -8810,6 +9227,7 @@ pub unsafe extern "C" fn literllm_create_client_from_json(
         set_last_error(1, "Null pointer passed for parameter 'json'");
         return std::ptr::null_mut();
     }
+    // SAFETY: null check above guarantees json is a valid pointer; string is valid UTF-8 from caller.
     let json_rs = match unsafe { CStr::from_ptr(json) }.to_str() {
         Ok(s) => s.to_string(),
         Err(_) => {
@@ -8848,6 +9266,7 @@ pub unsafe extern "C" fn literllm_register_custom_provider(
         set_last_error(1, "Null pointer passed for parameter 'config'");
         return -1;
     }
+    // SAFETY: null check above guarantees config is a valid pointer.
     let config_rs = unsafe { &*config }.clone();
     let result = liter_llm::provider::custom::register_custom_provider(config_rs);
     match result {
@@ -8877,6 +9296,7 @@ pub unsafe extern "C" fn literllm_unregister_custom_provider(name: *const std::f
         set_last_error(1, "Null pointer passed for parameter 'name'");
         return 0;
     }
+    // SAFETY: null check above guarantees name is a valid pointer; string is valid UTF-8 from caller.
     let name_rs = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(s) => s.to_string(),
         Err(_) => {

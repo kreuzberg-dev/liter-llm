@@ -5,8 +5,7 @@ import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 describe('files', () => {
   it('edge_file_empty_list: List files when no files have been uploaded', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_files({  });
     expect(result.data.length).toBe(0);
   });
 
@@ -15,14 +14,13 @@ describe('files', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "large_training_data.jsonl";
     options.purpose = "fine-tune";
-    const result = await client.chat(options);
+    const result = await client.create_file(options);
     expect(result.id.length).toBeGreaterThan(0);
   });
 
   it('error_file_auth_401: 401 Unauthorized when listing files with invalid API key', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.list_files({  })).rejects.toThrow();
   });
 
   it('error_file_bad_purpose: 400 Bad Request when uploading a file with invalid purpose', async () => {
@@ -30,14 +28,12 @@ describe('files', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "data.jsonl";
     options.purpose = "invalid-purpose";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.create_file(options)).rejects.toThrow();
   });
 
   it('error_file_not_found: 404 Not Found when retrieving a nonexistent file', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.fileId = "file-nonexistent";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.retrieve_file("file-nonexistent")).rejects.toThrow();
   });
 
   it('smoke_create_file: Upload a file for use with the API', async () => {
@@ -45,39 +41,32 @@ describe('files', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "training_data.jsonl";
     options.purpose = "fine-tune";
-    const result = await client.chat(options);
+    const result = await client.create_file(options);
     expect(result.id.length).toBeGreaterThan(0);
   });
 
   it('smoke_delete_file: Delete an uploaded file', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.fileId = "file-abc123";
-    const result = await client.chat(options);
+    const result = await client.delete_file("file-abc123");
     expect(result.id.length).toBeGreaterThan(0);
     expect(result.deleted).toBe(true);
   });
 
   it('smoke_file_content: Retrieve the content of an uploaded file', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.fileId = "file-abc123";
-    const result = await client.chat(options);
+    const result = await client.file_content("file-abc123");
     expect(result.content.length).toBeGreaterThan(0);
   });
 
   it('smoke_list_files: List all uploaded files', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    const result = await client.chat(options);
+    const result = await client.list_files({  });
     expect(result.data.length).toBe(2);
   });
 
   it('smoke_retrieve_file: Retrieve metadata for an uploaded file', async () => {
     const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.fileId = "file-abc123";
-    const result = await client.chat(options);
+    const result = await client.retrieve_file("file-abc123");
     expect(result.id.length).toBeGreaterThan(0);
   });
 });

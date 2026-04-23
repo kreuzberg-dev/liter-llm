@@ -13,19 +13,22 @@ public enum EmbeddingFormat {
     /** Base64-encoded string representation of the floats. */
     Base64("base64");
 
+    /** The string value. */
     private final String value;
 
-    EmbeddingFormat(String value) {
+    EmbeddingFormat(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static EmbeddingFormat fromValue(String value) {
+    public static EmbeddingFormat fromValue(final String value) {
         for (EmbeddingFormat e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

@@ -7,11 +7,13 @@ public class StreamOptionsBuilder {
 
     private Optional<Boolean> includeUsage = Optional.empty();
 
-    public StreamOptionsBuilder withIncludeUsage(Optional<Boolean> value) {
+    /** Sets the includeUsage field. */
+    public StreamOptionsBuilder withIncludeUsage(final Optional<Boolean> value) {
         this.includeUsage = value;
         return this;
     }
 
+    /** Builds the StreamOptions instance. */
     public StreamOptions build() {
         return new StreamOptions(
             includeUsage

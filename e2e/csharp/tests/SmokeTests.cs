@@ -40,7 +40,7 @@ public class SmokeTests
     public async Task Test_AzureEmbed()
     {
         // Embedding request via Azure OpenAI using the azure/ provider prefix — response follows the standard OpenAI embeddings shape that Azure returns unchanged
-        var result = await LiterLlmLib.Chat("Hello world");
+        var result = await LiterLlmLib.Embed("Hello world");
         Assert.Equal(1, result.Data.Count);
         Assert.Equal(1536, result.Data["0"].Embedding.Count);
     }
@@ -61,7 +61,7 @@ public class SmokeTests
     public async Task Test_BasicEmbed()
     {
         // Basic embedding request for a single input string
-        var result = await LiterLlmLib.Chat("Hello world");
+        var result = await LiterLlmLib.Embed("Hello world");
         Assert.Equal(1, result.Data.Count);
         Assert.Equal(5, result.Data["0"].Embedding.Count);
     }
@@ -70,7 +70,7 @@ public class SmokeTests
     public async Task Test_BasicListModels()
     {
         // List available models from the API
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{}");
         Assert.True(result.Data.Count >= 1, "expected at least 1 elements");
     }
 
@@ -110,7 +110,7 @@ public class SmokeTests
     public async Task Test_LocalListModelsOllama()
     {
         // List models from local Ollama instance
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{\"model\":\"ollama/any\"}");
         Assert.True(result.Data.Count >= 1, "expected at least 1 elements");
     }
 
@@ -153,7 +153,7 @@ public class SmokeTests
     public async Task Test_SmokeEmbedOpenai()
     {
         // Embeddings request against real OpenAI API
-        var result = await LiterLlmLib.Chat(new[] { "Hello world" });
+        var result = await LiterLlmLib.Embed(new[] { "Hello world" });
         Assert.False(string.IsNullOrEmpty(result.Data?.ToString()));
     }
 
@@ -161,7 +161,7 @@ public class SmokeTests
     public async Task Test_SmokeListModelsOpenai()
     {
         // List models against real OpenAI API
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{\"model\":\"openai/gpt-4o-mini\"}");
         Assert.True(result.Data.Count >= 1, "expected at least 1 elements");
     }
 
@@ -177,7 +177,7 @@ public class SmokeTests
     public async Task Test_SmokeStreamingOpenai()
     {
         // Chat streaming against real OpenAI API, verifies chunks received
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ChatStream(null);
         Assert.True(result.Chunks.Count >= 1, "expected at least 1 elements");
     }
 
@@ -197,7 +197,7 @@ public class SmokeTests
     public async Task Test_VertexEmbed()
     {
         // Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape
-        var result = await LiterLlmLib.Chat("Hello");
+        var result = await LiterLlmLib.Embed("Hello");
         Assert.Equal(1, result.Data.Count);
         Assert.Equal(160, result.Data["0"].Embedding.Count);
     }

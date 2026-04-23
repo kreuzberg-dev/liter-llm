@@ -11,7 +11,7 @@ import (
 
 func Test_EdgeRerankEmptyQuery(t *testing.T) {
 	// Reranking with an empty query string
-	result, err := pkg.chat(nil)
+	result, err := pkg.rerank(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -20,7 +20,7 @@ func Test_EdgeRerankEmptyQuery(t *testing.T) {
 
 func Test_EdgeRerankSingleDoc(t *testing.T) {
 	// Reranking with only a single document
-	result, err := pkg.chat(nil)
+	result, err := pkg.rerank(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -32,7 +32,7 @@ func Test_EdgeRerankSingleDoc(t *testing.T) {
 
 func Test_ErrorRerankAuth401(t *testing.T) {
 	// 401 Unauthorized for reranking with invalid API key
-	_, err := pkg.chat(nil)
+	_, err := pkg.rerank(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -40,7 +40,7 @@ func Test_ErrorRerankAuth401(t *testing.T) {
 
 func Test_ErrorRerankBadRequest(t *testing.T) {
 	// 400 Bad Request for reranking with invalid model
-	_, err := pkg.chat(nil)
+	_, err := pkg.rerank(nil)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -48,7 +48,7 @@ func Test_ErrorRerankBadRequest(t *testing.T) {
 
 func Test_SmokeRerankBasic(t *testing.T) {
 	// Basic reranking of documents against a query
-	result, err := pkg.chat(nil)
+	result, err := pkg.rerank(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -60,7 +60,7 @@ func Test_SmokeRerankBasic(t *testing.T) {
 
 func Test_SmokeRerankReturnDocs(t *testing.T) {
 	// Reranking with return_documents flag to include document text
-	result, err := pkg.chat(nil)
+	result, err := pkg.rerank(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -75,7 +75,7 @@ func Test_SmokeRerankReturnDocs(t *testing.T) {
 
 func Test_SmokeRerankWithTopN(t *testing.T) {
 	// Reranking with top_n parameter to limit results
-	result, err := pkg.chat(nil)
+	result, err := pkg.rerank(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

@@ -9,21 +9,25 @@ public class ToolMessageBuilder {
     private String toolCallId = "";
     private Optional<String> name = Optional.empty();
 
-    public ToolMessageBuilder withContent(String value) {
+    /** Sets the content field. */
+    public ToolMessageBuilder withContent(final String value) {
         this.content = value;
         return this;
     }
 
-    public ToolMessageBuilder withToolCallId(String value) {
+    /** Sets the toolCallId field. */
+    public ToolMessageBuilder withToolCallId(final String value) {
         this.toolCallId = value;
         return this;
     }
 
-    public ToolMessageBuilder withName(Optional<String> value) {
+    /** Sets the name field. */
+    public ToolMessageBuilder withName(final Optional<String> value) {
         this.name = value;
         return this;
     }
 
+    /** Builds the ToolMessage instance. */
     public ToolMessage build() {
         return new ToolMessage(
             content,

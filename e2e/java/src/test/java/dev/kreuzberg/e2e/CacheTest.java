@@ -30,7 +30,7 @@ class CacheTest {
     @Test
     void testCacheStreamBypass() throws Exception {
         // Tests that streaming requests bypass cache entirely
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.cacheBypassed(), "expected true");
     }
 

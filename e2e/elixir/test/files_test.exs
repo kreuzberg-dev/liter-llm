@@ -5,46 +5,46 @@ defmodule E2e.FilesTest do
 
   describe "edge_file_empty_list" do
     test "List files when no files have been uploaded" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_files_async(nil)
       assert length(result.data) == 0
     end
   end
 
   describe "edge_file_large_upload" do
     test "Upload a large file successfully" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.create_file_async(nil)
       assert result.id != ""
     end
   end
 
   describe "error_file_auth_401" do
     test "401 Unauthorized when listing files with invalid API key" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.list_files_async(nil)
     end
   end
 
   describe "error_file_bad_purpose" do
     test "400 Bad Request when uploading a file with invalid purpose" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.create_file_async(nil)
     end
   end
 
   describe "error_file_not_found" do
     test "404 Not Found when retrieving a nonexistent file" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.retrieve_file_async(nil)
     end
   end
 
   describe "smoke_create_file" do
     test "Upload a file for use with the API" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.create_file_async(nil)
       assert result.id != ""
     end
   end
 
   describe "smoke_delete_file" do
     test "Delete an uploaded file" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.delete_file_async(nil)
       assert result.id != ""
       assert result.deleted == true
     end
@@ -52,21 +52,21 @@ defmodule E2e.FilesTest do
 
   describe "smoke_file_content" do
     test "Retrieve the content of an uploaded file" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.file_content_async(nil)
       assert result.content != ""
     end
   end
 
   describe "smoke_list_files" do
     test "List all uploaded files" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_files_async(nil)
       assert length(result.data) == 2
     end
   end
 
   describe "smoke_retrieve_file" do
     test "Retrieve metadata for an uploaded file" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.retrieve_file_async(nil)
       assert result.id != ""
     end
   end

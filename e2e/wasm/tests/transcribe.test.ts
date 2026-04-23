@@ -8,7 +8,7 @@ describe('transcribe', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "silence.mp3";
     options.model = "whisper-1";
-    const result = await client.chat(options);
+    const result = await client.transcribe(options);
     expect(result.text).toContain("");
   });
 
@@ -18,7 +18,7 @@ describe('transcribe', () => {
     options.file = "audio.mp3";
     options.model = "whisper-1";
     options.responseFormat = "verbose_json";
-    const result = await client.chat(options);
+    const result = await client.transcribe(options);
     expect(result.text.length).toBeGreaterThan(0);
     expect(result.segments.length).toBe(3);
     expect(result.segments.get("0").id).toBe(0);
@@ -29,7 +29,7 @@ describe('transcribe', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "audio.mp3";
     options.model = "whisper-1";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.transcribe(options)).rejects.toThrow();
   });
 
   it('error_transcribe_bad_format: 400 Bad Request when audio format is unsupported', async () => {
@@ -37,7 +37,7 @@ describe('transcribe', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "audio.xyz";
     options.model = "whisper-1";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.transcribe(options)).rejects.toThrow();
   });
 
   it('smoke_transcribe_basic: Basic audio transcription', async () => {
@@ -45,7 +45,7 @@ describe('transcribe', () => {
     const options = new WasmChatCompletionRequest();
     options.file = "audio.mp3";
     options.model = "whisper-1";
-    const result = await client.chat(options);
+    const result = await client.transcribe(options);
     expect(result.text).toContain("Hello, this is a test transcription.");
   });
 
@@ -55,7 +55,7 @@ describe('transcribe', () => {
     options.file = "audio_de.mp3";
     options.language = "de";
     options.model = "whisper-1";
-    const result = await client.chat(options);
+    const result = await client.transcribe(options);
     expect(result.text).toContain("Hallo, dies ist ein Testtranskription.");
   });
 });

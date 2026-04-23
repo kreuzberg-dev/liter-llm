@@ -12,21 +12,25 @@ public class ImageBuilder {
     private Optional<String> b64Json = Optional.empty();
     private Optional<String> revisedPrompt = Optional.empty();
 
-    public ImageBuilder withUrl(Optional<String> value) {
+    /** Sets the url field. */
+    public ImageBuilder withUrl(final Optional<String> value) {
         this.url = value;
         return this;
     }
 
-    public ImageBuilder withB64Json(Optional<String> value) {
+    /** Sets the b64Json field. */
+    public ImageBuilder withB64Json(final Optional<String> value) {
         this.b64Json = value;
         return this;
     }
 
-    public ImageBuilder withRevisedPrompt(Optional<String> value) {
+    /** Sets the revisedPrompt field. */
+    public ImageBuilder withRevisedPrompt(final Optional<String> value) {
         this.revisedPrompt = value;
         return this;
     }
 
+    /** Builds the Image instance. */
     public Image build() {
         return new Image(
             url,

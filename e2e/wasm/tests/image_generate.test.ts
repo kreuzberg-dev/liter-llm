@@ -11,7 +11,7 @@ describe('image-generate', () => {
     options.prompt = "A blue circle";
     options.responseFormat = "b64_json";
     options.size = "1024x1024";
-    const result = await client.chat(options);
+    const result = await client.image_generate(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").b64Json.length).toBeGreaterThan(0);
   });
@@ -23,7 +23,7 @@ describe('image-generate', () => {
     options.n = BigInt(1);
     options.prompt = "";
     options.size = "1024x1024";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.image_generate(options)).rejects.toThrow();
   });
 
   it('edge_image_multiple_n: Image generation requesting multiple images with n=3', async () => {
@@ -32,7 +32,7 @@ describe('image-generate', () => {
     options.model = "dall-e-3";
     options.n = BigInt(3);
     options.prompt = "A cat";
-    const result = await client.chat(options);
+    const result = await client.image_generate(options);
     expect(result.data.length).toBe(3);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
     expect(result.data.get("1").url.length).toBeGreaterThan(0);
@@ -46,7 +46,7 @@ describe('image-generate', () => {
     options.n = BigInt(1);
     options.prompt = "A cat";
     options.size = "1024x1024";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.image_generate(options)).rejects.toThrow();
   });
 
   it('error_image_bad_request: 400 Bad Request when image generation parameters are invalid', async () => {
@@ -56,7 +56,7 @@ describe('image-generate', () => {
     options.n = BigInt(1);
     options.prompt = "A cat";
     options.size = "9999x9999";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.image_generate(options)).rejects.toThrow();
   });
 
   it('error_image_rate_limit: 429 Rate limit exceeded for image generation', async () => {
@@ -66,7 +66,7 @@ describe('image-generate', () => {
     options.n = BigInt(1);
     options.prompt = "A cat";
     options.size = "1024x1024";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.image_generate(options)).rejects.toThrow();
   });
 
   it('smoke_image_basic: Basic image generation with a text prompt', async () => {
@@ -76,7 +76,7 @@ describe('image-generate', () => {
     options.n = BigInt(1);
     options.prompt = "A white cat sitting on a windowsill";
     options.size = "1024x1024";
-    const result = await client.chat(options);
+    const result = await client.image_generate(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });
@@ -88,7 +88,7 @@ describe('image-generate', () => {
     options.n = BigInt(3);
     options.prompt = "A red bicycle";
     options.size = "256x256";
-    const result = await client.chat(options);
+    const result = await client.image_generate(options);
     expect(result.data.length).toBe(3);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });
@@ -100,7 +100,7 @@ describe('image-generate', () => {
     options.n = BigInt(1);
     options.prompt = "A sunset over mountains";
     options.size = "1792x1024";
-    const result = await client.chat(options);
+    const result = await client.image_generate(options);
     expect(result.data.length).toBe(1);
     expect(result.data.get("0").url.length).toBeGreaterThan(0);
   });

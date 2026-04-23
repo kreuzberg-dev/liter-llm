@@ -11,19 +11,22 @@ public enum RerankDocument {
     Text("text"),
     Object("object");
 
+    /** The string value. */
     private final String value;
 
-    RerankDocument(String value) {
+    RerankDocument(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static RerankDocument fromValue(String value) {
+    public static RerankDocument fromValue(final String value) {
         for (RerankDocument e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

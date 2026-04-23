@@ -12,26 +12,31 @@ public class TranscriptionSegmentBuilder {
     private double end = 0.0;
     private String text = "";
 
-    public TranscriptionSegmentBuilder withId(int value) {
+    /** Sets the id field. */
+    public TranscriptionSegmentBuilder withId(final int value) {
         this.id = value;
         return this;
     }
 
-    public TranscriptionSegmentBuilder withStart(double value) {
+    /** Sets the start field. */
+    public TranscriptionSegmentBuilder withStart(final double value) {
         this.start = value;
         return this;
     }
 
-    public TranscriptionSegmentBuilder withEnd(double value) {
+    /** Sets the end field. */
+    public TranscriptionSegmentBuilder withEnd(final double value) {
         this.end = value;
         return this;
     }
 
-    public TranscriptionSegmentBuilder withText(String value) {
+    /** Sets the text field. */
+    public TranscriptionSegmentBuilder withText(final String value) {
         this.text = value;
         return this;
     }
 
+    /** Builds the TranscriptionSegment instance. */
     public TranscriptionSegment build() {
         return new TranscriptionSegment(
             id,

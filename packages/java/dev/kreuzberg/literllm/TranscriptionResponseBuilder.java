@@ -14,26 +14,31 @@ public class TranscriptionResponseBuilder {
     private Optional<Double> duration = Optional.empty();
     private Optional<List<TranscriptionSegment>> segments = Optional.empty();
 
-    public TranscriptionResponseBuilder withText(String value) {
+    /** Sets the text field. */
+    public TranscriptionResponseBuilder withText(final String value) {
         this.text = value;
         return this;
     }
 
-    public TranscriptionResponseBuilder withLanguage(Optional<String> value) {
+    /** Sets the language field. */
+    public TranscriptionResponseBuilder withLanguage(final Optional<String> value) {
         this.language = value;
         return this;
     }
 
-    public TranscriptionResponseBuilder withDuration(Optional<Double> value) {
+    /** Sets the duration field. */
+    public TranscriptionResponseBuilder withDuration(final Optional<Double> value) {
         this.duration = value;
         return this;
     }
 
-    public TranscriptionResponseBuilder withSegments(Optional<List<TranscriptionSegment>> value) {
+    /** Sets the segments field. */
+    public TranscriptionResponseBuilder withSegments(final Optional<List<TranscriptionSegment>> value) {
         this.segments = value;
         return this;
     }
 
+    /** Builds the TranscriptionResponse instance. */
     public TranscriptionResponse build() {
         return new TranscriptionResponse(
             text,

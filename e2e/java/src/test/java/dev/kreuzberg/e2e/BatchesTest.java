@@ -9,38 +9,38 @@ class BatchesTest {
     @Test
     void testEdgeBatchAlreadyCancelled() throws Exception {
         // Attempt to cancel an already-cancelled batch
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.cancel_batch("batch-cancelled001"));
     }
 
     @Test
     void testEdgeBatchEmptyList() throws Exception {
         // List batches when no batches exist
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_batches("{}");
         assertEquals(0, result.data().size(), "expected exactly 0 elements");
     }
 
     @Test
     void testErrorBatchAuth401() throws Exception {
         // 401 Unauthorized when creating a batch with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.create_batch(null));
     }
 
     @Test
     void testErrorBatchInvalidFile() throws Exception {
         // 400 Bad Request when creating a batch with invalid input file
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.create_batch(null));
     }
 
     @Test
     void testErrorBatchNotFound() throws Exception {
         // 404 Not Found when retrieving a nonexistent batch
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.retrieve_batch("batch-nonexistent"));
     }
 
     @Test
     void testSmokeBatchCompleted() throws Exception {
         // Retrieve a completed batch job with output file
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.retrieve_batch("batch-ghi789");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("completed", result.status().trim());
     }
@@ -48,7 +48,7 @@ class BatchesTest {
     @Test
     void testSmokeCancelBatch() throws Exception {
         // Cancel a running batch job
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.cancel_batch("batch-def456");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("cancelling", result.status().trim());
     }
@@ -56,7 +56,7 @@ class BatchesTest {
     @Test
     void testSmokeCreateBatch() throws Exception {
         // Create a new batch processing job
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.create_batch(null);
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("validating", result.status().trim());
     }
@@ -64,14 +64,14 @@ class BatchesTest {
     @Test
     void testSmokeListBatches() throws Exception {
         // List all batch jobs
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_batches("{}");
         assertEquals(2, result.data().size(), "expected exactly 2 elements");
     }
 
     @Test
     void testSmokeRetrieveBatch() throws Exception {
         // Retrieve the status of a batch job
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.retrieve_batch("batch-abc123");
         assertFalse(result.id().isEmpty(), "expected non-empty value");
         assertEquals("in_progress", result.status().trim());
     }

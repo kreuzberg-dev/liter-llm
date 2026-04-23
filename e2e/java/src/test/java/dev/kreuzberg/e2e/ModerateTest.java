@@ -9,7 +9,7 @@ class ModerateTest {
     @Test
     void testEdgeModerateAllCategories() throws Exception {
         // Moderation response with multiple categories flagged
-        var result = LiterLlm.chat("Extremely harmful content targeting multiple categories");
+        var result = LiterLlm.moderate("Extremely harmful content targeting multiple categories");
         assertEquals(1, result.results().size(), "expected exactly 1 elements");
         assertEquals(true, result.results().get("0").flagged());
     }
@@ -17,7 +17,7 @@ class ModerateTest {
     @Test
     void testEdgeModerateEmptyInput() throws Exception {
         // Moderation with empty string input
-        var result = LiterLlm.chat("");
+        var result = LiterLlm.moderate("");
         assertEquals(1, result.results().size(), "expected exactly 1 elements");
         assertEquals(false, result.results().get("0").flagged());
     }
@@ -25,19 +25,19 @@ class ModerateTest {
     @Test
     void testErrorModerateAuth401() throws Exception {
         // 401 Unauthorized for moderation with invalid API key
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello"));
+        assertThrows(Exception.class, () -> LiterLlm.moderate("Hello"));
     }
 
     @Test
     void testErrorModerateBadRequest() throws Exception {
         // 400 Bad Request for moderation with invalid model
-        assertThrows(Exception.class, () -> LiterLlm.chat("Hello"));
+        assertThrows(Exception.class, () -> LiterLlm.moderate("Hello"));
     }
 
     @Test
     void testSmokeModerateBatch() throws Exception {
         // Moderate multiple inputs in a single request
-        var result = LiterLlm.chat(java.util.List.of("Hello world", "Nice weather today"));
+        var result = LiterLlm.moderate(java.util.List.of("Hello world", "Nice weather today"));
         assertEquals(2, result.results().size(), "expected exactly 2 elements");
         assertEquals(false, result.results().get("0").flagged());
     }
@@ -45,7 +45,7 @@ class ModerateTest {
     @Test
     void testSmokeModerateFlagged() throws Exception {
         // Moderation detects flagged content
-        var result = LiterLlm.chat("I want to hurt someone very badly");
+        var result = LiterLlm.moderate("I want to hurt someone very badly");
         assertEquals(1, result.results().size(), "expected exactly 1 elements");
         assertEquals(true, result.results().get("0").flagged());
     }
@@ -53,7 +53,7 @@ class ModerateTest {
     @Test
     void testSmokeModerateSingle() throws Exception {
         // Moderate a single non-flagged input
-        var result = LiterLlm.chat("The weather is nice today.");
+        var result = LiterLlm.moderate("The weather is nice today.");
         assertEquals(1, result.results().size(), "expected exactly 1 elements");
         assertEquals(false, result.results().get("0").flagged());
     }

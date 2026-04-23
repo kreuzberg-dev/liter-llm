@@ -9,7 +9,7 @@ describe('speech', () => {
     options.input = "Hello world";
     options.model = "tts-1";
     options.voice = "nova";
-    const result = await client.chat(options);
+    const result = await client.speech(options);
     expect(result.audio.length).toBeGreaterThan(0);
   });
 
@@ -19,7 +19,7 @@ describe('speech', () => {
     options.input = "This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.";
     options.model = "tts-1";
     options.voice = "echo";
-    const result = await client.chat(options);
+    const result = await client.speech(options);
     expect(result.audio.length).toBeGreaterThan(0);
   });
 
@@ -29,7 +29,7 @@ describe('speech', () => {
     options.input = "Hello";
     options.model = "tts-1";
     options.voice = "alloy";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.speech(options)).rejects.toThrow();
   });
 
   it('error_speech_bad_model: 400 Bad Request for speech with unsupported model', async () => {
@@ -38,7 +38,7 @@ describe('speech', () => {
     options.input = "Hello";
     options.model = "tts-nonexistent";
     options.voice = "alloy";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
+    await expect(async () => await client.speech(options)).rejects.toThrow();
   });
 
   it('smoke_speech_basic: Basic text-to-speech generation', async () => {
@@ -47,7 +47,7 @@ describe('speech', () => {
     options.input = "Hello, world!";
     options.model = "tts-1";
     options.voice = "alloy";
-    const result = await client.chat(options);
+    const result = await client.speech(options);
     expect(result.audio.length).toBeGreaterThan(0);
   });
 
@@ -59,7 +59,7 @@ describe('speech', () => {
     options.responseFormat = "mp3";
     options.speed = 1.0;
     options.voice = "nova";
-    const result = await client.chat(options);
+    const result = await client.speech(options);
     expect(result.audio.length).toBeGreaterThan(0);
   });
 });

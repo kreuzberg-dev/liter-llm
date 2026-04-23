@@ -8,16 +8,19 @@ public class ModelsListResponseBuilder {
     private String object = "";
     private List<ModelObject> data = List.of();
 
-    public ModelsListResponseBuilder withObject(String value) {
+    /** Sets the object field. */
+    public ModelsListResponseBuilder withObject(final String value) {
         this.object = value;
         return this;
     }
 
-    public ModelsListResponseBuilder withData(List<ModelObject> value) {
+    /** Sets the data field. */
+    public ModelsListResponseBuilder withData(final List<ModelObject> value) {
         this.data = value;
         return this;
     }
 
+    /** Builds the ModelsListResponse instance. */
     public ModelsListResponse build() {
         return new ModelsListResponse(
             object,

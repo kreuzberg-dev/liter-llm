@@ -16,7 +16,7 @@ public class ModerateTests
     public async Task Test_EdgeModerateAllCategories()
     {
         // Moderation response with multiple categories flagged
-        var result = await LiterLlmLib.Chat("Extremely harmful content targeting multiple categories");
+        var result = await LiterLlmLib.Moderate("Extremely harmful content targeting multiple categories");
         Assert.Equal(1, result.Results.Count);
         Assert.Equal(true, result.Results["0"].Flagged);
     }
@@ -25,7 +25,7 @@ public class ModerateTests
     public async Task Test_EdgeModerateEmptyInput()
     {
         // Moderation with empty string input
-        var result = await LiterLlmLib.Chat("");
+        var result = await LiterLlmLib.Moderate("");
         Assert.Equal(1, result.Results.Count);
         Assert.Equal(false, result.Results["0"].Flagged);
     }
@@ -34,21 +34,21 @@ public class ModerateTests
     public async Task Test_ErrorModerateAuth401()
     {
         // 401 Unauthorized for moderation with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Moderate("Hello"));
     }
 
     [Fact]
     public async Task Test_ErrorModerateBadRequest()
     {
         // 400 Bad Request for moderation with invalid model
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat("Hello"));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Moderate("Hello"));
     }
 
     [Fact]
     public async Task Test_SmokeModerateBatch()
     {
         // Moderate multiple inputs in a single request
-        var result = await LiterLlmLib.Chat(new[] { "Hello world", "Nice weather today" });
+        var result = await LiterLlmLib.Moderate(new[] { "Hello world", "Nice weather today" });
         Assert.Equal(2, result.Results.Count);
         Assert.Equal(false, result.Results["0"].Flagged);
     }
@@ -57,7 +57,7 @@ public class ModerateTests
     public async Task Test_SmokeModerateFlagged()
     {
         // Moderation detects flagged content
-        var result = await LiterLlmLib.Chat("I want to hurt someone very badly");
+        var result = await LiterLlmLib.Moderate("I want to hurt someone very badly");
         Assert.Equal(1, result.Results.Count);
         Assert.Equal(true, result.Results["0"].Flagged);
     }
@@ -66,7 +66,7 @@ public class ModerateTests
     public async Task Test_SmokeModerateSingle()
     {
         // Moderate a single non-flagged input
-        var result = await LiterLlmLib.Chat("The weather is nice today.");
+        var result = await LiterLlmLib.Moderate("The weather is nice today.");
         Assert.Equal(1, result.Results.Count);
         Assert.Equal(false, result.Results["0"].Flagged);
     }

@@ -12,31 +12,37 @@ public class AssistantMessageBuilder {
     private Optional<String> refusal = Optional.empty();
     private Optional<FunctionCall> functionCall = Optional.empty();
 
-    public AssistantMessageBuilder withContent(Optional<String> value) {
+    /** Sets the content field. */
+    public AssistantMessageBuilder withContent(final Optional<String> value) {
         this.content = value;
         return this;
     }
 
-    public AssistantMessageBuilder withName(Optional<String> value) {
+    /** Sets the name field. */
+    public AssistantMessageBuilder withName(final Optional<String> value) {
         this.name = value;
         return this;
     }
 
-    public AssistantMessageBuilder withToolCalls(Optional<List<ToolCall>> value) {
+    /** Sets the toolCalls field. */
+    public AssistantMessageBuilder withToolCalls(final Optional<List<ToolCall>> value) {
         this.toolCalls = value;
         return this;
     }
 
-    public AssistantMessageBuilder withRefusal(Optional<String> value) {
+    /** Sets the refusal field. */
+    public AssistantMessageBuilder withRefusal(final Optional<String> value) {
         this.refusal = value;
         return this;
     }
 
-    public AssistantMessageBuilder withFunctionCall(Optional<FunctionCall> value) {
+    /** Sets the functionCall field. */
+    public AssistantMessageBuilder withFunctionCall(final Optional<FunctionCall> value) {
         this.functionCall = value;
         return this;
     }
 
+    /** Builds the AssistantMessage instance. */
     public AssistantMessage build() {
         return new AssistantMessage(
             content,

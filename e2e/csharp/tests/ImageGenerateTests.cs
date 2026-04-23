@@ -16,7 +16,7 @@ public class ImageGenerateTests
     public async Task Test_EdgeImageB64Response()
     {
         // Image generation returning base64-encoded data instead of URL
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ImageGenerate(null);
         Assert.Equal(1, result.Data.Count);
         Assert.False(string.IsNullOrEmpty(result.Data["0"].B64Json?.ToString()));
     }
@@ -25,14 +25,14 @@ public class ImageGenerateTests
     public async Task Test_EdgeImageEmptyPrompt()
     {
         // Image generation with an empty prompt returns 400
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ImageGenerate(null));
     }
 
     [Fact]
     public async Task Test_EdgeImageMultipleN()
     {
         // Image generation requesting multiple images with n=3
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ImageGenerate(null);
         Assert.Equal(3, result.Data.Count);
         Assert.False(string.IsNullOrEmpty(result.Data["0"].Url?.ToString()));
         Assert.False(string.IsNullOrEmpty(result.Data["1"].Url?.ToString()));
@@ -43,28 +43,28 @@ public class ImageGenerateTests
     public async Task Test_ErrorImageAuth401()
     {
         // 401 Unauthorized when generating images with invalid API key
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ImageGenerate(null));
     }
 
     [Fact]
     public async Task Test_ErrorImageBadRequest()
     {
         // 400 Bad Request when image generation parameters are invalid
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ImageGenerate(null));
     }
 
     [Fact]
     public async Task Test_ErrorImageRateLimit()
     {
         // 429 Rate limit exceeded for image generation
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ImageGenerate(null));
     }
 
     [Fact]
     public async Task Test_SmokeImageBasic()
     {
         // Basic image generation with a text prompt
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ImageGenerate(null);
         Assert.Equal(1, result.Data.Count);
         Assert.False(string.IsNullOrEmpty(result.Data["0"].Url?.ToString()));
     }
@@ -73,7 +73,7 @@ public class ImageGenerateTests
     public async Task Test_SmokeImageMultiple()
     {
         // Image generation requesting multiple images
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ImageGenerate(null);
         Assert.Equal(3, result.Data.Count);
         Assert.False(string.IsNullOrEmpty(result.Data["0"].Url?.ToString()));
     }
@@ -82,7 +82,7 @@ public class ImageGenerateTests
     public async Task Test_SmokeImageWithSize()
     {
         // Image generation with explicit size parameter
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ImageGenerate(null);
         Assert.Equal(1, result.Data.Count);
         Assert.False(string.IsNullOrEmpty(result.Data["0"].Url?.ToString()));
     }

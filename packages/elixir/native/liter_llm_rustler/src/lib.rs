@@ -16,6 +16,7 @@
 )]
 
 use liter_llm::client::LlmClient;
+use rustler::Encoder;
 use rustler::ResourceArc;
 use std::collections::HashMap;
 use std::sync::Arc;

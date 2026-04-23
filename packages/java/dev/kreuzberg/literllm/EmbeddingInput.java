@@ -8,19 +8,22 @@ public enum EmbeddingInput {
     Single("single"),
     Multiple("multiple");
 
+    /** The string value. */
     private final String value;
 
-    EmbeddingInput(String value) {
+    EmbeddingInput(final String value) {
         this.value = value;
     }
 
+    /** Returns the string value. */
     @JsonValue
     public String getValue() {
         return value;
     }
 
+    /** Creates an instance from a string value. */
     @JsonCreator
-    public static EmbeddingInput fromValue(String value) {
+    public static EmbeddingInput fromValue(final String value) {
         for (EmbeddingInput e : values()) {
             if (e.value.equalsIgnoreCase(value)) {
                 return e;

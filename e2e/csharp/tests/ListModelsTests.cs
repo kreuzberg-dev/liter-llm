@@ -16,7 +16,7 @@ public class ListModelsTests
     public async Task Test_EmptyModelList()
     {
         // List models response returns an empty data array when no models are available
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{}");
         Assert.True(result.Data.Count >= 0, "expected at least 0 elements");
         Assert.Equal(0, result.Data.Count);
     }
@@ -25,21 +25,21 @@ public class ListModelsTests
     public async Task Test_ListModelsError401()
     {
         // 401 Unauthorized error on list models request when API key is invalid
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ListModels("{}"));
     }
 
     [Fact]
     public async Task Test_ListModelsError500()
     {
         // 500 Internal Server Error when listing models due to server failure
-        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.Chat(null));
+        await Assert.ThrowsAsync<LiterLlmException>(() => LiterLlmLib.ListModels("{}"));
     }
 
     [Fact]
     public async Task Test_ListModelsFiltered()
     {
         // List models response with multiple model objects
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ListModels("{}");
         Assert.True(result.Data.Count >= 5, "expected at least 5 elements");
         Assert.Equal("model", result.Data["0"].Object.Trim());
     }

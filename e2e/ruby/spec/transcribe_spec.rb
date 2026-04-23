@@ -6,32 +6,32 @@ require 'json'
 
 RSpec.describe 'transcribe' do
   it 'edge_transcribe_empty_audio: Transcription of a silent or empty audio file returns empty text' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.transcribe(nil)
     expect(result.text.to_s).to include('')
   end
 
   it 'edge_transcribe_with_timestamps: Transcription with verbose JSON response format including timestamp segments' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.transcribe(nil)
     expect(result.text).not_to be_empty
     expect(result.segments.length).to eq(3)
     expect(result.segments.get("0").id).to eq(0)
   end
 
   it 'error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.transcribe(nil) }.to raise_error
   end
 
   it 'error_transcribe_bad_format: 400 Bad Request when audio format is unsupported' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.transcribe(nil) }.to raise_error
   end
 
   it 'smoke_transcribe_basic: Basic audio transcription' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.transcribe(nil)
     expect(result.text.to_s).to include('Hello, this is a test transcription.')
   end
 
   it 'smoke_transcribe_with_language: Audio transcription with explicit language hint' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.transcribe(nil)
     expect(result.text.to_s).to include('Hallo, dies ist ein Testtranskription.')
   end
 end

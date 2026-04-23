@@ -8,16 +8,19 @@ public class UserMessageBuilder {
     private UserContent content = null;
     private Optional<String> name = Optional.empty();
 
-    public UserMessageBuilder withContent(UserContent value) {
+    /** Sets the content field. */
+    public UserMessageBuilder withContent(final UserContent value) {
         this.content = value;
         return this;
     }
 
-    public UserMessageBuilder withName(Optional<String> value) {
+    /** Sets the name field. */
+    public UserMessageBuilder withName(final Optional<String> value) {
         this.name = value;
         return this;
     }
 
+    /** Builds the UserMessage instance. */
     public UserMessage build() {
         return new UserMessage(
             content,

@@ -6,25 +6,25 @@ require 'json'
 
 RSpec.describe 'search' do
   it 'search_basic: Basic web search request with a simple query' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.search(nil)
     expect(result).not_to be_nil
   end
 
   it 'search_empty_results: Web search with a query that returns no results' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.search(nil)
     expect(result).not_to be_nil
   end
 
   it 'search_error_400: 400 Bad Request error when search query is empty' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.search(nil) }.to raise_error
   end
 
   it 'search_error_401: 401 Unauthorized error on web search due to invalid API credentials' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.search(nil) }.to raise_error
   end
 
   it 'search_with_max_results: Search request with max_results parameter limiting response count' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.search(nil)
     expect(result.results.length).to eq(2)
   end
 end

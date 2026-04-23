@@ -10,26 +10,31 @@ public class JsonSchemaFormatBuilder {
     private Object schema = null;
     private Optional<Boolean> strict = Optional.empty();
 
-    public JsonSchemaFormatBuilder withName(String value) {
+    /** Sets the name field. */
+    public JsonSchemaFormatBuilder withName(final String value) {
         this.name = value;
         return this;
     }
 
-    public JsonSchemaFormatBuilder withDescription(Optional<String> value) {
+    /** Sets the description field. */
+    public JsonSchemaFormatBuilder withDescription(final Optional<String> value) {
         this.description = value;
         return this;
     }
 
-    public JsonSchemaFormatBuilder withSchema(Object value) {
+    /** Sets the schema field. */
+    public JsonSchemaFormatBuilder withSchema(final Object value) {
         this.schema = value;
         return this;
     }
 
-    public JsonSchemaFormatBuilder withStrict(Optional<Boolean> value) {
+    /** Sets the strict field. */
+    public JsonSchemaFormatBuilder withStrict(final Optional<Boolean> value) {
         this.strict = value;
         return this;
     }
 
+    /** Builds the JsonSchemaFormat instance. */
     public JsonSchemaFormat build() {
         return new JsonSchemaFormat(
             name,

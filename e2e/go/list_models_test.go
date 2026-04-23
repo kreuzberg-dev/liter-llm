@@ -14,7 +14,7 @@ import (
 
 func Test_EmptyModelList(t *testing.T) {
 	// List models response returns an empty data array when no models are available
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -24,7 +24,7 @@ func Test_EmptyModelList(t *testing.T) {
 
 func Test_ListModelsError401(t *testing.T) {
 	// 401 Unauthorized error on list models request when API key is invalid
-	_, err := pkg.chat(nil)
+	_, err := pkg.list_models(`{}`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -32,7 +32,7 @@ func Test_ListModelsError401(t *testing.T) {
 
 func Test_ListModelsError500(t *testing.T) {
 	// 500 Internal Server Error when listing models due to server failure
-	_, err := pkg.chat(nil)
+	_, err := pkg.list_models(`{}`)
 	if err == nil {
 		t.Errorf("expected an error, but call succeeded")
 	}
@@ -40,7 +40,7 @@ func Test_ListModelsError500(t *testing.T) {
 
 func Test_ListModelsFiltered(t *testing.T) {
 	// List models response with multiple model objects
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

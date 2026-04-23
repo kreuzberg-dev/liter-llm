@@ -45,7 +45,7 @@ func Test_ProxyChatBasic(t *testing.T) {
 
 func Test_ProxyChatStreaming(t *testing.T) {
 	// Streaming chat completion routed through the proxy
-	result, err := pkg.chat(nil)
+	result, err := pkg.chat_stream(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -58,7 +58,7 @@ func Test_ProxyChatStreaming(t *testing.T) {
 
 func Test_ProxyEmbeddings(t *testing.T) {
 	// Embedding request routed through the proxy
-	result, err := pkg.chat(`Hello world`)
+	result, err := pkg.embed(`Hello world`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -67,7 +67,7 @@ func Test_ProxyEmbeddings(t *testing.T) {
 
 func Test_ProxyHealth(t *testing.T) {
 	// Health check verifying proxy connectivity via list models
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -76,7 +76,7 @@ func Test_ProxyHealth(t *testing.T) {
 
 func Test_ProxyImageGenerate(t *testing.T) {
 	// Image generation request routed through the proxy
-	result, err := pkg.chat(nil)
+	result, err := pkg.image_generate(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -88,7 +88,7 @@ func Test_ProxyImageGenerate(t *testing.T) {
 
 func Test_ProxyModelsList(t *testing.T) {
 	// List models request routed through the proxy
-	result, err := pkg.chat(nil)
+	result, err := pkg.list_models(`{}`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -97,7 +97,7 @@ func Test_ProxyModelsList(t *testing.T) {
 
 func Test_ProxyModeration(t *testing.T) {
 	// Content moderation request routed through the proxy
-	result, err := pkg.chat(`The weather is nice today.`)
+	result, err := pkg.moderate(`The weather is nice today.`)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}
@@ -109,7 +109,7 @@ func Test_ProxyModeration(t *testing.T) {
 
 func Test_ProxyRerank(t *testing.T) {
 	// Document reranking request routed through the proxy
-	result, err := pkg.chat(nil)
+	result, err := pkg.rerank(nil)
 	if err != nil {
 		t.Fatalf("call failed: %v", err)
 	}

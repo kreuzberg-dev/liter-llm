@@ -2,7 +2,7 @@
 title: "TypeScript API Reference"
 ---
 
-## TypeScript API Reference <span class="version-badge">v1.2.2</span>
+## TypeScript API Reference <span class="version-badge">v1.3.0</span>
 
 ### Functions
 
@@ -1189,4 +1189,3 @@ Errors are thrown as plain `Error` objects with descriptive messages.
 
 
 ---
-

@@ -9,21 +9,25 @@ public class ChoiceBuilder {
     private AssistantMessage message = null;
     private Optional<FinishReason> finishReason = Optional.empty();
 
-    public ChoiceBuilder withIndex(int value) {
+    /** Sets the index field. */
+    public ChoiceBuilder withIndex(final int value) {
         this.index = value;
         return this;
     }
 
-    public ChoiceBuilder withMessage(AssistantMessage value) {
+    /** Sets the message field. */
+    public ChoiceBuilder withMessage(final AssistantMessage value) {
         this.message = value;
         return this;
     }
 
-    public ChoiceBuilder withFinishReason(Optional<FinishReason> value) {
+    /** Sets the finishReason field. */
+    public ChoiceBuilder withFinishReason(final Optional<FinishReason> value) {
         this.finishReason = value;
         return this;
     }
 
+    /** Builds the Choice instance. */
     public Choice build() {
         return new Choice(
             index,

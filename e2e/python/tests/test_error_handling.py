@@ -8,7 +8,7 @@ from liter_llm import chat
 async def test_anthropic_error_auth() -> None:
     """401 Authentication error returned by the Anthropic API when the API key is invalid."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -16,7 +16,7 @@ async def test_anthropic_error_auth() -> None:
 async def test_auth_401() -> None:
     """401 Unauthorized error when API key is invalid or missing."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -24,7 +24,7 @@ async def test_auth_401() -> None:
 async def test_azure_error_auth() -> None:
     """Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -32,7 +32,7 @@ async def test_azure_error_auth() -> None:
 async def test_bad_request_400() -> None:
     """400 Bad Request error when a parameter value is invalid."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "BadRequest" in str(exc_info.value)  # noqa: S101
 
@@ -40,7 +40,7 @@ async def test_bad_request_400() -> None:
 async def test_bedrock_error_auth() -> None:
     """AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -48,7 +48,7 @@ async def test_bedrock_error_auth() -> None:
 async def test_content_policy_violation() -> None:
     """400 error when a request is rejected due to content policy."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "ContentPolicy" in str(exc_info.value)  # noqa: S101
 
@@ -56,7 +56,7 @@ async def test_content_policy_violation() -> None:
 async def test_context_window_exceeded() -> None:
     """400 error when the prompt exceeds the model's maximum context length."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "ContextWindowExceeded" in str(exc_info.value)  # noqa: S101
 
@@ -64,14 +64,14 @@ async def test_context_window_exceeded() -> None:
 async def test_empty_response_body() -> None:
     """200 OK response with an empty JSON object body, missing required fields."""
     request = None
-    with pytest.raises(Exception):
+    with pytest.raises(Exception):  # noqa: B017
         await chat(request=request)
 
 @pytest.mark.asyncio
 async def test_forbidden_403() -> None:
     """403 Forbidden error when the API key does not have access to the requested resource."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -79,7 +79,7 @@ async def test_forbidden_403() -> None:
 async def test_gateway_timeout_504() -> None:
     """504 Gateway Timeout error when the upstream service times out."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "ServiceUnavailable" in str(exc_info.value)  # noqa: S101
 
@@ -87,7 +87,7 @@ async def test_gateway_timeout_504() -> None:
 async def test_github_copilot_error_auth() -> None:
     """401 Authentication error returned by the GitHub Copilot API when the token is invalid or expired."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 
@@ -95,7 +95,7 @@ async def test_github_copilot_error_auth() -> None:
 async def test_not_found_404() -> None:
     """404 Not Found error when requesting a model that does not exist."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "NotFound" in str(exc_info.value)  # noqa: S101
 
@@ -103,7 +103,7 @@ async def test_not_found_404() -> None:
 async def test_rate_limit_429() -> None:
     """429 Too Many Requests error when the rate limit is exceeded."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "RateLimited" in str(exc_info.value)  # noqa: S101
 
@@ -111,7 +111,7 @@ async def test_rate_limit_429() -> None:
 async def test_server_error_500() -> None:
     """500 Internal Server Error from the upstream API."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "ServerError" in str(exc_info.value)  # noqa: S101
 
@@ -119,7 +119,7 @@ async def test_server_error_500() -> None:
 async def test_service_unavailable_502() -> None:
     """502 Bad Gateway error when the upstream service is unavailable."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "ServiceUnavailable" in str(exc_info.value)  # noqa: S101
 
@@ -127,7 +127,7 @@ async def test_service_unavailable_502() -> None:
 async def test_timeout_error() -> None:
     """408 Request Timeout error when the API request takes too long to complete."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Timeout" in str(exc_info.value)  # noqa: S101
 
@@ -135,7 +135,7 @@ async def test_timeout_error() -> None:
 async def test_vertex_error_auth() -> None:
     """Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication."""
     request = None
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception) as exc_info:  # noqa: B017
         await chat(request=request)
     assert "Authentication" in str(exc_info.value)  # noqa: S101
 

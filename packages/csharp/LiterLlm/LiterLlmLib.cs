@@ -43,7 +43,14 @@ public static class LiterLlmLib
             maxRetries.Value,
             modelHint!
         );
-        if (result == IntPtr.Zero) { var err = GetLastError(); if (err.Code != 0) throw err; }
+        if (result == IntPtr.Zero)
+        {
+            var err = GetLastError();
+            if (err.Code != 0)
+            {
+                throw err;
+            }
+        }
         var returnValue = new DefaultClient(result);
         return returnValue;
     }
@@ -65,7 +72,14 @@ public static class LiterLlmLib
         var result = NativeMethods.CreateClientFromJson(
             json
         );
-        if (result == IntPtr.Zero) { var err = GetLastError(); if (err.Code != 0) throw err; }
+        if (result == IntPtr.Zero)
+        {
+            var err = GetLastError();
+            if (err.Code != 0)
+            {
+                throw err;
+            }
+        }
         var returnValue = new DefaultClient(result);
         return returnValue;
     }
@@ -110,7 +124,14 @@ public static class LiterLlmLib
         var result = NativeMethods.UnregisterCustomProvider(
             name
         );
-        if (result == IntPtr.Zero) { var err = GetLastError(); if (err.Code != 0) throw err; }
+        if (result == IntPtr.Zero)
+        {
+            var err = GetLastError();
+            if (err.Code != 0)
+            {
+                throw err;
+            }
+        }
         var returnValue = result != 0;
         return returnValue;
     }

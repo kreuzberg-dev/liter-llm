@@ -8,16 +8,19 @@ public class DeveloperMessageBuilder {
     private String content = "";
     private Optional<String> name = Optional.empty();
 
-    public DeveloperMessageBuilder withContent(String value) {
+    /** Sets the content field. */
+    public DeveloperMessageBuilder withContent(final String value) {
         this.content = value;
         return this;
     }
 
-    public DeveloperMessageBuilder withName(Optional<String> value) {
+    /** Sets the name field. */
+    public DeveloperMessageBuilder withName(final Optional<String> value) {
         this.name = value;
         return this;
     }
 
+    /** Builds the DeveloperMessage instance. */
     public DeveloperMessage build() {
         return new DeveloperMessage(
             content,

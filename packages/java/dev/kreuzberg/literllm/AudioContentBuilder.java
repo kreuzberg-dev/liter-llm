@@ -7,16 +7,19 @@ public class AudioContentBuilder {
     private String data = "";
     private String format = "";
 
-    public AudioContentBuilder withData(String value) {
+    /** Sets the data field. */
+    public AudioContentBuilder withData(final String value) {
         this.data = value;
         return this;
     }
 
-    public AudioContentBuilder withFormat(String value) {
+    /** Sets the format field. */
+    public AudioContentBuilder withFormat(final String value) {
         this.format = value;
         return this;
     }
 
+    /** Builds the AudioContent instance. */
     public AudioContent build() {
         return new AudioContent(
             data,

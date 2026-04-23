@@ -8,16 +8,19 @@ public class ImageUrlBuilder {
     private String url = "";
     private Optional<ImageDetail> detail = Optional.empty();
 
-    public ImageUrlBuilder withUrl(String value) {
+    /** Sets the url field. */
+    public ImageUrlBuilder withUrl(final String value) {
         this.url = value;
         return this;
     }
 
-    public ImageUrlBuilder withDetail(Optional<ImageDetail> value) {
+    /** Sets the detail field. */
+    public ImageUrlBuilder withDetail(final Optional<ImageDetail> value) {
         this.detail = value;
         return this;
     }
 
+    /** Builds the ImageUrl instance. */
     public ImageUrl build() {
         return new ImageUrl(
             url,

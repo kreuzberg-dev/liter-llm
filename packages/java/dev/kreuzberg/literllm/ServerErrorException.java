@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class ServerErrorException extends LiterLlmErrorException {
-    public ServerErrorException(String message) {
+    /** Creates a new ServerErrorException with the given message. */
+    public ServerErrorException(final String message) {
         super(message);
     }
 
-    public ServerErrorException(String message, Throwable cause) {
+    /** Creates a new ServerErrorException with the given message and cause. */
+    public ServerErrorException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

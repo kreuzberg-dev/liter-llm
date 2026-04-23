@@ -6,11 +6,13 @@ public class SpecificFunctionBuilder {
 
     private String name = "";
 
-    public SpecificFunctionBuilder withName(String value) {
+    /** Sets the name field. */
+    public SpecificFunctionBuilder withName(final String value) {
         this.name = value;
         return this;
     }
 
+    /** Builds the SpecificFunction instance. */
     public SpecificFunction build() {
         return new SpecificFunction(
             name

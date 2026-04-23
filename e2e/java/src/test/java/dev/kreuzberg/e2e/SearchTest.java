@@ -9,31 +9,31 @@ class SearchTest {
     @Test
     void testSearchBasic() throws Exception {
         // Basic web search request with a simple query
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.search(null);
     }
 
     @Test
     void testSearchEmptyResults() throws Exception {
         // Web search with a query that returns no results
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.search(null);
     }
 
     @Test
     void testSearchError400() throws Exception {
         // 400 Bad Request error when search query is empty
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.search(null));
     }
 
     @Test
     void testSearchError401() throws Exception {
         // 401 Unauthorized error on web search due to invalid API credentials
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.search(null));
     }
 
     @Test
     void testSearchWithMaxResults() throws Exception {
         // Search request with max_results parameter limiting response count
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.search(null);
         assertEquals(2, result.results().size(), "expected exactly 2 elements");
     }
 

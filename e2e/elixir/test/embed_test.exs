@@ -5,7 +5,7 @@ defmodule E2e.EmbedTest do
 
   describe "batch_embed" do
     test "Embedding request with multiple input strings returns one embedding object per input" do
-      {:ok, result} = LiterLlm.chat_async(["Hello", "World"])
+      {:ok, result} = LiterLlm.embed_async(["Hello", "World"])
       assert length(result.data) == 2
       assert length(result.data["0"].embedding) == 5
     end
@@ -13,7 +13,7 @@ defmodule E2e.EmbedTest do
 
   describe "edge_embed_batch_input" do
     test "Embedding request with multiple inputs returns multiple embedding objects" do
-      {:ok, result} = LiterLlm.chat_async(["Hello world", "Goodbye world"])
+      {:ok, result} = LiterLlm.embed_async(["Hello world", "Goodbye world"])
       assert length(result.data) == 2
       assert result.data["0"].index == 0
       assert result.data["1"].index == 1
@@ -22,14 +22,14 @@ defmodule E2e.EmbedTest do
 
   describe "edge_embed_empty_input" do
     test "Embedding request with empty string input returns empty data array" do
-      {:ok, result} = LiterLlm.chat_async("")
+      {:ok, result} = LiterLlm.embed_async("")
       assert length(result.data) == 0
     end
   end
 
   describe "embed_encoding_format" do
     test "Embedding request with explicit encoding_format of float returns float array embeddings" do
-      {:ok, result} = LiterLlm.chat_async("Test input")
+      {:ok, result} = LiterLlm.embed_async("Test input")
       assert length(result.data) == 1
       assert length(result.data["0"].embedding) == 5
     end
@@ -37,13 +37,13 @@ defmodule E2e.EmbedTest do
 
   describe "embed_error_401" do
     test "401 Unauthorized error on embedding request when API key is invalid" do
-      assert {:error, _} = LiterLlm.chat_async("Hello world")
+      assert {:error, _} = LiterLlm.embed_async("Hello world")
     end
   end
 
   describe "embed_with_dimensions" do
     test "Embedding request with explicit dimensions parameter returns embeddings of the requested size" do
-      {:ok, result} = LiterLlm.chat_async("Hello world")
+      {:ok, result} = LiterLlm.embed_async("Hello world")
       assert length(result.data) == 1
       assert length(result.data["0"].embedding) == 8
     end
@@ -51,7 +51,7 @@ defmodule E2e.EmbedTest do
 
   describe "local_embed_ollama" do
     test "Embedding request via Ollama local provider with all-minilm model" do
-      {:ok, result} = LiterLlm.chat_async("The quick brown fox jumps over the lazy dog")
+      {:ok, result} = LiterLlm.embed_async("The quick brown fox jumps over the lazy dog")
       assert length(result.data) == 1
       assert length(result.data["0"].embedding) == 32
     end

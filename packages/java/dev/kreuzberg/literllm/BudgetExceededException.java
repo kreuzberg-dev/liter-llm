@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class BudgetExceededException extends LiterLlmErrorException {
-    public BudgetExceededException(String message) {
+    /** Creates a new BudgetExceededException with the given message. */
+    public BudgetExceededException(final String message) {
         super(message);
     }
 
-    public BudgetExceededException(String message, Throwable cause) {
+    /** Creates a new BudgetExceededException with the given message and cause. */
+    public BudgetExceededException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

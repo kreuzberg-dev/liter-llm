@@ -28,106 +28,127 @@ public class ChatCompletionRequestBuilder {
     private Optional<ReasoningEffort> reasoningEffort = Optional.empty();
     private Optional<Object> extraBody = Optional.empty();
 
-    public ChatCompletionRequestBuilder withModel(String value) {
+    /** Sets the model field. */
+    public ChatCompletionRequestBuilder withModel(final String value) {
         this.model = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withMessages(List<Message> value) {
+    /** Sets the messages field. */
+    public ChatCompletionRequestBuilder withMessages(final List<Message> value) {
         this.messages = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withTemperature(Optional<Double> value) {
+    /** Sets the temperature field. */
+    public ChatCompletionRequestBuilder withTemperature(final Optional<Double> value) {
         this.temperature = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withTopP(Optional<Double> value) {
+    /** Sets the topP field. */
+    public ChatCompletionRequestBuilder withTopP(final Optional<Double> value) {
         this.topP = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withN(Optional<Integer> value) {
+    /** Sets the n field. */
+    public ChatCompletionRequestBuilder withN(final Optional<Integer> value) {
         this.n = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withStream(Optional<Boolean> value) {
+    /** Sets the stream field. */
+    public ChatCompletionRequestBuilder withStream(final Optional<Boolean> value) {
         this.stream = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withStop(Optional<StopSequence> value) {
+    /** Sets the stop field. */
+    public ChatCompletionRequestBuilder withStop(final Optional<StopSequence> value) {
         this.stop = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withMaxTokens(Optional<Long> value) {
+    /** Sets the maxTokens field. */
+    public ChatCompletionRequestBuilder withMaxTokens(final Optional<Long> value) {
         this.maxTokens = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withPresencePenalty(Optional<Double> value) {
+    /** Sets the presencePenalty field. */
+    public ChatCompletionRequestBuilder withPresencePenalty(final Optional<Double> value) {
         this.presencePenalty = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withFrequencyPenalty(Optional<Double> value) {
+    /** Sets the frequencyPenalty field. */
+    public ChatCompletionRequestBuilder withFrequencyPenalty(final Optional<Double> value) {
         this.frequencyPenalty = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withLogitBias(Optional<Map<String, Double>> value) {
+    /** Sets the logitBias field. */
+    public ChatCompletionRequestBuilder withLogitBias(final Optional<Map<String, Double>> value) {
         this.logitBias = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withUser(Optional<String> value) {
+    /** Sets the user field. */
+    public ChatCompletionRequestBuilder withUser(final Optional<String> value) {
         this.user = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withTools(Optional<List<ChatCompletionTool>> value) {
+    /** Sets the tools field. */
+    public ChatCompletionRequestBuilder withTools(final Optional<List<ChatCompletionTool>> value) {
         this.tools = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withToolChoice(Optional<ToolChoice> value) {
+    /** Sets the toolChoice field. */
+    public ChatCompletionRequestBuilder withToolChoice(final Optional<ToolChoice> value) {
         this.toolChoice = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withParallelToolCalls(Optional<Boolean> value) {
+    /** Sets the parallelToolCalls field. */
+    public ChatCompletionRequestBuilder withParallelToolCalls(final Optional<Boolean> value) {
         this.parallelToolCalls = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withResponseFormat(Optional<ResponseFormat> value) {
+    /** Sets the responseFormat field. */
+    public ChatCompletionRequestBuilder withResponseFormat(final Optional<ResponseFormat> value) {
         this.responseFormat = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withStreamOptions(Optional<StreamOptions> value) {
+    /** Sets the streamOptions field. */
+    public ChatCompletionRequestBuilder withStreamOptions(final Optional<StreamOptions> value) {
         this.streamOptions = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withSeed(Optional<Long> value) {
+    /** Sets the seed field. */
+    public ChatCompletionRequestBuilder withSeed(final Optional<Long> value) {
         this.seed = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withReasoningEffort(Optional<ReasoningEffort> value) {
+    /** Sets the reasoningEffort field. */
+    public ChatCompletionRequestBuilder withReasoningEffort(final Optional<ReasoningEffort> value) {
         this.reasoningEffort = value;
         return this;
     }
 
-    public ChatCompletionRequestBuilder withExtraBody(Optional<Object> value) {
+    /** Sets the extraBody field. */
+    public ChatCompletionRequestBuilder withExtraBody(final Optional<Object> value) {
         this.extraBody = value;
         return this;
     }
 
+    /** Builds the ChatCompletionRequest instance. */
     public ChatCompletionRequest build() {
         return new ChatCompletionRequest(
             model,

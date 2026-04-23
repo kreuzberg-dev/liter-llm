@@ -5,7 +5,7 @@ defmodule E2e.ListModelsTest do
 
   describe "empty_model_list" do
     test "List models response returns an empty data array when no models are available" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 0
       assert length(result.data) == 0
     end
@@ -13,19 +13,19 @@ defmodule E2e.ListModelsTest do
 
   describe "list_models_error_401" do
     test "401 Unauthorized error on list models request when API key is invalid" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.list_models_async(nil)
     end
   end
 
   describe "list_models_error_500" do
     test "500 Internal Server Error when listing models due to server failure" do
-      assert {:error, _} = LiterLlm.chat_async(nil)
+      assert {:error, _} = LiterLlm.list_models_async(nil)
     end
   end
 
   describe "list_models_filtered" do
     test "List models response with multiple model objects" do
-      {:ok, result} = LiterLlm.chat_async(nil)
+      {:ok, result} = LiterLlm.list_models_async(nil)
       assert length(result.data) >= 5
       assert String.trim(result.data["0"].object) == "model"
     end

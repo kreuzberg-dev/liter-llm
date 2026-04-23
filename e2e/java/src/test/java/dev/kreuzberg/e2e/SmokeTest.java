@@ -31,7 +31,7 @@ class SmokeTest {
     @Test
     void testAzureEmbed() throws Exception {
         // Embedding request via Azure OpenAI using the azure/ provider prefix — response follows the standard OpenAI embeddings shape that Azure returns unchanged
-        var result = LiterLlm.chat("Hello world");
+        var result = LiterLlm.embed("Hello world");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertEquals(1536, result.data().get("0").embedding().size(), "expected exactly 1536 elements");
     }
@@ -50,7 +50,7 @@ class SmokeTest {
     @Test
     void testBasicEmbed() throws Exception {
         // Basic embedding request for a single input string
-        var result = LiterLlm.chat("Hello world");
+        var result = LiterLlm.embed("Hello world");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertEquals(5, result.data().get("0").embedding().size(), "expected exactly 5 elements");
     }
@@ -58,7 +58,7 @@ class SmokeTest {
     @Test
     void testBasicListModels() throws Exception {
         // List available models from the API
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{}");
         assertTrue(result.data().size() >= 1, "expected at least 1 elements");
     }
 
@@ -94,7 +94,7 @@ class SmokeTest {
     @Test
     void testLocalListModelsOllama() throws Exception {
         // List models from local Ollama instance
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{\"model\":\"ollama/any\"}");
         assertTrue(result.data().size() >= 1, "expected at least 1 elements");
     }
 
@@ -132,14 +132,14 @@ class SmokeTest {
     @Test
     void testSmokeEmbedOpenai() throws Exception {
         // Embeddings request against real OpenAI API
-        var result = LiterLlm.chat(java.util.List.of("Hello world"));
+        var result = LiterLlm.embed(java.util.List.of("Hello world"));
         assertFalse(result.data().isEmpty(), "expected non-empty value");
     }
 
     @Test
     void testSmokeListModelsOpenai() throws Exception {
         // List models against real OpenAI API
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.list_models("{\"model\":\"openai/gpt-4o-mini\"}");
         assertTrue(result.data().size() >= 1, "expected at least 1 elements");
     }
 
@@ -153,7 +153,7 @@ class SmokeTest {
     @Test
     void testSmokeStreamingOpenai() throws Exception {
         // Chat streaming against real OpenAI API, verifies chunks received
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.chat_stream(null);
         assertTrue(result.chunks().size() >= 1, "expected at least 1 elements");
     }
 
@@ -171,7 +171,7 @@ class SmokeTest {
     @Test
     void testVertexEmbed() throws Exception {
         // Embedding request via Google Vertex AI using the vertex_ai/ provider prefix and the text-embedding-005 model — response follows the standard OpenAI embeddings shape
-        var result = LiterLlm.chat("Hello");
+        var result = LiterLlm.embed("Hello");
         assertEquals(1, result.data().size(), "expected exactly 1 elements");
         assertEquals(160, result.data().get("0").embedding().size(), "expected exactly 160 elements");
     }

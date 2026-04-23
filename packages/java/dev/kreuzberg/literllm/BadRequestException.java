@@ -2,11 +2,13 @@
 package dev.kreuzberg.literllm;
 
 public class BadRequestException extends LiterLlmErrorException {
-    public BadRequestException(String message) {
+    /** Creates a new BadRequestException with the given message. */
+    public BadRequestException(final String message) {
         super(message);
     }
 
-    public BadRequestException(String message, Throwable cause) {
+    /** Creates a new BadRequestException with the given message and cause. */
+    public BadRequestException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

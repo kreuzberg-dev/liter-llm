@@ -15,36 +15,43 @@ public class CreateTranscriptionRequestBuilder {
     private Optional<String> responseFormat = Optional.empty();
     private Optional<Double> temperature = Optional.empty();
 
-    public CreateTranscriptionRequestBuilder withModel(String value) {
+    /** Sets the model field. */
+    public CreateTranscriptionRequestBuilder withModel(final String value) {
         this.model = value;
         return this;
     }
 
-    public CreateTranscriptionRequestBuilder withFile(String value) {
+    /** Sets the file field. */
+    public CreateTranscriptionRequestBuilder withFile(final String value) {
         this.file = value;
         return this;
     }
 
-    public CreateTranscriptionRequestBuilder withLanguage(Optional<String> value) {
+    /** Sets the language field. */
+    public CreateTranscriptionRequestBuilder withLanguage(final Optional<String> value) {
         this.language = value;
         return this;
     }
 
-    public CreateTranscriptionRequestBuilder withPrompt(Optional<String> value) {
+    /** Sets the prompt field. */
+    public CreateTranscriptionRequestBuilder withPrompt(final Optional<String> value) {
         this.prompt = value;
         return this;
     }
 
-    public CreateTranscriptionRequestBuilder withResponseFormat(Optional<String> value) {
+    /** Sets the responseFormat field. */
+    public CreateTranscriptionRequestBuilder withResponseFormat(final Optional<String> value) {
         this.responseFormat = value;
         return this;
     }
 
-    public CreateTranscriptionRequestBuilder withTemperature(Optional<Double> value) {
+    /** Sets the temperature field. */
+    public CreateTranscriptionRequestBuilder withTemperature(final Optional<Double> value) {
         this.temperature = value;
         return this;
     }
 
+    /** Builds the CreateTranscriptionRequest instance. */
     public CreateTranscriptionRequest build() {
         return new CreateTranscriptionRequest(
             model,

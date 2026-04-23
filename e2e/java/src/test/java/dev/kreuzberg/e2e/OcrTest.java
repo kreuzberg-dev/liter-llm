@@ -9,19 +9,19 @@ class OcrTest {
     @Test
     void testOcrError400() throws Exception {
         // 400 Bad Request error when OCR input has an invalid image format
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.ocr(null));
     }
 
     @Test
     void testOcrError401() throws Exception {
         // 401 Unauthorized error on OCR request due to invalid API credentials
-        assertThrows(Exception.class, () -> LiterLlm.chat(null));
+        assertThrows(Exception.class, () -> LiterLlm.ocr(null));
     }
 
     @Test
     void testOcrMultiPage() throws Exception {
         // OCR request returning multiple pages of document content
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.ocr(null);
         assertEquals(2, result.pages().size(), "expected exactly 2 elements");
         assertEquals(0, result.pages().get("0").index());
         assertEquals(1, result.pages().get("1").index());
@@ -30,7 +30,7 @@ class OcrTest {
     @Test
     void testOcrUrlDocument() throws Exception {
         // OCR request with a document URL input
-        var result = LiterLlm.chat(null);
+        var result = LiterLlm.ocr(null);
     }
 
 }

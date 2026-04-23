@@ -40,7 +40,7 @@ public class CacheTests
     public async Task Test_CacheStreamBypass()
     {
         // Tests that streaming requests bypass cache entirely
-        var result = await LiterLlmLib.Chat(null);
+        var result = await LiterLlmLib.ChatStream(null);
         Assert.True(result.CacheBypassed);
     }
 }

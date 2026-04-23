@@ -6,17 +6,17 @@ require 'json'
 
 RSpec.describe 'image-generate' do
   it 'edge_image_b64_response: Image generation returning base64-encoded data instead of URL' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.image_generate(nil)
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").b64_json).not_to be_empty
   end
 
   it 'edge_image_empty_prompt: Image generation with an empty prompt returns 400' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.image_generate(nil) }.to raise_error
   end
 
   it 'edge_image_multiple_n: Image generation requesting multiple images with n=3' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.image_generate(nil)
     expect(result.data.length).to eq(3)
     expect(result.data.get("0").url).not_to be_empty
     expect(result.data.get("1").url).not_to be_empty
@@ -24,31 +24,31 @@ RSpec.describe 'image-generate' do
   end
 
   it 'error_image_auth_401: 401 Unauthorized when generating images with invalid API key' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.image_generate(nil) }.to raise_error
   end
 
   it 'error_image_bad_request: 400 Bad Request when image generation parameters are invalid' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.image_generate(nil) }.to raise_error
   end
 
   it 'error_image_rate_limit: 429 Rate limit exceeded for image generation' do
-    expect { LiterLlm.chat(nil) }.to raise_error
+    expect { LiterLlm.image_generate(nil) }.to raise_error
   end
 
   it 'smoke_image_basic: Basic image generation with a text prompt' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.image_generate(nil)
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").url).not_to be_empty
   end
 
   it 'smoke_image_multiple: Image generation requesting multiple images' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.image_generate(nil)
     expect(result.data.length).to eq(3)
     expect(result.data.get("0").url).not_to be_empty
   end
 
   it 'smoke_image_with_size: Image generation with explicit size parameter' do
-    result = LiterLlm.chat(nil)
+    result = LiterLlm.image_generate(nil)
     expect(result.data.length).to eq(1)
     expect(result.data.get("0").url).not_to be_empty
   end
