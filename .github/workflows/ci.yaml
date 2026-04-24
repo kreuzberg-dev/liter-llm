@@ -102,21 +102,23 @@ jobs:
       - name: Install Task
         uses: kreuzberg-dev/actions/install-task@v1
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-
       - name: Setup Rust
         uses: kreuzberg-dev/actions/setup-rust@v1
         with:
           components: rustfmt, clippy, llvm-tools-preview
-          targets: wasm32-unknown-unknown
+          target: wasm32-unknown-unknown
+
+      - name: Setup Python
+        uses: kreuzberg-dev/actions/setup-python-env@v1
+        with:
+          python-version: "3.13"
+
+      - name: Create WASM pkg stub
+        run: mkdir -p crates/liter-llm-wasm/pkg && echo '{"name":"liter_llm","version":"0.0.0"}' > crates/liter-llm-wasm/pkg/package.json
+        shell: bash
+
+      - name: Setup Node Workspace
+        uses: kreuzberg-dev/actions/setup-node-workspace@v1
 
       - name: Setup Go
         uses: actions/setup-go@v6
@@ -131,44 +133,34 @@ jobs:
           java-version: "25"
 
       - name: Setup Elixir
-        uses: erlef/setup-beam@v1
+        uses: kreuzberg-dev/actions/setup-elixir@v1
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          elixir-version: "1.17"
-          otp-version: "27"
+          ruby-version: "3.4"
+          bundler-cache: false
+
+      - name: Setup PHP
+        uses: kreuzberg-dev/actions/setup-php@v1
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.3"
-          bundler-cache: false
-
-      - name: Create WASM pkg stub
-        run: mkdir -p crates/liter-llm-wasm/pkg && echo '{"name":"liter_llm","version":"0.0.0"}' > crates/liter-llm-wasm/pkg/package.json
+      - name: Install C/C++ tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends cppcheck clang-format shellcheck
         shell: bash
 
-      - name: Setup Node Workspace
-        uses: kreuzberg-dev/actions/setup-node-workspace@v1
+      - name: Install alef
+        uses: kreuzberg-dev/actions/install-alef@v1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          tools: composer:2.9.1
-          coverage: none
-
-      - name: Install Python Dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          retry_wait_seconds: 30
-          command: uv sync --all-extras --no-install-workspace
-          shell: bash
+      - name: Run alef setup
+        run: alef setup
+        shell: bash
 
       - name: Install Go Tools
         run: task go:install
@@ -176,10 +168,7 @@ jobs:
 
       - name: Install Elixir Dependencies
         working-directory: packages/elixir
-        run: |
-          mix local.hex --force
-          mix local.rebar --force
-          mix deps.get
+        run: mix deps.get
         shell: bash
 
       - name: Install Ruby Dependencies
@@ -193,19 +182,6 @@ jobs:
 
       - name: Restore C# Dependencies
         run: task csharp:install
-        shell: bash
-
-      - name: Install C/C++ tools
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends cppcheck clang-format shellcheck
-        shell: bash
-
-      - name: Install alef
-        uses: kreuzberg-dev/actions/install-alef@v1
-
-      - name: Run alef setup
-        run: alef setup
         shell: bash
 
       - name: Run Rust Lint Check
