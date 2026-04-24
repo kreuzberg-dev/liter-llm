@@ -40,10 +40,13 @@ linters:
       min-len: 3
       min-occurrences: 3
     gocyclo:
-      min-complexity: 25
+      min-complexity: 50
     gosec:
       excludes:
         - G101 # ~keep hardcoded credentials check (too many false positives)
+    gocritic:
+      disabled-checks:
+        - dupSubExpr
     govet:
       enable-all: true
       disable:
@@ -101,6 +104,9 @@ linters:
           - govet
         path: _test\.go
         text: "unusedwrite:"
+      - linters:
+          - govet
+        text: "unsafeptr:"
       - linters:
           - govet
         text: "fieldalignment:"

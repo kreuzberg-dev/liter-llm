@@ -538,6 +538,33 @@ caching = true
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
+[lint.python]
+before = "uv sync --no-install-project"
+format = "uv run --no-sync ruff check --fix --select I packages/python scripts && uv run --no-sync ruff format packages/python scripts"
+check = "uv run --no-sync ruff check packages/python scripts && uv run --no-sync ruff format --check packages/python scripts"
+
+[lint.node]
+format = "npx oxfmt packages/typescript"
+check = "npx oxlint packages/typescript"
+
+[lint.wasm]
+format = "npx oxfmt packages/wasm"
+check = "npx oxlint packages/wasm"
+
+[lint.php]
+format = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php src"
+check = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php --dry-run src"
+
+[lint.csharp]
+format = "dotnet format packages/csharp/LiterLlm.csproj"
+check = "dotnet format packages/csharp/LiterLlm.csproj --verify-no-changes"
+
+[lint.go]
+before = "cargo build --release -p liter-llm-ffi"
+
+[lint.ffi]
+precondition = "test -d crates/liter-llm-ffi/src"
+
 [e2e]
 fixtures = "fixtures"
 output = "e2e"

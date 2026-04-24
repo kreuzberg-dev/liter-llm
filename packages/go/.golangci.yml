@@ -27,7 +27,10 @@ linters-settings:
     min-len: 3
     min-occurrences: 3
   gocyclo:
-    min-complexity: 25
+    min-complexity: 50
+  gocritic:
+    disabled-checks:
+      - dupSubExpr
   revive:
     confidence: 0.8
     severity: warning

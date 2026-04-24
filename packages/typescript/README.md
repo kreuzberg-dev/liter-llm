@@ -73,16 +73,16 @@ console.log(response.choices[0].message.content);
 
 ## Features
 
-| Feature | Supported |
-|---------|-----------|
-| **Provider Routing** | 142+ providers via `"provider/model"` prefix |
-| **Chat Completions** | OpenAI-compatible unified API |
-| **Streaming** | Server-sent events, token-by-token |
-| **Tool Calling** | Function definitions, structured outputs |
-| **Async** | Native async/await |
-| **Provider Auth** | Automatic key injection from environment variables |
-| **Retry Logic** | Configurable retries with exponential backoff |
-| **Timeouts** | Per-request configurable timeouts |
+| Feature              | Supported                                          |
+| -------------------- | -------------------------------------------------- |
+| **Provider Routing** | 142+ providers via `"provider/model"` prefix       |
+| **Chat Completions** | OpenAI-compatible unified API                      |
+| **Streaming**        | Server-sent events, token-by-token                 |
+| **Tool Calling**     | Function definitions, structured outputs           |
+| **Async**            | Native async/await                                 |
+| **Provider Auth**    | Automatic key injection from environment variables |
+| **Retry Logic**      | Configurable retries with exponential backoff      |
+| **Timeouts**         | Per-request configurable timeouts                  |
 
 ## Streaming
 

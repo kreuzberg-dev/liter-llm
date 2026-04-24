@@ -200,6 +200,13 @@ jobs:
           sudo apt-get install -y --no-install-recommends cppcheck clang-format shellcheck
         shell: bash
 
+      - name: Install alef
+        uses: kreuzberg-dev/actions/install-alef@v1
+
+      - name: Run alef setup
+        run: alef setup
+        shell: bash
+
       - name: Run Rust Lint Check
         run: task rust:lint:check
         shell: bash
@@ -234,10 +241,6 @@ jobs:
 
       - name: Run C# Format Check
         run: task csharp:format:check
-        shell: bash
-
-      - name: Install alef
-        run: cargo install --git https://github.com/kreuzberg-dev/alef --tag v0.6.0 alef-cli
         shell: bash
 
       - name: Verify alef-generated code is up-to-date

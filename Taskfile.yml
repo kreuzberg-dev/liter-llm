@@ -67,20 +67,11 @@ tasks:
     desc: "Install all dependencies and initialize project. Idempotent - safe to re-run anytime."
     cmds:
       - task: _platforms:setup:sdkman
-      - echo "Installing language tools..."
-      - task: rust:install
-      - task: python:install
-      - task: node:install
-      - task: ruby:install
-      - task: java:install
-      - task: go:install
-      - task: elixir:install
-      - task: csharp:install
-      - task: php:install
-      - task: c:install
       - echo "Installing pre-commit hooks..."
       - prek install
       - prek install --hook-type commit-msg
+      - echo "Setting up language tools..."
+      - alef setup
       - echo "Generating AI rules..."
       - task: tools:ai-rulez
       - echo "Setup complete - safe to re-run anytime"
@@ -177,38 +168,15 @@ tasks:
     desc: Format all code
     cmds:
       - task: rust:format
-      - task: python:format
-      - task: node:format
-      - task: ruby:format
-      - task: go:format
-      - task: java:format
-      - task: csharp:format
-      - task: php:format
-      - task: elixir:format
+      - alef fmt
 
   update:
     desc: Update all dependencies to latest versions
     cmds:
       - echo "Updating Rust dependencies..."
       - task: rust:update
-      - echo "Updating Python dependencies..."
-      - task: python:update
-      - echo "Updating TypeScript dependencies..."
-      - task: node:update
-      - echo "Updating Ruby dependencies..."
-      - task: ruby:update
-      - echo "Updating Go dependencies..."
-      - task: go:update
-      - echo "Updating Java dependencies..."
-      - task: java:update
-      - echo "Updating Elixir dependencies..."
-      - task: elixir:update
-      - echo "Updating WASM tools..."
-      - task: wasm:update
-      - echo "Updating PHP dependencies..."
-      - task: php:update
-      - echo "Updating C# dependencies..."
-      - task: csharp:update
+      - echo "Updating binding language dependencies..."
+      - alef update
       - echo "Updating prek dependencies..."
       - prek autoupdate
       - echo "All dependencies updated"
@@ -217,15 +185,7 @@ tasks:
     desc: Clean all build artifacts
     cmds:
       - task: rust:clean
-      - task: python:clean
-      - task: node:clean
-      - task: ruby:clean
-      - task: go:clean
-      - task: java:clean
-      - task: csharp:clean
-      - task: php:clean
-      - task: wasm:clean
-      - task: elixir:clean
+      - alef clean
 
   # Alef binding generation
   alef:extract:
