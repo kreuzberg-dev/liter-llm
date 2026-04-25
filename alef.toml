@@ -559,8 +559,22 @@ check = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixe
 format = "dotnet format packages/csharp/LiterLlm.csproj"
 check = "dotnet format packages/csharp/LiterLlm.csproj --verify-no-changes"
 
+[lint.ruby]
+before = "cd packages/ruby && bundle install"
+format = "cd packages/ruby && bundle exec rubocop -a ."
+check = "cd packages/ruby && bundle exec rubocop ."
+
 [lint.go]
 before = "cargo build --release -p liter-llm-ffi"
+
+[lint.elixir]
+before = "cd packages/elixir && mix deps.get"
+format = "cd packages/elixir && mix format"
+check = "cd packages/elixir && mix credo"
+
+[lint.java]
+format = "mvn -f packages/java/pom.xml spotless:apply -q"
+check = "mvn -f packages/java/pom.xml spotless:check -q"
 
 [lint.ffi]
 precondition = "test -d crates/liter-llm-ffi/src"
