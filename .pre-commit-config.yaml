@@ -6,7 +6,7 @@ exclude: ^e2e/|vendor/|node_modules/|target/|_build/|test_apps/|dist/|artifacts/
 repos:
   # AI-Rulez: validate and auto-generate AI assistant configuration files
   - repo: https://github.com/Goldziher/ai-rulez
-    rev: v4.0.3
+    rev: v4.0.4
     hooks:
       - id: ai-rulez-validate
       - id: ai-rulez-generate
@@ -64,6 +64,7 @@ repos:
             "--allow-staged",
             "--workspace",
             "--exclude=liter-llm-php",
+            "--all-features",
             "--all-targets",
             "--",
             "-D",

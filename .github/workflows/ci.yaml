@@ -85,6 +85,7 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
+  BUILD_PROFILE: ci
   GO_VERSION: "1.26"
 
 # --- Stage 1: Validate ---
