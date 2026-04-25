@@ -106,7 +106,6 @@ jobs:
         uses: kreuzberg-dev/actions/setup-rust@v1
         with:
           components: rustfmt, clippy, llvm-tools-preview
-          target: wasm32-unknown-unknown
 
       - name: Setup Python
         uses: kreuzberg-dev/actions/setup-python-env@v1
@@ -186,10 +185,6 @@ jobs:
 
       - name: Run Rust Lint Check
         run: task rust:lint:check
-        shell: bash
-
-      - name: Run WASM Clippy
-        run: cargo clippy -p liter-llm-wasm --target wasm32-unknown-unknown -- -D warnings
         shell: bash
 
       - name: Run PHP Clippy

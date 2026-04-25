@@ -356,7 +356,7 @@ impl DefaultClient {
     /// Returns a wrapped [`reqwest::Error`] if the underlying HTTP client
     /// cannot be constructed.  Header names and values are pre-validated by
     /// [`ClientConfigBuilder::header`], so they are inserted directly here.
-    pub fn new(mut config: ClientConfig, model_hint: Option<&str>) -> Result<Self> {
+    pub fn new(config: ClientConfig, model_hint: Option<&str>) -> Result<Self> {
         let provider = build_provider(&config, model_hint);
         // Validate configuration eagerly so callers get a clear error at
         // construction time rather than on the first request.
@@ -365,6 +365,8 @@ impl DefaultClient {
         // Auto-load the API key from the environment when no explicit key was
         // provided and `load_env` is enabled.  Skipped on WASM where
         // `std::env::var` is unavailable.
+        #[cfg(not(target_arch = "wasm32"))]
+        let mut config = config;
         #[cfg(not(target_arch = "wasm32"))]
         if config.load_env
             && config.api_key.expose_secret().is_empty()

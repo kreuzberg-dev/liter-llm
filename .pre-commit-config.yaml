@@ -64,7 +64,6 @@ repos:
             "--allow-staged",
             "--workspace",
             "--exclude=liter-llm-php",
-            "--exclude=liter-llm-wasm",
             "--all-targets",
             "--",
             "-D",
