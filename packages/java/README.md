@@ -80,7 +80,7 @@ Install via one of the supported package managers:
 <dependency>
     <groupId>dev.kreuzberg</groupId>
     <artifactId>liter-llm</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0-rc.2</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ Install via one of the supported package managers:
 **Gradle:**
 
 ```gradle
-implementation 'dev.kreuzberg:liter-llm:1.3.0'
+implementation 'dev.kreuzberg:liter-llm:1.4.0-rc.2'
 ```
 
 
