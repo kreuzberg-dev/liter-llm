@@ -35,7 +35,7 @@ urls.repository = "https://github.com/kreuzberg-dev/liter-llm"
 [dependency-groups]
 dev = [
   "anyio>=4.13.0",
-  "jinja2>=3",
+  "jinja2>=3.1.6",
   "jsonschema>=4",
   "mypy>=1.20.2",
   "prek>=0.3",
