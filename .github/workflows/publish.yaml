@@ -622,6 +622,9 @@ jobs:
       - name: Build FFI
         shell: bash
         run: alef publish build --lang ffi --target ${{ matrix.target }}
+      - name: Package Go FFI
+        shell: bash
+        run: alef publish package --lang go --target ${{ matrix.target }} -o go-ffi-dist
       - name: Stage FFI artifacts
         env:
           TARGET: ${{ matrix.target }}
@@ -642,6 +645,11 @@ jobs:
         with:
           name: ffi-${{ matrix.label }}
           path: ffi-staging/
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: go-ffi-${{ matrix.label }}
+          path: go-ffi-dist/
           retention-days: 14
 
   # ── Java package assembly ──────────────────────────────────────────────────
@@ -756,27 +764,9 @@ jobs:
           draft: "true"
       - uses: actions/download-artifact@v7
         with:
-          pattern: ffi-*
-          path: ffi-artifacts
+          pattern: go-ffi-*
+          path: go-ffi-release
           merge-multiple: true
-      - name: Create Go FFI tarballs
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          mkdir -p go-ffi-release
-          for rid in linux-x64 linux-arm64 osx-arm64 win-x64; do
-            TARBALL="go-ffi-release/liter-llm-ffi-v${VERSION}-${rid}.tar.gz"
-            INCLUDE_ARG=""
-            if [ -d ffi-artifacts/include ]; then
-              INCLUDE_ARG="include"
-            fi
-            tar -czf "$TARBALL" \
-              -C ffi-artifacts \
-              "${rid}" \
-              ${INCLUDE_ARG}
-            echo "Created: $TARBALL"
-          done
-        shell: bash
       - name: Upload to GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
