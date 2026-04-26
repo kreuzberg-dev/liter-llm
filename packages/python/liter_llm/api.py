@@ -7,7 +7,7 @@
 
 import liter_llm._internal_bindings as _rust
 
-from ._internal_bindings import DefaultClient, CustomProviderConfig
+from ._internal_bindings import CustomProviderConfig, DefaultClient
 
 
 def create_client(
