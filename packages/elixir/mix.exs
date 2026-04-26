@@ -44,8 +44,8 @@ defmodule LiterLlm.MixProject do
       links: %{GitHub: @source_url, Homepage: "https://kreuzberg.dev"},
       files: ~w(
         lib
-        native/liter_llm_rustler/src
-        native/liter_llm_rustler/Cargo.toml
+        native/liter_llm_nif/src
+        native/liter_llm_nif/Cargo.toml
         checksum-Elixir.LiterLlm.Native.exs
         mix.exs
         README.md

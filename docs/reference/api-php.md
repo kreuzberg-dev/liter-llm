@@ -2,7 +2,7 @@
 title: "PHP API Reference"
 ---
 
-## PHP API Reference <span class="version-badge">v1.3.0</span>
+## PHP API Reference <span class="version-badge">v1.4.0-rc.2</span>
 
 ### Functions
 
@@ -1187,3 +1187,4 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
+

@@ -8,7 +8,6 @@ members = [
     "crates/liter-llm-proxy",
     "crates/liter-llm-py",
     "crates/liter-llm-wasm",
-    "packages/elixir/native/liter_llm_rustler",
     "tools/snippet-runner",
 ]
 exclude = [

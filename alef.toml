@@ -1,4 +1,4 @@
-version = "0.7.11"
+version = "0.8.1"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [crate]
@@ -139,7 +139,7 @@ ruby = "packages/ruby/ext/liter_llm_rb/native/src/"
 php = "crates/liter-llm-php/src/"
 ffi = "crates/liter-llm-ffi/src/"
 go = "packages/go/"
-elixir = "packages/elixir/native/liter_llm_rustler/src/"
+elixir = "packages/elixir/native/liter_llm_nif/src/"
 wasm = "crates/liter-llm-wasm/src/"
 java = "packages/java/"
 csharp = "packages/csharp/"
@@ -180,6 +180,9 @@ output = "packages/ruby/sig/"
 
 [elixir]
 app_name = "liter_llm"
+
+[elixir.extra_dependencies]
+futures-util = "0.3"
 
 # Async method adapters for DefaultClient
 [[adapters]]

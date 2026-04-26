@@ -30,3 +30,4 @@ All errors that can occur when using `liter-llm`.
 | `InternalError` | internal error: {message} | An internal logic error (e.g. unexpected Tower response variant). This should never surface in normal operation — if it does, it indicates a bug in the library. |
 
 ---
+
