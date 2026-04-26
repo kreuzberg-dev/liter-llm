@@ -1,7 +1,7 @@
 defmodule LiterLlm.MixProject do
   use Mix.Project
 
-  @version "1.3.0"
+  @version "1.4.0-rc.1"
   @source_url "https://github.com/kreuzberg-dev/liter-llm"
 
   def project do
