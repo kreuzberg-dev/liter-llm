@@ -254,7 +254,7 @@ repos:
 
   # Alef: multi-language formatting, linting, type checking, and version sync
   - repo: https://github.com/kreuzberg-dev/alef
-    rev: v0.8.6
+    rev: v0.8.7
     hooks:
       - id: alef-verify
         entry: alef verify

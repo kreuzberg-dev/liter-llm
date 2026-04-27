@@ -14,7 +14,7 @@ See the build instructions in the main repository.
 #include "liter_llm.h"
 
 int main(void) {
-    // TODO: add usage example
+    // See https://github.com/kreuzberg-dev/liter-llm for usage examples.
     return 0;
 }
 ```
