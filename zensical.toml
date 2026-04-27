@@ -54,6 +54,7 @@ nav = [
     ] },
     { "Providers" = "providers.md" },
     { "Changelog" = "CHANGELOG.md" },
+    { "Test Coverage" = "coverage.md" },
     { "Contributing" = "contributing.md" },
 ]
 
