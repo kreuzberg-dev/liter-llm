@@ -6,7 +6,7 @@ exclude: ^e2e/|vendor/|node_modules/|target/|_build/|test_apps/|dist/|artifacts/
 repos:
   # AI-Rulez: validate and auto-generate AI assistant configuration files
   - repo: https://github.com/Goldziher/ai-rulez
-    rev: v4.0.6
+    rev: v4.0.7
     hooks:
       - id: ai-rulez-validate
       - id: ai-rulez-generate
@@ -254,7 +254,7 @@ repos:
 
   # Alef: multi-language formatting, linting, type checking, and version sync
   - repo: https://github.com/kreuzberg-dev/alef
-    rev: v0.9.2
+    rev: v0.10.0
     hooks:
       - id: alef-verify
         entry: alef verify

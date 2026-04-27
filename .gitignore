@@ -70,6 +70,7 @@ coverage.out
 # Elixir
 packages/elixir/deps/
 packages/elixir/_build/
+erl_crash.dump
 
 # Ruby
 packages/ruby/.bundle/
