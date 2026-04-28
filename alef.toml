@@ -172,6 +172,13 @@ project_file = "packages/java/pom.xml"
 namespace = "LiterLlm"
 project_file = "packages/csharp/LiterLlm.csproj"
 
+[wasm]
+# liter-llm's "native-http"/"full" features pull tokio with the net feature
+# (mio-backed sockets) which doesn't compile for wasm32-unknown-unknown. Use
+# the dedicated wasm-http feature instead — same reqwest API on top of the
+# browser/Node fetch.
+features = ["wasm-http"]
+
 [ruby]
 gem_name = "liter_llm"
 
