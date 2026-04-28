@@ -889,4 +889,7 @@ pkg_config = true
 cmake_config = true
 
 [sync]
-extra_paths = []
+extra_paths = [
+  "crates/liter-llm-node/package.json",
+  "crates/liter-llm-node/npm/*/package.json",
+]
