@@ -488,7 +488,7 @@ jobs:
         run: >
           cargo build --release
           --target ${{ matrix.target }}
-          --manifest-path packages/elixir/native/liter_llm_rustler/Cargo.toml
+          --manifest-path packages/elixir/native/liter_llm_nif/Cargo.toml
         shell: bash
       - name: Create NIF tarballs (nif-2.16 and nif-2.17)
         env:
@@ -497,16 +497,16 @@ jobs:
           LIB_EXT: ${{ matrix.lib_ext }}
         run: |
           if [ "$LIB_EXT" = "dll" ]; then
-            LIB_SRC="target/${TARGET}/release/liter_llm_rustler.${LIB_EXT}"
+            LIB_SRC="target/${TARGET}/release/liter_llm_nif.${LIB_EXT}"
           else
-            LIB_SRC="target/${TARGET}/release/libliter_llm_rustler.${LIB_EXT}"
+            LIB_SRC="target/${TARGET}/release/libliter_llm_nif.${LIB_EXT}"
           fi
           mkdir -p nif-tarballs
           for NIF_VER in 2.16 2.17; do
             # RustlerPrecompiled expects platform-specific extensions:
             #   linux → .so.tar.gz, darwin → .dylib.tar.gz, windows → .dll.tar.gz
-            TARBALL="nif-tarballs/libliter_llm_rustler-v${VERSION}-nif-${NIF_VER}-${TARGET}.${LIB_EXT}.tar.gz"
-            INNER="liter_llm_rustler.${LIB_EXT}"
+            TARBALL="nif-tarballs/libliter_llm_nif-v${VERSION}-nif-${NIF_VER}-${TARGET}.${LIB_EXT}.tar.gz"
+            INNER="liter_llm_nif.${LIB_EXT}"
             cp "$LIB_SRC" "$INNER"
             tar -czf "$TARBALL" "$INNER"
             rm "$INNER"
@@ -1346,7 +1346,7 @@ jobs:
           github-repo: kreuzberg-dev/liter-llm
           tag: ${{ needs.prepare.outputs.tag }}
           version: ${{ needs.prepare.outputs.version }}
-          lib-name: liter_llm_rustler
+          lib-name: liter_llm_nif
           targets: "aarch64-apple-darwin,aarch64-unknown-linux-gnu,x86_64-unknown-linux-gnu,x86_64-pc-windows-gnu"
           output-path: packages/elixir/checksum-Elixir.LiterLlm.Native.exs
 
