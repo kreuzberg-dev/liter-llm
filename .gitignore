@@ -181,11 +181,4 @@ packages/php/var/
 
 # BEGIN ai-rulez (DO NOT EDIT - managed by ai-rulez)
 .agents/
-.claude/
-.codex/
-.gemini/
-.mcp.json
-AGENTS.md
-CLAUDE.md
-GEMINI.md
 # END ai-rulez
