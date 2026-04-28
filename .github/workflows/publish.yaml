@@ -496,10 +496,14 @@ jobs:
           TARGET: ${{ matrix.target }}
           LIB_EXT: ${{ matrix.lib_ext }}
         run: |
+          # liter_llm_nif is excluded from the root workspace and has no own
+          # [workspace] declaration, so cargo writes its build output under
+          # packages/elixir/native/liter_llm_nif/target/, not repo-root/target/.
+          NIF_TARGET_DIR="packages/elixir/native/liter_llm_nif/target"
           if [ "$LIB_EXT" = "dll" ]; then
-            LIB_SRC="target/${TARGET}/release/liter_llm_nif.${LIB_EXT}"
+            LIB_SRC="${NIF_TARGET_DIR}/${TARGET}/release/liter_llm_nif.${LIB_EXT}"
           else
-            LIB_SRC="target/${TARGET}/release/libliter_llm_nif.${LIB_EXT}"
+            LIB_SRC="${NIF_TARGET_DIR}/${TARGET}/release/libliter_llm_nif.${LIB_EXT}"
           fi
           mkdir -p nif-tarballs
           for NIF_VER in 2.16 2.17; do
