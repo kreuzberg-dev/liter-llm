@@ -230,10 +230,6 @@ jobs:
 
       - name: Run Pre-commit Hooks
         uses: j178/prek-action@v2
-        env:
-          # ai-rulez 4.0.8 has a non-deterministic Source-Hash that
-          # recomputes differently in CI versus local; skip in CI.
-          SKIP: ai-rulez-generate
         with:
           extra-args: --all-files
 
