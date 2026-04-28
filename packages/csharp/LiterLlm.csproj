@@ -3,7 +3,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>LiterLlm</RootNamespace>
     <PackageId>LiterLlm</PackageId>
-    <Version>1.4.0-rc.3</Version>
+    <Version>1.4.0-rc.4</Version>
     <Description>Universal LLM API client — 142+ providers, streaming, tool calling. Rust-powered with polyglot bindings.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/kreuzberg-dev/liter-llm</RepositoryUrl>
