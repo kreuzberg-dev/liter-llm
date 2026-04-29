@@ -57,9 +57,8 @@ if /mswin|mingw/.match?(RbConfig::CONFIG['host_os'])
 end
 
 default_profile = ENV.fetch('CARGO_PROFILE', 'release')
-native_dir = 'native'
 
 create_rust_makefile('liter_llm_rb') do |config|
   config.profile = default_profile.to_sym
-  config.ext_dir = native_dir
+  config.ext_dir = '.'
 end

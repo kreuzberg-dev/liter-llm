@@ -1,84 +1,84 @@
 {
-	"name": "@kreuzberg/liter-llm",
-	"version": "1.4.0-rc.18",
-	"description": "Universal LLM API client — unified interface for streaming, tool calling, and provider routing across 142+ providers. Rust-powered.",
-	"keywords": [
-		"anthropic",
-		"async",
-		"llm",
-		"llm-client",
-		"openai",
-		"provider-routing",
-		"rust",
-		"streaming",
-		"tool-calling"
-	],
-	"homepage": "https://kreuzberg.dev",
-	"bugs": {
-		"url": "https://github.com/kreuzberg-dev/liter-llm/issues"
-	},
-	"license": "MIT",
-	"author": {
-		"name": "Na'aman Hirschfeld",
-		"email": "naaman@kreuzberg.dev",
-		"url": "https://github.com/kreuzberg-dev/liter-llm"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kreuzberg-dev/liter-llm.git"
-	},
-	"files": [
-		"dist",
-		"README.md"
-	],
-	"type": "module",
-	"main": "dist/index.cjs",
-	"module": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": {
-				"import": "./dist/index.d.ts",
-				"require": "./dist/index.d.cts"
-			},
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
-		}
-	},
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	},
-	"scripts": {
-		"build": "tsup",
-		"typecheck": "tsc --noEmit",
-		"test": "vitest",
-		"test:watch": "vitest --watch",
-		"lint": "biome check src",
-		"lint:fix": "biome check --write src"
-	},
-	"dependencies": {
-		"@kreuzberg/liter-llm": "workspace:*"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.4.13",
-		"@types/node": "^25.6.0",
-		"tsup": "^8.5.1",
-		"typescript": "^6.0.3",
-		"vitest": "^4.1.5"
-	},
-	"engines": {
-		"node": ">= 22"
-	},
-	"tsup": {
-		"entry": [
-			"src/index.ts"
-		],
-		"format": [
-			"cjs",
-			"esm"
-		],
-		"dts": true,
-		"clean": true
-	}
+  "name": "@kreuzberg/liter-llm",
+  "version": "1.4.0-rc.19",
+  "description": "Universal LLM API client — unified interface for streaming, tool calling, and provider routing across 142+ providers. Rust-powered.",
+  "keywords": [
+    "anthropic",
+    "async",
+    "llm",
+    "llm-client",
+    "openai",
+    "provider-routing",
+    "rust",
+    "streaming",
+    "tool-calling"
+  ],
+  "homepage": "https://kreuzberg.dev",
+  "bugs": {
+    "url": "https://github.com/kreuzberg-dev/liter-llm/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Na'aman Hirschfeld",
+    "email": "naaman@kreuzberg.dev",
+    "url": "https://github.com/kreuzberg-dev/liter-llm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kreuzberg-dev/liter-llm.git"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src"
+  },
+  "dependencies": {
+    "@kreuzberg/liter-llm": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">= 22"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "dts": true,
+    "clean": true
+  }
 }

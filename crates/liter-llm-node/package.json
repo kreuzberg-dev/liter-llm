@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-node",
-	"version": "1.4.0-rc.18",
+	"version": "1.4.0-rc.19",
 	"description": "Native NAPI-RS bindings for liter-llm \u2014 high-performance LLM client powered by Rust",
 	"main": "index.js",
 	"types": "index.d.ts",

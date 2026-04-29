@@ -644,7 +644,7 @@ jobs:
           RID: ${{ matrix.rid }}
         run: |
           mkdir -p "ffi-staging/${RID}"
-          find target/release -maxdepth 1 -type f \( -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.a' -o -name '*.dll.lib' \) -name '*liter_llm_ffi*' -exec cp {} "ffi-staging/${RID}/" \;
+          find "target/${TARGET}/release" -maxdepth 1 -type f \( -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.a' -o -name '*.dll.lib' \) -name '*liter_llm_ffi*' -exec cp {} "ffi-staging/${RID}/" \;
           # Copy cbindgen-generated header if present
           if [ -f crates/liter-llm-ffi/include/liter_llm_ffi.h ]; then
             mkdir -p ffi-staging/include
@@ -1044,7 +1044,7 @@ jobs:
         uses: kreuzberg-dev/actions/wait-for-package@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm-linux-x64-gnu"
+          package: "@kreuzberg/liter-llm-node-linux-x64-gnu"
           version: ${{ needs.prepare.outputs.version }}
           max-attempts: "25"
 
@@ -1053,7 +1053,7 @@ jobs:
         uses: kreuzberg-dev/actions/wait-for-package@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm-linux-arm64-gnu"
+          package: "@kreuzberg/liter-llm-node-linux-arm64-gnu"
           version: ${{ needs.prepare.outputs.version }}
           max-attempts: "25"
 
@@ -1507,7 +1507,11 @@ jobs:
             archive_name="${stem}.tar.gz"
             tar -czf "${archive_name}" "${stem}"
           fi
-          shasum -a 256 "${archive_name}" > "${archive_name}.sha256"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            certutil -hashfile "${archive_name}" SHA256 | sed -n '2p' | tr -d ' \r' > "${archive_name}.sha256"
+          else
+            shasum -a 256 "${archive_name}" > "${archive_name}.sha256"
+          fi
           echo "archive=${archive_name}" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         with:
