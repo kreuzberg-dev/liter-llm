@@ -1,4 +1,4 @@
-version = "0.11.19"
+version = "0.11.20"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [crate]
@@ -153,7 +153,7 @@ run_wrapper = "uv run --no-sync"
 output = "packages/python/liter_llm/"
 
 [node]
-package_name = "@kreuzberg/liter-llm"
+package_name = "@kreuzberg/liter-llm-node"
 
 [ffi]
 prefix = "literllm"

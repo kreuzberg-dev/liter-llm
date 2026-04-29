@@ -3,111 +3,251 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from 'vitest';
-import { createClient } from '@kreuzberg/liter-llm';
+import { describe, expect, it } from "vitest";
+import { createClient } from "@kreuzberg/liter-llm";
 
-describe('streaming', () => {
-  it('anthropic_stream: Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/anthropic_stream`);
-    const result = await client.chat_stream({ max_tokens: 32, messages: [{ content: "Count to three, one word per response.", role: "user" }], model: "anthropic/claude-3-5-sonnet-20241022", stream: true });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(3);
-    expect(result.streamContent.trim()).toBe("One Two Three");
-    expect(result.streamComplete).toBe(true);
-  });
+describe("streaming", () => {
+	it("anthropic_stream: Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/anthropic_stream`,
+		);
+		const result = await client.chat_stream({
+			max_tokens: 32,
+			messages: [
+				{ content: "Count to three, one word per response.", role: "user" },
+			],
+			model: "anthropic/claude-3-5-sonnet-20241022",
+			stream: true,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(3);
+		expect(result.streamContent.trim()).toBe("One Two Three");
+		expect(result.streamComplete).toBe(true);
+	});
 
-  it('azure_stream: Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/azure_stream`);
-    const result = await client.chat_stream({ messages: [{ content: "Count to 3", role: "user" }], model: "azure/gpt-4", stream: true, temperature: 0 });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(3);
-    expect(result.streamContent.trim()).toBe("1 2 3");
-    expect(result.streamComplete).toBe(true);
-  });
+	it("azure_stream: Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/azure_stream`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "Count to 3", role: "user" }],
+			model: "azure/gpt-4",
+			stream: true,
+			temperature: 0,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(3);
+		expect(result.streamContent.trim()).toBe("1 2 3");
+		expect(result.streamComplete).toBe(true);
+	});
 
-  it('basic_stream: Streaming chat completion that produces content across multiple SSE chunks', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/basic_stream`);
-    const result = await client.chat_stream({ messages: [{ content: "Count to 3", role: "user" }], model: "gpt-4", stream: true });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(3);
-    expect(result.streamContent.trim()).toBe("1 2 3");
-  });
+	it("basic_stream: Streaming chat completion that produces content across multiple SSE chunks", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/basic_stream`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "Count to 3", role: "user" }],
+			model: "gpt-4",
+			stream: true,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(3);
+		expect(result.streamContent.trim()).toBe("1 2 3");
+	});
 
-  it('bedrock_stream: Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/bedrock_stream`);
-    const result = await client.chat_stream({ max_tokens: 32, messages: [{ content: "Count to three, one word per response.", role: "user" }], model: "bedrock/anthropic.claude-3-sonnet-20240229-v1:0", stream: true });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(2);
-    expect(result.streamContent.trim()).toBe("One Two Three");
-    expect(result.streamComplete).toBe(true);
-  });
+	it("bedrock_stream: Streaming chat completion via the AWS Bedrock provider using the bedrock/ prefix — verifies SSE chunks are yielded and assembled correctly from the Converse streaming API", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/bedrock_stream`,
+		);
+		const result = await client.chat_stream({
+			max_tokens: 32,
+			messages: [
+				{ content: "Count to three, one word per response.", role: "user" },
+			],
+			model: "bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
+			stream: true,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(2);
+		expect(result.streamContent.trim()).toBe("One Two Three");
+		expect(result.streamComplete).toBe(true);
+	});
 
-  it('edge_stream_function_call: Streaming chat completion with tool/function call chunks', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_stream_function_call`);
-    const result = await client.chat_stream({ messages: [{ content: "What's the weather?", role: "user" }], model: "gpt-4", tools: [{ function: { name: "get_weather", parameters: { properties: { city: { type: "string" } }, type: "object" } }, type: "function" }] });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(2);
-  });
+	it("edge_stream_function_call: Streaming chat completion with tool/function call chunks", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/edge_stream_function_call`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "What's the weather?", role: "user" }],
+			model: "gpt-4",
+			tools: [
+				{
+					function: {
+						name: "get_weather",
+						parameters: {
+							properties: { city: { type: "string" } },
+							type: "object",
+						},
+					},
+					type: "function",
+				},
+			],
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(2);
+	});
 
-  it('empty_stream: Streaming chat completion that produces no content chunks before the DONE signal', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/empty_stream`);
-    const result = await client.chat_stream({ messages: [{ content: "Say nothing", role: "user" }], model: "gpt-4", stream: true });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(0);
-    expect(result.streamContent.trim()).toBe("");
-  });
+	it("empty_stream: Streaming chat completion that produces no content chunks before the DONE signal", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/empty_stream`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "Say nothing", role: "user" }],
+			model: "gpt-4",
+			stream: true,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(0);
+		expect(result.streamContent.trim()).toBe("");
+	});
 
-  it('local_stream_ollama: Streaming chat completion via Ollama local provider with SSE chunks', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/local_stream_ollama`);
-    const result = await client.chat_stream({ messages: [{ content: "Count to 3", role: "user" }], model: "ollama/qwen2:0.5b", stream: true });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(3);
-    expect(result.streamContent.trim()).toBe("1 2 3");
-    expect(result.streamComplete).toBe(true);
-  });
+	it("local_stream_ollama: Streaming chat completion via Ollama local provider with SSE chunks", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/local_stream_ollama`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "Count to 3", role: "user" }],
+			model: "ollama/qwen2:0.5b",
+			stream: true,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(3);
+		expect(result.streamContent.trim()).toBe("1 2 3");
+		expect(result.streamComplete).toBe(true);
+	});
 
-  it('stream_content_policy_error: 400 Bad Request error on stream due to content policy violation', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_content_policy_error`);
-    await expect(async () => {
-      await client.chat_stream({ messages: [{ content: "Generate harmful content", role: "user" }], model: "gpt-4o", stream: true });
-    }).rejects.toThrow();
-  });
+	it("stream_content_policy_error: 400 Bad Request error on stream due to content policy violation", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/stream_content_policy_error`,
+		);
+		await expect(async () => {
+			await client.chat_stream({
+				messages: [{ content: "Generate harmful content", role: "user" }],
+				model: "gpt-4o",
+				stream: true,
+			});
+		}).rejects.toThrow();
+	});
 
-  it('stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_done_signal`);
-    const result = await client.chat_stream({ messages: [{ content: "Say done", role: "user" }], model: "gpt-4", stream: true });
-    expect(result.streamComplete).toBe(true);
-    expect(result.streamContent.trim()).toBe("Done");
-    expect(result.noChunksAfterDone).toBe(true);
-  });
+	it("stream_done_signal: Verify that the [DONE] sentinel signal properly terminates the stream", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/stream_done_signal`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "Say done", role: "user" }],
+			model: "gpt-4",
+			stream: true,
+		});
+		expect(result.streamComplete).toBe(true);
+		expect(result.streamContent.trim()).toBe("Done");
+		expect(result.noChunksAfterDone).toBe(true);
+	});
 
-  it('stream_error_401: 401 Unauthorized error on stream initiation before any chunks are received', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_error_401`);
-    await expect(async () => {
-      await client.chat_stream({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4", stream: true });
-    }).rejects.toThrow();
-  });
+	it("stream_error_401: 401 Unauthorized error on stream initiation before any chunks are received", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/stream_error_401`,
+		);
+		await expect(async () => {
+			await client.chat_stream({
+				messages: [{ content: "Hello", role: "user" }],
+				model: "gpt-4",
+				stream: true,
+			});
+		}).rejects.toThrow();
+	});
 
-  it('stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_multiple_choices`);
-    await client.chat_stream({ messages: [{ content: "Hello", role: "user" }], model: "gpt-4o", n: 2, stream: true });
-  });
+	it("stream_multiple_choices: Streaming chat completion with multiple choice outputs (n > 1)", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/stream_multiple_choices`,
+		);
+		await client.chat_stream({
+			messages: [{ content: "Hello", role: "user" }],
+			model: "gpt-4o",
+			n: 2,
+			stream: true,
+		});
+	});
 
-  it('stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_with_tool_calls`);
-    const result = await client.chat_stream({ messages: [{ content: "What is the weather in NYC?", role: "user" }], model: "gpt-4", stream: true, tools: [{ function: { description: "Get the current weather for a given location", name: "get_weather", parameters: { properties: { location: { description: "The city and state, e.g. New York, NY", type: "string" } }, required: ["location"], type: "object" } }, type: "function" }] });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(4);
-    expect(result.finishReason.trim()).toBe("tool_calls");
-    expect(result.toolCalls.length).toBeGreaterThan(0);
-    expect(result.toolCalls["0"].function.name.trim()).toBe("get_weather");
-  });
+	it("stream_with_tool_calls: Streaming chat completion where the assistant responds with a tool call across multiple chunks", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/stream_with_tool_calls`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "What is the weather in NYC?", role: "user" }],
+			model: "gpt-4",
+			stream: true,
+			tools: [
+				{
+					function: {
+						description: "Get the current weather for a given location",
+						name: "get_weather",
+						parameters: {
+							properties: {
+								location: {
+									description: "The city and state, e.g. New York, NY",
+									type: "string",
+								},
+							},
+							required: ["location"],
+							type: "object",
+						},
+					},
+					type: "function",
+				},
+			],
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(4);
+		expect(result.finishReason.trim()).toBe("tool_calls");
+		expect(result.toolCalls.length).toBeGreaterThan(0);
+		expect(result.toolCalls["0"].function.name.trim()).toBe("get_weather");
+	});
 
-  it('stream_with_usage: Streaming chat completion that includes a usage summary in the final chunk', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/stream_with_usage`);
-    const result = await client.chat_stream({ messages: [{ content: "Say hi", role: "user" }], model: "gpt-4", stream: true, stream_options: { include_usage: true } });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(3);
-    expect(result.streamContent.trim()).toBe("Hi there!");
-    expect(result.usage.totalTokens).toBe(18);
-  });
+	it("stream_with_usage: Streaming chat completion that includes a usage summary in the final chunk", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/stream_with_usage`,
+		);
+		const result = await client.chat_stream({
+			messages: [{ content: "Say hi", role: "user" }],
+			model: "gpt-4",
+			stream: true,
+			stream_options: { include_usage: true },
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(3);
+		expect(result.streamContent.trim()).toBe("Hi there!");
+		expect(result.usage.totalTokens).toBe(18);
+	});
 
-  it('vertex_stream: Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/vertex_stream`);
-    const result = await client.chat_stream({ max_tokens: 32, messages: [{ content: "Count to three, one word per response.", role: "user" }], model: "vertex_ai/gemini-2.0-flash", stream: true });
-    expect(result.chunks.length).toBeGreaterThanOrEqual(2);
-    expect(result.streamContent.trim()).toBe("One Two Three");
-    expect(result.streamComplete).toBe(true);
-  });
+	it("vertex_stream: Streaming chat completion via the Google Vertex AI provider using the vertex_ai/ prefix — verifies SSE chunks from the Gemini streaming endpoint are yielded and assembled correctly", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/vertex_stream`,
+		);
+		const result = await client.chat_stream({
+			max_tokens: 32,
+			messages: [
+				{ content: "Count to three, one word per response.", role: "user" },
+			],
+			model: "vertex_ai/gemini-2.0-flash",
+			stream: true,
+		});
+		expect(result.chunks.length).toBeGreaterThanOrEqual(2);
+		expect(result.streamContent.trim()).toBe("One Two Three");
+		expect(result.streamComplete).toBe(true);
+	});
 });

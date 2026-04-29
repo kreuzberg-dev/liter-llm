@@ -3,17 +3,29 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from 'vitest';
-import { createClient } from '@kreuzberg/liter-llm';
+import { describe, expect, it } from "vitest";
+import { createClient } from "@kreuzberg/liter-llm";
 
-describe('custom_provider', () => {
-  it('provider_auth: Tests custom provider with custom auth header', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/provider_auth`);
-    await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "my-auth-model-v1" });
-  });
+describe("custom_provider", () => {
+	it("provider_auth: Tests custom provider with custom auth header", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/provider_auth`,
+		);
+		await client.chat({
+			messages: [{ content: "Hello", role: "user" }],
+			model: "my-auth-model-v1",
+		});
+	});
 
-  it('register_provider: Tests that a custom provider can be registered and routes requests', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/register_provider`);
-    await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "my-model-v1" });
-  });
+	it("register_provider: Tests that a custom provider can be registered and routes requests", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/register_provider`,
+		);
+		await client.chat({
+			messages: [{ content: "Hello", role: "user" }],
+			model: "my-model-v1",
+		});
+	});
 });

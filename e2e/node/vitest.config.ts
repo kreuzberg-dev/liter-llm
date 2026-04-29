@@ -3,11 +3,11 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  test: {
-    include: ['tests/**/*.test.ts'],
-    globalSetup: './globalSetup.ts',
-  },
+	test: {
+		include: ["tests/**/*.test.ts"],
+		globalSetup: "./globalSetup.ts",
+	},
 });

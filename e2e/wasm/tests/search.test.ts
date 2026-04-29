@@ -3,49 +3,49 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from 'vitest';
-import { createClient, WasmChatCompletionRequest } from 'liter_llm';
+import { describe, it, expect } from "vitest";
+import { createClient, WasmChatCompletionRequest } from "liter_llm";
 
-describe('search', () => {
-  it('search_basic: Basic web search request with a simple query', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.model = "brave/web-search";
-    options.query = "What is Rust programming language?";
-    await client.search(options);
-  });
+describe("search", () => {
+	it("search_basic: Basic web search request with a simple query", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.model = "brave/web-search";
+		options.query = "What is Rust programming language?";
+		await client.search(options);
+	});
 
-  it('search_empty_results: Web search with a query that returns no results', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.model = "brave/web-search";
-    options.query = "xyznonexistent12345xyz";
-    await client.search(options);
-  });
+	it("search_empty_results: Web search with a query that returns no results", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.model = "brave/web-search";
+		options.query = "xyznonexistent12345xyz";
+		await client.search(options);
+	});
 
-  it('search_error_400: 400 Bad Request error when search query is empty', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.model = "brave/web-search";
-    options.query = "";
-    await expect(async () => await client.search(options)).rejects.toThrow();
-  });
+	it("search_error_400: 400 Bad Request error when search query is empty", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.model = "brave/web-search";
+		options.query = "";
+		await expect(async () => await client.search(options)).rejects.toThrow();
+	});
 
-  it('search_error_401: 401 Unauthorized error on web search due to invalid API credentials', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.model = "brave/web-search";
-    options.query = "test";
-    await expect(async () => await client.search(options)).rejects.toThrow();
-  });
+	it("search_error_401: 401 Unauthorized error on web search due to invalid API credentials", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.model = "brave/web-search";
+		options.query = "test";
+		await expect(async () => await client.search(options)).rejects.toThrow();
+	});
 
-  it('search_with_max_results: Search request with max_results parameter limiting response count', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.maxResults = 2;
-    options.model = "brave/web-search";
-    options.query = "Rust programming";
-    const result = await client.search(options);
-    expect(result.results.length).toBe(2);
-  });
+	it("search_with_max_results: Search request with max_results parameter limiting response count", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.maxResults = 2;
+		options.model = "brave/web-search";
+		options.query = "Rust programming";
+		const result = await client.search(options);
+		expect(result.results.length).toBe(2);
+	});
 });

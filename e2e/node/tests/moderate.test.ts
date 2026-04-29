@@ -3,56 +3,98 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from 'vitest';
-import { createClient } from '@kreuzberg/liter-llm';
+import { describe, expect, it } from "vitest";
+import { createClient } from "@kreuzberg/liter-llm";
 
-describe('moderate', () => {
-  it('edge_moderate_all_categories: Moderation response with multiple categories flagged', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_moderate_all_categories`);
-    const result = await client.moderate({ input: "Extremely harmful content targeting multiple categories", model: "omni-moderation-latest" });
-    expect(result.results.length).toBe(1);
-    expect(result.results["0"].flagged).toBe(true);
-  });
+describe("moderate", () => {
+	it("edge_moderate_all_categories: Moderation response with multiple categories flagged", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/edge_moderate_all_categories`,
+		);
+		const result = await client.moderate({
+			input: "Extremely harmful content targeting multiple categories",
+			model: "omni-moderation-latest",
+		});
+		expect(result.results.length).toBe(1);
+		expect(result.results["0"].flagged).toBe(true);
+	});
 
-  it('edge_moderate_empty_input: Moderation with empty string input', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_moderate_empty_input`);
-    const result = await client.moderate({ input: "", model: "omni-moderation-latest" });
-    expect(result.results.length).toBe(1);
-    expect(result.results["0"].flagged).toBe(false);
-  });
+	it("edge_moderate_empty_input: Moderation with empty string input", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/edge_moderate_empty_input`,
+		);
+		const result = await client.moderate({
+			input: "",
+			model: "omni-moderation-latest",
+		});
+		expect(result.results.length).toBe(1);
+		expect(result.results["0"].flagged).toBe(false);
+	});
 
-  it('error_moderate_auth_401: 401 Unauthorized for moderation with invalid API key', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_moderate_auth_401`);
-    await expect(async () => {
-      await client.moderate({ input: "Hello", model: "omni-moderation-latest" });
-    }).rejects.toThrow();
-  });
+	it("error_moderate_auth_401: 401 Unauthorized for moderation with invalid API key", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/error_moderate_auth_401`,
+		);
+		await expect(async () => {
+			await client.moderate({
+				input: "Hello",
+				model: "omni-moderation-latest",
+			});
+		}).rejects.toThrow();
+	});
 
-  it('error_moderate_bad_request: 400 Bad Request for moderation with invalid model', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_moderate_bad_request`);
-    await expect(async () => {
-      await client.moderate({ input: "Hello", model: "nonexistent-moderation" });
-    }).rejects.toThrow();
-  });
+	it("error_moderate_bad_request: 400 Bad Request for moderation with invalid model", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/error_moderate_bad_request`,
+		);
+		await expect(async () => {
+			await client.moderate({
+				input: "Hello",
+				model: "nonexistent-moderation",
+			});
+		}).rejects.toThrow();
+	});
 
-  it('smoke_moderate_batch: Moderate multiple inputs in a single request', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_moderate_batch`);
-    const result = await client.moderate({ input: ["Hello world", "Nice weather today"], model: "omni-moderation-latest" });
-    expect(result.results.length).toBe(2);
-    expect(result.results["0"].flagged).toBe(false);
-  });
+	it("smoke_moderate_batch: Moderate multiple inputs in a single request", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_moderate_batch`,
+		);
+		const result = await client.moderate({
+			input: ["Hello world", "Nice weather today"],
+			model: "omni-moderation-latest",
+		});
+		expect(result.results.length).toBe(2);
+		expect(result.results["0"].flagged).toBe(false);
+	});
 
-  it('smoke_moderate_flagged: Moderation detects flagged content', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_moderate_flagged`);
-    const result = await client.moderate({ input: "I want to hurt someone very badly", model: "omni-moderation-latest" });
-    expect(result.results.length).toBe(1);
-    expect(result.results["0"].flagged).toBe(true);
-  });
+	it("smoke_moderate_flagged: Moderation detects flagged content", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_moderate_flagged`,
+		);
+		const result = await client.moderate({
+			input: "I want to hurt someone very badly",
+			model: "omni-moderation-latest",
+		});
+		expect(result.results.length).toBe(1);
+		expect(result.results["0"].flagged).toBe(true);
+	});
 
-  it('smoke_moderate_single: Moderate a single non-flagged input', async () => {
-    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_moderate_single`);
-    const result = await client.moderate({ input: "The weather is nice today.", model: "omni-moderation-latest" });
-    expect(result.results.length).toBe(1);
-    expect(result.results["0"].flagged).toBe(false);
-  });
+	it("smoke_moderate_single: Moderate a single non-flagged input", async () => {
+		const client = createClient(
+			"test-key",
+			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_moderate_single`,
+		);
+		const result = await client.moderate({
+			input: "The weather is nice today.",
+			model: "omni-moderation-latest",
+		});
+		expect(result.results.length).toBe(1);
+		expect(result.results["0"].flagged).toBe(false);
+	});
 });

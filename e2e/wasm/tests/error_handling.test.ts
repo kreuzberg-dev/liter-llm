@@ -3,144 +3,149 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from 'vitest';
-import { createClient, WasmChatCompletionRequest } from 'liter_llm';
+import { describe, it, expect } from "vitest";
+import { createClient, WasmChatCompletionRequest } from "liter_llm";
 
-describe('error-handling', () => {
-  it('anthropic_error_auth: 401 Authentication error returned by the Anthropic API when the API key is invalid', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "anthropic/claude-3-5-sonnet-20241022";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+describe("error-handling", () => {
+	it("anthropic_error_auth: 401 Authentication error returned by the Anthropic API when the API key is invalid", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "anthropic/claude-3-5-sonnet-20241022";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('auth_401: 401 Unauthorized error when API key is invalid or missing', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("auth_401: 401 Unauthorized error when API key is invalid or missing", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('azure_error_auth: Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure\'s error envelope shape with code AccessDenied', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "azure/gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("azure_error_auth: Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "azure/gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('bad_request_400: 400 Bad Request error when a parameter value is invalid', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    options.temperature = 5.0;
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("bad_request_400: 400 Bad Request error when a parameter value is invalid", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		options.temperature = 5.0;
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('bedrock_error_auth: AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "bedrock/anthropic.claude-3-sonnet-20240229-v1:0";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("bedrock_error_auth: AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "bedrock/anthropic.claude-3-sonnet-20240229-v1:0";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('content_policy_violation: 400 error when a request is rejected due to content policy', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Generate harmful content", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("content_policy_violation: 400 error when a request is rejected due to content policy", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Generate harmful content", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('context_window_exceeded: 400 error when the prompt exceeds the model\'s maximum context length', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Very long prompt that exceeds the context window...", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("context_window_exceeded: 400 error when the prompt exceeds the model's maximum context length", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [
+			{
+				content: "Very long prompt that exceeds the context window...",
+				role: "user",
+			},
+		];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('empty_response_body: 200 OK response with an empty JSON object body, missing required fields', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("empty_response_body: 200 OK response with an empty JSON object body, missing required fields", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('forbidden_403: 403 Forbidden error when the API key does not have access to the requested resource', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("forbidden_403: 403 Forbidden error when the API key does not have access to the requested resource", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('gateway_timeout_504: 504 Gateway Timeout error when the upstream service times out', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("gateway_timeout_504: 504 Gateway Timeout error when the upstream service times out", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('github_copilot_error_auth: 401 Authentication error returned by the GitHub Copilot API when the token is invalid or expired', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "github_copilot/gpt-4o";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("github_copilot_error_auth: 401 Authentication error returned by the GitHub Copilot API when the token is invalid or expired", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "github_copilot/gpt-4o";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('not_found_404: 404 Not Found error when requesting a model that does not exist', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-99";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("not_found_404: 404 Not Found error when requesting a model that does not exist", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-99";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('rate_limit_429: 429 Too Many Requests error when the rate limit is exceeded', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("rate_limit_429: 429 Too Many Requests error when the rate limit is exceeded", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('server_error_500: 500 Internal Server Error from the upstream API', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("server_error_500: 500 Internal Server Error from the upstream API", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('service_unavailable_502: 502 Bad Gateway error when the upstream service is unavailable', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("service_unavailable_502: 502 Bad Gateway error when the upstream service is unavailable", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('timeout_error: 408 Request Timeout error when the API request takes too long to complete', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "gpt-4";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("timeout_error: 408 Request Timeout error when the API request takes too long to complete", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "gpt-4";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 
-  it('vertex_error_auth: Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.messages = [{ content: "Hello", role: "user" }];
-    options.model = "vertex_ai/gemini-2.0-flash";
-    await expect(async () => await client.chat(options)).rejects.toThrow();
-  });
+	it("vertex_error_auth: Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.messages = [{ content: "Hello", role: "user" }];
+		options.model = "vertex_ai/gemini-2.0-flash";
+		await expect(async () => await client.chat(options)).rejects.toThrow();
+	});
 });

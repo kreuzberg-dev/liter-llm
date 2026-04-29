@@ -3,42 +3,51 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from 'vitest';
-import { createClient, WasmChatCompletionRequest } from 'liter_llm';
+import { describe, it, expect } from "vitest";
+import { createClient, WasmChatCompletionRequest } from "liter_llm";
 
-describe('ocr', () => {
-  it('ocr_error_400: 400 Bad Request error when OCR input has an invalid image format', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.document = { type: "document_url", url: "invalid://url" };
-    options.model = "mistral/mistral-ocr-latest";
-    await expect(async () => await client.ocr(options)).rejects.toThrow();
-  });
+describe("ocr", () => {
+	it("ocr_error_400: 400 Bad Request error when OCR input has an invalid image format", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.document = { type: "document_url", url: "invalid://url" };
+		options.model = "mistral/mistral-ocr-latest";
+		await expect(async () => await client.ocr(options)).rejects.toThrow();
+	});
 
-  it('ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.document = { type: "document_url", url: "https://example.com/doc.pdf" };
-    options.model = "mistral/mistral-ocr-latest";
-    await expect(async () => await client.ocr(options)).rejects.toThrow();
-  });
+	it("ocr_error_401: 401 Unauthorized error on OCR request due to invalid API credentials", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.document = {
+			type: "document_url",
+			url: "https://example.com/doc.pdf",
+		};
+		options.model = "mistral/mistral-ocr-latest";
+		await expect(async () => await client.ocr(options)).rejects.toThrow();
+	});
 
-  it('ocr_multi_page: OCR request returning multiple pages of document content', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.document = { type: "document_url", url: "https://example.com/multipage.pdf" };
-    options.model = "mistral/mistral-ocr-latest";
-    const result = await client.ocr(options);
-    expect(result.pages.length).toBe(2);
-    expect(result.pages.get("0").index).toBe(0);
-    expect(result.pages.get("1").index).toBe(1);
-  });
+	it("ocr_multi_page: OCR request returning multiple pages of document content", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.document = {
+			type: "document_url",
+			url: "https://example.com/multipage.pdf",
+		};
+		options.model = "mistral/mistral-ocr-latest";
+		const result = await client.ocr(options);
+		expect(result.pages.length).toBe(2);
+		expect(result.pages.get("0").index).toBe(0);
+		expect(result.pages.get("1").index).toBe(1);
+	});
 
-  it('ocr_url_document: OCR request with a document URL input', async () => {
-    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
-    const options = new WasmChatCompletionRequest();
-    options.document = { type: "document_url", url: "https://example.com/doc.pdf" };
-    options.model = "mistral/mistral-ocr-latest";
-    await client.ocr(options);
-  });
+	it("ocr_url_document: OCR request with a document URL input", async () => {
+		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
+		const options = new WasmChatCompletionRequest();
+		options.document = {
+			type: "document_url",
+			url: "https://example.com/doc.pdf",
+		};
+		options.model = "mistral/mistral-ocr-latest";
+		await client.ocr(options);
+	});
 });
