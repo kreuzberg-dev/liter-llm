@@ -7,7 +7,9 @@ describe("tool-calling", () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
 		expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
-		expect(result.choices.get("0").message.toolCalls.get("0").function.name.trim()).toBe("get_weather");
+		expect(
+			result.choices.get("0").message.toolCalls.get("0").function.name.trim(),
+		).toBe("get_weather");
 		expect(result.choices.get("0").finishReason.trim()).toBe("tool_calls");
 	});
 
@@ -15,7 +17,9 @@ describe("tool-calling", () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
 		expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
-		expect(result.choices.get("0").message.toolCalls.get("0").function.name.trim()).toBe("get_weather");
+		expect(
+			result.choices.get("0").message.toolCalls.get("0").function.name.trim(),
+		).toBe("get_weather");
 		expect(result.choices.get("0").finishReason.trim()).toBe("tool_calls");
 	});
 });

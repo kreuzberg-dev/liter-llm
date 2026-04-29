@@ -25,7 +25,9 @@ describe("chat", () => {
 	it("multi_turn_conversation: Multi-turn conversation with system, user, assistant, and follow-up user messages", async () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").message.content.trim()).toBe("4 + 4 equals 8.");
+		expect(result.choices.get("0").message.content.trim()).toBe(
+			"4 + 4 equals 8.",
+		);
 		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
 	});
 
@@ -68,7 +70,9 @@ describe("chat", () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
 		expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
-		expect(result.choices.get("0").message.toolCalls.get("0").function.name.trim()).toBe("get_weather");
+		expect(
+			result.choices.get("0").message.toolCalls.get("0").function.name.trim(),
+		).toBe("get_weather");
 		expect(result.choices.get("0").finishReason.trim()).toBe("tool_calls");
 	});
 
@@ -76,7 +80,9 @@ describe("chat", () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
 		expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
-		expect(result.choices.get("0").message.toolCalls.get("0").function.name.trim()).toBe("get_weather");
+		expect(
+			result.choices.get("0").message.toolCalls.get("0").function.name.trim(),
+		).toBe("get_weather");
 		expect(result.choices.get("0").finishReason.trim()).toBe("tool_calls");
 	});
 });

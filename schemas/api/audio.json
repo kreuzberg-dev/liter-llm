@@ -46,7 +46,12 @@
 						},
 						{
 							"type": "string",
-							"enum": ["tts-1", "tts-1-hd", "gpt-4o-mini-tts", "gpt-4o-mini-tts-2025-12-15"]
+							"enum": [
+								"tts-1",
+								"tts-1-hd",
+								"gpt-4o-mini-tts",
+								"gpt-4o-mini-tts-2025-12-15"
+							]
 						}
 					],
 					"x-oaiTypeLabel": "string"
@@ -740,7 +745,18 @@
 				},
 				{
 					"type": "string",
-					"enum": ["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse", "marin", "cedar"]
+					"enum": [
+						"alloy",
+						"ash",
+						"ballad",
+						"coral",
+						"echo",
+						"sage",
+						"shimmer",
+						"verse",
+						"marin",
+						"cedar"
+					]
 				}
 			]
 		}

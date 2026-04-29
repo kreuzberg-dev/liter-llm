@@ -79,7 +79,13 @@
 						},
 						{
 							"type": "string",
-							"enum": ["gpt-image-1.5", "dall-e-2", "gpt-image-1", "gpt-image-1-mini", "chatgpt-image-latest"],
+							"enum": [
+								"gpt-image-1.5",
+								"dall-e-2",
+								"gpt-image-1",
+								"gpt-image-1-mini",
+								"chatgpt-image-latest"
+							],
 							"x-stainless-const": true
 						}
 					],
@@ -100,7 +106,14 @@
 				},
 				"size": {
 					"type": "string",
-					"enum": ["256x256", "512x512", "1024x1024", "1536x1024", "1024x1536", "auto"],
+					"enum": [
+						"256x256",
+						"512x512",
+						"1024x1024",
+						"1536x1024",
+						"1024x1536",
+						"auto"
+					],
 					"default": "1024x1024",
 					"example": "1024x1024",
 					"nullable": true,
@@ -179,7 +192,13 @@
 						},
 						{
 							"type": "string",
-							"enum": ["gpt-image-1.5", "dall-e-2", "dall-e-3", "gpt-image-1", "gpt-image-1-mini"]
+							"enum": [
+								"gpt-image-1.5",
+								"dall-e-2",
+								"dall-e-3",
+								"gpt-image-1",
+								"gpt-image-1-mini"
+							]
 						}
 					],
 					"x-oaiTypeLabel": "string",
@@ -240,7 +259,16 @@
 				},
 				"size": {
 					"type": "string",
-					"enum": ["auto", "1024x1024", "1536x1024", "1024x1536", "256x256", "512x512", "1792x1024", "1024x1792"],
+					"enum": [
+						"auto",
+						"1024x1024",
+						"1536x1024",
+						"1024x1536",
+						"256x256",
+						"512x512",
+						"1792x1024",
+						"1024x1792"
+					],
 					"default": "auto",
 					"example": "1024x1024",
 					"nullable": true,
@@ -408,7 +436,12 @@
 				}
 			},
 			"type": "object",
-			"required": ["input_tokens", "total_tokens", "output_tokens", "input_tokens_details"],
+			"required": [
+				"input_tokens",
+				"total_tokens",
+				"output_tokens",
+				"input_tokens_details"
+			],
 			"title": "Image generation usage",
 			"description": "For `gpt-image-1` only, the token usage information for the image generation."
 		},

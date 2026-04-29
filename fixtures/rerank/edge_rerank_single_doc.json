@@ -7,7 +7,9 @@
 	"input": {
 		"model": "rerank-v3.5",
 		"query": "What is AI?",
-		"documents": ["Artificial intelligence is the simulation of human intelligence."]
+		"documents": [
+			"Artificial intelligence is the simulation of human intelligence."
+		]
 	},
 	"mock_response": {
 		"status": 200,

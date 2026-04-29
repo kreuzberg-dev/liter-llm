@@ -4,7 +4,9 @@ import { chat } from "liter_llm";
 
 describe("moderate", () => {
 	it("edge_moderate_all_categories: Moderation response with multiple categories flagged", async () => {
-		const result = await chat("Extremely harmful content targeting multiple categories");
+		const result = await chat(
+			"Extremely harmful content targeting multiple categories",
+		);
 		expect(result.results.length).toBe(1);
 		expect(result.results.get("0").flagged).toBe(true);
 	});

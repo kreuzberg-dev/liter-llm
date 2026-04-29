@@ -206,7 +206,14 @@
 				},
 				"error_type": {
 					"type": "string",
-					"enum": ["Authentication", "RateLimited", "ServerError", "NotFound", "InvalidRequest", "Timeout"]
+					"enum": [
+						"Authentication",
+						"RateLimited",
+						"ServerError",
+						"NotFound",
+						"InvalidRequest",
+						"Timeout"
+					]
 				},
 				"error_status_code": {
 					"type": "integer",
@@ -272,7 +279,15 @@
 				},
 				"batch_status": {
 					"type": "string",
-					"enum": ["validating", "in_progress", "completed", "failed", "expired", "cancelling", "cancelled"]
+					"enum": [
+						"validating",
+						"in_progress",
+						"completed",
+						"failed",
+						"expired",
+						"cancelling",
+						"cancelled"
+					]
 				},
 				"batch_count": {
 					"type": "integer",
@@ -283,7 +298,13 @@
 				},
 				"response_status": {
 					"type": "string",
-					"enum": ["completed", "failed", "in_progress", "incomplete", "cancelled"]
+					"enum": [
+						"completed",
+						"failed",
+						"in_progress",
+						"incomplete",
+						"cancelled"
+					]
 				},
 				"response_output_count": {
 					"type": "integer",

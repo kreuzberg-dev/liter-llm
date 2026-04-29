@@ -417,7 +417,12 @@
 								]
 							}
 						},
-						"required": ["flagged", "categories", "category_scores", "category_applied_input_types"]
+						"required": [
+							"flagged",
+							"categories",
+							"category_scores",
+							"category_applied_input_types"
+						]
 					}
 				}
 			},

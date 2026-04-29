@@ -68,7 +68,9 @@ describe("chat", () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
 		expect(result.choices["0"].message.toolCalls.length).toBeGreaterThan(0);
-		expect(result.choices["0"].message.toolCalls["0"].function.name.trim()).toBe("get_weather");
+		expect(
+			result.choices["0"].message.toolCalls["0"].function.name.trim(),
+		).toBe("get_weather");
 		expect(result.choices["0"].finishReason.trim()).toBe("tool_calls");
 	});
 
@@ -76,7 +78,9 @@ describe("chat", () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
 		expect(result.choices["0"].message.toolCalls.length).toBeGreaterThan(0);
-		expect(result.choices["0"].message.toolCalls["0"].function.name.trim()).toBe("get_weather");
+		expect(
+			result.choices["0"].message.toolCalls["0"].function.name.trim(),
+		).toBe("get_weather");
 		expect(result.choices["0"].finishReason.trim()).toBe("tool_calls");
 	});
 });

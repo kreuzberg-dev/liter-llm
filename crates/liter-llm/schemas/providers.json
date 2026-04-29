@@ -48,7 +48,12 @@
 				"env_var": "AIML_API_KEY"
 			},
 			"endpoints": ["chat", "embedding", "image"],
-			"model_prefixes": ["aiml/", "aiml/dall-", "aiml/flux-", "aiml/flux/kontext-"],
+			"model_prefixes": [
+				"aiml/",
+				"aiml/dall-",
+				"aiml/flux-",
+				"aiml/flux/kontext-"
+			],
 			"model_count": 12
 		},
 		{
@@ -125,7 +130,15 @@
 		{
 			"name": "azure",
 			"display_name": "Azure",
-			"endpoints": ["audio", "batch", "chat", "completion", "embedding", "image", "moderation"],
+			"endpoints": [
+				"audio",
+				"batch",
+				"chat",
+				"completion",
+				"embedding",
+				"image",
+				"moderation"
+			],
 			"model_prefixes": [
 				"azure/",
 				"azure/eu/gpt-",
@@ -158,7 +171,15 @@
 		{
 			"name": "azure_ai",
 			"display_name": "Azure AI",
-			"endpoints": ["audio", "batch", "chat", "embedding", "image", "moderation", "ocr"],
+			"endpoints": [
+				"audio",
+				"batch",
+				"chat",
+				"embedding",
+				"image",
+				"moderation",
+				"ocr"
+			],
 			"model_prefixes": [
 				"azure_ai/",
 				"azure_ai/Cohere-",
@@ -431,7 +452,13 @@
 				"env_var": "DEEPGRAM_API_KEY"
 			},
 			"endpoints": ["audio", "chat"],
-			"model_prefixes": ["deepgram/", "deepgram/base-", "deepgram/enhanced-", "deepgram/nova-", "deepgram/whisper-"],
+			"model_prefixes": [
+				"deepgram/",
+				"deepgram/base-",
+				"deepgram/enhanced-",
+				"deepgram/nova-",
+				"deepgram/whisper-"
+			],
 			"model_count": 36
 		},
 		{
@@ -641,7 +668,13 @@
 				"env_var": "GEMINI_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["gemini-", "gemini/", "gemini/gemini-", "gemini/imagen-", "gemini/veo-"],
+			"model_prefixes": [
+				"gemini-",
+				"gemini/",
+				"gemini/gemini-",
+				"gemini/imagen-",
+				"gemini/veo-"
+			],
 			"model_count": 60
 		},
 		{
@@ -688,7 +721,13 @@
 				"env_var": "GMI_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["gmi/", "gmi/anthropic/claude-", "gmi/deepseek-", "gmi/google/gemini-", "gmi/openai/gpt-"],
+			"model_prefixes": [
+				"gmi/",
+				"gmi/anthropic/claude-",
+				"gmi/deepseek-",
+				"gmi/google/gemini-",
+				"gmi/openai/gpt-"
+			],
 			"model_count": 17
 		},
 		{
@@ -711,7 +750,11 @@
 				"env_var": "GRADIENT_ACCESS_TOKEN"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["gradient_ai/", "gradient_ai/anthropic-", "gradient_ai/openai-"],
+			"model_prefixes": [
+				"gradient_ai/",
+				"gradient_ai/anthropic-",
+				"gradient_ai/openai-"
+			],
 			"model_count": 13
 		},
 		{
@@ -723,7 +766,13 @@
 				"env_var": "GROQ_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["groq/", "groq/llama-", "groq/meta-", "groq/openai/gpt-", "groq/whisper-"],
+			"model_prefixes": [
+				"groq/",
+				"groq/llama-",
+				"groq/meta-",
+				"groq/openai/gpt-",
+				"groq/whisper-"
+			],
 			"model_count": 14
 		},
 		{
@@ -772,7 +821,12 @@
 				"env_var": "HYPERBOLIC_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["hyperbolic/", "hyperbolic/Qwen/Qwen2.5-", "hyperbolic/deepseek-", "hyperbolic/meta-"],
+			"model_prefixes": [
+				"hyperbolic/",
+				"hyperbolic/Qwen/Qwen2.5-",
+				"hyperbolic/deepseek-",
+				"hyperbolic/meta-"
+			],
 			"model_count": 16
 		},
 		{
@@ -874,7 +928,12 @@
 				"max_completion_tokens": "max_tokens"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["llamagate/", "llamagate/deepseek-", "llamagate/llama-", "llamagate/qwen3-"],
+			"model_prefixes": [
+				"llamagate/",
+				"llamagate/deepseek-",
+				"llamagate/llama-",
+				"llamagate/qwen3-"
+			],
 			"model_count": 16
 		},
 		{
@@ -1052,7 +1111,12 @@
 				"env_var": "NSCALE_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["nscale/", "nscale/Qwen/Qwen2.5-", "nscale/deepseek-", "nscale/meta-"],
+			"model_prefixes": [
+				"nscale/",
+				"nscale/Qwen/Qwen2.5-",
+				"nscale/deepseek-",
+				"nscale/meta-"
+			],
 			"model_count": 16
 		},
 		{
@@ -1071,7 +1135,12 @@
 			"name": "oci",
 			"display_name": "OCI",
 			"endpoints": ["chat"],
-			"model_prefixes": ["oci/", "oci/cohere.command-", "oci/meta.llama-", "oci/xai.grok-"],
+			"model_prefixes": [
+				"oci/",
+				"oci/cohere.command-",
+				"oci/meta.llama-",
+				"oci/xai.grok-"
+			],
 			"model_count": 13
 		},
 		{
@@ -1082,7 +1151,13 @@
 				"type": "none"
 			},
 			"endpoints": ["chat", "embedding"],
-			"model_prefixes": ["ollama/", "ollama/deepseek-", "ollama/gpt-", "ollama/mistral-", "ollama/mixtral-"],
+			"model_prefixes": [
+				"ollama/",
+				"ollama/deepseek-",
+				"ollama/gpt-",
+				"ollama/mistral-",
+				"ollama/mixtral-"
+			],
 			"model_count": 29
 		},
 		{
@@ -1111,7 +1186,15 @@
 				"type": "bearer",
 				"env_var": "OPENAI_API_KEY"
 			},
-			"endpoints": ["audio", "batch", "chat", "completion", "embedding", "image", "moderation"],
+			"endpoints": [
+				"audio",
+				"batch",
+				"chat",
+				"completion",
+				"embedding",
+				"image",
+				"moderation"
+			],
 			"model_prefixes": [
 				"1024-",
 				"1024-x-1024/",
@@ -1188,7 +1271,13 @@
 				"env_var": "OVH_API_KEY"
 			},
 			"endpoints": ["audio", "chat"],
-			"model_prefixes": ["ovhcloud/", "ovhcloud/Meta-", "ovhcloud/Mistral-", "ovhcloud/Qwen2.5-", "ovhcloud/gpt-"],
+			"model_prefixes": [
+				"ovhcloud/",
+				"ovhcloud/Meta-",
+				"ovhcloud/Mistral-",
+				"ovhcloud/Qwen2.5-",
+				"ovhcloud/gpt-"
+			],
 			"model_count": 15
 		},
 		{
@@ -1268,7 +1357,12 @@
 				"max_completion_tokens": "max_tokens"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["publicai/", "publicai/BSC-", "publicai/allenai/Olmo-", "publicai/swiss-"],
+			"model_prefixes": [
+				"publicai/",
+				"publicai/BSC-",
+				"publicai/allenai/Olmo-",
+				"publicai/swiss-"
+			],
 			"model_count": 9
 		},
 		{
@@ -1349,7 +1443,12 @@
 				"env_var": "SAMBANOVA_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["sambanova/", "sambanova/DeepSeek-", "sambanova/Llama-", "sambanova/Meta-"],
+			"model_prefixes": [
+				"sambanova/",
+				"sambanova/DeepSeek-",
+				"sambanova/Llama-",
+				"sambanova/Meta-"
+			],
 			"model_count": 16
 		},
 		{
@@ -1423,7 +1522,13 @@
 				"env_var": "STABILITY_API_KEY"
 			},
 			"endpoints": ["image"],
-			"model_prefixes": ["stability/", "stability/sd3-", "stability/sd3.5-", "stability/search-", "stability/stable-"],
+			"model_prefixes": [
+				"stability/",
+				"stability/sd3-",
+				"stability/sd3.5-",
+				"stability/search-",
+				"stability/stable-"
+			],
 			"model_count": 23
 		},
 		{
@@ -1621,14 +1726,25 @@
 				"env_var": "WANDB_API_KEY"
 			},
 			"endpoints": ["chat"],
-			"model_prefixes": ["wandb/", "wandb/Qwen/Qwen3-", "wandb/deepseek-", "wandb/meta-", "wandb/openai/gpt-"],
+			"model_prefixes": [
+				"wandb/",
+				"wandb/Qwen/Qwen3-",
+				"wandb/deepseek-",
+				"wandb/meta-",
+				"wandb/openai/gpt-"
+			],
 			"model_count": 14
 		},
 		{
 			"name": "watsonx",
 			"display_name": "IBM - Watsonx.ai",
 			"endpoints": ["audio", "chat", "embedding"],
-			"model_prefixes": ["watsonx/", "watsonx/ibm/granite-", "watsonx/meta-", "watsonx/mistralai/mistral-"],
+			"model_prefixes": [
+				"watsonx/",
+				"watsonx/ibm/granite-",
+				"watsonx/meta-",
+				"watsonx/mistralai/mistral-"
+			],
 			"model_count": 29
 		},
 		{

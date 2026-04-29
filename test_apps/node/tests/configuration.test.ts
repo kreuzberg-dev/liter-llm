@@ -20,7 +20,9 @@ describe("configuration", () => {
 	it("local_provider_llamacpp: llamacpp local provider routes requests via llamacpp/ model prefix with no auth", async () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
-		expect(result.choices["0"].message.content.trim()).toBe("Hi there! I'm running locally.");
+		expect(result.choices["0"].message.content.trim()).toBe(
+			"Hi there! I'm running locally.",
+		);
 		expect(result.choices["0"].finishReason.trim()).toBe("stop");
 		expect(result.model.trim()).toBe("my-model");
 	});
@@ -28,7 +30,9 @@ describe("configuration", () => {
 	it("local_provider_ollama: Ollama local provider routes requests via ollama/ model prefix with no auth", async () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
-		expect(result.choices["0"].message.content.trim()).toBe("Hello! How can I help you today?");
+		expect(result.choices["0"].message.content.trim()).toBe(
+			"Hello! How can I help you today?",
+		);
 		expect(result.choices["0"].finishReason.trim()).toBe("stop");
 		expect(result.model.trim()).toBe("qwen2:0.5b");
 	});
@@ -36,7 +40,9 @@ describe("configuration", () => {
 	it("local_provider_vllm: vLLM local provider routes requests via vllm/ model prefix with no auth", async () => {
 		const result = await chat(null);
 		expect(result.choices.length).toBe(1);
-		expect(result.choices["0"].message.content.trim()).toBe("Hello! How may I assist you?");
+		expect(result.choices["0"].message.content.trim()).toBe(
+			"Hello! How may I assist you?",
+		);
 		expect(result.choices["0"].finishReason.trim()).toBe("stop");
 		expect(result.model.trim()).toBe("meta-llama/Llama-3.2-1B");
 	});
