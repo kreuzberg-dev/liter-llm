@@ -111,7 +111,7 @@ jobs:
             gem=packages/ruby/liter_llm.gemspec
             maven=packages/java/pom.xml
             mix=packages/elixir/mix.exs
-            csproj=packages/csharp/LiterLlm/LiterLlm.csproj
+            csproj=packages/csharp/LiterLlm.csproj
             composer=composer.json
 
   # ─────────────────────────────────────────────────────────────────────────
@@ -733,7 +733,7 @@ jobs:
       - name: Stage native libs for C#
         run: |
           for rid in linux-x64 linux-arm64 osx-arm64 win-x64; do
-            dest="packages/csharp/LiterLlm/runtimes/${rid}/native"
+            dest="packages/csharp/runtimes/${rid}/native"
             mkdir -p "$dest"
             find "ffi-artifacts/${rid}" -type f -print0 | xargs -0 -I{} cp {} "$dest/"
           done
@@ -742,7 +742,7 @@ jobs:
         with:
           dotnet-version: "10.0.x"
       - name: Pack NuGet package
-        run: dotnet pack packages/csharp/LiterLlm/LiterLlm.csproj -c Release -o nuget-output
+        run: dotnet pack packages/csharp/LiterLlm.csproj -c Release -o nuget-output
         shell: bash
       - uses: actions/upload-artifact@v7
         with:
@@ -1068,12 +1068,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Wait for @kreuzberg/liter-llm to be available
+      - name: Wait for @kreuzberg/liter-llm-node to be available
         if: ${{ needs.prepare.outputs.dry_run != 'true' && steps.recheck.outputs.exists != 'true' }}
         uses: kreuzberg-dev/actions/wait-for-package@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm"
+          package: "@kreuzberg/liter-llm-node"
           version: ${{ needs.prepare.outputs.version }}
           max-attempts: "25"
 
