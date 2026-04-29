@@ -1026,7 +1026,7 @@ jobs:
         uses: kreuzberg-dev/actions/check-registry@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm-native"
+          package: "@kreuzberg/liter-llm"
           version: ${{ needs.prepare.outputs.version }}
 
       - name: Publish native binary packages
@@ -1044,7 +1044,7 @@ jobs:
         uses: kreuzberg-dev/actions/wait-for-package@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm-native-linux-x64-gnu"
+          package: "@kreuzberg/liter-llm-linux-x64-gnu"
           version: ${{ needs.prepare.outputs.version }}
           max-attempts: "25"
 
@@ -1053,7 +1053,7 @@ jobs:
         uses: kreuzberg-dev/actions/wait-for-package@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm-native-linux-arm64-gnu"
+          package: "@kreuzberg/liter-llm-linux-arm64-gnu"
           version: ${{ needs.prepare.outputs.version }}
           max-attempts: "25"
 
@@ -1068,12 +1068,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Wait for @kreuzberg/liter-llm-native to be available
+      - name: Wait for @kreuzberg/liter-llm to be available
         if: ${{ needs.prepare.outputs.dry_run != 'true' && steps.recheck.outputs.exists != 'true' }}
         uses: kreuzberg-dev/actions/wait-for-package@v1
         with:
           registry: npm
-          package: "@kreuzberg/liter-llm-native"
+          package: "@kreuzberg/liter-llm"
           version: ${{ needs.prepare.outputs.version }}
           max-attempts: "25"
 
@@ -1091,7 +1091,7 @@ jobs:
 
       - name: npm already published summary
         if: ${{ steps.recheck.outputs.exists == 'true' }}
-        run: echo "Node package @kreuzberg/liter-llm-native@${{ needs.prepare.outputs.version }} already published on npm — skipped." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Node package @kreuzberg/liter-llm@${{ needs.prepare.outputs.version }} already published on npm — skipped." >> "$GITHUB_STEP_SUMMARY"
 
   publish-wasm:
     name: Publish WASM package

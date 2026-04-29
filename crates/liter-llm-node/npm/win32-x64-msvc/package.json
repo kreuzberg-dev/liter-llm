@@ -1,6 +1,6 @@
 {
-	"name": "@kreuzberg/liter-llm-native-win32-x64-msvc",
-	"version": "1.4.0-rc.16",
+	"name": "@kreuzberg/liter-llm-win32-x64-msvc",
+	"version": "1.4.0-rc.17",
 	"cpu": [
 		"x64"
 	],

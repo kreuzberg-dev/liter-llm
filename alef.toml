@@ -153,7 +153,7 @@ run_wrapper = "uv run --no-sync"
 output = "packages/python/liter_llm/"
 
 [node]
-package_name = "@kreuzberg/liter-llm-native"
+package_name = "@kreuzberg/liter-llm"
 
 [ffi]
 prefix = "literllm"
