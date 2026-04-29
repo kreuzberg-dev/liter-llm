@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-native",
-	"version": "1.4.0-rc.10",
+	"version": "1.4.0-rc.11",
 	"description": "Universal LLM API client — 142+ providers, streaming, tool calling. Rust-powered with polyglot bindings.",
 	"license": "MIT",
 	"main": "index.js",
