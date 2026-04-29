@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-native-darwin-arm64",
-	"version": "1.4.0-rc.12",
+	"version": "1.4.0-rc.13",
 	"cpu": [
 		"arm64"
 	],

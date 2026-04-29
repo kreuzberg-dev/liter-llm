@@ -22,7 +22,7 @@ resolver = "2"
 [workspace.lints.rust]
 
 [workspace.package]
-version = "1.4.0-rc.12"
+version = "1.4.0-rc.13"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/kreuzberg-dev/liter-llm"
@@ -60,9 +60,10 @@ pyo3-async-runtimes = { version = "0.28", features = ["tokio-runtime"] }
 rayon = "1"
 rb-sys = "0.9"
 # Async / HTTP
-reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls", "multipart", "form"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls-no-provider", "multipart", "form"] }
 rmcp = { version = "1.5", features = ["server", "macros", "transport-io", "transport-streamable-http-server", "server-side-http"] }
 rustler = "0.37"
+rustls = { version = "0.23", default-features = false, features = ["ring", "logging", "std", "tls12"] }
 
 # Serialization
 schemars = "1"
