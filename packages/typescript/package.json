@@ -1,6 +1,6 @@
 {
   "name": "@kreuzberg/liter-llm",
-  "version": "1.4.0-rc.21",
+  "version": "1.4.0-rc.22",
   "description": "Universal LLM API client — unified interface for streaming, tool calling, and provider routing across 142+ providers. Rust-powered.",
   "keywords": [
     "anthropic",
@@ -32,17 +32,12 @@
     "README.md"
   ],
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": {
-        "import": "./dist/index.d.ts",
-        "require": "./dist/index.d.cts"
-      },
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "publishConfig": {
@@ -50,7 +45,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:watch": "vitest --watch",
@@ -63,25 +58,10 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
     "@types/node": "^25.6.0",
-    "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"
   },
   "engines": {
     "node": ">= 22"
-  },
-  "tsup": {
-    "entry": [
-      "src/index.ts"
-    ],
-    "format": [
-      "cjs",
-      "esm"
-    ],
-    "dts": true,
-    "clean": true,
-    "external": [
-      "@kreuzberg/liter-llm-node"
-    ]
   }
 }
