@@ -1,6 +1,6 @@
 [package]
 name = "liter_llm_nif"
-version = "1.4.0-rc.20"
+version = "1.4.0-rc.21"
 edition = "2024"
 license = "MIT"
 description = "Universal LLM API client — 142+ providers, streaming, tool calling. Rust-powered with polyglot bindings."

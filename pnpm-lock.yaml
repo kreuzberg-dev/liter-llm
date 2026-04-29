@@ -42,9 +42,9 @@ importers:
 
   packages/typescript:
     dependencies:
-      '@kreuzberg/liter-llm':
+      '@kreuzberg/liter-llm-node':
         specifier: workspace:*
-        version: 'link:'
+        version: link:../../crates/liter-llm-node
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.13

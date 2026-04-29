@@ -1,6 +1,6 @@
 {
   "name": "@kreuzberg/liter-llm",
-  "version": "1.4.0-rc.20",
+  "version": "1.4.0-rc.21",
   "description": "Universal LLM API client — unified interface for streaming, tool calling, and provider routing across 142+ providers. Rust-powered.",
   "keywords": [
     "anthropic",
@@ -58,7 +58,7 @@
     "lint:fix": "biome check --write src"
   },
   "dependencies": {
-    "@kreuzberg/liter-llm": "workspace:*"
+    "@kreuzberg/liter-llm-node": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
@@ -79,6 +79,9 @@
       "esm"
     ],
     "dts": true,
-    "clean": true
+    "clean": true,
+    "external": [
+      "@kreuzberg/liter-llm-node"
+    ]
   }
 }
