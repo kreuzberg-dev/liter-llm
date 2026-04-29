@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `schemas/pricing.json` now covers 4,219 models (up from 35) sourced from models.dev — closes #48
+- **WebAssembly build verified `mio`-free.** The `liter-llm` crate exposes two mutually exclusive HTTP-stack features — `native-http` (reqwest + tokio + memchr + base64) and `wasm-http` (reqwest + memchr + base64 + gloo-timers, *no* tokio dependency). The `liter-llm-wasm` crate enables only `wasm-http`; the workspace's `reqwest` is pinned with `default-features = false, features = ["json", "stream", "rustls", "multipart", "form"]`. As a result, `cargo build --target wasm32-unknown-unknown -p liter-llm-wasm` pulls neither `mio` nor `tokio` into the dependency tree — reqwest auto-routes to the browser/Node `fetch` API on `wasm32` targets.
 
 ## [1.3.0] - 2026-04-23
 
