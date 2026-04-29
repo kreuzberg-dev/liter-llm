@@ -216,7 +216,7 @@ Install in your language of choice:
 | Ruby | `gem install liter_llm` |
 | PHP | `composer require kreuzberg/liter-llm` |
 | C# | `dotnet add package LiterLlm` |
-| Elixir | `{:liter_llm, "~> 1.0"}` in mix.exs |
+| Elixir | `{:liter_llm, "~> 1.4.0-rc.17"}` in mix.exs |
 | WASM | `pnpm add @kreuzberg/liter-llm-wasm` |
 | C/FFI | Build from source -- see [FFI crate](crates/liter-llm-ffi) |
 

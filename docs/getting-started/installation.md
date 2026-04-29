@@ -106,14 +106,14 @@ liter-llm mcp --transport stdio
     <dependency>
         <groupId>dev.kreuzberg</groupId>
         <artifactId>liter-llm</artifactId>
-        <version>0.1.0</version>
+        <version>1.4.0-rc.17</version>
     </dependency>
     ```
 
     **Gradle:**
 
     ```kotlin
-    implementation("dev.kreuzberg:liter-llm:0.1.0")
+    implementation("dev.kreuzberg:liter-llm:1.4.0-rc.17")
     ```
 
 === "Ruby"
@@ -155,7 +155,7 @@ liter-llm mcp --transport stdio
     ```elixir
     defp deps do
       [
-        {:liter_llm, "~> 0.1"}
+        {:liter_llm, "~> 1.4.0-rc.17"}
       ]
     end
     ```

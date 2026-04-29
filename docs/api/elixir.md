@@ -11,7 +11,7 @@ The Elixir package is a pure-Elixir HTTP client using `Req`. No NIFs or native l
 ```elixir
 # mix.exs
 defp deps do
-  [{:liter_llm, "~> 1.0"}]
+  [{:liter_llm, "~> 1.4.0-rc.17"}]
 end
 ```
 

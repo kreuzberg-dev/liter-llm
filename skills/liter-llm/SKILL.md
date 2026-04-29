@@ -62,14 +62,14 @@ go get github.com/kreuzberg-dev/liter-llm/packages/go
 <dependency>
     <groupId>dev.kreuzberg</groupId>
     <artifactId>liter-llm</artifactId>
-    <version>0.1.0</version>
+    <version>1.4.0-rc.17</version>
 </dependency>
 ```
 
 ### C# (.NET)
 
 ```bash
-dotnet add package Kreuzberg.LiterLlm
+dotnet add package LiterLlm
 ```
 
 ### Ruby
@@ -88,7 +88,7 @@ composer require kreuzberg/liter-llm
 
 ```elixir
 # mix.exs
-{:liter_llm, "~> 0.1"}
+{:liter_llm, "~> 1.4.0-rc.17"}
 ```
 
 ### WebAssembly

@@ -105,10 +105,10 @@ Part of the kreuzberg.dev ecosystem:
 | Python | pypi.org/project/liter-llm | `pip install liter-llm` |
 | TypeScript/Node.js | npmjs.com/package/@kreuzberg/liter-llm | `pnpm add @kreuzberg/liter-llm` |
 | Go | github.com/kreuzberg-dev/liter-llm/packages/go | `go get github.com/kreuzberg-dev/liter-llm/packages/go` |
-| Java | dev.kreuzberg:liter-llm (Maven) | `implementation("dev.kreuzberg:liter-llm:0.1.0")` |
+| Java | dev.kreuzberg:liter-llm (Maven) | `implementation("dev.kreuzberg:liter-llm:1.4.0-rc.17")` |
 | C# / .NET | NuGet: LiterLlm | `dotnet add package LiterLlm` |
 | Ruby | RubyGems: liter_llm | `gem install liter_llm` |
-| Elixir | Hex: liter_llm | `{:liter_llm, "~> 0.1"}` in mix.exs |
+| Elixir | Hex: liter_llm | `{:liter_llm, "~> 1.4.0-rc.17"}` in mix.exs |
 | PHP | Packagist: kreuzberg/liter-llm | `composer require kreuzberg/liter-llm` |
 | WebAssembly | npmjs.com/package/@kreuzberg/liter-llm-wasm | `pnpm add @kreuzberg/liter-llm-wasm` |
 | C / FFI | Build from source | `cargo build --release -p liter-llm-ffi` |

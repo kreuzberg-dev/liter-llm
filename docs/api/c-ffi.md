@@ -18,9 +18,9 @@ Link against `libliter_llm_ffi` (shared or static) and include the header:
 
 ```c
 #define LITER_LLM_VERSION_MAJOR 1
-#define LITER_LLM_VERSION_MINOR 0
+#define LITER_LLM_VERSION_MINOR 4
 #define LITER_LLM_VERSION_PATCH 0
-#define LITER_LLM_VERSION "1.0.0-rc.1"
+#define LITER_LLM_VERSION "1.4.0-rc.17"
 ```
 
 ## Opaque Handle

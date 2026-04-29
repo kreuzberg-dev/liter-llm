@@ -8,8 +8,8 @@
   <a href="https://pypi.org/project/liter-llm/">
     <img src="https://img.shields.io/pypi/v/liter-llm?label=Python&color=007ec6" alt="Python">
   </a>
-  <a href="https://www.npmjs.com/package/liter-llm">
-    <img src="https://img.shields.io/npm/v/liter-llm?label=TypeScript&color=007ec6" alt="TypeScript">
+  <a href="https://www.npmjs.com/package/@kreuzberg/liter-llm">
+    <img src="https://img.shields.io/npm/v/@kreuzberg/liter-llm?label=TypeScript&color=007ec6" alt="TypeScript">
   </a>
   <a href="https://pkg.go.dev/github.com/kreuzberg-dev/liter-llm/packages/go">
     <img src="https://img.shields.io/github/v/tag/kreuzberg-dev/liter-llm?label=Go&color=007ec6" alt="Go">
@@ -49,19 +49,19 @@ definitions and native async/Promise support.
 **npm:**
 
 ```bash
-npm install liter-llm
+npm install @kreuzberg/liter-llm
 ```
 
 **pnpm:**
 
 ```bash
-pnpm add liter-llm
+pnpm add @kreuzberg/liter-llm
 ```
 
 ## Quick Start
 
 ```typescript
-import { LlmClient } from "liter-llm";
+import { LlmClient } from "@kreuzberg/liter-llm";
 
 const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY });
 const response = await client.chat({
@@ -89,7 +89,7 @@ console.log(response.choices[0].message.content);
 Stream tokens as they are generated for responsive user experiences:
 
 ```typescript
-import { LlmClient } from "liter-llm";
+import { LlmClient } from "@kreuzberg/liter-llm";
 
 const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY });
 const stream = client.chatStream({
@@ -108,7 +108,7 @@ console.log();
 Define tools for the model to call with structured outputs:
 
 ```typescript
-import { LlmClient, type Tool } from "liter-llm";
+import { LlmClient, type Tool } from "@kreuzberg/liter-llm";
 
 const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY });
 

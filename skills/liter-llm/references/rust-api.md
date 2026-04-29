@@ -4,7 +4,7 @@
 
 ```toml
 [dependencies]
-liter-llm = { version = "1.0.0-rc.1", features = ["native-http"] }
+liter-llm = { version = "1.4.0-rc.17", features = ["native-http"] }
 ```
 
 ## Feature Flags

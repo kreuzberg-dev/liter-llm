@@ -65,7 +65,7 @@ Pure-Java HTTP client using `java.net.http.HttpClient` (Java 17+). No FFI requir
 <dependency>
     <groupId>dev.kreuzberg</groupId>
     <artifactId>liter-llm</artifactId>
-    <version>1.0.0-rc.1</version>
+    <version>1.4.0-rc.17</version>
 </dependency>
 ```
 
@@ -300,7 +300,7 @@ Pure-Elixir HTTP client using `Req`. No NIFs required.
 ```elixir
 # mix.exs
 defp deps do
-  [{:liter_llm, "~> 1.0"}]
+  [{:liter_llm, "~> 1.4.0-rc.17"}]
 end
 ```
 

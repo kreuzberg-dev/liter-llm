@@ -17,7 +17,7 @@ npm install @kreuzberg/liter-llm
 ### Constructor
 
 ```typescript
-import { LlmClient } from 'liter-llm';
+import { LlmClient } from '@kreuzberg/liter-llm';
 
 const client = new LlmClient({
   apiKey: string,
@@ -316,7 +316,7 @@ console.log(`Budget used: $${client.budgetUsed.toFixed(2)}`);
 Returns the library version string.
 
 ```typescript
-import { version } from 'liter-llm';
+import { version } from '@kreuzberg/liter-llm';
 console.log(version());
 ```
 
@@ -420,7 +420,7 @@ See [Error Handling](../usage/error-handling.md) for the canonical taxonomy and 
 ## Example
 
 ```typescript
-import { LlmClient } from 'liter-llm';
+import { LlmClient } from '@kreuzberg/liter-llm';
 
 const client = new LlmClient({
   apiKey: process.env.OPENAI_API_KEY!,

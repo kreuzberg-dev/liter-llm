@@ -12,7 +12,7 @@ The Java package is a pure-Java HTTP client using `java.net.http.HttpClient` (Ja
 <dependency>
     <groupId>dev.kreuzberg</groupId>
     <artifactId>liter-llm</artifactId>
-    <version>1.0.0-rc.1</version>
+    <version>1.4.0-rc.17</version>
 </dependency>
 ```
 
