@@ -403,6 +403,7 @@ impl DefaultClient {
         }
 
         let http = {
+            #[cfg(feature = "native-http")]
             crate::ensure_crypto_provider();
             let builder = reqwest::Client::builder().default_headers(header_map);
             // reqwest's WASM backend uses the browser fetch API and does not

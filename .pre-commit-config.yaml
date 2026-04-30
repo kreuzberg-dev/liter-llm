@@ -157,12 +157,14 @@ repos:
         exclude: ^(e2e/|test_apps/)
       - id: golangci-lint
         exclude: ^(e2e/|test_apps/)
+        env:
+          KREUZBERG_GO_MOD_DIRS: packages/go
       - id: govulncheck
         exclude: ^(e2e/|test_apps/)
       - id: rubocop
-        files: ^packages/ruby/.*\.rb$
+        files: ^packages/ruby/(?!ext/).*\.rb$
       - id: rubocop-lint
-        files: ^packages/ruby/.*\.(rb|rbs)$
+        files: ^packages/ruby/(?!ext/).*\.(rb|rbs)$
       - id: steep
         files: ^packages/ruby/.*\.(rb|rbs)$
       - id: dotnet-format
