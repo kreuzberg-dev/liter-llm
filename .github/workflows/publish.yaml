@@ -1507,8 +1507,12 @@ jobs:
             archive_name="${stem}.tar.gz"
             tar -czf "${archive_name}" "${stem}"
           fi
+          # Emit a sha256sum-format line ("<hash>  <filename>") on every
+          # platform so the upload job can concatenate them into a single
+          # SHA256SUMS file consumable by `sha256sum -c`.
           if [ "${RUNNER_OS}" = "Windows" ]; then
-            certutil -hashfile "${archive_name}" SHA256 | sed -n '2p' | tr -d ' \r' > "${archive_name}.sha256"
+            hash=$(certutil -hashfile "${archive_name}" SHA256 | sed -n '2p' | tr -d ' \r')
+            printf '%s  %s\n' "${hash}" "${archive_name}" > "${archive_name}.sha256"
           else
             shasum -a 256 "${archive_name}" > "${archive_name}.sha256"
           fi
@@ -1547,6 +1551,27 @@ jobs:
           pattern: cli-binary-*
           path: dist/cli
           merge-multiple: true
+      - name: Consolidate per-archive checksums into SHA256SUMS
+        # Per-platform jobs each emit a `<archive>.sha256` (sha256sum-format).
+        # Combine them into a single file so the GitHub release surface lists
+        # one checksum artifact instead of one per CLI archive (#67).
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          shasum_files=(dist/cli/*.sha256)
+          if [ ${#shasum_files[@]} -eq 0 ]; then
+            echo "::error::no per-archive checksum files found"
+            exit 1
+          fi
+          combined="dist/cli/SHA256SUMS-${VERSION}.txt"
+          # Sort for deterministic ordering across runs.
+          cat "${shasum_files[@]}" | LC_ALL=C sort > "${combined}"
+          rm -f "${shasum_files[@]}"
+          echo "Consolidated checksums:"
+          cat "${combined}"
       - uses: kreuzberg-dev/actions/publish-github-release@v1
         with:
           tag: ${{ needs.prepare.outputs.tag }}

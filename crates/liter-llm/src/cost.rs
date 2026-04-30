@@ -49,12 +49,23 @@ struct PricingRegistry {
 }
 
 /// Per-token pricing for a single model (USD per token).
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct ModelPricing {
     /// Cost in USD per input (prompt) token.
     pub input_cost_per_token: f64,
     /// Cost in USD per output (completion) token.  Zero for embedding models.
     pub output_cost_per_token: f64,
+    /// Cost in USD per cached input token (cache hit / read). When the model
+    /// supports prompt caching the provider serves cached tokens at this
+    /// discounted rate; otherwise this is `None` and cached tokens are billed
+    /// at `input_cost_per_token`.
+    #[serde(default)]
+    pub cache_read_input_token_cost: Option<f64>,
+    /// Cost in USD per token written to the prompt cache (Anthropic-style
+    /// cache-write surcharge). `None` when the provider does not separately
+    /// charge for cache writes.
+    #[serde(default)]
+    pub cache_creation_input_token_cost: Option<f64>,
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -80,9 +91,37 @@ pub struct ModelPricing {
 /// ```
 #[must_use]
 pub fn completion_cost(model: &str, prompt_tokens: u64, completion_tokens: u64) -> Option<f64> {
+    completion_cost_with_cache(model, prompt_tokens, 0, completion_tokens)
+}
+
+/// Calculate the estimated cost of a completion, accounting for cached
+/// (cache-hit) prompt tokens billed at the provider's discounted rate.
+///
+/// `cached_tokens` is the count of prompt tokens served from the provider's
+/// prompt cache. It must be `<= prompt_tokens` (cached tokens are a subset of
+/// the prompt). The non-cached portion is billed at `input_cost_per_token`
+/// and the cached portion at `cache_read_input_token_cost` when the model
+/// has cache pricing; otherwise the entire prompt is billed at the regular
+/// input rate.
+///
+/// Returns `None` if the model is not present in the embedded pricing
+/// registry, mirroring [`completion_cost`].
+#[must_use]
+pub fn completion_cost_with_cache(
+    model: &str,
+    prompt_tokens: u64,
+    cached_tokens: u64,
+    completion_tokens: u64,
+) -> Option<f64> {
     let pricing = model_pricing(model)?;
+    let cached = cached_tokens.min(prompt_tokens);
+    let uncached = prompt_tokens - cached;
+    let cache_rate = pricing
+        .cache_read_input_token_cost
+        .unwrap_or(pricing.input_cost_per_token);
     Some(
-        (prompt_tokens as f64) * pricing.input_cost_per_token
+        (uncached as f64) * pricing.input_cost_per_token
+            + (cached as f64) * cache_rate
             + (completion_tokens as f64) * pricing.output_cost_per_token,
     )
 }
@@ -198,6 +237,76 @@ mod tests {
             "unexpected output_cost_per_token: {}",
             p.output_cost_per_token
         );
+    }
+
+    #[test]
+    fn completion_cost_with_cache_applies_discount_when_pricing_available() {
+        // Use a synthetic pricing entry to make the math deterministic without
+        // depending on upstream models.dev values.
+        let pricing = ModelPricing {
+            input_cost_per_token: 1e-5,
+            output_cost_per_token: 2e-5,
+            cache_read_input_token_cost: Some(1e-6),
+            cache_creation_input_token_cost: None,
+        };
+        // 800 uncached @ 1e-5 + 200 cached @ 1e-6 + 50 output @ 2e-5
+        let expected = 800.0 * 1e-5 + 200.0 * 1e-6 + 50.0 * 2e-5;
+        let uncached = 1000 - 200;
+        let actual = (uncached as f64) * pricing.input_cost_per_token
+            + 200.0 * pricing.cache_read_input_token_cost.unwrap()
+            + 50.0 * pricing.output_cost_per_token;
+        assert!((actual - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn completion_cost_with_cache_falls_back_to_input_rate_without_cache_pricing() {
+        // gpt-4 has no cache pricing in the embedded registry; the cached
+        // portion should be billed at the regular input rate so the result
+        // matches `completion_cost` ignoring the cache split.
+        let with_cache = completion_cost_with_cache("gpt-4", 1_000, 200, 50).expect("gpt-4 must be in registry");
+        let without = completion_cost("gpt-4", 1_000, 50).expect("gpt-4 must be in registry");
+        assert!((with_cache - without).abs() < 1e-12);
+    }
+
+    #[test]
+    fn completion_cost_with_cache_clamps_cached_tokens_to_prompt_tokens() {
+        // Cached cannot exceed prompt; clamp instead of returning a negative
+        // contribution from the uncached portion.
+        let cost = completion_cost_with_cache("gpt-4", 100, 500, 0).expect("gpt-4 must be in registry");
+        let clamped = completion_cost_with_cache("gpt-4", 100, 100, 0).expect("gpt-4 must be in registry");
+        assert!((cost - clamped).abs() < 1e-12);
+    }
+
+    #[test]
+    fn completion_cost_with_cache_uses_registry_cache_pricing_when_available() {
+        // claude-sonnet-4-5 has cache_read pricing in the embedded registry.
+        let pricing = model_pricing("claude-sonnet-4-5").expect("claude-sonnet-4-5 must be in registry");
+        let cache_rate = pricing
+            .cache_read_input_token_cost
+            .expect("claude-sonnet-4-5 must have cache_read_input_token_cost");
+        assert!(
+            cache_rate < pricing.input_cost_per_token,
+            "cache rate ({cache_rate}) must be cheaper than input rate ({})",
+            pricing.input_cost_per_token
+        );
+        // 1000 prompt tokens, 200 cached, 50 output:
+        // cost = 800 * input + 200 * cache_read + 50 * output
+        let expected = 800.0 * pricing.input_cost_per_token + 200.0 * cache_rate + 50.0 * pricing.output_cost_per_token;
+        let actual = completion_cost_with_cache("claude-sonnet-4-5", 1_000, 200, 50)
+            .expect("claude-sonnet-4-5 must be priceable");
+        assert!((actual - expected).abs() < 1e-12, "expected {expected}, got {actual}");
+        // Sanity: cached cost is strictly cheaper than billing all tokens at the
+        // input rate, which is the user-visible point of the feature.
+        let no_cache = completion_cost("claude-sonnet-4-5", 1_000, 50).expect("claude-sonnet-4-5 must be priceable");
+        assert!(
+            actual < no_cache,
+            "cached cost ({actual}) must be < uncached ({no_cache})"
+        );
+    }
+
+    #[test]
+    fn completion_cost_with_cache_unknown_model_returns_none() {
+        assert!(completion_cost_with_cache("unknown-model-xyz", 100, 10, 50).is_none());
     }
 
     #[test]

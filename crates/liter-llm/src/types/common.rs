@@ -266,6 +266,27 @@ pub struct Usage {
     /// Total tokens used. Defaults to 0 when absent (some providers omit this).
     #[serde(default)]
     pub total_tokens: u64,
+    /// Breakdown of tokens used in the prompt, including cached tokens served
+    /// at the provider's discounted cache-read rate. Absent when the provider
+    /// does not return prompt-token details.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prompt_tokens_details: Option<PromptTokensDetails>,
+}
+
+/// Breakdown of tokens used in the prompt portion of a request.
+///
+/// `cached_tokens` is included in `Usage::prompt_tokens` — it is *not* an
+/// additional charge on top of the prompt token count. When pricing supports
+/// a `cache_read_input_token_cost`, the cached portion is billed at the
+/// discounted rate and the remainder at the regular input rate.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PromptTokensDetails {
+    /// Cached tokens present in the prompt. Defaults to 0 when absent.
+    #[serde(default)]
+    pub cached_tokens: u64,
+    /// Audio input tokens present in the prompt. Defaults to 0 when absent.
+    #[serde(default)]
+    pub audio_tokens: u64,
 }
 
 // ─── Stop Sequence ───────────────────────────────────────────────────────────

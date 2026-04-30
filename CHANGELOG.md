@@ -17,10 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CLI binary tarballs (Linux x86_64/aarch64, macOS aarch64, Windows x86_64) attached to GitHub Releases for direct download — closes #64
 - `scripts/generate_pricing.py` regenerates `schemas/pricing.json` from [models.dev](https://models.dev), wired into `task generate:pricing`, `task update`, and `task upgrade`
+- `Usage::prompt_tokens_details` (`{ cached_tokens, audio_tokens }`) deserialised from the OpenAI-compatible response body, plus `cost::completion_cost_with_cache` and matching `cache_read_input_token_cost` / `cache_creation_input_token_cost` fields on `ModelPricing`. `ChatCompletionResponse::estimated_cost` and the `CostTrackingLayer` now bill cached prompt tokens at the provider's discounted cache-read rate when the model has cache pricing in `schemas/pricing.json` — closes #65
+- `schemas/pricing.json` carries `cache_read_input_token_cost` / `cache_creation_input_token_cost` for the 1,500+ models on models.dev that publish cache pricing
 
 ### Changed
 
 - `schemas/pricing.json` now covers 4,219 models (up from 35) sourced from models.dev — closes #48
+- GitHub Release CLI assets ship a single sorted `SHA256SUMS-<version>.txt` (sha256sum-verifiable) instead of one `.sha256` per archive — closes #67
 - **WebAssembly build verified `mio`-free.** The `liter-llm` crate exposes two mutually exclusive HTTP-stack features — `native-http` (reqwest + tokio + memchr + base64) and `wasm-http` (reqwest + memchr + base64 + gloo-timers, *no* tokio dependency). The `liter-llm-wasm` crate enables only `wasm-http`; the workspace's `reqwest` is pinned with `default-features = false, features = ["json", "stream", "rustls", "multipart", "form"]`. As a result, `cargo build --target wasm32-unknown-unknown -p liter-llm-wasm` pulls neither `mio` nor `tokio` into the dependency tree — reqwest auto-routes to the browser/Node `fetch` API on `wasm32` targets.
 
 ## [1.3.0] - 2026-04-23

@@ -140,7 +140,8 @@ impl ChatCompletionResponse {
     #[must_use]
     pub fn estimated_cost(&self) -> Option<f64> {
         let usage = self.usage.as_ref()?;
-        cost::completion_cost(&self.model, usage.prompt_tokens, usage.completion_tokens)
+        let cached = usage.prompt_tokens_details.as_ref().map_or(0, |d| d.cached_tokens);
+        cost::completion_cost_with_cache(&self.model, usage.prompt_tokens, cached, usage.completion_tokens)
     }
 }
 
@@ -209,4 +210,93 @@ pub struct StreamFunctionCall {
     pub name: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub arguments: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::common::PromptTokensDetails;
+
+    fn make_response(model: &str, usage: Usage) -> ChatCompletionResponse {
+        ChatCompletionResponse {
+            id: "test".into(),
+            object: "chat.completion".into(),
+            created: 0,
+            model: model.into(),
+            choices: vec![],
+            usage: Some(usage),
+            system_fingerprint: None,
+            service_tier: None,
+        }
+    }
+
+    #[test]
+    fn estimated_cost_applies_cache_discount_when_prompt_tokens_details_present() {
+        // claude-sonnet-4-5 has cache_read pricing in the registry.
+        let resp = make_response(
+            "claude-sonnet-4-5",
+            Usage {
+                prompt_tokens: 1_000,
+                completion_tokens: 50,
+                total_tokens: 1_050,
+                prompt_tokens_details: Some(PromptTokensDetails {
+                    cached_tokens: 200,
+                    audio_tokens: 0,
+                }),
+            },
+        );
+        let with_cache = resp.estimated_cost().expect("should price");
+        let no_cache = make_response(
+            "claude-sonnet-4-5",
+            Usage {
+                prompt_tokens: 1_000,
+                completion_tokens: 50,
+                total_tokens: 1_050,
+                prompt_tokens_details: None,
+            },
+        )
+        .estimated_cost()
+        .expect("should price");
+        assert!(
+            with_cache < no_cache,
+            "cached cost ({with_cache}) must be cheaper than uncached ({no_cache})"
+        );
+    }
+
+    #[test]
+    fn estimated_cost_ignores_cached_tokens_when_no_pricing_difference() {
+        // gpt-4 has no cache pricing — cached tokens should not change cost.
+        let usage_with_cached = Usage {
+            prompt_tokens: 1_000,
+            completion_tokens: 50,
+            total_tokens: 1_050,
+            prompt_tokens_details: Some(PromptTokensDetails {
+                cached_tokens: 500,
+                audio_tokens: 0,
+            }),
+        };
+        let usage_no_details = Usage {
+            prompt_tokens: 1_000,
+            completion_tokens: 50,
+            total_tokens: 1_050,
+            prompt_tokens_details: None,
+        };
+        let a = make_response("gpt-4", usage_with_cached).estimated_cost().unwrap();
+        let b = make_response("gpt-4", usage_no_details).estimated_cost().unwrap();
+        assert!((a - b).abs() < 1e-12);
+    }
+
+    #[test]
+    fn usage_round_trips_prompt_tokens_details_via_serde() {
+        let json = r#"{
+            "prompt_tokens": 100,
+            "completion_tokens": 20,
+            "total_tokens": 120,
+            "prompt_tokens_details": {"cached_tokens": 30, "audio_tokens": 0}
+        }"#;
+        let usage: Usage = serde_json::from_str(json).expect("valid OpenAI usage shape");
+        assert_eq!(usage.prompt_tokens_details.as_ref().map(|d| d.cached_tokens), Some(30));
+        let reser = serde_json::to_string(&usage).unwrap();
+        assert!(reser.contains("\"cached_tokens\":30"));
+    }
 }

@@ -79,10 +79,17 @@ def transform(catalog: dict[str, Any]) -> dict[str, dict[str, float]]:
             if not cost or "input" not in cost:
                 skipped += 1
                 continue
-            entry = {
+            entry: dict[str, float] = {
                 "input_cost_per_token": float(cost["input"]) / TOKENS_PER_UNIT,
                 "output_cost_per_token": float(cost.get("output", 0.0)) / TOKENS_PER_UNIT,
             }
+            # Cache pricing — only emitted when models.dev publishes a value so
+            # the generated JSON stays compact and the consumer can fall back
+            # to input_cost_per_token when the field is absent.
+            if "cache_read" in cost:
+                entry["cache_read_input_token_cost"] = float(cost["cache_read"]) / TOKENS_PER_UNIT
+            if "cache_write" in cost:
+                entry["cache_creation_input_token_cost"] = float(cost["cache_write"]) / TOKENS_PER_UNIT
             models[f"{provider_id}/{model_id}"] = entry
             if provider_id in PRIMARY_PROVIDERS:
                 # setdefault so an earlier primary provider keeps the bare key.
@@ -110,12 +117,21 @@ def render(models: dict[str, dict[str, float]]) -> str:
     lines = ["{", f'\t"$comment": {json.dumps(HEADER_COMMENT)},', '\t"models": {']
     for i, (key, entry) in enumerate(sorted_items):
         suffix = "," if i < len(sorted_items) - 1 else ""
-        input_s = format_cost(entry["input_cost_per_token"])
-        output_s = format_cost(entry["output_cost_per_token"])
-        lines.append(
-            f"\t\t{json.dumps(key)}: "
-            f'{{ "input_cost_per_token": {input_s}, "output_cost_per_token": {output_s} }}{suffix}'
-        )
+        # One field per line so diffs are easy to read and version control —
+        # cache fields are appended inline only when present so models without
+        # cache pricing keep their compact two-field block.
+        body = [
+            f'\t\t\t"input_cost_per_token": {format_cost(entry["input_cost_per_token"])}',
+            f'\t\t\t"output_cost_per_token": {format_cost(entry["output_cost_per_token"])}',
+        ]
+        if "cache_read_input_token_cost" in entry:
+            body.append(f'\t\t\t"cache_read_input_token_cost": {format_cost(entry["cache_read_input_token_cost"])}')
+        if "cache_creation_input_token_cost" in entry:
+            body.append(
+                f'\t\t\t"cache_creation_input_token_cost": {format_cost(entry["cache_creation_input_token_cost"])}'
+            )
+        body_joined = ",\n".join(body)
+        lines.append(f"\t\t{json.dumps(key)}: {{\n{body_joined}\n\t\t}}{suffix}")
     lines.extend(["\t}", "}", ""])
     rendered = "\n".join(lines)
     json.loads(rendered)  # round-trip sanity check before writing

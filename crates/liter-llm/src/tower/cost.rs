@@ -101,7 +101,10 @@ fn record_cost(model: &Option<String>, resp: &LlmResponse) {
     let Some(model_name) = model else { return };
     let Some(usage) = resp.usage() else { return };
 
-    if let Some(usd) = cost::completion_cost(model_name, usage.prompt_tokens, usage.completion_tokens) {
+    let cached = usage.prompt_tokens_details.as_ref().map_or(0, |d| d.cached_tokens);
+    if let Some(usd) =
+        cost::completion_cost_with_cache(model_name, usage.prompt_tokens, cached, usage.completion_tokens)
+    {
         tracing::Span::current().record("gen_ai.usage.cost", usd);
     }
 }
@@ -178,6 +181,7 @@ mod tests {
                     prompt_tokens: 100,
                     completion_tokens: 50,
                     total_tokens: 150,
+                    prompt_tokens_details: None,
                 }),
                 system_fingerprint: None,
                 service_tier: None,
@@ -209,6 +213,7 @@ mod tests {
                     prompt_tokens: 10,
                     completion_tokens: 0,
                     total_tokens: 10,
+                    prompt_tokens_details: None,
                 }),
             };
             Box::pin(async move { Ok(resp) })

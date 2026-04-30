@@ -516,6 +516,7 @@ impl Provider for AnthropicProvider {
                         prompt_tokens,
                         completion_tokens: 0,
                         total_tokens: prompt_tokens,
+                        prompt_tokens_details: None,
                     })
                 } else {
                     None
@@ -614,6 +615,7 @@ impl Provider for AnthropicProvider {
                     prompt_tokens: 0,
                     completion_tokens: ct,
                     total_tokens: ct,
+                    prompt_tokens_details: None,
                 });
 
                 Ok(Some(ChatCompletionChunk {
