@@ -3,15 +3,12 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from "vitest";
-import { createClient } from "@kreuzberg/liter-llm";
+import { describe, expect, it } from 'vitest';
+import { createClient } from '@kreuzberg/liter-llm';
 
-describe("parity", () => {
-	it("api_surface_parity: Canonical API surface definition for cross-binding parity verification", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/api_surface_parity`,
-		);
-		await client.chat({});
-	});
+describe('parity', () => {
+  it('api_surface_parity: Canonical API surface definition for cross-binding parity verification', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/api_surface_parity`);
+    await client.chat({  });
+  });
 });

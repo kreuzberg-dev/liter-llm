@@ -3,39 +3,36 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from "vitest";
-import { createClient, WasmChatCompletionRequest } from "liter_llm";
+import { describe, it, expect } from 'vitest';
+import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
-describe("contract", () => {
-	it("binding_api_parity: Verify all bindings expose the full API surface — constructor accepts all config options and every method exists", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [{ content: "Contract test", role: "user" }];
-		options.model = "openai/gpt-4o";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").message.content.trim()).toBe("OK");
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-		expect(result.usage.totalTokens).toBe(6);
-		expect(result.model.trim()).toBe("gpt-4o");
-	});
+describe('contract', () => {
+  it('binding_api_parity: Verify all bindings expose the full API surface — constructor accepts all config options and every method exists', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Contract test", role: "user" }];
+    options.model = "openai/gpt-4o";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").message.content.trim()).toBe("OK");
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+    expect(result.usage.totalTokens).toBe(6);
+    expect(result.model.trim()).toBe("gpt-4o");
+  });
 
-	it("contract_ocr: Verify ocr() method exists in all bindings", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.document = {
-			type: "document_url",
-			url: "https://example.com/contract-test.pdf",
-		};
-		options.model = "mistral/mistral-ocr-latest";
-		await client.ocr(options);
-	});
+  it('contract_ocr: Verify ocr() method exists in all bindings', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.document = { type: "document_url", url: "https://example.com/contract-test.pdf" };
+    options.model = "mistral/mistral-ocr-latest";
+    await client.ocr(options);
+  });
 
-	it("contract_search: Verify search() method exists in all bindings", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.model = "brave/web-search";
-		options.query = "contract test query";
-		await client.search(options);
-	});
+  it('contract_search: Verify search() method exists in all bindings', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.model = "brave/web-search";
+    options.query = "contract test query";
+    await client.search(options);
+  });
 });

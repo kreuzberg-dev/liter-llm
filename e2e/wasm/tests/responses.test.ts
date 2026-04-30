@@ -3,107 +3,89 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from "vitest";
-import { createClient, WasmChatCompletionRequest } from "liter_llm";
+import { describe, it, expect } from 'vitest';
+import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
-describe("responses", () => {
-	it("edge_response_empty_output: Response completes with empty output items", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "";
-		options.model = "gpt-4o";
-		const result = await client.create_response(options);
-		expect(result.id.length).toBeGreaterThan(0);
-		expect(result.status.trim()).toBe("completed");
-		expect(result.output.length).toBe(0);
-	});
+describe('responses', () => {
+  it('edge_response_empty_output: Response completes with empty output items', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "";
+    options.model = "gpt-4o";
+    const result = await client.create_response(options);
+    expect(result.id.length).toBeGreaterThan(0);
+    expect(result.status.trim()).toBe("completed");
+    expect(result.output.length).toBe(0);
+  });
 
-	it("edge_response_large_input: Response created with a very large input text", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input =
-			"Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ";
-		options.model = "gpt-4o";
-		const result = await client.create_response(options);
-		expect(result.id.length).toBeGreaterThan(0);
-		expect(result.status.trim()).toBe("completed");
-		expect(result.output.length).toBe(1);
-	});
+  it('edge_response_large_input: Response created with a very large input text', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "Summarize the following long text: Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. ";
+    options.model = "gpt-4o";
+    const result = await client.create_response(options);
+    expect(result.id.length).toBeGreaterThan(0);
+    expect(result.status.trim()).toBe("completed");
+    expect(result.output.length).toBe(1);
+  });
 
-	it("error_response_auth_401: 401 Unauthorized when creating a response with invalid API key", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "Hello";
-		options.model = "gpt-4o";
-		await expect(
-			async () => await client.create_response(options),
-		).rejects.toThrow();
-	});
+  it('error_response_auth_401: 401 Unauthorized when creating a response with invalid API key', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "Hello";
+    options.model = "gpt-4o";
+    await expect(async () => await client.create_response(options)).rejects.toThrow();
+  });
 
-	it("error_response_bad_request: 400 Bad Request when creating response with invalid model", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "Hello";
-		options.model = "nonexistent-model";
-		await expect(
-			async () => await client.create_response(options),
-		).rejects.toThrow();
-	});
+  it('error_response_bad_request: 400 Bad Request when creating response with invalid model', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "Hello";
+    options.model = "nonexistent-model";
+    await expect(async () => await client.create_response(options)).rejects.toThrow();
+  });
 
-	it("error_response_not_found: 404 Not Found when retrieving a nonexistent response", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		await expect(
-			async () => await client.retrieve_response(""),
-		).rejects.toThrow();
-	});
+  it('error_response_not_found: 404 Not Found when retrieving a nonexistent response', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    await expect(async () => await client.retrieve_response('')).rejects.toThrow();
+  });
 
-	it("smoke_cancel_response: Cancel an in-progress response", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const result = await client.cancel_response("");
-		expect(result.id.length).toBeGreaterThan(0);
-		expect(result.status.trim()).toBe("cancelled");
-		expect(result.output.length).toBe(0);
-	});
+  it('smoke_cancel_response: Cancel an in-progress response', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const result = await client.cancel_response('');
+    expect(result.id.length).toBeGreaterThan(0);
+    expect(result.status.trim()).toBe("cancelled");
+    expect(result.output.length).toBe(0);
+  });
 
-	it("smoke_create_response: Create a basic response using the Responses API", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "Explain quantum computing in one sentence.";
-		options.model = "gpt-4o";
-		const result = await client.create_response(options);
-		expect(result.id.length).toBeGreaterThan(0);
-		expect(result.status.trim()).toBe("completed");
-		expect(result.output.length).toBe(1);
-	});
+  it('smoke_create_response: Create a basic response using the Responses API', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "Explain quantum computing in one sentence.";
+    options.model = "gpt-4o";
+    const result = await client.create_response(options);
+    expect(result.id.length).toBeGreaterThan(0);
+    expect(result.status.trim()).toBe("completed");
+    expect(result.output.length).toBe(1);
+  });
 
-	it("smoke_response_with_tools: Response that includes tool call output items", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "What is the weather in San Francisco?";
-		options.model = "gpt-4o";
-		options.tools = [
-			{
-				description: "Get current weather for a location",
-				name: "get_weather",
-				parameters: {
-					properties: { location: { type: "string" } },
-					required: ["location"],
-					type: "object",
-				},
-				type: "function",
-			},
-		];
-		const result = await client.create_response(options);
-		expect(result.id.length).toBeGreaterThan(0);
-		expect(result.status.trim()).toBe("completed");
-		expect(result.output.length).toBe(2);
-		expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
-	});
+  it('smoke_response_with_tools: Response that includes tool call output items', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "What is the weather in San Francisco?";
+    options.model = "gpt-4o";
+    options.tools = [{ description: "Get current weather for a location", name: "get_weather", parameters: { properties: { location: { type: "string" } }, required: ["location"], type: "object" }, type: "function" }];
+    const result = await client.create_response(options);
+    expect(result.id.length).toBeGreaterThan(0);
+    expect(result.status.trim()).toBe("completed");
+    expect(result.output.length).toBe(2);
+    expect(result.choices.get("0").message.toolCalls.length).toBeGreaterThan(0);
+  });
 
-	it("smoke_retrieve_response: Retrieve a previously created response", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const result = await client.retrieve_response("");
-		expect(result.id.length).toBeGreaterThan(0);
-		expect(result.status.trim()).toBe("completed");
-	});
+  it('smoke_retrieve_response: Retrieve a previously created response', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const result = await client.retrieve_response('');
+    expect(result.id.length).toBeGreaterThan(0);
+    expect(result.status.trim()).toBe("completed");
+  });
 });

@@ -3,163 +3,90 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from "vitest";
-import { createClient } from "@kreuzberg/liter-llm";
+import { describe, expect, it } from 'vitest';
+import { createClient } from '@kreuzberg/liter-llm';
 
-describe("proxy", () => {
-	it("proxy_auth_invalid: 401 Unauthorized when an invalid API key is provided through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_auth_invalid`,
-		);
-		await expect(async () => {
-			await client.chat({
-				messages: [{ content: "Hello", role: "user" }],
-				model: "openai/gpt-4o",
-			});
-		}).rejects.toThrow();
-	});
+describe('proxy', () => {
+  it('proxy_auth_invalid: 401 Unauthorized when an invalid API key is provided through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_auth_invalid`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "openai/gpt-4o" });
+    }).rejects.toThrow();
+  });
 
-	it("proxy_auth_missing: 401 Unauthorized when no API key is provided through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_auth_missing`,
-		);
-		await expect(async () => {
-			await client.chat({
-				messages: [{ content: "Hello", role: "user" }],
-				model: "openai/gpt-4o",
-			});
-		}).rejects.toThrow();
-	});
+  it('proxy_auth_missing: 401 Unauthorized when no API key is provided through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_auth_missing`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "openai/gpt-4o" });
+    }).rejects.toThrow();
+  });
 
-	it("proxy_chat_basic: Basic chat completion request routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_chat_basic`,
-		);
-		const result = await client.chat({
-			messages: [{ content: "Say hello", role: "user" }],
-			model: "openai/gpt-4o",
-		});
-		expect(result.choices.length).toBe(1);
-		expect(result.choices["0"].message.content.trim()).toBe("Hello!");
-		expect(result.choices["0"].finishReason.trim()).toBe("stop");
-	});
+  it('proxy_chat_basic: Basic chat completion request routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_chat_basic`);
+    const result = await client.chat({ messages: [{ content: "Say hello", role: "user" }], model: "openai/gpt-4o" });
+    expect(result.choices.length).toBe(1);
+    expect(result.choices["0"].message.content.trim()).toBe("Hello!");
+    expect(result.choices["0"].finishReason.trim()).toBe("stop");
+  });
 
-	it("proxy_chat_streaming: Streaming chat completion routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_chat_streaming`,
-		);
-		const result = await client.chat_stream({
-			messages: [{ content: "Count to 3", role: "user" }],
-			model: "openai/gpt-4o",
-			stream: true,
-		});
-		expect(result.chunks.length).toBeGreaterThanOrEqual(3);
-		expect(result.streamContent.trim()).toBe("1 2 3");
-		expect(result.streamComplete).toBe(true);
-	});
+  it('proxy_chat_streaming: Streaming chat completion routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_chat_streaming`);
+    const result = await client.chat_stream({ messages: [{ content: "Count to 3", role: "user" }], model: "openai/gpt-4o", stream: true });
+    expect(result.chunks.length).toBeGreaterThanOrEqual(3);
+    expect(result.streamContent.trim()).toBe("1 2 3");
+    expect(result.streamComplete).toBe(true);
+  });
 
-	it("proxy_embeddings: Embedding request routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_embeddings`,
-		);
-		const result = await client.embed({
-			input: "Hello world",
-			model: "openai/text-embedding-3-small",
-		});
-		expect(result.data.length).toBe(1);
-	});
+  it('proxy_embeddings: Embedding request routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_embeddings`);
+    const result = await client.embed({ input: "Hello world", model: "openai/text-embedding-3-small" });
+    expect(result.data.length).toBe(1);
+  });
 
-	it("proxy_health: Health check verifying proxy connectivity via list models", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_health`,
-		);
-		const result = await client.list_models({});
-		expect(result.data.length).toBeGreaterThanOrEqual(1);
-	});
+  it('proxy_health: Health check verifying proxy connectivity via list models', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_health`);
+    const result = await client.list_models({  });
+    expect(result.data.length).toBeGreaterThanOrEqual(1);
+  });
 
-	it("proxy_image_generate: Image generation request routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_image_generate`,
-		);
-		const result = await client.image_generate({
-			model: "dall-e-3",
-			n: 1,
-			prompt: "A sunset over the ocean",
-			size: "1024x1024",
-		});
-		expect(result.data.length).toBe(1);
-		expect(result.data["0"].url.length).toBeGreaterThan(0);
-	});
+  it('proxy_image_generate: Image generation request routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_image_generate`);
+    const result = await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A sunset over the ocean", size: "1024x1024" });
+    expect(result.data.length).toBe(1);
+    expect(result.data["0"].url.length).toBeGreaterThan(0);
+  });
 
-	it("proxy_models_list: List models request routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_models_list`,
-		);
-		const result = await client.list_models({});
-		expect(result.data.length).toBeGreaterThanOrEqual(1);
-	});
+  it('proxy_models_list: List models request routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_models_list`);
+    const result = await client.list_models({  });
+    expect(result.data.length).toBeGreaterThanOrEqual(1);
+  });
 
-	it("proxy_moderation: Content moderation request routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_moderation`,
-		);
-		const result = await client.moderate({
-			input: "The weather is nice today.",
-			model: "omni-moderation-latest",
-		});
-		expect(result.results.length).toBe(1);
-		expect(result.results["0"].flagged).toBe(false);
-	});
+  it('proxy_moderation: Content moderation request routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_moderation`);
+    const result = await client.moderate({ input: "The weather is nice today.", model: "omni-moderation-latest" });
+    expect(result.results.length).toBe(1);
+    expect(result.results["0"].flagged).toBe(false);
+  });
 
-	it("proxy_rerank: Document reranking request routed through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_rerank`,
-		);
-		const result = await client.rerank({
-			documents: [
-				"Deep learning is a subset of machine learning using neural networks.",
-				"The stock market closed higher today.",
-			],
-			model: "rerank-v3.5",
-			query: "What is deep learning?",
-		});
-		expect(result.results.length).toBe(2);
-		expect(result.results["0"].relevanceScore).toBeGreaterThan(0.9);
-	});
+  it('proxy_rerank: Document reranking request routed through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_rerank`);
+    const result = await client.rerank({ documents: ["Deep learning is a subset of machine learning using neural networks.", "The stock market closed higher today."], model: "rerank-v3.5", query: "What is deep learning?" });
+    expect(result.results.length).toBe(2);
+    expect(result.results["0"].relevanceScore).toBeGreaterThan(0.9);
+  });
 
-	it("proxy_upstream_429: 429 Too Many Requests from upstream provider through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_upstream_429`,
-		);
-		await expect(async () => {
-			await client.chat({
-				messages: [{ content: "Hello", role: "user" }],
-				model: "openai/gpt-4o",
-			});
-		}).rejects.toThrow();
-	});
+  it('proxy_upstream_429: 429 Too Many Requests from upstream provider through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_upstream_429`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "openai/gpt-4o" });
+    }).rejects.toThrow();
+  });
 
-	it("proxy_upstream_500: 500 Internal Server Error from upstream provider through the proxy", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/proxy_upstream_500`,
-		);
-		await expect(async () => {
-			await client.chat({
-				messages: [{ content: "Hello", role: "user" }],
-				model: "openai/gpt-4o",
-			});
-		}).rejects.toThrow();
-	});
+  it('proxy_upstream_500: 500 Internal Server Error from upstream provider through the proxy', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/proxy_upstream_500`);
+    await expect(async () => {
+      await client.chat({ messages: [{ content: "Hello", role: "user" }], model: "openai/gpt-4o" });
+    }).rejects.toThrow();
+  });
 });

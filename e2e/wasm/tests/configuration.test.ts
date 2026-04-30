@@ -3,71 +3,65 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from "vitest";
-import { createClient, WasmChatCompletionRequest } from "liter_llm";
+import { describe, it, expect } from 'vitest';
+import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
-describe("configuration", () => {
-	it("custom_base_url: Client configured with a custom base URL routes all requests to that endpoint", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [{ content: "Hello", role: "user" }];
-		options.model = "local-model";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").message.content.trim()).toBe("Hi there!");
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-		expect(result.model.trim()).toBe("local-model");
-	});
+describe('configuration', () => {
+  it('custom_base_url: Client configured with a custom base URL routes all requests to that endpoint', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Hello", role: "user" }];
+    options.model = "local-model";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").message.content.trim()).toBe("Hi there!");
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+    expect(result.model.trim()).toBe("local-model");
+  });
 
-	it("extra_headers: Client configured with extra custom headers successfully completes a chat request", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [{ content: "Hello", role: "user" }];
-		options.model = "gpt-4";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-	});
+  it('extra_headers: Client configured with extra custom headers successfully completes a chat request', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Hello", role: "user" }];
+    options.model = "gpt-4";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+  });
 
-	it("local_provider_llamacpp: llamacpp local provider routes requests via llamacpp/ model prefix with no auth", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [{ content: "Hello", role: "user" }];
-		options.model = "llamacpp/my-model";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").message.content.trim()).toBe(
-			"Hi there! I'm running locally.",
-		);
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-		expect(result.model.trim()).toBe("my-model");
-	});
+  it('local_provider_llamacpp: llamacpp local provider routes requests via llamacpp/ model prefix with no auth', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Hello", role: "user" }];
+    options.model = "llamacpp/my-model";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").message.content.trim()).toBe("Hi there! I'm running locally.");
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+    expect(result.model.trim()).toBe("my-model");
+  });
 
-	it("local_provider_ollama: Ollama local provider routes requests via ollama/ model prefix with no auth", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [{ content: "Hello", role: "user" }];
-		options.model = "ollama/qwen2:0.5b";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").message.content.trim()).toBe(
-			"Hello! How can I help you today?",
-		);
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-		expect(result.model.trim()).toBe("qwen2:0.5b");
-	});
+  it('local_provider_ollama: Ollama local provider routes requests via ollama/ model prefix with no auth', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Hello", role: "user" }];
+    options.model = "ollama/qwen2:0.5b";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").message.content.trim()).toBe("Hello! How can I help you today?");
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+    expect(result.model.trim()).toBe("qwen2:0.5b");
+  });
 
-	it("local_provider_vllm: vLLM local provider routes requests via vllm/ model prefix with no auth", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [{ content: "Hello", role: "user" }];
-		options.model = "vllm/meta-llama/Llama-3.2-1B";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").message.content.trim()).toBe(
-			"Hello! How may I assist you?",
-		);
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-		expect(result.model.trim()).toBe("meta-llama/Llama-3.2-1B");
-	});
+  it('local_provider_vllm: vLLM local provider routes requests via vllm/ model prefix with no auth', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "Hello", role: "user" }];
+    options.model = "vllm/meta-llama/Llama-3.2-1B";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").message.content.trim()).toBe("Hello! How may I assist you?");
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+    expect(result.model.trim()).toBe("meta-llama/Llama-3.2-1B");
+  });
 });

@@ -3,144 +3,72 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from "vitest";
-import { createClient } from "@kreuzberg/liter-llm";
+import { describe, expect, it } from 'vitest';
+import { createClient } from '@kreuzberg/liter-llm';
 
-describe("image-generate", () => {
-	it("edge_image_b64_response: Image generation returning base64-encoded data instead of URL", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/edge_image_b64_response`,
-		);
-		const result = await client.image_generate({
-			model: "dall-e-3",
-			n: 1,
-			prompt: "A blue circle",
-			response_format: "b64_json",
-			size: "1024x1024",
-		});
-		expect(result.data.length).toBe(1);
-		expect(result.data["0"].b64Json.length).toBeGreaterThan(0);
-	});
+describe('image-generate', () => {
+  it('edge_image_b64_response: Image generation returning base64-encoded data instead of URL', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_image_b64_response`);
+    const result = await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A blue circle", response_format: "b64_json", size: "1024x1024" });
+    expect(result.data.length).toBe(1);
+    expect(result.data["0"].b64Json.length).toBeGreaterThan(0);
+  });
 
-	it("edge_image_empty_prompt: Image generation with an empty prompt returns 400", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/edge_image_empty_prompt`,
-		);
-		await expect(async () => {
-			await client.image_generate({
-				model: "dall-e-3",
-				n: 1,
-				prompt: "",
-				size: "1024x1024",
-			});
-		}).rejects.toThrow();
-	});
+  it('edge_image_empty_prompt: Image generation with an empty prompt returns 400', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_image_empty_prompt`);
+    await expect(async () => {
+      await client.image_generate({ model: "dall-e-3", n: 1, prompt: "", size: "1024x1024" });
+    }).rejects.toThrow();
+  });
 
-	it("edge_image_multiple_n: Image generation requesting multiple images with n=3", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/edge_image_multiple_n`,
-		);
-		const result = await client.image_generate({
-			model: "dall-e-3",
-			n: 3,
-			prompt: "A cat",
-		});
-		expect(result.data.length).toBe(3);
-		expect(result.data["0"].url.length).toBeGreaterThan(0);
-		expect(result.data["1"].url.length).toBeGreaterThan(0);
-		expect(result.data["2"].url.length).toBeGreaterThan(0);
-	});
+  it('edge_image_multiple_n: Image generation requesting multiple images with n=3', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_image_multiple_n`);
+    const result = await client.image_generate({ model: "dall-e-3", n: 3, prompt: "A cat" });
+    expect(result.data.length).toBe(3);
+    expect(result.data["0"].url.length).toBeGreaterThan(0);
+    expect(result.data["1"].url.length).toBeGreaterThan(0);
+    expect(result.data["2"].url.length).toBeGreaterThan(0);
+  });
 
-	it("error_image_auth_401: 401 Unauthorized when generating images with invalid API key", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/error_image_auth_401`,
-		);
-		await expect(async () => {
-			await client.image_generate({
-				model: "dall-e-3",
-				n: 1,
-				prompt: "A cat",
-				size: "1024x1024",
-			});
-		}).rejects.toThrow();
-	});
+  it('error_image_auth_401: 401 Unauthorized when generating images with invalid API key', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_image_auth_401`);
+    await expect(async () => {
+      await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A cat", size: "1024x1024" });
+    }).rejects.toThrow();
+  });
 
-	it("error_image_bad_request: 400 Bad Request when image generation parameters are invalid", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/error_image_bad_request`,
-		);
-		await expect(async () => {
-			await client.image_generate({
-				model: "dall-e-3",
-				n: 1,
-				prompt: "A cat",
-				size: "9999x9999",
-			});
-		}).rejects.toThrow();
-	});
+  it('error_image_bad_request: 400 Bad Request when image generation parameters are invalid', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_image_bad_request`);
+    await expect(async () => {
+      await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A cat", size: "9999x9999" });
+    }).rejects.toThrow();
+  });
 
-	it("error_image_rate_limit: 429 Rate limit exceeded for image generation", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/error_image_rate_limit`,
-		);
-		await expect(async () => {
-			await client.image_generate({
-				model: "dall-e-3",
-				n: 1,
-				prompt: "A cat",
-				size: "1024x1024",
-			});
-		}).rejects.toThrow();
-	});
+  it('error_image_rate_limit: 429 Rate limit exceeded for image generation', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_image_rate_limit`);
+    await expect(async () => {
+      await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A cat", size: "1024x1024" });
+    }).rejects.toThrow();
+  });
 
-	it("smoke_image_basic: Basic image generation with a text prompt", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_image_basic`,
-		);
-		const result = await client.image_generate({
-			model: "dall-e-3",
-			n: 1,
-			prompt: "A white cat sitting on a windowsill",
-			size: "1024x1024",
-		});
-		expect(result.data.length).toBe(1);
-		expect(result.data["0"].url.length).toBeGreaterThan(0);
-	});
+  it('smoke_image_basic: Basic image generation with a text prompt', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_image_basic`);
+    const result = await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A white cat sitting on a windowsill", size: "1024x1024" });
+    expect(result.data.length).toBe(1);
+    expect(result.data["0"].url.length).toBeGreaterThan(0);
+  });
 
-	it("smoke_image_multiple: Image generation requesting multiple images", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_image_multiple`,
-		);
-		const result = await client.image_generate({
-			model: "dall-e-2",
-			n: 3,
-			prompt: "A red bicycle",
-			size: "256x256",
-		});
-		expect(result.data.length).toBe(3);
-		expect(result.data["0"].url.length).toBeGreaterThan(0);
-	});
+  it('smoke_image_multiple: Image generation requesting multiple images', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_image_multiple`);
+    const result = await client.image_generate({ model: "dall-e-2", n: 3, prompt: "A red bicycle", size: "256x256" });
+    expect(result.data.length).toBe(3);
+    expect(result.data["0"].url.length).toBeGreaterThan(0);
+  });
 
-	it("smoke_image_with_size: Image generation with explicit size parameter", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_image_with_size`,
-		);
-		const result = await client.image_generate({
-			model: "dall-e-3",
-			n: 1,
-			prompt: "A sunset over mountains",
-			size: "1792x1024",
-		});
-		expect(result.data.length).toBe(1);
-		expect(result.data["0"].url.length).toBeGreaterThan(0);
-	});
+  it('smoke_image_with_size: Image generation with explicit size parameter', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_image_with_size`);
+    const result = await client.image_generate({ model: "dall-e-3", n: 1, prompt: "A sunset over mountains", size: "1792x1024" });
+    expect(result.data.length).toBe(1);
+    expect(result.data["0"].url.length).toBeGreaterThan(0);
+  });
 });

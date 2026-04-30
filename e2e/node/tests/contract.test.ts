@@ -3,48 +3,27 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from "vitest";
-import { createClient } from "@kreuzberg/liter-llm";
+import { describe, expect, it } from 'vitest';
+import { createClient } from '@kreuzberg/liter-llm';
 
-describe("contract", () => {
-	it("binding_api_parity: Verify all bindings expose the full API surface — constructor accepts all config options and every method exists", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/binding_api_parity`,
-		);
-		const result = await client.chat({
-			messages: [{ content: "Contract test", role: "user" }],
-			model: "openai/gpt-4o",
-		});
-		expect(result.choices.length).toBe(1);
-		expect(result.choices["0"].message.content.trim()).toBe("OK");
-		expect(result.choices["0"].finishReason.trim()).toBe("stop");
-		expect(result.usage.totalTokens).toBe(6);
-		expect(result.model.trim()).toBe("gpt-4o");
-	});
+describe('contract', () => {
+  it('binding_api_parity: Verify all bindings expose the full API surface — constructor accepts all config options and every method exists', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/binding_api_parity`);
+    const result = await client.chat({ messages: [{ content: "Contract test", role: "user" }], model: "openai/gpt-4o" });
+    expect(result.choices.length).toBe(1);
+    expect(result.choices["0"].message.content.trim()).toBe("OK");
+    expect(result.choices["0"].finishReason.trim()).toBe("stop");
+    expect(result.usage.totalTokens).toBe(6);
+    expect(result.model.trim()).toBe("gpt-4o");
+  });
 
-	it("contract_ocr: Verify ocr() method exists in all bindings", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/contract_ocr`,
-		);
-		await client.ocr({
-			document: {
-				type: "document_url",
-				url: "https://example.com/contract-test.pdf",
-			},
-			model: "mistral/mistral-ocr-latest",
-		});
-	});
+  it('contract_ocr: Verify ocr() method exists in all bindings', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/contract_ocr`);
+    await client.ocr({ document: { type: "document_url", url: "https://example.com/contract-test.pdf" }, model: "mistral/mistral-ocr-latest" });
+  });
 
-	it("contract_search: Verify search() method exists in all bindings", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/contract_search`,
-		);
-		await client.search({
-			model: "brave/web-search",
-			query: "contract test query",
-		});
-	});
+  it('contract_search: Verify search() method exists in all bindings', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/contract_search`);
+    await client.search({ model: "brave/web-search", query: "contract test query" });
+  });
 });

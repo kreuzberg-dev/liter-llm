@@ -3,77 +3,77 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from "vitest";
-import { createClient, WasmChatCompletionRequest } from "liter_llm";
+import { describe, it, expect } from 'vitest';
+import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
-describe("embed", () => {
-	it("batch_embed: Embedding request with multiple input strings returns one embedding object per input", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = ["Hello", "World"];
-		options.model = "text-embedding-3-small";
-		const result = await client.embed(options);
-		expect(result.data.length).toBe(2);
-		expect(result.data.get("0").embedding.length).toBe(5);
-	});
+describe('embed', () => {
+  it('batch_embed: Embedding request with multiple input strings returns one embedding object per input', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = ["Hello", "World"];
+    options.model = "text-embedding-3-small";
+    const result = await client.embed(options);
+    expect(result.data.length).toBe(2);
+    expect(result.data.get("0").embedding.length).toBe(5);
+  });
 
-	it("edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = ["Hello world", "Goodbye world"];
-		options.model = "text-embedding-3-small";
-		const result = await client.embed(options);
-		expect(result.data.length).toBe(2);
-		expect(result.data.get("0").index).toBe(0);
-		expect(result.data.get("1").index).toBe(1);
-	});
+  it('edge_embed_batch_input: Embedding request with multiple inputs returns multiple embedding objects', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = ["Hello world", "Goodbye world"];
+    options.model = "text-embedding-3-small";
+    const result = await client.embed(options);
+    expect(result.data.length).toBe(2);
+    expect(result.data.get("0").index).toBe(0);
+    expect(result.data.get("1").index).toBe(1);
+  });
 
-	it("edge_embed_empty_input: Embedding request with empty string input returns empty data array", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "";
-		options.model = "text-embedding-3-small";
-		const result = await client.embed(options);
-		expect(result.data.length).toBe(0);
-	});
+  it('edge_embed_empty_input: Embedding request with empty string input returns empty data array', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "";
+    options.model = "text-embedding-3-small";
+    const result = await client.embed(options);
+    expect(result.data.length).toBe(0);
+  });
 
-	it("embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.encodingFormat = "float";
-		options.input = "Test input";
-		options.model = "text-embedding-3-small";
-		const result = await client.embed(options);
-		expect(result.data.length).toBe(1);
-		expect(result.data.get("0").embedding.length).toBe(5);
-	});
+  it('embed_encoding_format: Embedding request with explicit encoding_format of float returns float array embeddings', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.encodingFormat = "float";
+    options.input = "Test input";
+    options.model = "text-embedding-3-small";
+    const result = await client.embed(options);
+    expect(result.data.length).toBe(1);
+    expect(result.data.get("0").embedding.length).toBe(5);
+  });
 
-	it("embed_error_401: 401 Unauthorized error on embedding request when API key is invalid", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "Hello world";
-		options.model = "text-embedding-3-small";
-		await expect(async () => await client.embed(options)).rejects.toThrow();
-	});
+  it('embed_error_401: 401 Unauthorized error on embedding request when API key is invalid', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "Hello world";
+    options.model = "text-embedding-3-small";
+    await expect(async () => await client.embed(options)).rejects.toThrow();
+  });
 
-	it("embed_with_dimensions: Embedding request with explicit dimensions parameter returns embeddings of the requested size", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.dimensions = 256;
-		options.input = "Hello world";
-		options.model = "text-embedding-3-small";
-		const result = await client.embed(options);
-		expect(result.data.length).toBe(1);
-		expect(result.data.get("0").embedding.length).toBe(8);
-	});
+  it('embed_with_dimensions: Embedding request with explicit dimensions parameter returns embeddings of the requested size', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.dimensions = 256;
+    options.input = "Hello world";
+    options.model = "text-embedding-3-small";
+    const result = await client.embed(options);
+    expect(result.data.length).toBe(1);
+    expect(result.data.get("0").embedding.length).toBe(8);
+  });
 
-	it("local_embed_ollama: Embedding request via Ollama local provider with all-minilm model", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.input = "The quick brown fox jumps over the lazy dog";
-		options.model = "ollama/all-minilm";
-		const result = await client.embed(options);
-		expect(result.data.length).toBe(1);
-		expect(result.data.get("0").embedding.length).toBe(32);
-	});
+  it('local_embed_ollama: Embedding request via Ollama local provider with all-minilm model', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.input = "The quick brown fox jumps over the lazy dog";
+    options.model = "ollama/all-minilm";
+    const result = await client.embed(options);
+    expect(result.data.length).toBe(1);
+    expect(result.data.get("0").embedding.length).toBe(32);
+  });
 });

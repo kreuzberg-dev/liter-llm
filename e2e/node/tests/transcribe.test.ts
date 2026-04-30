@@ -3,79 +3,47 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, expect, it } from "vitest";
-import { createClient } from "@kreuzberg/liter-llm";
+import { describe, expect, it } from 'vitest';
+import { createClient } from '@kreuzberg/liter-llm';
 
-describe("transcribe", () => {
-	it("edge_transcribe_empty_audio: Transcription of a silent or empty audio file returns empty text", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/edge_transcribe_empty_audio`,
-		);
-		const result = await client.transcribe({
-			file: "silence.mp3",
-			model: "whisper-1",
-		});
-		expect(result.text).toContain("");
-	});
+describe('transcribe', () => {
+  it('edge_transcribe_empty_audio: Transcription of a silent or empty audio file returns empty text', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_transcribe_empty_audio`);
+    const result = await client.transcribe({ file: "silence.mp3", model: "whisper-1" });
+    expect(result.text).toContain("");
+  });
 
-	it("edge_transcribe_with_timestamps: Transcription with verbose JSON response format including timestamp segments", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/edge_transcribe_with_timestamps`,
-		);
-		const result = await client.transcribe({
-			file: "audio.mp3",
-			model: "whisper-1",
-			response_format: "verbose_json",
-		});
-		expect(result.text.length).toBeGreaterThan(0);
-		expect(result.segments.length).toBe(3);
-		expect(result.segments["0"].id).toBe(0);
-	});
+  it('edge_transcribe_with_timestamps: Transcription with verbose JSON response format including timestamp segments', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/edge_transcribe_with_timestamps`);
+    const result = await client.transcribe({ file: "audio.mp3", model: "whisper-1", response_format: "verbose_json" });
+    expect(result.text.length).toBeGreaterThan(0);
+    expect(result.segments.length).toBe(3);
+    expect(result.segments["0"].id).toBe(0);
+  });
 
-	it("error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/error_transcribe_auth_401`,
-		);
-		await expect(async () => {
-			await client.transcribe({ file: "audio.mp3", model: "whisper-1" });
-		}).rejects.toThrow();
-	});
+  it('error_transcribe_auth_401: 401 Unauthorized for transcription with invalid API key', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_transcribe_auth_401`);
+    await expect(async () => {
+      await client.transcribe({ file: "audio.mp3", model: "whisper-1" });
+    }).rejects.toThrow();
+  });
 
-	it("error_transcribe_bad_format: 400 Bad Request when audio format is unsupported", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/error_transcribe_bad_format`,
-		);
-		await expect(async () => {
-			await client.transcribe({ file: "audio.xyz", model: "whisper-1" });
-		}).rejects.toThrow();
-	});
+  it('error_transcribe_bad_format: 400 Bad Request when audio format is unsupported', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/error_transcribe_bad_format`);
+    await expect(async () => {
+      await client.transcribe({ file: "audio.xyz", model: "whisper-1" });
+    }).rejects.toThrow();
+  });
 
-	it("smoke_transcribe_basic: Basic audio transcription", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_transcribe_basic`,
-		);
-		const result = await client.transcribe({
-			file: "audio.mp3",
-			model: "whisper-1",
-		});
-		expect(result.text).toContain("Hello, this is a test transcription.");
-	});
+  it('smoke_transcribe_basic: Basic audio transcription', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_transcribe_basic`);
+    const result = await client.transcribe({ file: "audio.mp3", model: "whisper-1" });
+    expect(result.text).toContain("Hello, this is a test transcription.");
+  });
 
-	it("smoke_transcribe_with_language: Audio transcription with explicit language hint", async () => {
-		const client = createClient(
-			"test-key",
-			`${process.env.MOCK_SERVER_URL}/fixtures/smoke_transcribe_with_language`,
-		);
-		const result = await client.transcribe({
-			file: "audio_de.mp3",
-			language: "de",
-			model: "whisper-1",
-		});
-		expect(result.text).toContain("Hallo, dies ist ein Testtranskription.");
-	});
+  it('smoke_transcribe_with_language: Audio transcription with explicit language hint', async () => {
+    const client = createClient('test-key', `${process.env.MOCK_SERVER_URL}/fixtures/smoke_transcribe_with_language`);
+    const result = await client.transcribe({ file: "audio_de.mp3", language: "de", model: "whisper-1" });
+    expect(result.text).toContain("Hallo, dies ist ein Testtranskription.");
+  });
 });

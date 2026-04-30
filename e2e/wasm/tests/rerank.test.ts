@@ -3,96 +3,82 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from "vitest";
-import { createClient, WasmChatCompletionRequest } from "liter_llm";
+import { describe, it, expect } from 'vitest';
+import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
-describe("rerank", () => {
-	it("edge_rerank_empty_query: Reranking with an empty query string", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = ["Some document", "Another document"];
-		options.model = "rerank-v3.5";
-		options.query = "";
-		const result = await client.rerank(options);
-		expect(result.results.length).toBe(2);
-	});
+describe('rerank', () => {
+  it('edge_rerank_empty_query: Reranking with an empty query string', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["Some document", "Another document"];
+    options.model = "rerank-v3.5";
+    options.query = "";
+    const result = await client.rerank(options);
+    expect(result.results.length).toBe(2);
+  });
 
-	it("edge_rerank_single_doc: Reranking with only a single document", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = [
-			"Artificial intelligence is the simulation of human intelligence.",
-		];
-		options.model = "rerank-v3.5";
-		options.query = "What is AI?";
-		const result = await client.rerank(options);
-		expect(result.results.length).toBe(1);
-		expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
-	});
+  it('edge_rerank_single_doc: Reranking with only a single document', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["Artificial intelligence is the simulation of human intelligence."];
+    options.model = "rerank-v3.5";
+    options.query = "What is AI?";
+    const result = await client.rerank(options);
+    expect(result.results.length).toBe(1);
+    expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
+  });
 
-	it("error_rerank_auth_401: 401 Unauthorized for reranking with invalid API key", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = ["doc1"];
-		options.model = "rerank-v3.5";
-		options.query = "test";
-		await expect(async () => await client.rerank(options)).rejects.toThrow();
-	});
+  it('error_rerank_auth_401: 401 Unauthorized for reranking with invalid API key', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["doc1"];
+    options.model = "rerank-v3.5";
+    options.query = "test";
+    await expect(async () => await client.rerank(options)).rejects.toThrow();
+  });
 
-	it("error_rerank_bad_request: 400 Bad Request for reranking with invalid model", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = ["doc1"];
-		options.model = "nonexistent-rerank";
-		options.query = "test";
-		await expect(async () => await client.rerank(options)).rejects.toThrow();
-	});
+  it('error_rerank_bad_request: 400 Bad Request for reranking with invalid model', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["doc1"];
+    options.model = "nonexistent-rerank";
+    options.query = "test";
+    await expect(async () => await client.rerank(options)).rejects.toThrow();
+  });
 
-	it("smoke_rerank_basic: Basic reranking of documents against a query", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = [
-			"Machine learning is a subset of AI.",
-			"The weather is sunny today.",
-			"Deep learning uses neural networks.",
-		];
-		options.model = "rerank-v3.5";
-		options.query = "What is machine learning?";
-		const result = await client.rerank(options);
-		expect(result.results.length).toBe(3);
-		expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
-	});
+  it('smoke_rerank_basic: Basic reranking of documents against a query', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["Machine learning is a subset of AI.", "The weather is sunny today.", "Deep learning uses neural networks."];
+    options.model = "rerank-v3.5";
+    options.query = "What is machine learning?";
+    const result = await client.rerank(options);
+    expect(result.results.length).toBe(3);
+    expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
+  });
 
-	it("smoke_rerank_return_docs: Reranking with return_documents flag to include document text", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = [
-			"Rust is a systems programming language.",
-			"Iron rusts when exposed to water.",
-		];
-		options.model = "rerank-v3.5";
-		options.query = "What is Rust?";
-		options.returnDocuments = true;
-		const result = await client.rerank(options);
-		expect(result.results.length).toBe(2);
-		expect(result.results.get("0").document.length).toBeGreaterThan(0);
-		expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
-	});
+  it('smoke_rerank_return_docs: Reranking with return_documents flag to include document text', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["Rust is a systems programming language.", "Iron rusts when exposed to water."];
+    options.model = "rerank-v3.5";
+    options.query = "What is Rust?";
+    options.returnDocuments = true;
+    const result = await client.rerank(options);
+    expect(result.results.length).toBe(2);
+    expect(result.results.get("0").document.length).toBeGreaterThan(0);
+    expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
+  });
 
-	it("smoke_rerank_with_top_n: Reranking with top_n parameter to limit results", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.documents = [
-			"Python is a programming language.",
-			"Cats are cute animals.",
-			"Python was created by Guido van Rossum.",
-			"The sun is a star.",
-		];
-		options.model = "rerank-v3.5";
-		options.query = "What is Python?";
-		options.topN = 2;
-		const result = await client.rerank(options);
-		expect(result.results.length).toBe(2);
-		expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
-	});
+  it('smoke_rerank_with_top_n: Reranking with top_n parameter to limit results', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.documents = ["Python is a programming language.", "Cats are cute animals.", "Python was created by Guido van Rossum.", "The sun is a star."];
+    options.model = "rerank-v3.5";
+    options.query = "What is Python?";
+    options.topN = 2;
+    const result = await client.rerank(options);
+    expect(result.results.length).toBe(2);
+    expect(result.results.get("0").relevanceScore).toBeGreaterThan(0.9);
+  });
 });

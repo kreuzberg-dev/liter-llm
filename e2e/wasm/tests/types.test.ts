@@ -3,65 +3,28 @@
 // To regenerate: alef generate
 // To verify freshness: alef verify --exit-code
 // Issues & docs: https://github.com/kreuzberg-dev/alef
-import { describe, it, expect } from "vitest";
-import { createClient, WasmChatCompletionRequest } from "liter_llm";
+import { describe, it, expect } from 'vitest';
+import { createClient, WasmChatCompletionRequest } from 'liter_llm';
 
-describe("types", () => {
-	it("all_message_types: Request with all message role types (system, user, assistant, tool) to verify round-trip serialization", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.messages = [
-			{ content: "You are a helpful assistant.", role: "system" },
-			{ content: "What is the weather in Paris?", role: "user" },
-			{
-				content: null,
-				role: "assistant",
-				tool_calls: [
-					{
-						function: {
-							arguments: '{"location": "Paris, France"}',
-							name: "get_weather",
-						},
-						id: "call_xyz789",
-						type: "function",
-					},
-				],
-			},
-			{
-				content:
-					'{"temperature": 18, "unit": "celsius", "description": "Partly cloudy"}',
-				role: "tool",
-				tool_call_id: "call_xyz789",
-			},
-		];
-		options.model = "gpt-4";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-	});
+describe('types', () => {
+  it('all_message_types: Request with all message role types (system, user, assistant, tool) to verify round-trip serialization', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.messages = [{ content: "You are a helpful assistant.", role: "system" }, { content: "What is the weather in Paris?", role: "user" }, { content: null, role: "assistant", tool_calls: [{ function: { arguments: "{\"location\": \"Paris, France\"}", name: "get_weather" }, id: "call_xyz789", type: "function" }] }, { content: "{\"temperature\": 18, \"unit\": \"celsius\", \"description\": \"Partly cloudy\"}", role: "tool", tool_call_id: "call_xyz789" }];
+    options.model = "gpt-4";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+  });
 
-	it("multimodal_content: User message with mixed text and image_url content parts to verify multimodal serialization", async () => {
-		const client = await createClient("test-key", process.env.MOCK_SERVER_URL);
-		const options = new WasmChatCompletionRequest();
-		options.maxTokens = BigInt(100);
-		options.messages = [
-			{
-				content: [
-					{ text: "What is in this image?", type: "text" },
-					{
-						image_url: {
-							detail: "low",
-							url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png",
-						},
-						type: "image_url",
-					},
-				],
-				role: "user",
-			},
-		];
-		options.model = "gpt-4o";
-		const result = await client.chat(options);
-		expect(result.choices.length).toBe(1);
-		expect(result.choices.get("0").finishReason.trim()).toBe("stop");
-	});
+  it('multimodal_content: User message with mixed text and image_url content parts to verify multimodal serialization', async () => {
+    const client = await createClient('test-key', process.env.MOCK_SERVER_URL);
+    const options = new WasmChatCompletionRequest();
+    options.maxTokens = BigInt(100);
+    options.messages = [{ content: [{ text: "What is in this image?", type: "text" }, { image_url: { detail: "low", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png" }, type: "image_url" }], role: "user" }];
+    options.model = "gpt-4o";
+    const result = await client.chat(options);
+    expect(result.choices.length).toBe(1);
+    expect(result.choices.get("0").finishReason.trim()).toBe("stop");
+  });
 });
