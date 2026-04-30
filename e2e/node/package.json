@@ -7,7 +7,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@kreuzberg/liter-llm": "file:../../packages/typescript",
+    "@kreuzberg/liter-llm": "workspace:*",
     "vitest": "^4.1.5"
   }
 }
