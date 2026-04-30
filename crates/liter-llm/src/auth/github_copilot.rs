@@ -169,6 +169,7 @@ impl GithubCopilotCredentialProvider {
     ///
     /// Returns [`LiterLlmError::Authentication`] if a path cannot be resolved.
     pub fn from_env() -> Result<Arc<dyn CredentialProvider>, LiterLlmError> {
+        crate::ensure_crypto_provider();
         let http_client = reqwest::Client::new();
 
         // Allow a pre-existing static token via the access-token env var.
