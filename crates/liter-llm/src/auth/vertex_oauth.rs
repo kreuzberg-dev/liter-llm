@@ -102,6 +102,7 @@ impl VertexOAuthCredentialProvider {
             })?
             .to_owned();
 
+        crate::ensure_crypto_provider();
         Ok(Self {
             service_account_email: email,
             private_key_pem: SecretString::from(key),

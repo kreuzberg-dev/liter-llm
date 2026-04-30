@@ -49,9 +49,9 @@ pub use types::*;
 /// downstream Rust app that has already installed `aws-lc-rs` is safe — the
 /// `Err` from `install_default()` is silently ignored.
 ///
-/// Bindings (Python/Node/PHP/Ruby/Elixir/CLI/proxy/FFI) call this in their
-/// module init. Downstream Rust consumers must call it themselves before
-/// constructing any HTTPS client, or install their own provider.
+/// Called automatically by every internal `reqwest::Client` constructor
+/// (auth providers, default HTTP client). Bindings and downstream consumers
+/// reach those constructors transitively, so no manual init is required.
 ///
 /// WASM builds are exempt — the WASM target uses the browser/Node.js fetch
 /// API instead of rustls, so no crypto provider is needed.

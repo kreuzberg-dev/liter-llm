@@ -64,6 +64,7 @@ impl AzureAdCredentialProvider {
     /// Uses the default scope `https://cognitiveservices.azure.com/.default`.
     #[must_use]
     pub fn new(tenant_id: impl Into<String>, client_id: impl Into<String>, client_secret: SecretString) -> Self {
+        crate::ensure_crypto_provider();
         Self {
             tenant_id: tenant_id.into(),
             client_id: client_id.into(),

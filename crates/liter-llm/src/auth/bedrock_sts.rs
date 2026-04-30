@@ -79,6 +79,7 @@ impl WebIdentityCredentialProvider {
         session_name: impl Into<String>,
         region: impl Into<String>,
     ) -> Self {
+        crate::ensure_crypto_provider();
         Self {
             role_arn: role_arn.into(),
             token_file: token_file.into(),

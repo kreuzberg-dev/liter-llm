@@ -95,15 +95,6 @@ typedef void (*LITERLLMLiterLlmStreamCallback)(const char *chunk_json,
                                                void *user_data);
 
 /**
- * Initialize the liter-llm library. Must be called once before any other FFI
- * function that may construct an HTTPS client. Subsequent calls are no-ops.
- *
- * # Safety
- * Safe to call from any thread. Idempotent.
- */
-void literllm_init(void);
-
-/**
  * Return the last error code (0 means no error).
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
