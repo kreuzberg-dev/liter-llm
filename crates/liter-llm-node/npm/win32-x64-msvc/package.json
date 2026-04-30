@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-node-win32-x64-msvc",
-	"version": "1.4.0-rc.24",
+	"version": "1.4.0-rc.25",
 	"cpu": [
 		"x64"
 	],

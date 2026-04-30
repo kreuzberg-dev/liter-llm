@@ -2279,7 +2279,7 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "liter-llm"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "aws-credential-types",
  "aws-sigv4",
@@ -2314,7 +2314,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-cli"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "axum",
  "clap",
@@ -2328,7 +2328,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-ffi"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "cbindgen",
  "futures-util",
@@ -2339,7 +2339,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-node"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "futures-util",
  "liter-llm",
@@ -2352,7 +2352,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-php"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "ext-php-rs",
  "futures-util",
@@ -2364,7 +2364,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-proxy"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -2392,7 +2392,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-py"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "futures",
  "liter-llm",
@@ -2405,7 +2405,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-wasm"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "futures-util",
  "getrandom 0.3.4",
@@ -4018,7 +4018,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "snippet-runner"
-version = "1.4.0-rc.24"
+version = "1.4.0-rc.25"
 dependencies = [
  "clap",
  "rayon",
