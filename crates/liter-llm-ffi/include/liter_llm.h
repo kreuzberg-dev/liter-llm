@@ -56,6 +56,7 @@ typedef struct LITERLLMOcrPage LITERLLMOcrPage;
 typedef struct LITERLLMOcrRequest LITERLLMOcrRequest;
 typedef struct LITERLLMOcrResponse LITERLLMOcrResponse;
 typedef struct LITERLLMPageDimensions LITERLLMPageDimensions;
+typedef struct LITERLLMPromptTokensDetails LITERLLMPromptTokensDetails;
 typedef struct LITERLLMReasoningEffort LITERLLMReasoningEffort;
 typedef struct LITERLLMRerankDocument LITERLLMRerankDocument;
 typedef struct LITERLLMRerankRequest LITERLLMRerankRequest;
@@ -823,6 +824,50 @@ uint64_t literllm_usage_completion_tokens(const LITERLLMUsage *ptr);
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_usage_total_tokens(const LITERLLMUsage *ptr);
+
+/**
+ * Get the `prompt_tokens_details` field from a `Usage`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+LITERLLMPromptTokensDetails *literllm_usage_prompt_tokens_details(const LITERLLMUsage *ptr);
+
+/**
+ * Create a `PromptTokensDetails` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_prompt_tokens_details_free`.
+ */
+LITERLLMPromptTokensDetails *literllm_prompt_tokens_details_from_json(const char *json);
+
+/**
+ * Serialize a `PromptTokensDetails` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_prompt_tokens_details_to_json(const LITERLLMPromptTokensDetails *ptr);
+
+/**
+ * Free a `PromptTokensDetails` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_prompt_tokens_details_free(LITERLLMPromptTokensDetails *ptr);
+
+/**
+ * Get the `cached_tokens` field from a `PromptTokensDetails`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_prompt_tokens_details_cached_tokens(const LITERLLMPromptTokensDetails *ptr);
+
+/**
+ * Get the `audio_tokens` field from a `PromptTokensDetails`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_prompt_tokens_details_audio_tokens(const LITERLLMPromptTokensDetails *ptr);
 
 /**
  * Create a `ChatCompletionRequest` from a JSON string. Returns null on failure.

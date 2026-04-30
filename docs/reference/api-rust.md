@@ -2,7 +2,7 @@
 title: "Rust API Reference"
 ---
 
-## Rust API Reference <span class="version-badge">v1.4.0-rc.24</span>
+## Rust API Reference <span class="version-badge">v1.4.0-rc.27</span>
 
 ### Functions
 
@@ -704,6 +704,23 @@ Page dimensions in pixels.
 
 ---
 
+#### PromptTokensDetails
+
+Breakdown of tokens used in the prompt portion of a request.
+
+`cached_tokens` is included in `Usage.prompt_tokens` — it is *not* an
+additional charge on top of the prompt token count. When pricing supports
+a `cache_read_input_token_cost`, the cached portion is billed at the
+discounted rate and the remainder at the regular input rate.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `cached_tokens` | `u64` | — | Cached tokens present in the prompt. Defaults to 0 when absent. |
+| `audio_tokens` | `u64` | — | Audio input tokens present in the prompt. Defaults to 0 when absent. |
+
+
+---
+
 #### RerankRequest
 
 Request to rerank documents by relevance to a query.
@@ -938,6 +955,7 @@ A segment of transcribed audio with timing information.
 | `prompt_tokens` | `u64` | — | Prompt tokens used. Defaults to 0 when absent (some providers omit this). |
 | `completion_tokens` | `u64` | — | Completion tokens used. Defaults to 0 when absent (e.g. embedding responses). |
 | `total_tokens` | `u64` | — | Total tokens used. Defaults to 0 when absent (some providers omit this). |
+| `prompt_tokens_details` | `Option<PromptTokensDetails>` | `Default::default()` | Breakdown of tokens used in the prompt, including cached tokens served at the provider's discounted cache-read rate. Absent when the provider does not return prompt-token details. |
 
 
 ---
