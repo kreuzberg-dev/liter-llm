@@ -1,7 +1,7 @@
 default_install_hook_types:
   - pre-commit
   - commit-msg
-exclude: ^e2e/|vendor/|node_modules/|target/|_build/|test_apps/|dist/|artifacts/
+exclude: ^e2e/|vendor/|node_modules/|target/|_build/|test_apps/|dist/|artifacts/|^scripts/ci/
 
 repos:
   # AI-Rulez: validate and auto-generate AI assistant configuration files
@@ -151,24 +151,28 @@ repos:
           ]
         exclude: ^(\.mvn/wrapper/|e2e/|packages/java/src/)
       - id: mypy
-        exclude: "e2e/"
+        args: ["--strict", "crates/", "tools/"]
+        exclude: ^(e2e/|scripts/|test_apps/|tests/|benchmarks/)
       - id: go-fmt
+        exclude: ^(e2e/|test_apps/)
       - id: golangci-lint
+        exclude: ^(e2e/|test_apps/)
       - id: govulncheck
+        exclude: ^(e2e/|test_apps/)
       - id: rubocop
-        files: \.rb$
+        files: ^packages/ruby/.*\.rb$
       - id: rubocop-lint
-        files: \.(rb|rbs)$
+        files: ^packages/ruby/.*\.(rb|rbs)$
       - id: steep
-        files: \.(rb|rbs)$
+        files: ^packages/ruby/.*\.(rb|rbs)$
       - id: dotnet-format
-        files: \.cs$
+        files: ^packages/csharp/.*\.cs$
       - id: dotnet-format-check
-        files: \.cs$
+        files: ^packages/csharp/.*\.cs$
       - id: php-cs-fixer
-        files: \.php$
+        files: ^packages/php/.*\.php$
       - id: phpstan
-        files: \.php$
+        files: ^packages/php/.*\.php$
       - id: mix-format
         files: ^packages/elixir/
       - id: mix-credo
