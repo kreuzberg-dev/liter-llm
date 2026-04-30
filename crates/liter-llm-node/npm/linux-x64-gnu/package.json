@@ -1,6 +1,6 @@
 {
 	"name": "@kreuzberg/liter-llm-node-linux-x64-gnu",
-	"version": "1.4.0-rc.22",
+	"version": "1.4.0-rc.23",
 	"cpu": [
 		"x64"
 	],
