@@ -41,3 +41,28 @@ pub use provider::custom::{
 };
 pub use provider::{ProviderConfig, all_providers, complex_provider_names};
 pub use types::*;
+
+/// Install the `ring` crypto provider as the rustls process default, idempotently.
+///
+/// rustls 0.23+ removed the implicit default provider. This function installs
+/// `ring` once per process. Subsequent calls are no-ops. Calling it from a
+/// downstream Rust app that has already installed `aws-lc-rs` is safe — the
+/// `Err` from `install_default()` is silently ignored.
+///
+/// Bindings (Python/Node/PHP/Ruby/Elixir/CLI/proxy/FFI) call this in their
+/// module init. Downstream Rust consumers must call it themselves before
+/// constructing any HTTPS client, or install their own provider.
+///
+/// WASM builds are exempt — the WASM target uses the browser/Node.js fetch
+/// API instead of rustls, so no crypto provider is needed.
+#[cfg(feature = "native-http")]
+pub fn ensure_crypto_provider() {
+    use std::sync::Once;
+    static INIT: Once = Once::new();
+    INIT.call_once(|| {
+        // `install_default` returns Err if another provider is already installed.
+        // That is fine — the caller may have installed `aws-lc-rs` deliberately;
+        // we do not want to override their choice.
+        let _ = rustls::crypto::ring::default_provider().install_default();
+    });
+}

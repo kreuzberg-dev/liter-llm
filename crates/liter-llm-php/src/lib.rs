@@ -3431,6 +3431,7 @@ fn liter_llm_error_to_php_err(e: liter_llm::error::LiterLlmError) -> ext_php_rs:
 
 #[php_module]
 pub fn get_module(module: ModuleBuilder) -> ModuleBuilder {
+    liter_llm::ensure_crypto_provider();
     module
         .class::<LiterLlmError>()
         .class::<SystemMessage>()

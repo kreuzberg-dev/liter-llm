@@ -42,6 +42,11 @@
 use liter_llm::client::LlmClient;
 use napi::*;
 use napi_derive::napi;
+
+#[napi_derive::module_init]
+fn module_init() {
+    liter_llm::ensure_crypto_provider();
+}
 use std::collections::HashMap;
 use std::sync::Arc;
 

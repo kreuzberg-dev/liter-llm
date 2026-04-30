@@ -42,6 +42,7 @@ tracing-opentelemetry = { workspace = true, optional = true }
 utoipa = { workspace = true }
 
 [dev-dependencies]
+ctor = "0.2"
 http-body-util = "0.1"
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }

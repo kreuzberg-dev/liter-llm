@@ -18,7 +18,7 @@ ignored = ["dashmap", "tower-http"]
 # Enable the native HTTP stack (reqwest + tokio).  Disable this feature when
 # compiling for WebAssembly, where the browser / Node.js fetch API is used
 # instead and the tokio multi-thread runtime is unavailable.
-native-http = ["dep:reqwest", "dep:tokio", "dep:memchr", "dep:base64"]
+native-http = ["dep:reqwest", "dep:rustls", "dep:tokio", "dep:memchr", "dep:base64"]
 wasm-http = ["dep:reqwest", "dep:memchr", "dep:base64", "dep:gloo-timers"]
 # Structured tracing via the `tracing` crate.  Adds `#[instrument]` spans on
 # HTTP functions and SSE parser warnings.  Can be enabled independently of the
@@ -80,6 +80,7 @@ opendal = { workspace = true, optional = true }
 opentelemetry = { workspace = true, optional = true }
 pin-project-lite = { workspace = true }
 reqwest = { workspace = true, optional = true }
+rustls = { workspace = true, optional = true }
 secrecy = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -93,6 +94,7 @@ tracing = { workspace = true, optional = true }
 tracing-opentelemetry = { workspace = true, optional = true }
 
 [dev-dependencies]
+ctor = "0.2"
 futures-util = { workspace = true }
 jsonschema = { workspace = true }
 serial_test = { workspace = true }

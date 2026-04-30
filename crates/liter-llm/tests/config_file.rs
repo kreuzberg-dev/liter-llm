@@ -4,6 +4,8 @@
 //! verify that parsed values flow correctly through `FileConfig` into
 //! `ClientConfig` via `into_builder().build()`.
 
+mod common;
+
 use std::path::Path;
 use std::time::Duration;
 

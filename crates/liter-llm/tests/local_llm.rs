@@ -4,6 +4,8 @@
 //! Start with: `task local:up`
 //! Run with: `cargo test -p liter-llm --test local_llm -- --ignored`
 
+mod common;
+
 use futures_util::StreamExt;
 use liter_llm::{
     ChatCompletionRequest, ClientConfigBuilder, DefaultClient, EmbeddingInput, EmbeddingRequest, LlmClient,

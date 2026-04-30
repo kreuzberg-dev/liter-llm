@@ -14,6 +14,8 @@
 //! `json-schema:///`; relative refs like `"common.json"` therefore resolve to
 //! `"json-schema:///common.json"`.
 
+mod common;
+
 use std::collections::HashMap;
 
 use jsonschema::{Retrieve, Uri};

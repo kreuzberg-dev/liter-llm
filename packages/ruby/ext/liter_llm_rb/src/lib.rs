@@ -5419,6 +5419,7 @@ fn liter_llm_error_to_magnus_err(e: liter_llm::error::LiterLlmError) -> magnus::
 
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
+    liter_llm::ensure_crypto_provider();
     let module = ruby.define_module("LiterLlm")?;
 
     let _class = module.define_class("LiterLlmError", ruby.class_object())?;

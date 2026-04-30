@@ -6,6 +6,8 @@
 
 #![cfg(feature = "tower")]
 
+mod common;
+
 use std::sync::Arc;
 use std::time::Duration;
 

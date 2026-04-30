@@ -16,6 +16,8 @@
 //! | `AZURE_OPENAI_API_KEY` | Azure OpenAI (+ `AZURE_OPENAI_ENDPOINT`) |
 //! | `AWS_ACCESS_KEY_ID` | AWS Bedrock (+ `AWS_SECRET_ACCESS_KEY`, requires `bedrock` feature) |
 
+mod common;
+
 use liter_llm::{ChatCompletionRequest, ClientConfigBuilder, DefaultClient, EmbeddingInput, EmbeddingRequest};
 
 #[path = "live_providers/anthropic.rs"]

@@ -7,6 +7,8 @@
 //! - Request bodies serialize as expected.
 //! - Responses deserialize into the correct Rust types.
 
+mod common;
+
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};

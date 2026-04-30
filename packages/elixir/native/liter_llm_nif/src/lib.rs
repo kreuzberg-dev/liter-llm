@@ -2852,6 +2852,7 @@ fn liter_llm_error_to_rustler_err(e: liter_llm::error::LiterLlmError) -> String 
 }
 
 fn on_load(env: rustler::Env, _info: rustler::Term) -> bool {
+    liter_llm::ensure_crypto_provider();
     env.register::<LiterLlmError>()
         .expect("Failed to register resource type LiterLlmError");
     env.register::<DefaultClient>()

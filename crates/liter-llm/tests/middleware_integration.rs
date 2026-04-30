@@ -4,6 +4,8 @@
 //! in each middleware module which test one layer at a time) and verify their
 //! interactions through a mock client that avoids real HTTP calls.
 
+mod common;
+
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;

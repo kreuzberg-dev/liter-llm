@@ -9,6 +9,12 @@ pub mod service_pool;
 pub mod state;
 pub mod streaming;
 
+#[cfg(test)]
+#[ctor::ctor]
+fn init_crypto_for_unit_tests() {
+    liter_llm::ensure_crypto_provider();
+}
+
 use std::net::SocketAddr;
 use std::sync::Arc;
 
@@ -31,6 +37,7 @@ impl ProxyServer {
 
     /// Build the application state, assemble the router, and start serving.
     pub async fn serve(self) -> Result<(), String> {
+        liter_llm::ensure_crypto_provider();
         let service_pool = service_pool::ServicePool::from_config(&self.config)?;
         let key_store = auth::KeyStore::from_config(self.config.general.master_key.clone(), &self.config.keys);
         let file_store = file_store::FileStore::from_config(self.config.files.as_ref().unwrap_or(&Default::default()))?;

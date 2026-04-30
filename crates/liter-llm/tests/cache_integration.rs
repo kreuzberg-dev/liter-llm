@@ -5,6 +5,8 @@
 
 #![cfg(feature = "tower")]
 
+mod common;
+
 use std::time::Duration;
 
 use liter_llm::tower::{CacheConfig, CacheStore, CachedResponse, InMemoryStore};

@@ -36,6 +36,16 @@ fn clear_last_error() {
     LAST_ERROR_CONTEXT.with_borrow_mut(|c| *c = None);
 }
 
+/// Initialize the liter-llm library. Must be called once before any other FFI
+/// function that may construct an HTTPS client. Subsequent calls are no-ops.
+///
+/// # Safety
+/// Safe to call from any thread. Idempotent.
+#[unsafe(no_mangle)]
+pub extern "C" fn literllm_init() {
+    liter_llm::ensure_crypto_provider();
+}
+
 /// Return the last error code (0 means no error).
 /// # Safety
 /// Caller must ensure all pointer arguments are valid or null.

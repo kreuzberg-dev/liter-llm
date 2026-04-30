@@ -6,6 +6,8 @@
 //! - Custom providers registered at runtime are routed correctly.
 //! - Model prefixes are stripped in request bodies where expected.
 
+mod common;
+
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};

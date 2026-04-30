@@ -12,6 +12,7 @@ struct Cli {
 
 #[tokio::main]
 async fn main() {
+    liter_llm::ensure_crypto_provider();
     let cli = Cli::parse();
     if let Err(e) = run(cli).await {
         eprintln!("Error: {e}");

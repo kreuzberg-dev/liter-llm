@@ -1,3 +1,9 @@
+#[cfg(all(test, feature = "native-http"))]
+#[ctor::ctor]
+fn init_crypto_for_unit_tests() {
+    crate::ensure_crypto_provider();
+}
+
 #[cfg(test)]
 mod serde_tests {
     use crate::types::*;

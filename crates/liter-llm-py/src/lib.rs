@@ -3977,6 +3977,7 @@ pub fn init_async_runtime() -> PyResult<()> {
 
 #[pymodule]
 pub fn _internal_bindings(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    liter_llm::ensure_crypto_provider();
     m.add_function(wrap_pyfunction!(init_async_runtime, m)?)?;
     m.add_class::<SystemMessage>()?;
     m.add_class::<UserMessage>()?;
