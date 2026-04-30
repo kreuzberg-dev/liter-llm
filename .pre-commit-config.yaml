@@ -247,7 +247,7 @@ repos:
 
       - id: mix-credo
         name: mix credo
-        entry: bash -c 'cd packages/elixir && MIX_ENV=dev mix credo --strict'
+        entry: bash -c 'cd packages/elixir && MIX_ENV=dev mix deps.get --quiet >/dev/null 2>&1 && MIX_ENV=dev mix credo --strict'
         language: system
         files: ^packages/elixir/
         pass_filenames: false
