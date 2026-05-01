@@ -135,6 +135,20 @@ def self.unregister_custom_provider(name)
 
 ### Types
 
+#### ApiError
+
+Inner error object.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `message` | `String` | — | Message |
+| `error_type` | `String` | — | Error type |
+| `param` | `String?` | `nil` | Param |
+| `code` | `String?` | `nil` | Code |
+
+
+---
+
 #### AssistantMessage
 
 | Field | Type | Default | Description |
@@ -154,6 +168,55 @@ def self.unregister_custom_provider(name)
 |-------|------|---------|-------------|
 | `data` | `String` | — | Base64-encoded audio data. |
 | `format` | `String` | — | Audio format (e.g., "wav", "mp3", "ogg"). |
+
+
+---
+
+#### BatchClient
+
+Batch processing operations (create, list, retrieve, cancel).
+
+##### Methods
+
+###### create_batch()
+
+Create a new batch job.
+
+**Signature:**
+
+```ruby
+def create_batch(req)
+```
+
+###### retrieve_batch()
+
+Retrieve a batch by ID.
+
+**Signature:**
+
+```ruby
+def retrieve_batch(batch_id)
+```
+
+###### list_batches()
+
+List batches, optionally filtered by query parameters.
+
+**Signature:**
+
+```ruby
+def list_batches(query)
+```
+
+###### cancel_batch()
+
+Cancel an in-progress batch.
+
+**Signature:**
+
+```ruby
+def cancel_batch(batch_id)
+```
 
 
 ---
@@ -215,6 +278,22 @@ def self.unregister_custom_provider(name)
 | `system_fingerprint` | `String?` | `nil` | System fingerprint |
 | `service_tier` | `String?` | `nil` | Service tier |
 
+##### Methods
+
+###### estimated_cost()
+
+Estimate the cost of this response based on embedded pricing data.
+
+Returns `nil` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+**Signature:**
+
+```ruby
+def estimated_cost()
+```
+
 
 ---
 
@@ -235,6 +314,290 @@ def self.unregister_custom_provider(name)
 | `index` | `Integer` | — | Index |
 | `message` | `AssistantMessage` | — | Message (assistant message) |
 | `finish_reason` | `FinishReason?` | `nil` | Finish reason (finish reason) |
+
+
+---
+
+#### ClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `String` | — | API key for authentication (stored as a secret). |
+| `base_url` | `String?` | `nil` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `Float` | — | Request timeout. |
+| `max_retries` | `Integer` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credential_provider` | `CredentialProvider?` | `nil` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `load_env` | `Boolean` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+##### Methods
+
+###### headers()
+
+Return the extra headers as an ordered slice of `(name, value)` pairs.
+
+**Signature:**
+
+```ruby
+def headers()
+```
+
+###### fmt()
+
+**Signature:**
+
+```ruby
+def fmt(f)
+```
+
+
+---
+
+#### ClientConfigBuilder
+
+Builder for `ClientConfig`.
+
+Construct with `ClientConfigBuilder.new` and call builder methods to
+customise the configuration, then call `ClientConfigBuilder.build` to
+obtain a `ClientConfig`.
+
+##### Methods
+
+###### from_env()
+
+Create a builder with no explicit API key.
+
+`load_env` is `true` by default, so the key will be read from the
+provider's environment variable (e.g. `OPENAI_API_KEY`) at client
+construction time.  Call `.load_env(false)` to opt out.
+
+**Signature:**
+
+```ruby
+def self.from_env()
+```
+
+###### load_env()
+
+Enable or disable automatic API key loading from environment variables.
+
+When `true` (the default) and no explicit `api_key` was provided,
+`DefaultClient.new` reads the provider's designated environment
+variable.  Set to `false` to require an explicit key.
+
+Has no effect on WASM targets.
+
+**Signature:**
+
+```ruby
+def load_env(enabled)
+```
+
+###### base_url()
+
+Override the provider base URL for all requests.
+
+**Signature:**
+
+```ruby
+def base_url(url)
+```
+
+###### timeout()
+
+Set the per-request timeout (default: 60 s).
+
+**Signature:**
+
+```ruby
+def timeout(timeout)
+```
+
+###### max_retries()
+
+Set the maximum number of retries on 429 / 5xx responses (default: 3).
+
+**Signature:**
+
+```ruby
+def max_retries(retries)
+```
+
+###### credential_provider()
+
+Set a dynamic credential provider for token-based or refreshable auth.
+
+When configured, the client calls `resolve()` before each request
+instead of using the static `api_key` for authentication.
+
+**Signature:**
+
+```ruby
+def credential_provider(provider)
+```
+
+###### header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```ruby
+def header(key, value)
+```
+
+###### cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```ruby
+def cache(config)
+```
+
+###### cache_store()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```ruby
+def cache_store(store)
+```
+
+###### budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```ruby
+def budget(config)
+```
+
+###### hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```ruby
+def hook(hook)
+```
+
+###### hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```ruby
+def hooks(hooks)
+```
+
+###### cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```ruby
+def cooldown(duration)
+```
+
+###### rate_limit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError.RateLimited`.
+
+**Signature:**
+
+```ruby
+def rate_limit(config)
+```
+
+###### health_check()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```ruby
+def health_check(interval)
+```
+
+###### cost_tracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```ruby
+def cost_tracking(enabled)
+```
+
+###### tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```ruby
+def tracing(enabled)
+```
+
+###### build()
+
+Consume the builder and return the completed `ClientConfig`.
+
+**Signature:**
+
+```ruby
+def build()
+```
 
 
 ---
@@ -320,6 +683,27 @@ async closures and streaming tasks that must be `'static`.
 
 ##### Methods
 
+###### new()
+
+Build a client.
+
+`model_hint` guides provider auto-detection when no explicit
+`base_url` override is present in the config.  For example, passing
+`Some("groq/llama3-70b")` selects the Groq provider.  Pass `nil` to
+default to OpenAI.
+
+**Errors:**
+
+Returns a wrapped `reqwest.Error` if the underlying HTTP client
+cannot be constructed.  Header names and values are pre-validated by
+`ClientConfigBuilder.header`, so they are inserted directly here.
+
+**Signature:**
+
+```ruby
+def self.new(config, model_hint)
+```
+
 ###### chat()
 
 **Signature:**
@@ -360,6 +744,14 @@ def list_models()
 def image_generate(req)
 ```
 
+###### speech()
+
+**Signature:**
+
+```ruby
+def speech(req)
+```
+
 ###### transcribe()
 
 **Signature:**
@@ -390,6 +782,182 @@ def rerank(req)
 
 ```ruby
 def search(req)
+```
+
+###### ocr()
+
+**Signature:**
+
+```ruby
+def ocr(req)
+```
+
+###### chat_raw()
+
+**Signature:**
+
+```ruby
+def chat_raw(req)
+```
+
+###### chat_stream_raw()
+
+**Signature:**
+
+```ruby
+def chat_stream_raw(req)
+```
+
+###### embed_raw()
+
+**Signature:**
+
+```ruby
+def embed_raw(req)
+```
+
+###### image_generate_raw()
+
+**Signature:**
+
+```ruby
+def image_generate_raw(req)
+```
+
+###### transcribe_raw()
+
+**Signature:**
+
+```ruby
+def transcribe_raw(req)
+```
+
+###### moderate_raw()
+
+**Signature:**
+
+```ruby
+def moderate_raw(req)
+```
+
+###### rerank_raw()
+
+**Signature:**
+
+```ruby
+def rerank_raw(req)
+```
+
+###### search_raw()
+
+**Signature:**
+
+```ruby
+def search_raw(req)
+```
+
+###### ocr_raw()
+
+**Signature:**
+
+```ruby
+def ocr_raw(req)
+```
+
+###### create_file()
+
+**Signature:**
+
+```ruby
+def create_file(req)
+```
+
+###### retrieve_file()
+
+**Signature:**
+
+```ruby
+def retrieve_file(file_id)
+```
+
+###### delete_file()
+
+**Signature:**
+
+```ruby
+def delete_file(file_id)
+```
+
+###### list_files()
+
+**Signature:**
+
+```ruby
+def list_files(query)
+```
+
+###### file_content()
+
+**Signature:**
+
+```ruby
+def file_content(file_id)
+```
+
+###### create_batch()
+
+**Signature:**
+
+```ruby
+def create_batch(req)
+```
+
+###### retrieve_batch()
+
+**Signature:**
+
+```ruby
+def retrieve_batch(batch_id)
+```
+
+###### list_batches()
+
+**Signature:**
+
+```ruby
+def list_batches(query)
+```
+
+###### cancel_batch()
+
+**Signature:**
+
+```ruby
+def cancel_batch(batch_id)
+```
+
+###### create_response()
+
+**Signature:**
+
+```ruby
+def create_response(req)
+```
+
+###### retrieve_response()
+
+**Signature:**
+
+```ruby
+def retrieve_response(id)
+```
+
+###### cancel_response()
+
+**Signature:**
+
+```ruby
+def cancel_response(id)
 ```
 
 
@@ -447,6 +1015,247 @@ def search(req)
 | `data` | `Array<EmbeddingObject>` | — | Data |
 | `model` | `String` | — | Model |
 | `usage` | `Usage?` | `nil` | Usage (usage) |
+
+##### Methods
+
+###### estimated_cost()
+
+Estimate the cost of this embedding request based on embedded pricing data.
+
+Returns `nil` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+Embedding models only charge for input tokens; output cost is zero.
+
+**Signature:**
+
+```ruby
+def estimated_cost()
+```
+
+
+---
+
+#### ErrorResponse
+
+Error response from an OpenAI-compatible API.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `error` | `ApiError` | — | Error (api error) |
+
+
+---
+
+#### FileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `global_limit` | `Float?` | `nil` | Global limit |
+| `model_limits` | `Hash{String=>Float}?` | `nil` | Model limits |
+| `enforcement` | `String?` | `nil` | Enforcement |
+
+
+---
+
+#### FileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `max_entries` | `Integer?` | `nil` | Maximum entries |
+| `ttl_seconds` | `Integer?` | `nil` | Ttl seconds |
+| `backend` | `String?` | `nil` | Backend |
+| `backend_config` | `Hash{String=>String}?` | `nil` | Backend config |
+
+
+---
+
+#### FileClient
+
+File management operations (upload, list, retrieve, delete).
+
+##### Methods
+
+###### create_file()
+
+Upload a file.
+
+**Signature:**
+
+```ruby
+def create_file(req)
+```
+
+###### retrieve_file()
+
+Retrieve metadata for a file.
+
+**Signature:**
+
+```ruby
+def retrieve_file(file_id)
+```
+
+###### delete_file()
+
+Delete a file.
+
+**Signature:**
+
+```ruby
+def delete_file(file_id)
+```
+
+###### list_files()
+
+List files, optionally filtered by query parameters.
+
+**Signature:**
+
+```ruby
+def list_files(query)
+```
+
+###### file_content()
+
+Retrieve the raw content of a file.
+
+**Signature:**
+
+```ruby
+def file_content(file_id)
+```
+
+
+---
+
+#### FileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `String?` | `nil` | Api key |
+| `base_url` | `String?` | `nil` | Base url |
+| `model_hint` | `String?` | `nil` | Model hint |
+| `timeout_secs` | `Integer?` | `nil` | Timeout secs |
+| `max_retries` | `Integer?` | `nil` | Maximum retries |
+| `extra_headers` | `Hash{String=>String}?` | `nil` | Extra headers |
+| `cache` | `FileCacheConfig?` | `nil` | Cache (file cache config) |
+| `budget` | `FileBudgetConfig?` | `nil` | Budget (file budget config) |
+| `cooldown_secs` | `Integer?` | `nil` | Cooldown secs |
+| `rate_limit` | `FileRateLimitConfig?` | `nil` | Rate limit (file rate limit config) |
+| `health_check_secs` | `Integer?` | `nil` | Health check secs |
+| `cost_tracking` | `Boolean?` | `nil` | Cost tracking |
+| `tracing` | `Boolean?` | `nil` | Tracing |
+| `providers` | `Array<FileProviderConfig>?` | `nil` | Providers |
+
+##### Methods
+
+###### from_toml_file()
+
+Load from a TOML file path.
+
+**Signature:**
+
+```ruby
+def self.from_toml_file(path)
+```
+
+###### from_toml_str()
+
+Parse from a TOML string.
+
+**Signature:**
+
+```ruby
+def self.from_toml_str(s)
+```
+
+###### discover()
+
+Discover `liter-llm.toml` by walking from current directory to filesystem root.
+
+Returns `Ok(None)` if no config file is found.
+
+**Signature:**
+
+```ruby
+def self.discover()
+```
+
+###### into_builder()
+
+Convert into a `ClientConfigBuilder`,
+applying all fields that are set.
+
+Fields not present in the TOML file use the builder's defaults.
+
+**Signature:**
+
+```ruby
+def into_builder()
+```
+
+###### providers()
+
+Get the custom provider configurations from this file config.
+
+**Signature:**
+
+```ruby
+def providers()
+```
+
+
+---
+
+#### FileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `String` | — | The name |
+| `base_url` | `String` | — | Base url |
+| `auth_header` | `String?` | `nil` | Auth header |
+| `model_prefixes` | `Array<String>` | — | Model prefixes |
+
+
+---
+
+#### FileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rpm` | `Integer?` | `nil` | Rpm |
+| `tpm` | `Integer?` | `nil` | Tpm |
+| `window_seconds` | `Integer?` | `nil` | Window seconds |
 
 
 ---
@@ -533,6 +1342,542 @@ Response containing generated images.
 ---
 
 #### LiterLlmError
+
+##### Methods
+
+###### is_transient()
+
+Returns `true` for errors that are worth retrying on a different service
+or deployment (transient failures).
+
+Used by `crate.tower.fallback.FallbackService` and
+`crate.tower.router.Router` to decide whether to route to an
+alternative endpoint.
+
+**Signature:**
+
+```ruby
+def is_transient()
+```
+
+###### error_type()
+
+Return the OpenTelemetry `error.type` string for this error variant.
+
+Used by the tracing middleware to record the `error.type` span attribute
+on failed requests per the GenAI semantic conventions.
+
+**Signature:**
+
+```ruby
+def error_type()
+```
+
+###### from_status()
+
+Create from an HTTP status code, an API error response body, and an
+optional `Retry-After` duration already parsed from the response header.
+
+The `retry_after` value is forwarded into `LiterLlmError.RateLimited`
+so callers can honour the server-requested delay without re-parsing the
+header.
+
+**Signature:**
+
+```ruby
+def self.from_status(status, body, retry_after)
+```
+
+
+---
+
+#### LlmClient
+
+Core LLM client trait.
+
+##### Methods
+
+###### chat()
+
+Send a chat completion request.
+
+**Signature:**
+
+```ruby
+def chat(req)
+```
+
+###### chat_stream()
+
+Send a streaming chat completion request.
+
+**Signature:**
+
+```ruby
+def chat_stream(req)
+```
+
+###### embed()
+
+Send an embedding request.
+
+**Signature:**
+
+```ruby
+def embed(req)
+```
+
+###### list_models()
+
+List available models.
+
+**Signature:**
+
+```ruby
+def list_models()
+```
+
+###### image_generate()
+
+Generate an image.
+
+**Signature:**
+
+```ruby
+def image_generate(req)
+```
+
+###### speech()
+
+Generate speech audio from text.
+
+**Signature:**
+
+```ruby
+def speech(req)
+```
+
+###### transcribe()
+
+Transcribe audio to text.
+
+**Signature:**
+
+```ruby
+def transcribe(req)
+```
+
+###### moderate()
+
+Check content against moderation policies.
+
+**Signature:**
+
+```ruby
+def moderate(req)
+```
+
+###### rerank()
+
+Rerank documents by relevance to a query.
+
+**Signature:**
+
+```ruby
+def rerank(req)
+```
+
+###### search()
+
+Perform a web/document search.
+
+**Signature:**
+
+```ruby
+def search(req)
+```
+
+###### ocr()
+
+Extract text from a document via OCR.
+
+**Signature:**
+
+```ruby
+def ocr(req)
+```
+
+
+---
+
+#### LlmClientRaw
+
+Extension of `LlmClient` that returns raw request/response data
+alongside the typed response.
+
+Every `_raw` method mirrors its counterpart on `LlmClient` but wraps the
+result in a `RawExchange` that exposes the final request body (after
+`transform_request`) and the raw provider response (before
+`transform_response`). This is useful for debugging provider-specific
+transformations, capturing wire-level data, or implementing custom parsing.
+
+##### Methods
+
+###### chat_raw()
+
+Send a chat completion request and return the raw exchange.
+
+The `raw_request` field contains the final JSON body sent to the
+provider; `raw_response` contains the provider JSON before
+normalization.
+
+**Signature:**
+
+```ruby
+def chat_raw(req)
+```
+
+###### chat_stream_raw()
+
+Send a streaming chat completion request and return the raw exchange.
+
+Only `raw_request` is available upfront — the stream itself is
+returned in `stream` and consumed incrementally.
+
+**Signature:**
+
+```ruby
+def chat_stream_raw(req)
+```
+
+###### embed_raw()
+
+Send an embedding request and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def embed_raw(req)
+```
+
+###### image_generate_raw()
+
+Generate an image and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def image_generate_raw(req)
+```
+
+###### transcribe_raw()
+
+Transcribe audio to text and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def transcribe_raw(req)
+```
+
+###### moderate_raw()
+
+Check content against moderation policies and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def moderate_raw(req)
+```
+
+###### rerank_raw()
+
+Rerank documents by relevance to a query and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def rerank_raw(req)
+```
+
+###### search_raw()
+
+Perform a web/document search and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def search_raw(req)
+```
+
+###### ocr_raw()
+
+Extract text from a document via OCR and return the raw exchange.
+
+**Signature:**
+
+```ruby
+def ocr_raw(req)
+```
+
+
+---
+
+#### ManagedClient
+
+A managed LLM client that wraps `DefaultClient` with optional Tower
+middleware (cache, cooldown, rate limiting, health checks, cost tracking,
+budget, hooks, tracing).
+
+Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+contains any middleware configuration the corresponding Tower layers are
+composed into a service stack.  Otherwise requests pass straight through
+to the inner `DefaultClient`.
+
+`ManagedClient` implements `LlmClient` and can be used everywhere a
+`DefaultClient` is expected.
+
+##### Methods
+
+###### new()
+
+Build a managed client.
+
+`model_hint` guides provider auto-detection — see
+`DefaultClient.new` for details.
+
+If the config contains any middleware settings (cache, budget, hooks,
+cooldown, rate limit, health check, cost tracking, tracing) the
+corresponding Tower layers are composed into a service stack.
+Otherwise requests pass straight through to the inner client.
+
+**Errors:**
+
+Returns an error if the underlying `DefaultClient` cannot be
+constructed (e.g. invalid headers or HTTP client build failure).
+
+**Signature:**
+
+```ruby
+def self.new(config, model_hint)
+```
+
+###### inner()
+
+Return a reference to the underlying `DefaultClient`.
+
+**Signature:**
+
+```ruby
+def inner()
+```
+
+###### budget_state()
+
+Return the budget state handle, if budget middleware is configured.
+
+Use this to query accumulated spend at runtime.
+
+**Signature:**
+
+```ruby
+def budget_state()
+```
+
+###### has_middleware()
+
+Return `true` when middleware is active (requests go through the Tower
+service stack).
+
+**Signature:**
+
+```ruby
+def has_middleware()
+```
+
+###### chat()
+
+**Signature:**
+
+```ruby
+def chat(req)
+```
+
+###### chat_stream()
+
+**Signature:**
+
+```ruby
+def chat_stream(req)
+```
+
+###### embed()
+
+**Signature:**
+
+```ruby
+def embed(req)
+```
+
+###### list_models()
+
+**Signature:**
+
+```ruby
+def list_models()
+```
+
+###### image_generate()
+
+**Signature:**
+
+```ruby
+def image_generate(req)
+```
+
+###### speech()
+
+**Signature:**
+
+```ruby
+def speech(req)
+```
+
+###### transcribe()
+
+**Signature:**
+
+```ruby
+def transcribe(req)
+```
+
+###### moderate()
+
+**Signature:**
+
+```ruby
+def moderate(req)
+```
+
+###### rerank()
+
+**Signature:**
+
+```ruby
+def rerank(req)
+```
+
+###### search()
+
+**Signature:**
+
+```ruby
+def search(req)
+```
+
+###### ocr()
+
+**Signature:**
+
+```ruby
+def ocr(req)
+```
+
+###### create_file()
+
+**Signature:**
+
+```ruby
+def create_file(req)
+```
+
+###### retrieve_file()
+
+**Signature:**
+
+```ruby
+def retrieve_file(file_id)
+```
+
+###### delete_file()
+
+**Signature:**
+
+```ruby
+def delete_file(file_id)
+```
+
+###### list_files()
+
+**Signature:**
+
+```ruby
+def list_files(query)
+```
+
+###### file_content()
+
+**Signature:**
+
+```ruby
+def file_content(file_id)
+```
+
+###### create_batch()
+
+**Signature:**
+
+```ruby
+def create_batch(req)
+```
+
+###### retrieve_batch()
+
+**Signature:**
+
+```ruby
+def retrieve_batch(batch_id)
+```
+
+###### list_batches()
+
+**Signature:**
+
+```ruby
+def list_batches(query)
+```
+
+###### cancel_batch()
+
+**Signature:**
+
+```ruby
+def cancel_batch(batch_id)
+```
+
+###### create_response()
+
+**Signature:**
+
+```ruby
+def create_response(req)
+```
+
+###### retrieve_response()
+
+**Signature:**
+
+```ruby
+def retrieve_response(id)
+```
+
+###### cancel_response()
+
+**Signature:**
+
+```ruby
+def cancel_response(id)
+```
 
 
 ---
@@ -673,7 +2018,7 @@ An OCR request.
 |-------|------|---------|-------------|
 | `model` | `String` | — | The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`). |
 | `document` | `OcrDocument` | — | The document to process. |
-| `pages` | `Array<Integer>?` | `nil` | Specific pages to process (1-indexed). `nil` means all pages. |
+| `pages` | `Array<Integer>?` | `nil` | Specific pages to process (1-indexed). `None` means all pages. |
 | `include_image_base64` | `Boolean?` | `nil` | Whether to include base64-encoded images of each page. |
 
 
@@ -769,6 +2114,45 @@ The text content of a reranked document, returned when `return_documents` is tru
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `text` | `String` | — | Text |
+
+
+---
+
+#### ResponseClient
+
+Responses API operations (create, retrieve, cancel).
+
+##### Methods
+
+###### create_response()
+
+Create a new response.
+
+**Signature:**
+
+```ruby
+def create_response(req)
+```
+
+###### retrieve_response()
+
+Retrieve a response by ID.
+
+**Signature:**
+
+```ruby
+def retrieve_response(id)
+```
+
+###### cancel_response()
+
+Cancel an in-progress response.
+
+**Signature:**
+
+```ruby
+def cancel_response(id)
+```
 
 
 ---
@@ -1205,3 +2589,4 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
+

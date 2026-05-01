@@ -116,7 +116,7 @@ Deprecated legacy function-role message body.
 |-------|------|---------|-------------|
 | `name` | `str` | — | The name |
 | `description` | `str | None` | `None` | Human-readable description |
-| `schema` | `dict[str, Any]` | — | Schema |
+| `schema` | `Any` | — | Schema |
 | `strict` | `bool | None` | `None` | Strict |
 
 ---
@@ -171,7 +171,7 @@ discounted rate and the remainder at the regular input rate.
 | `stream_options` | `StreamOptions | None` | `None` | Stream options (stream options) |
 | `seed` | `int | None` | `None` | Seed |
 | `reasoning_effort` | `ReasoningEffort | None` | `None` | Reasoning effort (reasoning effort) |
-| `extra_body` | `dict[str, Any] | None` | `None` | Provider-specific extra parameters merged into the request body. Use for guardrails, safety settings, grounding config, etc. |
+| `extra_body` | `Any | None` | `None` | Provider-specific extra parameters merged into the request body. Use for guardrails, safety settings, grounding config, etc. |
 
 ---
 
@@ -394,6 +394,115 @@ A search request.
 
 ---
 
+### ClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `str` | — | API key for authentication (stored as a secret). |
+| `base_url` | `str | None` | `None` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `float` | — | Request timeout. |
+| `max_retries` | `int` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credential_provider` | `CredentialProvider | None` | `None` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `load_env` | `bool` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+---
+
+### FileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `str | None` | `None` | Api key |
+| `base_url` | `str | None` | `None` | Base url |
+| `model_hint` | `str | None` | `None` | Model hint |
+| `timeout_secs` | `int | None` | `None` | Timeout secs |
+| `max_retries` | `int | None` | `None` | Maximum retries |
+| `extra_headers` | `dict[str, str] | None` | `None` | Extra headers |
+| `cache` | `FileCacheConfig | None` | `None` | Cache (file cache config) |
+| `budget` | `FileBudgetConfig | None` | `None` | Budget (file budget config) |
+| `cooldown_secs` | `int | None` | `None` | Cooldown secs |
+| `rate_limit` | `FileRateLimitConfig | None` | `None` | Rate limit (file rate limit config) |
+| `health_check_secs` | `int | None` | `None` | Health check secs |
+| `cost_tracking` | `bool | None` | `None` | Cost tracking |
+| `tracing` | `bool | None` | `None` | Tracing |
+| `providers` | `list[FileProviderConfig] | None` | `None` | Providers |
+
+---
+
+### FileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `max_entries` | `int | None` | `None` | Maximum entries |
+| `ttl_seconds` | `int | None` | `None` | Ttl seconds |
+| `backend` | `str | None` | `None` | Backend |
+| `backend_config` | `dict[str, str] | None` | `None` | Backend config |
+
+---
+
+### FileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `global_limit` | `float | None` | `None` | Global limit |
+| `model_limits` | `dict[str, float] | None` | `None` | Model limits |
+| `enforcement` | `str | None` | `None` | Enforcement |
+
+---
+
+### FileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rpm` | `int | None` | `None` | Rpm |
+| `tpm` | `int | None` | `None` | Tpm |
+| `window_seconds` | `int | None` | `None` | Window seconds |
+
+---
+
+### FileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `str` | — | The name |
+| `base_url` | `str` | — | Base url |
+| `auth_header` | `str | None` | `None` | Auth header |
+| `model_prefixes` | `list[str]` | — | Model prefixes |
+
+---
+
 ### CustomProviderConfig
 
 Configuration for registering a custom LLM provider at runtime.
@@ -406,3 +515,4 @@ Configuration for registering a custom LLM provider at runtime.
 | `model_prefixes` | `list[str]` | — | Model name prefixes that route to this provider (e.g., ["my-"]). |
 
 ---
+

@@ -135,6 +135,20 @@ bool literllm_unregister_custom_provider(const char* name);
 
 ### Types
 
+#### LiterllmApiError
+
+Inner error object.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `message` | `const char*` | — | Message |
+| `error_type` | `const char*` | — | Error type |
+| `param` | `const char**` | `NULL` | Param |
+| `code` | `const char**` | `NULL` | Code |
+
+
+---
+
 #### LiterllmAssistantMessage
 
 | Field | Type | Default | Description |
@@ -154,6 +168,55 @@ bool literllm_unregister_custom_provider(const char* name);
 |-------|------|---------|-------------|
 | `data` | `const char*` | — | Base64-encoded audio data. |
 | `format` | `const char*` | — | Audio format (e.g., "wav", "mp3", "ogg"). |
+
+
+---
+
+#### LiterllmBatchClient
+
+Batch processing operations (create, list, retrieve, cancel).
+
+##### Methods
+
+###### literllm_create_batch()
+
+Create a new batch job.
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_create_batch(LiterllmCreateBatchRequest req);
+```
+
+###### literllm_retrieve_batch()
+
+Retrieve a batch by ID.
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_retrieve_batch(const char* batch_id);
+```
+
+###### literllm_list_batches()
+
+List batches, optionally filtered by query parameters.
+
+**Signature:**
+
+```c
+LiterllmBatchListResponse literllm_list_batches(LiterllmBatchListQuery query);
+```
+
+###### literllm_cancel_batch()
+
+Cancel an in-progress batch.
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_cancel_batch(const char* batch_id);
+```
 
 
 ---
@@ -215,6 +278,22 @@ bool literllm_unregister_custom_provider(const char* name);
 | `system_fingerprint` | `const char**` | `NULL` | System fingerprint |
 | `service_tier` | `const char**` | `NULL` | Service tier |
 
+##### Methods
+
+###### literllm_estimated_cost()
+
+Estimate the cost of this response based on embedded pricing data.
+
+Returns `NULL` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+**Signature:**
+
+```c
+double* literllm_estimated_cost();
+```
+
 
 ---
 
@@ -235,6 +314,290 @@ bool literllm_unregister_custom_provider(const char* name);
 | `index` | `uint32_t` | — | Index |
 | `message` | `LiterllmAssistantMessage` | — | Message (assistant message) |
 | `finish_reason` | `LiterllmFinishReason*` | `NULL` | Finish reason (finish reason) |
+
+
+---
+
+#### LiterllmClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `const char*` | — | API key for authentication (stored as a secret). |
+| `base_url` | `const char**` | `NULL` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `uint64_t` | — | Request timeout. |
+| `max_retries` | `uint32_t` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credential_provider` | `LiterllmCredentialProvider*` | `NULL` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `load_env` | `bool` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+##### Methods
+
+###### literllm_headers()
+
+Return the extra headers as an ordered slice of `(name, value)` pairs.
+
+**Signature:**
+
+```c
+void** literllm_headers();
+```
+
+###### literllm_fmt()
+
+**Signature:**
+
+```c
+LiterllmUnknown literllm_fmt(LiterllmFormatter f);
+```
+
+
+---
+
+#### LiterllmClientConfigBuilder
+
+Builder for `ClientConfig`.
+
+Construct with `ClientConfigBuilder.new` and call builder methods to
+customise the configuration, then call `ClientConfigBuilder.build` to
+obtain a `ClientConfig`.
+
+##### Methods
+
+###### literllm_from_env()
+
+Create a builder with no explicit API key.
+
+`load_env` is `true` by default, so the key will be read from the
+provider's environment variable (e.g. `OPENAI_API_KEY`) at client
+construction time.  Call `.load_env(false)` to opt out.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_from_env();
+```
+
+###### literllm_load_env()
+
+Enable or disable automatic API key loading from environment variables.
+
+When `true` (the default) and no explicit `api_key` was provided,
+`DefaultClient.new` reads the provider's designated environment
+variable.  Set to `false` to require an explicit key.
+
+Has no effect on WASM targets.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_load_env(bool enabled);
+```
+
+###### literllm_base_url()
+
+Override the provider base URL for all requests.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_base_url(const char* url);
+```
+
+###### literllm_timeout()
+
+Set the per-request timeout (default: 60 s).
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_timeout(uint64_t timeout);
+```
+
+###### literllm_max_retries()
+
+Set the maximum number of retries on 429 / 5xx responses (default: 3).
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_max_retries(uint32_t retries);
+```
+
+###### literllm_credential_provider()
+
+Set a dynamic credential provider for token-based or refreshable auth.
+
+When configured, the client calls `resolve()` before each request
+instead of using the static `api_key` for authentication.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_credential_provider(LiterllmCredentialProvider provider);
+```
+
+###### literllm_header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_header(const char* key, const char* value);
+```
+
+###### literllm_cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_cache(LiterllmCacheConfig config);
+```
+
+###### literllm_cache_store()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_cache_store(LiterllmCacheStore store);
+```
+
+###### literllm_budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_budget(LiterllmBudgetConfig config);
+```
+
+###### literllm_hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_hook(LiterllmLlmHook hook);
+```
+
+###### literllm_hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_hooks(LiterllmLlmHook* hooks);
+```
+
+###### literllm_cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_cooldown(uint64_t duration);
+```
+
+###### literllm_rate_limit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError.RateLimited`.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_rate_limit(LiterllmRateLimitConfig config);
+```
+
+###### literllm_health_check()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_health_check(uint64_t interval);
+```
+
+###### literllm_cost_tracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_cost_tracking(bool enabled);
+```
+
+###### literllm_tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_tracing(bool enabled);
+```
+
+###### literllm_build()
+
+Consume the builder and return the completed `ClientConfig`.
+
+**Signature:**
+
+```c
+LiterllmClientConfig literllm_build();
+```
 
 
 ---
@@ -320,6 +683,27 @@ async closures and streaming tasks that must be `'static`.
 
 ##### Methods
 
+###### literllm_new()
+
+Build a client.
+
+`model_hint` guides provider auto-detection when no explicit
+`base_url` override is present in the config.  For example, passing
+`Some("groq/llama3-70b")` selects the Groq provider.  Pass `NULL` to
+default to OpenAI.
+
+**Errors:**
+
+Returns a wrapped `reqwest.Error` if the underlying HTTP client
+cannot be constructed.  Header names and values are pre-validated by
+`ClientConfigBuilder.header`, so they are inserted directly here.
+
+**Signature:**
+
+```c
+LiterllmDefaultClient literllm_new(LiterllmClientConfig config, const char* model_hint);
+```
+
 ###### literllm_chat()
 
 **Signature:**
@@ -333,7 +717,7 @@ LiterllmChatCompletionResponse literllm_chat(LiterllmChatCompletionRequest req);
 **Signature:**
 
 ```c
-const char* literllm_chat_stream(LiterllmChatCompletionRequest req);
+LiterllmBoxStream literllm_chat_stream(LiterllmChatCompletionRequest req);
 ```
 
 ###### literllm_embed()
@@ -358,6 +742,14 @@ LiterllmModelsListResponse literllm_list_models();
 
 ```c
 LiterllmImagesResponse literllm_image_generate(LiterllmCreateImageRequest req);
+```
+
+###### literllm_speech()
+
+**Signature:**
+
+```c
+const uint8_t* literllm_speech(LiterllmCreateSpeechRequest req);
 ```
 
 ###### literllm_transcribe()
@@ -390,6 +782,182 @@ LiterllmRerankResponse literllm_rerank(LiterllmRerankRequest req);
 
 ```c
 LiterllmSearchResponse literllm_search(LiterllmSearchRequest req);
+```
+
+###### literllm_ocr()
+
+**Signature:**
+
+```c
+LiterllmOcrResponse literllm_ocr(LiterllmOcrRequest req);
+```
+
+###### literllm_chat_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_chat_raw(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_chat_stream_raw()
+
+**Signature:**
+
+```c
+LiterllmRawStreamExchange literllm_chat_stream_raw(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_embed_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_embed_raw(LiterllmEmbeddingRequest req);
+```
+
+###### literllm_image_generate_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_image_generate_raw(LiterllmCreateImageRequest req);
+```
+
+###### literllm_transcribe_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_transcribe_raw(LiterllmCreateTranscriptionRequest req);
+```
+
+###### literllm_moderate_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_moderate_raw(LiterllmModerationRequest req);
+```
+
+###### literllm_rerank_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_rerank_raw(LiterllmRerankRequest req);
+```
+
+###### literllm_search_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_search_raw(LiterllmSearchRequest req);
+```
+
+###### literllm_ocr_raw()
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_ocr_raw(LiterllmOcrRequest req);
+```
+
+###### literllm_create_file()
+
+**Signature:**
+
+```c
+LiterllmFileObject literllm_create_file(LiterllmCreateFileRequest req);
+```
+
+###### literllm_retrieve_file()
+
+**Signature:**
+
+```c
+LiterllmFileObject literllm_retrieve_file(const char* file_id);
+```
+
+###### literllm_delete_file()
+
+**Signature:**
+
+```c
+LiterllmDeleteResponse literllm_delete_file(const char* file_id);
+```
+
+###### literllm_list_files()
+
+**Signature:**
+
+```c
+LiterllmFileListResponse literllm_list_files(LiterllmFileListQuery query);
+```
+
+###### literllm_file_content()
+
+**Signature:**
+
+```c
+const uint8_t* literllm_file_content(const char* file_id);
+```
+
+###### literllm_create_batch()
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_create_batch(LiterllmCreateBatchRequest req);
+```
+
+###### literllm_retrieve_batch()
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_retrieve_batch(const char* batch_id);
+```
+
+###### literllm_list_batches()
+
+**Signature:**
+
+```c
+LiterllmBatchListResponse literllm_list_batches(LiterllmBatchListQuery query);
+```
+
+###### literllm_cancel_batch()
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_cancel_batch(const char* batch_id);
+```
+
+###### literllm_create_response()
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_create_response(LiterllmCreateResponseRequest req);
+```
+
+###### literllm_retrieve_response()
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_retrieve_response(const char* id);
+```
+
+###### literllm_cancel_response()
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_cancel_response(const char* id);
 ```
 
 
@@ -447,6 +1015,247 @@ LiterllmSearchResponse literllm_search(LiterllmSearchRequest req);
 | `data` | `LiterllmEmbeddingObject*` | — | Data |
 | `model` | `const char*` | — | Model |
 | `usage` | `LiterllmUsage*` | `NULL` | Usage (usage) |
+
+##### Methods
+
+###### literllm_estimated_cost()
+
+Estimate the cost of this embedding request based on embedded pricing data.
+
+Returns `NULL` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+Embedding models only charge for input tokens; output cost is zero.
+
+**Signature:**
+
+```c
+double* literllm_estimated_cost();
+```
+
+
+---
+
+#### LiterllmErrorResponse
+
+Error response from an OpenAI-compatible API.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `error` | `LiterllmApiError` | — | Error (api error) |
+
+
+---
+
+#### LiterllmFileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `global_limit` | `double*` | `NULL` | Global limit |
+| `model_limits` | `void**` | `NULL` | Model limits |
+| `enforcement` | `const char**` | `NULL` | Enforcement |
+
+
+---
+
+#### LiterllmFileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `max_entries` | `uintptr_t*` | `NULL` | Maximum entries |
+| `ttl_seconds` | `uint64_t*` | `NULL` | Ttl seconds |
+| `backend` | `const char**` | `NULL` | Backend |
+| `backend_config` | `void**` | `NULL` | Backend config |
+
+
+---
+
+#### LiterllmFileClient
+
+File management operations (upload, list, retrieve, delete).
+
+##### Methods
+
+###### literllm_create_file()
+
+Upload a file.
+
+**Signature:**
+
+```c
+LiterllmFileObject literllm_create_file(LiterllmCreateFileRequest req);
+```
+
+###### literllm_retrieve_file()
+
+Retrieve metadata for a file.
+
+**Signature:**
+
+```c
+LiterllmFileObject literllm_retrieve_file(const char* file_id);
+```
+
+###### literllm_delete_file()
+
+Delete a file.
+
+**Signature:**
+
+```c
+LiterllmDeleteResponse literllm_delete_file(const char* file_id);
+```
+
+###### literllm_list_files()
+
+List files, optionally filtered by query parameters.
+
+**Signature:**
+
+```c
+LiterllmFileListResponse literllm_list_files(LiterllmFileListQuery query);
+```
+
+###### literllm_file_content()
+
+Retrieve the raw content of a file.
+
+**Signature:**
+
+```c
+const uint8_t* literllm_file_content(const char* file_id);
+```
+
+
+---
+
+#### LiterllmFileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `const char**` | `NULL` | Api key |
+| `base_url` | `const char**` | `NULL` | Base url |
+| `model_hint` | `const char**` | `NULL` | Model hint |
+| `timeout_secs` | `uint64_t*` | `NULL` | Timeout secs |
+| `max_retries` | `uint32_t*` | `NULL` | Maximum retries |
+| `extra_headers` | `void**` | `NULL` | Extra headers |
+| `cache` | `LiterllmFileCacheConfig*` | `NULL` | Cache (file cache config) |
+| `budget` | `LiterllmFileBudgetConfig*` | `NULL` | Budget (file budget config) |
+| `cooldown_secs` | `uint64_t*` | `NULL` | Cooldown secs |
+| `rate_limit` | `LiterllmFileRateLimitConfig*` | `NULL` | Rate limit (file rate limit config) |
+| `health_check_secs` | `uint64_t*` | `NULL` | Health check secs |
+| `cost_tracking` | `bool*` | `NULL` | Cost tracking |
+| `tracing` | `bool*` | `NULL` | Tracing |
+| `providers` | `LiterllmFileProviderConfig**` | `NULL` | Providers |
+
+##### Methods
+
+###### literllm_from_toml_file()
+
+Load from a TOML file path.
+
+**Signature:**
+
+```c
+LiterllmFileConfig literllm_from_toml_file(LiterllmPath path);
+```
+
+###### literllm_from_toml_str()
+
+Parse from a TOML string.
+
+**Signature:**
+
+```c
+LiterllmFileConfig literllm_from_toml_str(const char* s);
+```
+
+###### literllm_discover()
+
+Discover `liter-llm.toml` by walking from current directory to filesystem root.
+
+Returns `Ok(None)` if no config file is found.
+
+**Signature:**
+
+```c
+LiterllmFileConfig* literllm_discover();
+```
+
+###### literllm_into_builder()
+
+Convert into a `ClientConfigBuilder`,
+applying all fields that are set.
+
+Fields not present in the TOML file use the builder's defaults.
+
+**Signature:**
+
+```c
+LiterllmClientConfigBuilder literllm_into_builder();
+```
+
+###### literllm_providers()
+
+Get the custom provider configurations from this file config.
+
+**Signature:**
+
+```c
+LiterllmFileProviderConfig* literllm_providers();
+```
+
+
+---
+
+#### LiterllmFileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `const char*` | — | The name |
+| `base_url` | `const char*` | — | Base url |
+| `auth_header` | `const char**` | `NULL` | Auth header |
+| `model_prefixes` | `const char**` | — | Model prefixes |
+
+
+---
+
+#### LiterllmFileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rpm` | `uint32_t*` | `NULL` | Rpm |
+| `tpm` | `uint64_t*` | `NULL` | Tpm |
+| `window_seconds` | `uint64_t*` | `NULL` | Window seconds |
 
 
 ---
@@ -533,6 +1342,542 @@ Response containing generated images.
 ---
 
 #### LiterllmLiterLlmError
+
+##### Methods
+
+###### literllm_is_transient()
+
+Returns `true` for errors that are worth retrying on a different service
+or deployment (transient failures).
+
+Used by `crate.tower.fallback.FallbackService` and
+`crate.tower.router.Router` to decide whether to route to an
+alternative endpoint.
+
+**Signature:**
+
+```c
+bool literllm_is_transient();
+```
+
+###### literllm_error_type()
+
+Return the OpenTelemetry `error.type` string for this error variant.
+
+Used by the tracing middleware to record the `error.type` span attribute
+on failed requests per the GenAI semantic conventions.
+
+**Signature:**
+
+```c
+const char* literllm_error_type();
+```
+
+###### literllm_from_status()
+
+Create from an HTTP status code, an API error response body, and an
+optional `Retry-After` duration already parsed from the response header.
+
+The `retry_after` value is forwarded into `LiterLlmError.RateLimited`
+so callers can honour the server-requested delay without re-parsing the
+header.
+
+**Signature:**
+
+```c
+LiterllmLiterLlmError literllm_from_status(uint16_t status, const char* body, uint64_t retry_after);
+```
+
+
+---
+
+#### LiterllmLlmClient
+
+Core LLM client trait.
+
+##### Methods
+
+###### literllm_chat()
+
+Send a chat completion request.
+
+**Signature:**
+
+```c
+LiterllmChatCompletionResponse literllm_chat(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_chat_stream()
+
+Send a streaming chat completion request.
+
+**Signature:**
+
+```c
+LiterllmBoxStream literllm_chat_stream(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_embed()
+
+Send an embedding request.
+
+**Signature:**
+
+```c
+LiterllmEmbeddingResponse literllm_embed(LiterllmEmbeddingRequest req);
+```
+
+###### literllm_list_models()
+
+List available models.
+
+**Signature:**
+
+```c
+LiterllmModelsListResponse literllm_list_models();
+```
+
+###### literllm_image_generate()
+
+Generate an image.
+
+**Signature:**
+
+```c
+LiterllmImagesResponse literllm_image_generate(LiterllmCreateImageRequest req);
+```
+
+###### literllm_speech()
+
+Generate speech audio from text.
+
+**Signature:**
+
+```c
+const uint8_t* literllm_speech(LiterllmCreateSpeechRequest req);
+```
+
+###### literllm_transcribe()
+
+Transcribe audio to text.
+
+**Signature:**
+
+```c
+LiterllmTranscriptionResponse literllm_transcribe(LiterllmCreateTranscriptionRequest req);
+```
+
+###### literllm_moderate()
+
+Check content against moderation policies.
+
+**Signature:**
+
+```c
+LiterllmModerationResponse literllm_moderate(LiterllmModerationRequest req);
+```
+
+###### literllm_rerank()
+
+Rerank documents by relevance to a query.
+
+**Signature:**
+
+```c
+LiterllmRerankResponse literllm_rerank(LiterllmRerankRequest req);
+```
+
+###### literllm_search()
+
+Perform a web/document search.
+
+**Signature:**
+
+```c
+LiterllmSearchResponse literllm_search(LiterllmSearchRequest req);
+```
+
+###### literllm_ocr()
+
+Extract text from a document via OCR.
+
+**Signature:**
+
+```c
+LiterllmOcrResponse literllm_ocr(LiterllmOcrRequest req);
+```
+
+
+---
+
+#### LiterllmLlmClientRaw
+
+Extension of `LlmClient` that returns raw request/response data
+alongside the typed response.
+
+Every `_raw` method mirrors its counterpart on `LlmClient` but wraps the
+result in a `RawExchange` that exposes the final request body (after
+`transform_request`) and the raw provider response (before
+`transform_response`). This is useful for debugging provider-specific
+transformations, capturing wire-level data, or implementing custom parsing.
+
+##### Methods
+
+###### literllm_chat_raw()
+
+Send a chat completion request and return the raw exchange.
+
+The `raw_request` field contains the final JSON body sent to the
+provider; `raw_response` contains the provider JSON before
+normalization.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_chat_raw(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_chat_stream_raw()
+
+Send a streaming chat completion request and return the raw exchange.
+
+Only `raw_request` is available upfront — the stream itself is
+returned in `stream` and consumed incrementally.
+
+**Signature:**
+
+```c
+LiterllmRawStreamExchange literllm_chat_stream_raw(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_embed_raw()
+
+Send an embedding request and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_embed_raw(LiterllmEmbeddingRequest req);
+```
+
+###### literllm_image_generate_raw()
+
+Generate an image and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_image_generate_raw(LiterllmCreateImageRequest req);
+```
+
+###### literllm_transcribe_raw()
+
+Transcribe audio to text and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_transcribe_raw(LiterllmCreateTranscriptionRequest req);
+```
+
+###### literllm_moderate_raw()
+
+Check content against moderation policies and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_moderate_raw(LiterllmModerationRequest req);
+```
+
+###### literllm_rerank_raw()
+
+Rerank documents by relevance to a query and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_rerank_raw(LiterllmRerankRequest req);
+```
+
+###### literllm_search_raw()
+
+Perform a web/document search and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_search_raw(LiterllmSearchRequest req);
+```
+
+###### literllm_ocr_raw()
+
+Extract text from a document via OCR and return the raw exchange.
+
+**Signature:**
+
+```c
+LiterllmRawExchange literllm_ocr_raw(LiterllmOcrRequest req);
+```
+
+
+---
+
+#### LiterllmManagedClient
+
+A managed LLM client that wraps `DefaultClient` with optional Tower
+middleware (cache, cooldown, rate limiting, health checks, cost tracking,
+budget, hooks, tracing).
+
+Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+contains any middleware configuration the corresponding Tower layers are
+composed into a service stack.  Otherwise requests pass straight through
+to the inner `DefaultClient`.
+
+`ManagedClient` implements `LlmClient` and can be used everywhere a
+`DefaultClient` is expected.
+
+##### Methods
+
+###### literllm_new()
+
+Build a managed client.
+
+`model_hint` guides provider auto-detection — see
+`DefaultClient.new` for details.
+
+If the config contains any middleware settings (cache, budget, hooks,
+cooldown, rate limit, health check, cost tracking, tracing) the
+corresponding Tower layers are composed into a service stack.
+Otherwise requests pass straight through to the inner client.
+
+**Errors:**
+
+Returns an error if the underlying `DefaultClient` cannot be
+constructed (e.g. invalid headers or HTTP client build failure).
+
+**Signature:**
+
+```c
+LiterllmManagedClient literllm_new(LiterllmClientConfig config, const char* model_hint);
+```
+
+###### literllm_inner()
+
+Return a reference to the underlying `DefaultClient`.
+
+**Signature:**
+
+```c
+LiterllmDefaultClient literllm_inner();
+```
+
+###### literllm_budget_state()
+
+Return the budget state handle, if budget middleware is configured.
+
+Use this to query accumulated spend at runtime.
+
+**Signature:**
+
+```c
+LiterllmBudgetState* literllm_budget_state();
+```
+
+###### literllm_has_middleware()
+
+Return `true` when middleware is active (requests go through the Tower
+service stack).
+
+**Signature:**
+
+```c
+bool literllm_has_middleware();
+```
+
+###### literllm_chat()
+
+**Signature:**
+
+```c
+LiterllmChatCompletionResponse literllm_chat(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_chat_stream()
+
+**Signature:**
+
+```c
+LiterllmBoxStream literllm_chat_stream(LiterllmChatCompletionRequest req);
+```
+
+###### literllm_embed()
+
+**Signature:**
+
+```c
+LiterllmEmbeddingResponse literllm_embed(LiterllmEmbeddingRequest req);
+```
+
+###### literllm_list_models()
+
+**Signature:**
+
+```c
+LiterllmModelsListResponse literllm_list_models();
+```
+
+###### literllm_image_generate()
+
+**Signature:**
+
+```c
+LiterllmImagesResponse literllm_image_generate(LiterllmCreateImageRequest req);
+```
+
+###### literllm_speech()
+
+**Signature:**
+
+```c
+const uint8_t* literllm_speech(LiterllmCreateSpeechRequest req);
+```
+
+###### literllm_transcribe()
+
+**Signature:**
+
+```c
+LiterllmTranscriptionResponse literllm_transcribe(LiterllmCreateTranscriptionRequest req);
+```
+
+###### literllm_moderate()
+
+**Signature:**
+
+```c
+LiterllmModerationResponse literllm_moderate(LiterllmModerationRequest req);
+```
+
+###### literllm_rerank()
+
+**Signature:**
+
+```c
+LiterllmRerankResponse literllm_rerank(LiterllmRerankRequest req);
+```
+
+###### literllm_search()
+
+**Signature:**
+
+```c
+LiterllmSearchResponse literllm_search(LiterllmSearchRequest req);
+```
+
+###### literllm_ocr()
+
+**Signature:**
+
+```c
+LiterllmOcrResponse literllm_ocr(LiterllmOcrRequest req);
+```
+
+###### literllm_create_file()
+
+**Signature:**
+
+```c
+LiterllmFileObject literllm_create_file(LiterllmCreateFileRequest req);
+```
+
+###### literllm_retrieve_file()
+
+**Signature:**
+
+```c
+LiterllmFileObject literllm_retrieve_file(const char* file_id);
+```
+
+###### literllm_delete_file()
+
+**Signature:**
+
+```c
+LiterllmDeleteResponse literllm_delete_file(const char* file_id);
+```
+
+###### literllm_list_files()
+
+**Signature:**
+
+```c
+LiterllmFileListResponse literllm_list_files(LiterllmFileListQuery query);
+```
+
+###### literllm_file_content()
+
+**Signature:**
+
+```c
+const uint8_t* literllm_file_content(const char* file_id);
+```
+
+###### literllm_create_batch()
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_create_batch(LiterllmCreateBatchRequest req);
+```
+
+###### literllm_retrieve_batch()
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_retrieve_batch(const char* batch_id);
+```
+
+###### literllm_list_batches()
+
+**Signature:**
+
+```c
+LiterllmBatchListResponse literllm_list_batches(LiterllmBatchListQuery query);
+```
+
+###### literllm_cancel_batch()
+
+**Signature:**
+
+```c
+LiterllmBatchObject literllm_cancel_batch(const char* batch_id);
+```
+
+###### literllm_create_response()
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_create_response(LiterllmCreateResponseRequest req);
+```
+
+###### literllm_retrieve_response()
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_retrieve_response(const char* id);
+```
+
+###### literllm_cancel_response()
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_cancel_response(const char* id);
+```
 
 
 ---
@@ -673,7 +2018,7 @@ An OCR request.
 |-------|------|---------|-------------|
 | `model` | `const char*` | — | The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`). |
 | `document` | `LiterllmOcrDocument` | — | The document to process. |
-| `pages` | `uint32_t**` | `NULL` | Specific pages to process (1-indexed). `NULL` means all pages. |
+| `pages` | `uint32_t**` | `NULL` | Specific pages to process (1-indexed). `None` means all pages. |
 | `include_image_base64` | `bool*` | `NULL` | Whether to include base64-encoded images of each page. |
 
 
@@ -769,6 +2114,45 @@ The text content of a reranked document, returned when `return_documents` is tru
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `text` | `const char*` | — | Text |
+
+
+---
+
+#### LiterllmResponseClient
+
+Responses API operations (create, retrieve, cancel).
+
+##### Methods
+
+###### literllm_create_response()
+
+Create a new response.
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_create_response(LiterllmCreateResponseRequest req);
+```
+
+###### literllm_retrieve_response()
+
+Retrieve a response by ID.
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_retrieve_response(const char* id);
+```
+
+###### literllm_cancel_response()
+
+Cancel an in-progress response.
+
+**Signature:**
+
+```c
+LiterllmResponseObject literllm_cancel_response(const char* id);
+```
 
 
 ---
@@ -1205,3 +2589,4 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
+

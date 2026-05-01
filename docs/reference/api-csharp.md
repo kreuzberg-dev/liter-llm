@@ -135,6 +135,20 @@ public static bool UnregisterCustomProvider(string name)
 
 ### Types
 
+#### ApiError
+
+Inner error object.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `Message` | `string` | — | Message |
+| `ErrorType` | `string` | — | Error type |
+| `Param` | `string?` | `null` | Param |
+| `Code` | `string?` | `null` | Code |
+
+
+---
+
 #### AssistantMessage
 
 | Field | Type | Default | Description |
@@ -154,6 +168,55 @@ public static bool UnregisterCustomProvider(string name)
 |-------|------|---------|-------------|
 | `Data` | `string` | — | Base64-encoded audio data. |
 | `Format` | `string` | — | Audio format (e.g., "wav", "mp3", "ogg"). |
+
+
+---
+
+#### BatchClient
+
+Batch processing operations (create, list, retrieve, cancel).
+
+##### Methods
+
+###### CreateBatch()
+
+Create a new batch job.
+
+**Signature:**
+
+```csharp
+public BatchObject CreateBatch(CreateBatchRequest req)
+```
+
+###### RetrieveBatch()
+
+Retrieve a batch by ID.
+
+**Signature:**
+
+```csharp
+public BatchObject RetrieveBatch(string batchId)
+```
+
+###### ListBatches()
+
+List batches, optionally filtered by query parameters.
+
+**Signature:**
+
+```csharp
+public BatchListResponse ListBatches(BatchListQuery query)
+```
+
+###### CancelBatch()
+
+Cancel an in-progress batch.
+
+**Signature:**
+
+```csharp
+public BatchObject CancelBatch(string batchId)
+```
 
 
 ---
@@ -215,6 +278,22 @@ public static bool UnregisterCustomProvider(string name)
 | `SystemFingerprint` | `string?` | `null` | System fingerprint |
 | `ServiceTier` | `string?` | `null` | Service tier |
 
+##### Methods
+
+###### EstimatedCost()
+
+Estimate the cost of this response based on embedded pricing data.
+
+Returns `null` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+**Signature:**
+
+```csharp
+public double? EstimatedCost()
+```
+
 
 ---
 
@@ -235,6 +314,290 @@ public static bool UnregisterCustomProvider(string name)
 | `Index` | `uint` | — | Index |
 | `Message` | `AssistantMessage` | — | Message (assistant message) |
 | `FinishReason` | `FinishReason?` | `null` | Finish reason (finish reason) |
+
+
+---
+
+#### ClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `ApiKey` | `string` | — | API key for authentication (stored as a secret). |
+| `BaseUrl` | `string?` | `null` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `Timeout` | `TimeSpan` | — | Request timeout. |
+| `MaxRetries` | `uint` | — | Maximum number of retries on 429 / 5xx responses. |
+| `CredentialProvider` | `CredentialProvider?` | `null` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `LoadEnv` | `bool` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+##### Methods
+
+###### Headers()
+
+Return the extra headers as an ordered slice of `(name, value)` pairs.
+
+**Signature:**
+
+```csharp
+public List<(string, string)> Headers()
+```
+
+###### Fmt()
+
+**Signature:**
+
+```csharp
+public Unknown Fmt(Formatter f)
+```
+
+
+---
+
+#### ClientConfigBuilder
+
+Builder for `ClientConfig`.
+
+Construct with `ClientConfigBuilder.new` and call builder methods to
+customise the configuration, then call `ClientConfigBuilder.build` to
+obtain a `ClientConfig`.
+
+##### Methods
+
+###### FromEnv()
+
+Create a builder with no explicit API key.
+
+`load_env` is `true` by default, so the key will be read from the
+provider's environment variable (e.g. `OPENAI_API_KEY`) at client
+construction time.  Call `.load_env(false)` to opt out.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder FromEnv()
+```
+
+###### LoadEnv()
+
+Enable or disable automatic API key loading from environment variables.
+
+When `true` (the default) and no explicit `api_key` was provided,
+`DefaultClient.new` reads the provider's designated environment
+variable.  Set to `false` to require an explicit key.
+
+Has no effect on WASM targets.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder LoadEnv(bool enabled)
+```
+
+###### BaseUrl()
+
+Override the provider base URL for all requests.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder BaseUrl(string url)
+```
+
+###### Timeout()
+
+Set the per-request timeout (default: 60 s).
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Timeout(TimeSpan timeout)
+```
+
+###### MaxRetries()
+
+Set the maximum number of retries on 429 / 5xx responses (default: 3).
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder MaxRetries(uint retries)
+```
+
+###### CredentialProvider()
+
+Set a dynamic credential provider for token-based or refreshable auth.
+
+When configured, the client calls `resolve()` before each request
+instead of using the static `api_key` for authentication.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder CredentialProvider(CredentialProvider provider)
+```
+
+###### Header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Header(string key, string value)
+```
+
+###### Cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Cache(CacheConfig config)
+```
+
+###### CacheStore()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder CacheStore(CacheStore store)
+```
+
+###### Budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Budget(BudgetConfig config)
+```
+
+###### Hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Hook(LlmHook hook)
+```
+
+###### Hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Hooks(List<LlmHook> hooks)
+```
+
+###### Cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Cooldown(TimeSpan duration)
+```
+
+###### RateLimit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError.RateLimited`.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder RateLimit(RateLimitConfig config)
+```
+
+###### HealthCheck()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder HealthCheck(TimeSpan interval)
+```
+
+###### CostTracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder CostTracking(bool enabled)
+```
+
+###### Tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder Tracing(bool enabled)
+```
+
+###### Build()
+
+Consume the builder and return the completed `ClientConfig`.
+
+**Signature:**
+
+```csharp
+public ClientConfig Build()
+```
 
 
 ---
@@ -320,12 +683,33 @@ async closures and streaming tasks that must be `'static`.
 
 ##### Methods
 
+###### New()
+
+Build a client.
+
+`model_hint` guides provider auto-detection when no explicit
+`base_url` override is present in the config.  For example, passing
+`Some("groq/llama3-70b")` selects the Groq provider.  Pass `null` to
+default to OpenAI.
+
+**Errors:**
+
+Returns a wrapped `reqwest.Error` if the underlying HTTP client
+cannot be constructed.  Header names and values are pre-validated by
+`ClientConfigBuilder.header`, so they are inserted directly here.
+
+**Signature:**
+
+```csharp
+public DefaultClient New(ClientConfig config, string modelHint)
+```
+
 ###### Chat()
 
 **Signature:**
 
 ```csharp
-public async Task<ChatCompletionResponse> ChatAsync(ChatCompletionRequest req)
+public ChatCompletionResponse Chat(ChatCompletionRequest req)
 ```
 
 ###### ChatStream()
@@ -333,7 +717,7 @@ public async Task<ChatCompletionResponse> ChatAsync(ChatCompletionRequest req)
 **Signature:**
 
 ```csharp
-public async Task<string> ChatStreamAsync(ChatCompletionRequest req)
+public BoxStream ChatStream(ChatCompletionRequest req)
 ```
 
 ###### Embed()
@@ -341,7 +725,7 @@ public async Task<string> ChatStreamAsync(ChatCompletionRequest req)
 **Signature:**
 
 ```csharp
-public async Task<EmbeddingResponse> EmbedAsync(EmbeddingRequest req)
+public EmbeddingResponse Embed(EmbeddingRequest req)
 ```
 
 ###### ListModels()
@@ -349,7 +733,7 @@ public async Task<EmbeddingResponse> EmbedAsync(EmbeddingRequest req)
 **Signature:**
 
 ```csharp
-public async Task<ModelsListResponse> ListModelsAsync()
+public ModelsListResponse ListModels()
 ```
 
 ###### ImageGenerate()
@@ -357,7 +741,15 @@ public async Task<ModelsListResponse> ListModelsAsync()
 **Signature:**
 
 ```csharp
-public async Task<ImagesResponse> ImageGenerateAsync(CreateImageRequest req)
+public ImagesResponse ImageGenerate(CreateImageRequest req)
+```
+
+###### Speech()
+
+**Signature:**
+
+```csharp
+public byte[] Speech(CreateSpeechRequest req)
 ```
 
 ###### Transcribe()
@@ -365,7 +757,7 @@ public async Task<ImagesResponse> ImageGenerateAsync(CreateImageRequest req)
 **Signature:**
 
 ```csharp
-public async Task<TranscriptionResponse> TranscribeAsync(CreateTranscriptionRequest req)
+public TranscriptionResponse Transcribe(CreateTranscriptionRequest req)
 ```
 
 ###### Moderate()
@@ -373,7 +765,7 @@ public async Task<TranscriptionResponse> TranscribeAsync(CreateTranscriptionRequ
 **Signature:**
 
 ```csharp
-public async Task<ModerationResponse> ModerateAsync(ModerationRequest req)
+public ModerationResponse Moderate(ModerationRequest req)
 ```
 
 ###### Rerank()
@@ -381,7 +773,7 @@ public async Task<ModerationResponse> ModerateAsync(ModerationRequest req)
 **Signature:**
 
 ```csharp
-public async Task<RerankResponse> RerankAsync(RerankRequest req)
+public RerankResponse Rerank(RerankRequest req)
 ```
 
 ###### Search()
@@ -389,7 +781,183 @@ public async Task<RerankResponse> RerankAsync(RerankRequest req)
 **Signature:**
 
 ```csharp
-public async Task<SearchResponse> SearchAsync(SearchRequest req)
+public SearchResponse Search(SearchRequest req)
+```
+
+###### Ocr()
+
+**Signature:**
+
+```csharp
+public OcrResponse Ocr(OcrRequest req)
+```
+
+###### ChatRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange ChatRaw(ChatCompletionRequest req)
+```
+
+###### ChatStreamRaw()
+
+**Signature:**
+
+```csharp
+public RawStreamExchange ChatStreamRaw(ChatCompletionRequest req)
+```
+
+###### EmbedRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange EmbedRaw(EmbeddingRequest req)
+```
+
+###### ImageGenerateRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange ImageGenerateRaw(CreateImageRequest req)
+```
+
+###### TranscribeRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange TranscribeRaw(CreateTranscriptionRequest req)
+```
+
+###### ModerateRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange ModerateRaw(ModerationRequest req)
+```
+
+###### RerankRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange RerankRaw(RerankRequest req)
+```
+
+###### SearchRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange SearchRaw(SearchRequest req)
+```
+
+###### OcrRaw()
+
+**Signature:**
+
+```csharp
+public RawExchange OcrRaw(OcrRequest req)
+```
+
+###### CreateFile()
+
+**Signature:**
+
+```csharp
+public FileObject CreateFile(CreateFileRequest req)
+```
+
+###### RetrieveFile()
+
+**Signature:**
+
+```csharp
+public FileObject RetrieveFile(string fileId)
+```
+
+###### DeleteFile()
+
+**Signature:**
+
+```csharp
+public DeleteResponse DeleteFile(string fileId)
+```
+
+###### ListFiles()
+
+**Signature:**
+
+```csharp
+public FileListResponse ListFiles(FileListQuery query)
+```
+
+###### FileContent()
+
+**Signature:**
+
+```csharp
+public byte[] FileContent(string fileId)
+```
+
+###### CreateBatch()
+
+**Signature:**
+
+```csharp
+public BatchObject CreateBatch(CreateBatchRequest req)
+```
+
+###### RetrieveBatch()
+
+**Signature:**
+
+```csharp
+public BatchObject RetrieveBatch(string batchId)
+```
+
+###### ListBatches()
+
+**Signature:**
+
+```csharp
+public BatchListResponse ListBatches(BatchListQuery query)
+```
+
+###### CancelBatch()
+
+**Signature:**
+
+```csharp
+public BatchObject CancelBatch(string batchId)
+```
+
+###### CreateResponse()
+
+**Signature:**
+
+```csharp
+public ResponseObject CreateResponse(CreateResponseRequest req)
+```
+
+###### RetrieveResponse()
+
+**Signature:**
+
+```csharp
+public ResponseObject RetrieveResponse(string id)
+```
+
+###### CancelResponse()
+
+**Signature:**
+
+```csharp
+public ResponseObject CancelResponse(string id)
 ```
 
 
@@ -447,6 +1015,247 @@ public async Task<SearchResponse> SearchAsync(SearchRequest req)
 | `Data` | `List<EmbeddingObject>` | — | Data |
 | `Model` | `string` | — | Model |
 | `Usage` | `Usage?` | `null` | Usage (usage) |
+
+##### Methods
+
+###### EstimatedCost()
+
+Estimate the cost of this embedding request based on embedded pricing data.
+
+Returns `null` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+Embedding models only charge for input tokens; output cost is zero.
+
+**Signature:**
+
+```csharp
+public double? EstimatedCost()
+```
+
+
+---
+
+#### ErrorResponse
+
+Error response from an OpenAI-compatible API.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `Error` | `ApiError` | — | Error (api error) |
+
+
+---
+
+#### FileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `GlobalLimit` | `double?` | `null` | Global limit |
+| `ModelLimits` | `Dictionary<string, double>?` | `null` | Model limits |
+| `Enforcement` | `string?` | `null` | Enforcement |
+
+
+---
+
+#### FileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `MaxEntries` | `nuint?` | `null` | Maximum entries |
+| `TtlSeconds` | `ulong?` | `null` | Ttl seconds |
+| `Backend` | `string?` | `null` | Backend |
+| `BackendConfig` | `Dictionary<string, string>?` | `null` | Backend config |
+
+
+---
+
+#### FileClient
+
+File management operations (upload, list, retrieve, delete).
+
+##### Methods
+
+###### CreateFile()
+
+Upload a file.
+
+**Signature:**
+
+```csharp
+public FileObject CreateFile(CreateFileRequest req)
+```
+
+###### RetrieveFile()
+
+Retrieve metadata for a file.
+
+**Signature:**
+
+```csharp
+public FileObject RetrieveFile(string fileId)
+```
+
+###### DeleteFile()
+
+Delete a file.
+
+**Signature:**
+
+```csharp
+public DeleteResponse DeleteFile(string fileId)
+```
+
+###### ListFiles()
+
+List files, optionally filtered by query parameters.
+
+**Signature:**
+
+```csharp
+public FileListResponse ListFiles(FileListQuery query)
+```
+
+###### FileContent()
+
+Retrieve the raw content of a file.
+
+**Signature:**
+
+```csharp
+public byte[] FileContent(string fileId)
+```
+
+
+---
+
+#### FileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `ApiKey` | `string?` | `null` | Api key |
+| `BaseUrl` | `string?` | `null` | Base url |
+| `ModelHint` | `string?` | `null` | Model hint |
+| `TimeoutSecs` | `ulong?` | `null` | Timeout secs |
+| `MaxRetries` | `uint?` | `null` | Maximum retries |
+| `ExtraHeaders` | `Dictionary<string, string>?` | `null` | Extra headers |
+| `Cache` | `FileCacheConfig?` | `null` | Cache (file cache config) |
+| `Budget` | `FileBudgetConfig?` | `null` | Budget (file budget config) |
+| `CooldownSecs` | `ulong?` | `null` | Cooldown secs |
+| `RateLimit` | `FileRateLimitConfig?` | `null` | Rate limit (file rate limit config) |
+| `HealthCheckSecs` | `ulong?` | `null` | Health check secs |
+| `CostTracking` | `bool?` | `null` | Cost tracking |
+| `Tracing` | `bool?` | `null` | Tracing |
+| `Providers` | `List<FileProviderConfig>?` | `null` | Providers |
+
+##### Methods
+
+###### FromTomlFile()
+
+Load from a TOML file path.
+
+**Signature:**
+
+```csharp
+public FileConfig FromTomlFile(Path path)
+```
+
+###### FromTomlStr()
+
+Parse from a TOML string.
+
+**Signature:**
+
+```csharp
+public FileConfig FromTomlStr(string s)
+```
+
+###### Discover()
+
+Discover `liter-llm.toml` by walking from current directory to filesystem root.
+
+Returns `Ok(None)` if no config file is found.
+
+**Signature:**
+
+```csharp
+public FileConfig? Discover()
+```
+
+###### IntoBuilder()
+
+Convert into a `ClientConfigBuilder`,
+applying all fields that are set.
+
+Fields not present in the TOML file use the builder's defaults.
+
+**Signature:**
+
+```csharp
+public ClientConfigBuilder IntoBuilder()
+```
+
+###### Providers()
+
+Get the custom provider configurations from this file config.
+
+**Signature:**
+
+```csharp
+public List<FileProviderConfig> Providers()
+```
+
+
+---
+
+#### FileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `Name` | `string` | — | The name |
+| `BaseUrl` | `string` | — | Base url |
+| `AuthHeader` | `string?` | `null` | Auth header |
+| `ModelPrefixes` | `List<string>` | — | Model prefixes |
+
+
+---
+
+#### FileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `Rpm` | `uint?` | `null` | Rpm |
+| `Tpm` | `ulong?` | `null` | Tpm |
+| `WindowSeconds` | `ulong?` | `null` | Window seconds |
 
 
 ---
@@ -533,6 +1342,542 @@ Response containing generated images.
 ---
 
 #### LiterLlmError
+
+##### Methods
+
+###### IsTransient()
+
+Returns `true` for errors that are worth retrying on a different service
+or deployment (transient failures).
+
+Used by `crate.tower.fallback.FallbackService` and
+`crate.tower.router.Router` to decide whether to route to an
+alternative endpoint.
+
+**Signature:**
+
+```csharp
+public bool IsTransient()
+```
+
+###### ErrorType()
+
+Return the OpenTelemetry `error.type` string for this error variant.
+
+Used by the tracing middleware to record the `error.type` span attribute
+on failed requests per the GenAI semantic conventions.
+
+**Signature:**
+
+```csharp
+public string ErrorType()
+```
+
+###### FromStatus()
+
+Create from an HTTP status code, an API error response body, and an
+optional `Retry-After` duration already parsed from the response header.
+
+The `retry_after` value is forwarded into `LiterLlmError.RateLimited`
+so callers can honour the server-requested delay without re-parsing the
+header.
+
+**Signature:**
+
+```csharp
+public LiterLlmError FromStatus(ushort status, string body, TimeSpan retryAfter)
+```
+
+
+---
+
+#### LlmClient
+
+Core LLM client trait.
+
+##### Methods
+
+###### Chat()
+
+Send a chat completion request.
+
+**Signature:**
+
+```csharp
+public ChatCompletionResponse Chat(ChatCompletionRequest req)
+```
+
+###### ChatStream()
+
+Send a streaming chat completion request.
+
+**Signature:**
+
+```csharp
+public BoxStream ChatStream(ChatCompletionRequest req)
+```
+
+###### Embed()
+
+Send an embedding request.
+
+**Signature:**
+
+```csharp
+public EmbeddingResponse Embed(EmbeddingRequest req)
+```
+
+###### ListModels()
+
+List available models.
+
+**Signature:**
+
+```csharp
+public ModelsListResponse ListModels()
+```
+
+###### ImageGenerate()
+
+Generate an image.
+
+**Signature:**
+
+```csharp
+public ImagesResponse ImageGenerate(CreateImageRequest req)
+```
+
+###### Speech()
+
+Generate speech audio from text.
+
+**Signature:**
+
+```csharp
+public byte[] Speech(CreateSpeechRequest req)
+```
+
+###### Transcribe()
+
+Transcribe audio to text.
+
+**Signature:**
+
+```csharp
+public TranscriptionResponse Transcribe(CreateTranscriptionRequest req)
+```
+
+###### Moderate()
+
+Check content against moderation policies.
+
+**Signature:**
+
+```csharp
+public ModerationResponse Moderate(ModerationRequest req)
+```
+
+###### Rerank()
+
+Rerank documents by relevance to a query.
+
+**Signature:**
+
+```csharp
+public RerankResponse Rerank(RerankRequest req)
+```
+
+###### Search()
+
+Perform a web/document search.
+
+**Signature:**
+
+```csharp
+public SearchResponse Search(SearchRequest req)
+```
+
+###### Ocr()
+
+Extract text from a document via OCR.
+
+**Signature:**
+
+```csharp
+public OcrResponse Ocr(OcrRequest req)
+```
+
+
+---
+
+#### LlmClientRaw
+
+Extension of `LlmClient` that returns raw request/response data
+alongside the typed response.
+
+Every `_raw` method mirrors its counterpart on `LlmClient` but wraps the
+result in a `RawExchange` that exposes the final request body (after
+`transform_request`) and the raw provider response (before
+`transform_response`). This is useful for debugging provider-specific
+transformations, capturing wire-level data, or implementing custom parsing.
+
+##### Methods
+
+###### ChatRaw()
+
+Send a chat completion request and return the raw exchange.
+
+The `raw_request` field contains the final JSON body sent to the
+provider; `raw_response` contains the provider JSON before
+normalization.
+
+**Signature:**
+
+```csharp
+public RawExchange ChatRaw(ChatCompletionRequest req)
+```
+
+###### ChatStreamRaw()
+
+Send a streaming chat completion request and return the raw exchange.
+
+Only `raw_request` is available upfront — the stream itself is
+returned in `stream` and consumed incrementally.
+
+**Signature:**
+
+```csharp
+public RawStreamExchange ChatStreamRaw(ChatCompletionRequest req)
+```
+
+###### EmbedRaw()
+
+Send an embedding request and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange EmbedRaw(EmbeddingRequest req)
+```
+
+###### ImageGenerateRaw()
+
+Generate an image and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange ImageGenerateRaw(CreateImageRequest req)
+```
+
+###### TranscribeRaw()
+
+Transcribe audio to text and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange TranscribeRaw(CreateTranscriptionRequest req)
+```
+
+###### ModerateRaw()
+
+Check content against moderation policies and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange ModerateRaw(ModerationRequest req)
+```
+
+###### RerankRaw()
+
+Rerank documents by relevance to a query and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange RerankRaw(RerankRequest req)
+```
+
+###### SearchRaw()
+
+Perform a web/document search and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange SearchRaw(SearchRequest req)
+```
+
+###### OcrRaw()
+
+Extract text from a document via OCR and return the raw exchange.
+
+**Signature:**
+
+```csharp
+public RawExchange OcrRaw(OcrRequest req)
+```
+
+
+---
+
+#### ManagedClient
+
+A managed LLM client that wraps `DefaultClient` with optional Tower
+middleware (cache, cooldown, rate limiting, health checks, cost tracking,
+budget, hooks, tracing).
+
+Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+contains any middleware configuration the corresponding Tower layers are
+composed into a service stack.  Otherwise requests pass straight through
+to the inner `DefaultClient`.
+
+`ManagedClient` implements `LlmClient` and can be used everywhere a
+`DefaultClient` is expected.
+
+##### Methods
+
+###### New()
+
+Build a managed client.
+
+`model_hint` guides provider auto-detection — see
+`DefaultClient.new` for details.
+
+If the config contains any middleware settings (cache, budget, hooks,
+cooldown, rate limit, health check, cost tracking, tracing) the
+corresponding Tower layers are composed into a service stack.
+Otherwise requests pass straight through to the inner client.
+
+**Errors:**
+
+Returns an error if the underlying `DefaultClient` cannot be
+constructed (e.g. invalid headers or HTTP client build failure).
+
+**Signature:**
+
+```csharp
+public ManagedClient New(ClientConfig config, string modelHint)
+```
+
+###### Inner()
+
+Return a reference to the underlying `DefaultClient`.
+
+**Signature:**
+
+```csharp
+public DefaultClient Inner()
+```
+
+###### BudgetState()
+
+Return the budget state handle, if budget middleware is configured.
+
+Use this to query accumulated spend at runtime.
+
+**Signature:**
+
+```csharp
+public BudgetState? BudgetState()
+```
+
+###### HasMiddleware()
+
+Return `true` when middleware is active (requests go through the Tower
+service stack).
+
+**Signature:**
+
+```csharp
+public bool HasMiddleware()
+```
+
+###### Chat()
+
+**Signature:**
+
+```csharp
+public ChatCompletionResponse Chat(ChatCompletionRequest req)
+```
+
+###### ChatStream()
+
+**Signature:**
+
+```csharp
+public BoxStream ChatStream(ChatCompletionRequest req)
+```
+
+###### Embed()
+
+**Signature:**
+
+```csharp
+public EmbeddingResponse Embed(EmbeddingRequest req)
+```
+
+###### ListModels()
+
+**Signature:**
+
+```csharp
+public ModelsListResponse ListModels()
+```
+
+###### ImageGenerate()
+
+**Signature:**
+
+```csharp
+public ImagesResponse ImageGenerate(CreateImageRequest req)
+```
+
+###### Speech()
+
+**Signature:**
+
+```csharp
+public byte[] Speech(CreateSpeechRequest req)
+```
+
+###### Transcribe()
+
+**Signature:**
+
+```csharp
+public TranscriptionResponse Transcribe(CreateTranscriptionRequest req)
+```
+
+###### Moderate()
+
+**Signature:**
+
+```csharp
+public ModerationResponse Moderate(ModerationRequest req)
+```
+
+###### Rerank()
+
+**Signature:**
+
+```csharp
+public RerankResponse Rerank(RerankRequest req)
+```
+
+###### Search()
+
+**Signature:**
+
+```csharp
+public SearchResponse Search(SearchRequest req)
+```
+
+###### Ocr()
+
+**Signature:**
+
+```csharp
+public OcrResponse Ocr(OcrRequest req)
+```
+
+###### CreateFile()
+
+**Signature:**
+
+```csharp
+public FileObject CreateFile(CreateFileRequest req)
+```
+
+###### RetrieveFile()
+
+**Signature:**
+
+```csharp
+public FileObject RetrieveFile(string fileId)
+```
+
+###### DeleteFile()
+
+**Signature:**
+
+```csharp
+public DeleteResponse DeleteFile(string fileId)
+```
+
+###### ListFiles()
+
+**Signature:**
+
+```csharp
+public FileListResponse ListFiles(FileListQuery query)
+```
+
+###### FileContent()
+
+**Signature:**
+
+```csharp
+public byte[] FileContent(string fileId)
+```
+
+###### CreateBatch()
+
+**Signature:**
+
+```csharp
+public BatchObject CreateBatch(CreateBatchRequest req)
+```
+
+###### RetrieveBatch()
+
+**Signature:**
+
+```csharp
+public BatchObject RetrieveBatch(string batchId)
+```
+
+###### ListBatches()
+
+**Signature:**
+
+```csharp
+public BatchListResponse ListBatches(BatchListQuery query)
+```
+
+###### CancelBatch()
+
+**Signature:**
+
+```csharp
+public BatchObject CancelBatch(string batchId)
+```
+
+###### CreateResponse()
+
+**Signature:**
+
+```csharp
+public ResponseObject CreateResponse(CreateResponseRequest req)
+```
+
+###### RetrieveResponse()
+
+**Signature:**
+
+```csharp
+public ResponseObject RetrieveResponse(string id)
+```
+
+###### CancelResponse()
+
+**Signature:**
+
+```csharp
+public ResponseObject CancelResponse(string id)
+```
 
 
 ---
@@ -673,7 +2018,7 @@ An OCR request.
 |-------|------|---------|-------------|
 | `Model` | `string` | — | The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`). |
 | `Document` | `OcrDocument` | — | The document to process. |
-| `Pages` | `List<uint>?` | `null` | Specific pages to process (1-indexed). `null` means all pages. |
+| `Pages` | `List<uint>?` | `null` | Specific pages to process (1-indexed). `None` means all pages. |
 | `IncludeImageBase64` | `bool?` | `null` | Whether to include base64-encoded images of each page. |
 
 
@@ -769,6 +2114,45 @@ The text content of a reranked document, returned when `return_documents` is tru
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `Text` | `string` | — | Text |
+
+
+---
+
+#### ResponseClient
+
+Responses API operations (create, retrieve, cancel).
+
+##### Methods
+
+###### CreateResponse()
+
+Create a new response.
+
+**Signature:**
+
+```csharp
+public ResponseObject CreateResponse(CreateResponseRequest req)
+```
+
+###### RetrieveResponse()
+
+Retrieve a response by ID.
+
+**Signature:**
+
+```csharp
+public ResponseObject RetrieveResponse(string id)
+```
+
+###### CancelResponse()
+
+Cancel an in-progress response.
+
+**Signature:**
+
+```csharp
+public ResponseObject CancelResponse(string id)
+```
 
 
 ---
@@ -1205,3 +2589,4 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
+

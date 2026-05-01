@@ -135,6 +135,20 @@ function unregisterCustomProvider(name: string): boolean
 
 ### Types
 
+#### ApiError
+
+Inner error object.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `message` | `string` | — | Message |
+| `errorType` | `string` | — | Error type |
+| `param` | `string | null` | `null` | Param |
+| `code` | `string | null` | `null` | Code |
+
+
+---
+
 #### AssistantMessage
 
 | Field | Type | Default | Description |
@@ -154,6 +168,55 @@ function unregisterCustomProvider(name: string): boolean
 |-------|------|---------|-------------|
 | `data` | `string` | — | Base64-encoded audio data. |
 | `format` | `string` | — | Audio format (e.g., "wav", "mp3", "ogg"). |
+
+
+---
+
+#### BatchClient
+
+Batch processing operations (create, list, retrieve, cancel).
+
+##### Methods
+
+###### createBatch()
+
+Create a new batch job.
+
+**Signature:**
+
+```typescript
+createBatch(req: CreateBatchRequest): BatchObject
+```
+
+###### retrieveBatch()
+
+Retrieve a batch by ID.
+
+**Signature:**
+
+```typescript
+retrieveBatch(batchId: string): BatchObject
+```
+
+###### listBatches()
+
+List batches, optionally filtered by query parameters.
+
+**Signature:**
+
+```typescript
+listBatches(query: BatchListQuery): BatchListResponse
+```
+
+###### cancelBatch()
+
+Cancel an in-progress batch.
+
+**Signature:**
+
+```typescript
+cancelBatch(batchId: string): BatchObject
+```
 
 
 ---
@@ -215,6 +278,22 @@ function unregisterCustomProvider(name: string): boolean
 | `systemFingerprint` | `string | null` | `null` | System fingerprint |
 | `serviceTier` | `string | null` | `null` | Service tier |
 
+##### Methods
+
+###### estimatedCost()
+
+Estimate the cost of this response based on embedded pricing data.
+
+Returns `null` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+**Signature:**
+
+```typescript
+estimatedCost(): number | null
+```
+
 
 ---
 
@@ -235,6 +314,290 @@ function unregisterCustomProvider(name: string): boolean
 | `index` | `number` | — | Index |
 | `message` | `AssistantMessage` | — | Message (assistant message) |
 | `finishReason` | `FinishReason | null` | `null` | Finish reason (finish reason) |
+
+
+---
+
+#### ClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `apiKey` | `string` | — | API key for authentication (stored as a secret). |
+| `baseUrl` | `string | null` | `null` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `number` | — | Request timeout. |
+| `maxRetries` | `number` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credentialProvider` | `CredentialProvider | null` | `null` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `loadEnv` | `boolean` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+##### Methods
+
+###### headers()
+
+Return the extra headers as an ordered slice of `(name, value)` pairs.
+
+**Signature:**
+
+```typescript
+headers(): Array<[string, string]>
+```
+
+###### fmt()
+
+**Signature:**
+
+```typescript
+fmt(f: Formatter): Unknown
+```
+
+
+---
+
+#### ClientConfigBuilder
+
+Builder for `ClientConfig`.
+
+Construct with `ClientConfigBuilder.new` and call builder methods to
+customise the configuration, then call `ClientConfigBuilder.build` to
+obtain a `ClientConfig`.
+
+##### Methods
+
+###### fromEnv()
+
+Create a builder with no explicit API key.
+
+`load_env` is `true` by default, so the key will be read from the
+provider's environment variable (e.g. `OPENAI_API_KEY`) at client
+construction time.  Call `.load_env(false)` to opt out.
+
+**Signature:**
+
+```typescript
+static fromEnv(): ClientConfigBuilder
+```
+
+###### loadEnv()
+
+Enable or disable automatic API key loading from environment variables.
+
+When `true` (the default) and no explicit `api_key` was provided,
+`DefaultClient.new` reads the provider's designated environment
+variable.  Set to `false` to require an explicit key.
+
+Has no effect on WASM targets.
+
+**Signature:**
+
+```typescript
+loadEnv(enabled: boolean): ClientConfigBuilder
+```
+
+###### baseUrl()
+
+Override the provider base URL for all requests.
+
+**Signature:**
+
+```typescript
+baseUrl(url: string): ClientConfigBuilder
+```
+
+###### timeout()
+
+Set the per-request timeout (default: 60 s).
+
+**Signature:**
+
+```typescript
+timeout(timeout: number): ClientConfigBuilder
+```
+
+###### maxRetries()
+
+Set the maximum number of retries on 429 / 5xx responses (default: 3).
+
+**Signature:**
+
+```typescript
+maxRetries(retries: number): ClientConfigBuilder
+```
+
+###### credentialProvider()
+
+Set a dynamic credential provider for token-based or refreshable auth.
+
+When configured, the client calls `resolve()` before each request
+instead of using the static `api_key` for authentication.
+
+**Signature:**
+
+```typescript
+credentialProvider(provider: CredentialProvider): ClientConfigBuilder
+```
+
+###### header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```typescript
+header(key: string, value: string): ClientConfigBuilder
+```
+
+###### cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```typescript
+cache(config: CacheConfig): ClientConfigBuilder
+```
+
+###### cacheStore()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```typescript
+cacheStore(store: CacheStore): ClientConfigBuilder
+```
+
+###### budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```typescript
+budget(config: BudgetConfig): ClientConfigBuilder
+```
+
+###### hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```typescript
+hook(hook: LlmHook): ClientConfigBuilder
+```
+
+###### hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```typescript
+hooks(hooks: Array<LlmHook>): ClientConfigBuilder
+```
+
+###### cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```typescript
+cooldown(duration: number): ClientConfigBuilder
+```
+
+###### rateLimit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError.RateLimited`.
+
+**Signature:**
+
+```typescript
+rateLimit(config: RateLimitConfig): ClientConfigBuilder
+```
+
+###### healthCheck()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```typescript
+healthCheck(interval: number): ClientConfigBuilder
+```
+
+###### costTracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```typescript
+costTracking(enabled: boolean): ClientConfigBuilder
+```
+
+###### tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```typescript
+tracing(enabled: boolean): ClientConfigBuilder
+```
+
+###### build()
+
+Consume the builder and return the completed `ClientConfig`.
+
+**Signature:**
+
+```typescript
+build(): ClientConfig
+```
 
 
 ---
@@ -320,6 +683,27 @@ async closures and streaming tasks that must be `'static`.
 
 ##### Methods
 
+###### new()
+
+Build a client.
+
+`model_hint` guides provider auto-detection when no explicit
+`base_url` override is present in the config.  For example, passing
+`Some("groq/llama3-70b")` selects the Groq provider.  Pass `null` to
+default to OpenAI.
+
+**Errors:**
+
+Returns a wrapped `reqwest.Error` if the underlying HTTP client
+cannot be constructed.  Header names and values are pre-validated by
+`ClientConfigBuilder.header`, so they are inserted directly here.
+
+**Signature:**
+
+```typescript
+static new(config: ClientConfig, modelHint: string): DefaultClient
+```
+
 ###### chat()
 
 **Signature:**
@@ -333,7 +717,7 @@ chat(req: ChatCompletionRequest): ChatCompletionResponse
 **Signature:**
 
 ```typescript
-chatStream(req: ChatCompletionRequest): string
+chatStream(req: ChatCompletionRequest): BoxStream
 ```
 
 ###### embed()
@@ -358,6 +742,14 @@ listModels(): ModelsListResponse
 
 ```typescript
 imageGenerate(req: CreateImageRequest): ImagesResponse
+```
+
+###### speech()
+
+**Signature:**
+
+```typescript
+speech(req: CreateSpeechRequest): Buffer
 ```
 
 ###### transcribe()
@@ -390,6 +782,182 @@ rerank(req: RerankRequest): RerankResponse
 
 ```typescript
 search(req: SearchRequest): SearchResponse
+```
+
+###### ocr()
+
+**Signature:**
+
+```typescript
+ocr(req: OcrRequest): OcrResponse
+```
+
+###### chatRaw()
+
+**Signature:**
+
+```typescript
+chatRaw(req: ChatCompletionRequest): RawExchange
+```
+
+###### chatStreamRaw()
+
+**Signature:**
+
+```typescript
+chatStreamRaw(req: ChatCompletionRequest): RawStreamExchange
+```
+
+###### embedRaw()
+
+**Signature:**
+
+```typescript
+embedRaw(req: EmbeddingRequest): RawExchange
+```
+
+###### imageGenerateRaw()
+
+**Signature:**
+
+```typescript
+imageGenerateRaw(req: CreateImageRequest): RawExchange
+```
+
+###### transcribeRaw()
+
+**Signature:**
+
+```typescript
+transcribeRaw(req: CreateTranscriptionRequest): RawExchange
+```
+
+###### moderateRaw()
+
+**Signature:**
+
+```typescript
+moderateRaw(req: ModerationRequest): RawExchange
+```
+
+###### rerankRaw()
+
+**Signature:**
+
+```typescript
+rerankRaw(req: RerankRequest): RawExchange
+```
+
+###### searchRaw()
+
+**Signature:**
+
+```typescript
+searchRaw(req: SearchRequest): RawExchange
+```
+
+###### ocrRaw()
+
+**Signature:**
+
+```typescript
+ocrRaw(req: OcrRequest): RawExchange
+```
+
+###### createFile()
+
+**Signature:**
+
+```typescript
+createFile(req: CreateFileRequest): FileObject
+```
+
+###### retrieveFile()
+
+**Signature:**
+
+```typescript
+retrieveFile(fileId: string): FileObject
+```
+
+###### deleteFile()
+
+**Signature:**
+
+```typescript
+deleteFile(fileId: string): DeleteResponse
+```
+
+###### listFiles()
+
+**Signature:**
+
+```typescript
+listFiles(query: FileListQuery): FileListResponse
+```
+
+###### fileContent()
+
+**Signature:**
+
+```typescript
+fileContent(fileId: string): Buffer
+```
+
+###### createBatch()
+
+**Signature:**
+
+```typescript
+createBatch(req: CreateBatchRequest): BatchObject
+```
+
+###### retrieveBatch()
+
+**Signature:**
+
+```typescript
+retrieveBatch(batchId: string): BatchObject
+```
+
+###### listBatches()
+
+**Signature:**
+
+```typescript
+listBatches(query: BatchListQuery): BatchListResponse
+```
+
+###### cancelBatch()
+
+**Signature:**
+
+```typescript
+cancelBatch(batchId: string): BatchObject
+```
+
+###### createResponse()
+
+**Signature:**
+
+```typescript
+createResponse(req: CreateResponseRequest): ResponseObject
+```
+
+###### retrieveResponse()
+
+**Signature:**
+
+```typescript
+retrieveResponse(id: string): ResponseObject
+```
+
+###### cancelResponse()
+
+**Signature:**
+
+```typescript
+cancelResponse(id: string): ResponseObject
 ```
 
 
@@ -447,6 +1015,247 @@ search(req: SearchRequest): SearchResponse
 | `data` | `Array<EmbeddingObject>` | — | Data |
 | `model` | `string` | — | Model |
 | `usage` | `Usage | null` | `null` | Usage (usage) |
+
+##### Methods
+
+###### estimatedCost()
+
+Estimate the cost of this embedding request based on embedded pricing data.
+
+Returns `null` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+Embedding models only charge for input tokens; output cost is zero.
+
+**Signature:**
+
+```typescript
+estimatedCost(): number | null
+```
+
+
+---
+
+#### ErrorResponse
+
+Error response from an OpenAI-compatible API.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `error` | `ApiError` | — | Error (api error) |
+
+
+---
+
+#### FileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `globalLimit` | `number | null` | `null` | Global limit |
+| `modelLimits` | `Record<string, number> | null` | `null` | Model limits |
+| `enforcement` | `string | null` | `null` | Enforcement |
+
+
+---
+
+#### FileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `maxEntries` | `number | null` | `null` | Maximum entries |
+| `ttlSeconds` | `number | null` | `null` | Ttl seconds |
+| `backend` | `string | null` | `null` | Backend |
+| `backendConfig` | `Record<string, string> | null` | `null` | Backend config |
+
+
+---
+
+#### FileClient
+
+File management operations (upload, list, retrieve, delete).
+
+##### Methods
+
+###### createFile()
+
+Upload a file.
+
+**Signature:**
+
+```typescript
+createFile(req: CreateFileRequest): FileObject
+```
+
+###### retrieveFile()
+
+Retrieve metadata for a file.
+
+**Signature:**
+
+```typescript
+retrieveFile(fileId: string): FileObject
+```
+
+###### deleteFile()
+
+Delete a file.
+
+**Signature:**
+
+```typescript
+deleteFile(fileId: string): DeleteResponse
+```
+
+###### listFiles()
+
+List files, optionally filtered by query parameters.
+
+**Signature:**
+
+```typescript
+listFiles(query: FileListQuery): FileListResponse
+```
+
+###### fileContent()
+
+Retrieve the raw content of a file.
+
+**Signature:**
+
+```typescript
+fileContent(fileId: string): Buffer
+```
+
+
+---
+
+#### FileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `apiKey` | `string | null` | `null` | Api key |
+| `baseUrl` | `string | null` | `null` | Base url |
+| `modelHint` | `string | null` | `null` | Model hint |
+| `timeoutSecs` | `number | null` | `null` | Timeout secs |
+| `maxRetries` | `number | null` | `null` | Maximum retries |
+| `extraHeaders` | `Record<string, string> | null` | `null` | Extra headers |
+| `cache` | `FileCacheConfig | null` | `null` | Cache (file cache config) |
+| `budget` | `FileBudgetConfig | null` | `null` | Budget (file budget config) |
+| `cooldownSecs` | `number | null` | `null` | Cooldown secs |
+| `rateLimit` | `FileRateLimitConfig | null` | `null` | Rate limit (file rate limit config) |
+| `healthCheckSecs` | `number | null` | `null` | Health check secs |
+| `costTracking` | `boolean | null` | `null` | Cost tracking |
+| `tracing` | `boolean | null` | `null` | Tracing |
+| `providers` | `Array<FileProviderConfig> | null` | `null` | Providers |
+
+##### Methods
+
+###### fromTomlFile()
+
+Load from a TOML file path.
+
+**Signature:**
+
+```typescript
+static fromTomlFile(path: Path): FileConfig
+```
+
+###### fromTomlStr()
+
+Parse from a TOML string.
+
+**Signature:**
+
+```typescript
+static fromTomlStr(s: string): FileConfig
+```
+
+###### discover()
+
+Discover `liter-llm.toml` by walking from current directory to filesystem root.
+
+Returns `Ok(None)` if no config file is found.
+
+**Signature:**
+
+```typescript
+static discover(): FileConfig | null
+```
+
+###### intoBuilder()
+
+Convert into a `ClientConfigBuilder`,
+applying all fields that are set.
+
+Fields not present in the TOML file use the builder's defaults.
+
+**Signature:**
+
+```typescript
+intoBuilder(): ClientConfigBuilder
+```
+
+###### providers()
+
+Get the custom provider configurations from this file config.
+
+**Signature:**
+
+```typescript
+providers(): Array<FileProviderConfig>
+```
+
+
+---
+
+#### FileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `string` | — | The name |
+| `baseUrl` | `string` | — | Base url |
+| `authHeader` | `string | null` | `null` | Auth header |
+| `modelPrefixes` | `Array<string>` | — | Model prefixes |
+
+
+---
+
+#### FileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rpm` | `number | null` | `null` | Rpm |
+| `tpm` | `number | null` | `null` | Tpm |
+| `windowSeconds` | `number | null` | `null` | Window seconds |
 
 
 ---
@@ -533,6 +1342,542 @@ Response containing generated images.
 ---
 
 #### LiterLlmError
+
+##### Methods
+
+###### isTransient()
+
+Returns `true` for errors that are worth retrying on a different service
+or deployment (transient failures).
+
+Used by `crate.tower.fallback.FallbackService` and
+`crate.tower.router.Router` to decide whether to route to an
+alternative endpoint.
+
+**Signature:**
+
+```typescript
+isTransient(): boolean
+```
+
+###### errorType()
+
+Return the OpenTelemetry `error.type` string for this error variant.
+
+Used by the tracing middleware to record the `error.type` span attribute
+on failed requests per the GenAI semantic conventions.
+
+**Signature:**
+
+```typescript
+errorType(): string
+```
+
+###### fromStatus()
+
+Create from an HTTP status code, an API error response body, and an
+optional `Retry-After` duration already parsed from the response header.
+
+The `retry_after` value is forwarded into `LiterLlmError.RateLimited`
+so callers can honour the server-requested delay without re-parsing the
+header.
+
+**Signature:**
+
+```typescript
+static fromStatus(status: number, body: string, retryAfter: number): LiterLlmError
+```
+
+
+---
+
+#### LlmClient
+
+Core LLM client trait.
+
+##### Methods
+
+###### chat()
+
+Send a chat completion request.
+
+**Signature:**
+
+```typescript
+chat(req: ChatCompletionRequest): ChatCompletionResponse
+```
+
+###### chatStream()
+
+Send a streaming chat completion request.
+
+**Signature:**
+
+```typescript
+chatStream(req: ChatCompletionRequest): BoxStream
+```
+
+###### embed()
+
+Send an embedding request.
+
+**Signature:**
+
+```typescript
+embed(req: EmbeddingRequest): EmbeddingResponse
+```
+
+###### listModels()
+
+List available models.
+
+**Signature:**
+
+```typescript
+listModels(): ModelsListResponse
+```
+
+###### imageGenerate()
+
+Generate an image.
+
+**Signature:**
+
+```typescript
+imageGenerate(req: CreateImageRequest): ImagesResponse
+```
+
+###### speech()
+
+Generate speech audio from text.
+
+**Signature:**
+
+```typescript
+speech(req: CreateSpeechRequest): Buffer
+```
+
+###### transcribe()
+
+Transcribe audio to text.
+
+**Signature:**
+
+```typescript
+transcribe(req: CreateTranscriptionRequest): TranscriptionResponse
+```
+
+###### moderate()
+
+Check content against moderation policies.
+
+**Signature:**
+
+```typescript
+moderate(req: ModerationRequest): ModerationResponse
+```
+
+###### rerank()
+
+Rerank documents by relevance to a query.
+
+**Signature:**
+
+```typescript
+rerank(req: RerankRequest): RerankResponse
+```
+
+###### search()
+
+Perform a web/document search.
+
+**Signature:**
+
+```typescript
+search(req: SearchRequest): SearchResponse
+```
+
+###### ocr()
+
+Extract text from a document via OCR.
+
+**Signature:**
+
+```typescript
+ocr(req: OcrRequest): OcrResponse
+```
+
+
+---
+
+#### LlmClientRaw
+
+Extension of `LlmClient` that returns raw request/response data
+alongside the typed response.
+
+Every `_raw` method mirrors its counterpart on `LlmClient` but wraps the
+result in a `RawExchange` that exposes the final request body (after
+`transform_request`) and the raw provider response (before
+`transform_response`). This is useful for debugging provider-specific
+transformations, capturing wire-level data, or implementing custom parsing.
+
+##### Methods
+
+###### chatRaw()
+
+Send a chat completion request and return the raw exchange.
+
+The `raw_request` field contains the final JSON body sent to the
+provider; `raw_response` contains the provider JSON before
+normalization.
+
+**Signature:**
+
+```typescript
+chatRaw(req: ChatCompletionRequest): RawExchange
+```
+
+###### chatStreamRaw()
+
+Send a streaming chat completion request and return the raw exchange.
+
+Only `raw_request` is available upfront — the stream itself is
+returned in `stream` and consumed incrementally.
+
+**Signature:**
+
+```typescript
+chatStreamRaw(req: ChatCompletionRequest): RawStreamExchange
+```
+
+###### embedRaw()
+
+Send an embedding request and return the raw exchange.
+
+**Signature:**
+
+```typescript
+embedRaw(req: EmbeddingRequest): RawExchange
+```
+
+###### imageGenerateRaw()
+
+Generate an image and return the raw exchange.
+
+**Signature:**
+
+```typescript
+imageGenerateRaw(req: CreateImageRequest): RawExchange
+```
+
+###### transcribeRaw()
+
+Transcribe audio to text and return the raw exchange.
+
+**Signature:**
+
+```typescript
+transcribeRaw(req: CreateTranscriptionRequest): RawExchange
+```
+
+###### moderateRaw()
+
+Check content against moderation policies and return the raw exchange.
+
+**Signature:**
+
+```typescript
+moderateRaw(req: ModerationRequest): RawExchange
+```
+
+###### rerankRaw()
+
+Rerank documents by relevance to a query and return the raw exchange.
+
+**Signature:**
+
+```typescript
+rerankRaw(req: RerankRequest): RawExchange
+```
+
+###### searchRaw()
+
+Perform a web/document search and return the raw exchange.
+
+**Signature:**
+
+```typescript
+searchRaw(req: SearchRequest): RawExchange
+```
+
+###### ocrRaw()
+
+Extract text from a document via OCR and return the raw exchange.
+
+**Signature:**
+
+```typescript
+ocrRaw(req: OcrRequest): RawExchange
+```
+
+
+---
+
+#### ManagedClient
+
+A managed LLM client that wraps `DefaultClient` with optional Tower
+middleware (cache, cooldown, rate limiting, health checks, cost tracking,
+budget, hooks, tracing).
+
+Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+contains any middleware configuration the corresponding Tower layers are
+composed into a service stack.  Otherwise requests pass straight through
+to the inner `DefaultClient`.
+
+`ManagedClient` implements `LlmClient` and can be used everywhere a
+`DefaultClient` is expected.
+
+##### Methods
+
+###### new()
+
+Build a managed client.
+
+`model_hint` guides provider auto-detection — see
+`DefaultClient.new` for details.
+
+If the config contains any middleware settings (cache, budget, hooks,
+cooldown, rate limit, health check, cost tracking, tracing) the
+corresponding Tower layers are composed into a service stack.
+Otherwise requests pass straight through to the inner client.
+
+**Errors:**
+
+Returns an error if the underlying `DefaultClient` cannot be
+constructed (e.g. invalid headers or HTTP client build failure).
+
+**Signature:**
+
+```typescript
+static new(config: ClientConfig, modelHint: string): ManagedClient
+```
+
+###### inner()
+
+Return a reference to the underlying `DefaultClient`.
+
+**Signature:**
+
+```typescript
+inner(): DefaultClient
+```
+
+###### budgetState()
+
+Return the budget state handle, if budget middleware is configured.
+
+Use this to query accumulated spend at runtime.
+
+**Signature:**
+
+```typescript
+budgetState(): BudgetState | null
+```
+
+###### hasMiddleware()
+
+Return `true` when middleware is active (requests go through the Tower
+service stack).
+
+**Signature:**
+
+```typescript
+hasMiddleware(): boolean
+```
+
+###### chat()
+
+**Signature:**
+
+```typescript
+chat(req: ChatCompletionRequest): ChatCompletionResponse
+```
+
+###### chatStream()
+
+**Signature:**
+
+```typescript
+chatStream(req: ChatCompletionRequest): BoxStream
+```
+
+###### embed()
+
+**Signature:**
+
+```typescript
+embed(req: EmbeddingRequest): EmbeddingResponse
+```
+
+###### listModels()
+
+**Signature:**
+
+```typescript
+listModels(): ModelsListResponse
+```
+
+###### imageGenerate()
+
+**Signature:**
+
+```typescript
+imageGenerate(req: CreateImageRequest): ImagesResponse
+```
+
+###### speech()
+
+**Signature:**
+
+```typescript
+speech(req: CreateSpeechRequest): Buffer
+```
+
+###### transcribe()
+
+**Signature:**
+
+```typescript
+transcribe(req: CreateTranscriptionRequest): TranscriptionResponse
+```
+
+###### moderate()
+
+**Signature:**
+
+```typescript
+moderate(req: ModerationRequest): ModerationResponse
+```
+
+###### rerank()
+
+**Signature:**
+
+```typescript
+rerank(req: RerankRequest): RerankResponse
+```
+
+###### search()
+
+**Signature:**
+
+```typescript
+search(req: SearchRequest): SearchResponse
+```
+
+###### ocr()
+
+**Signature:**
+
+```typescript
+ocr(req: OcrRequest): OcrResponse
+```
+
+###### createFile()
+
+**Signature:**
+
+```typescript
+createFile(req: CreateFileRequest): FileObject
+```
+
+###### retrieveFile()
+
+**Signature:**
+
+```typescript
+retrieveFile(fileId: string): FileObject
+```
+
+###### deleteFile()
+
+**Signature:**
+
+```typescript
+deleteFile(fileId: string): DeleteResponse
+```
+
+###### listFiles()
+
+**Signature:**
+
+```typescript
+listFiles(query: FileListQuery): FileListResponse
+```
+
+###### fileContent()
+
+**Signature:**
+
+```typescript
+fileContent(fileId: string): Buffer
+```
+
+###### createBatch()
+
+**Signature:**
+
+```typescript
+createBatch(req: CreateBatchRequest): BatchObject
+```
+
+###### retrieveBatch()
+
+**Signature:**
+
+```typescript
+retrieveBatch(batchId: string): BatchObject
+```
+
+###### listBatches()
+
+**Signature:**
+
+```typescript
+listBatches(query: BatchListQuery): BatchListResponse
+```
+
+###### cancelBatch()
+
+**Signature:**
+
+```typescript
+cancelBatch(batchId: string): BatchObject
+```
+
+###### createResponse()
+
+**Signature:**
+
+```typescript
+createResponse(req: CreateResponseRequest): ResponseObject
+```
+
+###### retrieveResponse()
+
+**Signature:**
+
+```typescript
+retrieveResponse(id: string): ResponseObject
+```
+
+###### cancelResponse()
+
+**Signature:**
+
+```typescript
+cancelResponse(id: string): ResponseObject
+```
 
 
 ---
@@ -673,7 +2018,7 @@ An OCR request.
 |-------|------|---------|-------------|
 | `model` | `string` | — | The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`). |
 | `document` | `OcrDocument` | — | The document to process. |
-| `pages` | `Array<number> | null` | `null` | Specific pages to process (1-indexed). `null` means all pages. |
+| `pages` | `Array<number> | null` | `null` | Specific pages to process (1-indexed). `None` means all pages. |
 | `includeImageBase64` | `boolean | null` | `null` | Whether to include base64-encoded images of each page. |
 
 
@@ -769,6 +2114,45 @@ The text content of a reranked document, returned when `return_documents` is tru
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `text` | `string` | — | Text |
+
+
+---
+
+#### ResponseClient
+
+Responses API operations (create, retrieve, cancel).
+
+##### Methods
+
+###### createResponse()
+
+Create a new response.
+
+**Signature:**
+
+```typescript
+createResponse(req: CreateResponseRequest): ResponseObject
+```
+
+###### retrieveResponse()
+
+Retrieve a response by ID.
+
+**Signature:**
+
+```typescript
+retrieveResponse(id: string): ResponseObject
+```
+
+###### cancelResponse()
+
+Cancel an in-progress response.
+
+**Signature:**
+
+```typescript
+cancelResponse(id: string): ResponseObject
+```
 
 
 ---
@@ -1207,3 +2591,4 @@ Errors are thrown as plain `Error` objects with descriptive messages.
 
 
 ---
+

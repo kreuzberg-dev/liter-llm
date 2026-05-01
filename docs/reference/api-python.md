@@ -135,6 +135,20 @@ def unregister_custom_provider(name: str) -> bool
 
 ### Types
 
+#### ApiError
+
+Inner error object.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `message` | `str` | — | Message |
+| `error_type` | `str` | — | Error type |
+| `param` | `str | None` | `None` | Param |
+| `code` | `str | None` | `None` | Code |
+
+
+---
+
 #### AssistantMessage
 
 | Field | Type | Default | Description |
@@ -154,6 +168,55 @@ def unregister_custom_provider(name: str) -> bool
 |-------|------|---------|-------------|
 | `data` | `str` | — | Base64-encoded audio data. |
 | `format` | `str` | — | Audio format (e.g., "wav", "mp3", "ogg"). |
+
+
+---
+
+#### BatchClient
+
+Batch processing operations (create, list, retrieve, cancel).
+
+##### Methods
+
+###### create_batch()
+
+Create a new batch job.
+
+**Signature:**
+
+```python
+def create_batch(self, req: CreateBatchRequest) -> BatchObject
+```
+
+###### retrieve_batch()
+
+Retrieve a batch by ID.
+
+**Signature:**
+
+```python
+def retrieve_batch(self, batch_id: str) -> BatchObject
+```
+
+###### list_batches()
+
+List batches, optionally filtered by query parameters.
+
+**Signature:**
+
+```python
+def list_batches(self, query: BatchListQuery) -> BatchListResponse
+```
+
+###### cancel_batch()
+
+Cancel an in-progress batch.
+
+**Signature:**
+
+```python
+def cancel_batch(self, batch_id: str) -> BatchObject
+```
 
 
 ---
@@ -197,7 +260,7 @@ def unregister_custom_provider(name: str) -> bool
 | `stream_options` | `StreamOptions | None` | `None` | Stream options (stream options) |
 | `seed` | `int | None` | `None` | Seed |
 | `reasoning_effort` | `ReasoningEffort | None` | `None` | Reasoning effort (reasoning effort) |
-| `extra_body` | `dict[str, Any] | None` | `None` | Provider-specific extra parameters merged into the request body. Use for guardrails, safety settings, grounding config, etc. |
+| `extra_body` | `Any | None` | `None` | Provider-specific extra parameters merged into the request body. Use for guardrails, safety settings, grounding config, etc. |
 
 
 ---
@@ -214,6 +277,22 @@ def unregister_custom_provider(name: str) -> bool
 | `usage` | `Usage | None` | `None` | Usage (usage) |
 | `system_fingerprint` | `str | None` | `None` | System fingerprint |
 | `service_tier` | `str | None` | `None` | Service tier |
+
+##### Methods
+
+###### estimated_cost()
+
+Estimate the cost of this response based on embedded pricing data.
+
+Returns `None` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+**Signature:**
+
+```python
+def estimated_cost(self) -> float | None
+```
 
 
 ---
@@ -235,6 +314,291 @@ def unregister_custom_provider(name: str) -> bool
 | `index` | `int` | — | Index |
 | `message` | `AssistantMessage` | — | Message (assistant message) |
 | `finish_reason` | `FinishReason | None` | `None` | Finish reason (finish reason) |
+
+
+---
+
+#### ClientConfig
+
+Configuration for an LLM client.
+
+`api_key` is stored as a `SecretString` so it is zeroed on drop and never
+printed accidentally.  Access it via `secrecy.ExposeSecret`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `str` | — | API key for authentication (stored as a secret). |
+| `base_url` | `str | None` | `None` | Override base URL.  When set, all requests go here regardless of model name, and provider auto-detection is skipped. |
+| `timeout` | `float` | — | Request timeout. |
+| `max_retries` | `int` | — | Maximum number of retries on 429 / 5xx responses. |
+| `credential_provider` | `CredentialProvider | None` | `None` | Optional dynamic credential provider for token-based auth (Azure AD, Vertex OAuth2) or refreshable credentials (AWS STS). When set, the client calls `resolve()` before each request to obtain a fresh credential.  When `None`, the static `api_key` is used. |
+| `load_env` | `bool` | — | Automatically load the API key from the provider's environment variable when no explicit key is provided. When `True` (the default) and `api_key` is empty, `DefaultClient.new` reads the provider's designated environment variable (e.g. `OPENAI_API_KEY` for OpenAI).  Set to `False` to suppress this behaviour and require the caller to supply the key explicitly. Has no effect on WASM targets, where `std.env.var` is unavailable. |
+
+##### Methods
+
+###### headers()
+
+Return the extra headers as an ordered slice of `(name, value)` pairs.
+
+**Signature:**
+
+```python
+def headers(self) -> list[tuple[str, str]]
+```
+
+###### fmt()
+
+**Signature:**
+
+```python
+def fmt(self, f: Formatter) -> Unknown
+```
+
+
+---
+
+#### ClientConfigBuilder
+
+Builder for `ClientConfig`.
+
+Construct with `ClientConfigBuilder.new` and call builder methods to
+customise the configuration, then call `ClientConfigBuilder.build` to
+obtain a `ClientConfig`.
+
+##### Methods
+
+###### from_env()
+
+Create a builder with no explicit API key.
+
+`load_env` is `True` by default, so the key will be read from the
+provider's environment variable (e.g. `OPENAI_API_KEY`) at client
+construction time.  Call `.load_env(false)` to opt out.
+
+**Signature:**
+
+```python
+@staticmethod
+def from_env() -> ClientConfigBuilder
+```
+
+###### load_env()
+
+Enable or disable automatic API key loading from environment variables.
+
+When `True` (the default) and no explicit `api_key` was provided,
+`DefaultClient.new` reads the provider's designated environment
+variable.  Set to `False` to require an explicit key.
+
+Has no effect on WASM targets.
+
+**Signature:**
+
+```python
+def load_env(self, enabled: bool) -> ClientConfigBuilder
+```
+
+###### base_url()
+
+Override the provider base URL for all requests.
+
+**Signature:**
+
+```python
+def base_url(self, url: str) -> ClientConfigBuilder
+```
+
+###### timeout()
+
+Set the per-request timeout (default: 60 s).
+
+**Signature:**
+
+```python
+def timeout(self, timeout: float) -> ClientConfigBuilder
+```
+
+###### max_retries()
+
+Set the maximum number of retries on 429 / 5xx responses (default: 3).
+
+**Signature:**
+
+```python
+def max_retries(self, retries: int) -> ClientConfigBuilder
+```
+
+###### credential_provider()
+
+Set a dynamic credential provider for token-based or refreshable auth.
+
+When configured, the client calls `resolve()` before each request
+instead of using the static `api_key` for authentication.
+
+**Signature:**
+
+```python
+def credential_provider(self, provider: CredentialProvider) -> ClientConfigBuilder
+```
+
+###### header()
+
+Add a custom header sent on every request.
+
+Returns an error if either `key` or `value` is not a valid HTTP header
+name / value.
+
+This method is only available when the `native-http` feature is enabled
+because header validation relies on `reqwest`'s header types.
+
+**Signature:**
+
+```python
+def header(self, key: str, value: str) -> ClientConfigBuilder
+```
+
+###### cache()
+
+Set the response cache configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`CacheLayer`.
+
+**Signature:**
+
+```python
+def cache(self, config: CacheConfig) -> ClientConfigBuilder
+```
+
+###### cache_store()
+
+Set a custom cache store backend for the Tower cache middleware.
+
+When set alongside `cache`, the cache layer will use
+this store instead of the default in-memory LRU.
+
+**Signature:**
+
+```python
+def cache_store(self, store: CacheStore) -> ClientConfigBuilder
+```
+
+###### budget()
+
+Set the budget enforcement configuration for the Tower middleware stack.
+
+When set, bindings and advanced Rust users can read this from the
+built `ClientConfig` to construct a
+`BudgetLayer`.
+
+**Signature:**
+
+```python
+def budget(self, config: BudgetConfig) -> ClientConfigBuilder
+```
+
+###### hook()
+
+Add a single hook to the Tower hooks middleware stack.
+
+Hooks are invoked sequentially in registration order at request
+lifecycle points (pre-request, post-response, on-error).
+
+**Signature:**
+
+```python
+def hook(self, hook: LlmHook) -> ClientConfigBuilder
+```
+
+###### hooks()
+
+Set the full list of hooks for the Tower hooks middleware stack,
+replacing any previously registered hooks.
+
+Hooks are invoked sequentially in registration order.
+
+**Signature:**
+
+```python
+def hooks(self, hooks: list[LlmHook]) -> ClientConfigBuilder
+```
+
+###### cooldown()
+
+Set the cooldown duration after transient errors.
+
+When set, the client rejects requests with `ServiceUnavailable` for
+the given duration after a transient error (rate limit, timeout,
+server error).
+
+**Signature:**
+
+```python
+def cooldown(self, duration: float) -> ClientConfigBuilder
+```
+
+###### rate_limit()
+
+Set per-model rate limiting configuration.
+
+When set, requests exceeding the configured RPM or TPM limits are
+rejected with `LiterLlmError.RateLimited`.
+
+**Signature:**
+
+```python
+def rate_limit(self, config: RateLimitConfig) -> ClientConfigBuilder
+```
+
+###### health_check()
+
+Set the background health check interval.
+
+When set, the client periodically probes the provider and rejects
+requests when the provider is unhealthy.
+
+**Signature:**
+
+```python
+def health_check(self, interval: float) -> ClientConfigBuilder
+```
+
+###### cost_tracking()
+
+Enable or disable per-request cost tracking.
+
+When enabled, estimated USD cost is recorded on the current tracing
+span as `gen_ai.usage.cost`.
+
+**Signature:**
+
+```python
+def cost_tracking(self, enabled: bool) -> ClientConfigBuilder
+```
+
+###### tracing()
+
+Enable or disable OpenTelemetry-compatible tracing spans.
+
+When enabled, every request is wrapped in a `gen_ai` tracing span
+with semantic convention attributes.
+
+**Signature:**
+
+```python
+def tracing(self, enabled: bool) -> ClientConfigBuilder
+```
+
+###### build()
+
+Consume the builder and return the completed `ClientConfig`.
+
+**Signature:**
+
+```python
+def build(self) -> ClientConfig
+```
 
 
 ---
@@ -320,6 +684,28 @@ async closures and streaming tasks that must be `'static`.
 
 ##### Methods
 
+###### new()
+
+Build a client.
+
+`model_hint` guides provider auto-detection when no explicit
+`base_url` override is present in the config.  For example, passing
+`Some("groq/llama3-70b")` selects the Groq provider.  Pass `None` to
+default to OpenAI.
+
+**Errors:**
+
+Returns a wrapped `reqwest.Error` if the underlying HTTP client
+cannot be constructed.  Header names and values are pre-validated by
+`ClientConfigBuilder.header`, so they are inserted directly here.
+
+**Signature:**
+
+```python
+@staticmethod
+def new(config: ClientConfig, model_hint: str) -> DefaultClient
+```
+
 ###### chat()
 
 **Signature:**
@@ -333,7 +719,7 @@ def chat(self, req: ChatCompletionRequest) -> ChatCompletionResponse
 **Signature:**
 
 ```python
-def chat_stream(self, req: ChatCompletionRequest) -> str
+def chat_stream(self, req: ChatCompletionRequest) -> BoxStream
 ```
 
 ###### embed()
@@ -358,6 +744,14 @@ def list_models(self) -> ModelsListResponse
 
 ```python
 def image_generate(self, req: CreateImageRequest) -> ImagesResponse
+```
+
+###### speech()
+
+**Signature:**
+
+```python
+def speech(self, req: CreateSpeechRequest) -> bytes
 ```
 
 ###### transcribe()
@@ -390,6 +784,182 @@ def rerank(self, req: RerankRequest) -> RerankResponse
 
 ```python
 def search(self, req: SearchRequest) -> SearchResponse
+```
+
+###### ocr()
+
+**Signature:**
+
+```python
+def ocr(self, req: OcrRequest) -> OcrResponse
+```
+
+###### chat_raw()
+
+**Signature:**
+
+```python
+def chat_raw(self, req: ChatCompletionRequest) -> RawExchange
+```
+
+###### chat_stream_raw()
+
+**Signature:**
+
+```python
+def chat_stream_raw(self, req: ChatCompletionRequest) -> RawStreamExchange
+```
+
+###### embed_raw()
+
+**Signature:**
+
+```python
+def embed_raw(self, req: EmbeddingRequest) -> RawExchange
+```
+
+###### image_generate_raw()
+
+**Signature:**
+
+```python
+def image_generate_raw(self, req: CreateImageRequest) -> RawExchange
+```
+
+###### transcribe_raw()
+
+**Signature:**
+
+```python
+def transcribe_raw(self, req: CreateTranscriptionRequest) -> RawExchange
+```
+
+###### moderate_raw()
+
+**Signature:**
+
+```python
+def moderate_raw(self, req: ModerationRequest) -> RawExchange
+```
+
+###### rerank_raw()
+
+**Signature:**
+
+```python
+def rerank_raw(self, req: RerankRequest) -> RawExchange
+```
+
+###### search_raw()
+
+**Signature:**
+
+```python
+def search_raw(self, req: SearchRequest) -> RawExchange
+```
+
+###### ocr_raw()
+
+**Signature:**
+
+```python
+def ocr_raw(self, req: OcrRequest) -> RawExchange
+```
+
+###### create_file()
+
+**Signature:**
+
+```python
+def create_file(self, req: CreateFileRequest) -> FileObject
+```
+
+###### retrieve_file()
+
+**Signature:**
+
+```python
+def retrieve_file(self, file_id: str) -> FileObject
+```
+
+###### delete_file()
+
+**Signature:**
+
+```python
+def delete_file(self, file_id: str) -> DeleteResponse
+```
+
+###### list_files()
+
+**Signature:**
+
+```python
+def list_files(self, query: FileListQuery) -> FileListResponse
+```
+
+###### file_content()
+
+**Signature:**
+
+```python
+def file_content(self, file_id: str) -> bytes
+```
+
+###### create_batch()
+
+**Signature:**
+
+```python
+def create_batch(self, req: CreateBatchRequest) -> BatchObject
+```
+
+###### retrieve_batch()
+
+**Signature:**
+
+```python
+def retrieve_batch(self, batch_id: str) -> BatchObject
+```
+
+###### list_batches()
+
+**Signature:**
+
+```python
+def list_batches(self, query: BatchListQuery) -> BatchListResponse
+```
+
+###### cancel_batch()
+
+**Signature:**
+
+```python
+def cancel_batch(self, batch_id: str) -> BatchObject
+```
+
+###### create_response()
+
+**Signature:**
+
+```python
+def create_response(self, req: CreateResponseRequest) -> ResponseObject
+```
+
+###### retrieve_response()
+
+**Signature:**
+
+```python
+def retrieve_response(self, id: str) -> ResponseObject
+```
+
+###### cancel_response()
+
+**Signature:**
+
+```python
+def cancel_response(self, id: str) -> ResponseObject
 ```
 
 
@@ -448,6 +1018,250 @@ def search(self, req: SearchRequest) -> SearchResponse
 | `model` | `str` | — | Model |
 | `usage` | `Usage | None` | `None` | Usage (usage) |
 
+##### Methods
+
+###### estimated_cost()
+
+Estimate the cost of this embedding request based on embedded pricing data.
+
+Returns `None` if:
+- the `model` field is not present in the embedded pricing registry, or
+- the `usage` field is absent from the response.
+
+Embedding models only charge for input tokens; output cost is zero.
+
+**Signature:**
+
+```python
+def estimated_cost(self) -> float | None
+```
+
+
+---
+
+#### ErrorResponse
+
+Error response from an OpenAI-compatible API.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `error` | `ApiError` | — | Error (api error) |
+
+
+---
+
+#### FileBudgetConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `global_limit` | `float | None` | `None` | Global limit |
+| `model_limits` | `dict[str, float] | None` | `None` | Model limits |
+| `enforcement` | `str | None` | `None` | Enforcement |
+
+
+---
+
+#### FileCacheConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `max_entries` | `int | None` | `None` | Maximum entries |
+| `ttl_seconds` | `int | None` | `None` | Ttl seconds |
+| `backend` | `str | None` | `None` | Backend |
+| `backend_config` | `dict[str, str] | None` | `None` | Backend config |
+
+
+---
+
+#### FileClient
+
+File management operations (upload, list, retrieve, delete).
+
+##### Methods
+
+###### create_file()
+
+Upload a file.
+
+**Signature:**
+
+```python
+def create_file(self, req: CreateFileRequest) -> FileObject
+```
+
+###### retrieve_file()
+
+Retrieve metadata for a file.
+
+**Signature:**
+
+```python
+def retrieve_file(self, file_id: str) -> FileObject
+```
+
+###### delete_file()
+
+Delete a file.
+
+**Signature:**
+
+```python
+def delete_file(self, file_id: str) -> DeleteResponse
+```
+
+###### list_files()
+
+List files, optionally filtered by query parameters.
+
+**Signature:**
+
+```python
+def list_files(self, query: FileListQuery) -> FileListResponse
+```
+
+###### file_content()
+
+Retrieve the raw content of a file.
+
+**Signature:**
+
+```python
+def file_content(self, file_id: str) -> bytes
+```
+
+
+---
+
+#### FileConfig
+
+TOML file representation of client configuration.
+
+All fields are optional — missing fields use defaults from `ClientConfigBuilder`.
+Convert to a builder via `FileConfig.into_builder`.
+
+# Example `liter-llm.toml`
+
+```toml
+api_key = "sk-..."
+base_url = "<https://api.openai.com/v1">
+timeout_secs = 120
+max_retries = 5
+
+[cache]
+max_entries = 512
+ttl_seconds = 600
+backend = "memory"
+
+[budget]
+global_limit = 50.0
+enforcement = "hard"
+
+[[providers]]
+name = "my-provider"
+base_url = "<https://my-llm.example.com/v1">
+model_prefixes = ["my-provider/"]
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_key` | `str | None` | `None` | Api key |
+| `base_url` | `str | None` | `None` | Base url |
+| `model_hint` | `str | None` | `None` | Model hint |
+| `timeout_secs` | `int | None` | `None` | Timeout secs |
+| `max_retries` | `int | None` | `None` | Maximum retries |
+| `extra_headers` | `dict[str, str] | None` | `None` | Extra headers |
+| `cache` | `FileCacheConfig | None` | `None` | Cache (file cache config) |
+| `budget` | `FileBudgetConfig | None` | `None` | Budget (file budget config) |
+| `cooldown_secs` | `int | None` | `None` | Cooldown secs |
+| `rate_limit` | `FileRateLimitConfig | None` | `None` | Rate limit (file rate limit config) |
+| `health_check_secs` | `int | None` | `None` | Health check secs |
+| `cost_tracking` | `bool | None` | `None` | Cost tracking |
+| `tracing` | `bool | None` | `None` | Tracing |
+| `providers` | `list[FileProviderConfig] | None` | `None` | Providers |
+
+##### Methods
+
+###### from_toml_file()
+
+Load from a TOML file path.
+
+**Signature:**
+
+```python
+@staticmethod
+def from_toml_file(path: Path) -> FileConfig
+```
+
+###### from_toml_str()
+
+Parse from a TOML string.
+
+**Signature:**
+
+```python
+@staticmethod
+def from_toml_str(s: str) -> FileConfig
+```
+
+###### discover()
+
+Discover `liter-llm.toml` by walking from current directory to filesystem root.
+
+Returns `Ok(None)` if no config file is found.
+
+**Signature:**
+
+```python
+@staticmethod
+def discover() -> FileConfig | None
+```
+
+###### into_builder()
+
+Convert into a `ClientConfigBuilder`,
+applying all fields that are set.
+
+Fields not present in the TOML file use the builder's defaults.
+
+**Signature:**
+
+```python
+def into_builder(self) -> ClientConfigBuilder
+```
+
+###### providers()
+
+Get the custom provider configurations from this file config.
+
+**Signature:**
+
+```python
+def providers(self) -> list[FileProviderConfig]
+```
+
+
+---
+
+#### FileProviderConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `str` | — | The name |
+| `base_url` | `str` | — | Base url |
+| `auth_header` | `str | None` | `None` | Auth header |
+| `model_prefixes` | `list[str]` | — | Model prefixes |
+
+
+---
+
+#### FileRateLimitConfig
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rpm` | `int | None` | `None` | Rpm |
+| `tpm` | `int | None` | `None` | Tpm |
+| `window_seconds` | `int | None` | `None` | Window seconds |
+
 
 ---
 
@@ -467,7 +1281,7 @@ def search(self, req: SearchRequest) -> SearchResponse
 |-------|------|---------|-------------|
 | `name` | `str` | — | The name |
 | `description` | `str | None` | `None` | Human-readable description |
-| `parameters` | `dict[str, Any] | None` | `None` | Parameters |
+| `parameters` | `Any | None` | `None` | Parameters |
 | `strict` | `bool | None` | `None` | Strict |
 
 
@@ -526,13 +1340,551 @@ Response containing generated images.
 |-------|------|---------|-------------|
 | `name` | `str` | — | The name |
 | `description` | `str | None` | `None` | Human-readable description |
-| `schema` | `dict[str, Any]` | — | Schema |
+| `schema` | `Any` | — | Schema |
 | `strict` | `bool | None` | `None` | Strict |
 
 
 ---
 
 #### LiterLlmError
+
+##### Methods
+
+###### is_transient()
+
+Returns `True` for errors that are worth retrying on a different service
+or deployment (transient failures).
+
+Used by `crate.tower.fallback.FallbackService` and
+`crate.tower.router.Router` to decide whether to route to an
+alternative endpoint.
+
+**Signature:**
+
+```python
+def is_transient(self) -> bool
+```
+
+###### error_type()
+
+Return the OpenTelemetry `error.type` string for this error variant.
+
+Used by the tracing middleware to record the `error.type` span attribute
+on failed requests per the GenAI semantic conventions.
+
+**Signature:**
+
+```python
+def error_type(self) -> str
+```
+
+###### from_status()
+
+Create from an HTTP status code, an API error response body, and an
+optional `Retry-After` duration already parsed from the response header.
+
+The `retry_after` value is forwarded into `LiterLlmError.RateLimited`
+so callers can honour the server-requested delay without re-parsing the
+header.
+
+**Signature:**
+
+```python
+@staticmethod
+def from_status(status: int, body: str, retry_after: float) -> LiterLlmError
+```
+
+
+---
+
+#### LlmClient
+
+Core LLM client trait.
+
+##### Methods
+
+###### chat()
+
+Send a chat completion request.
+
+**Signature:**
+
+```python
+def chat(self, req: ChatCompletionRequest) -> ChatCompletionResponse
+```
+
+###### chat_stream()
+
+Send a streaming chat completion request.
+
+**Signature:**
+
+```python
+def chat_stream(self, req: ChatCompletionRequest) -> BoxStream
+```
+
+###### embed()
+
+Send an embedding request.
+
+**Signature:**
+
+```python
+def embed(self, req: EmbeddingRequest) -> EmbeddingResponse
+```
+
+###### list_models()
+
+List available models.
+
+**Signature:**
+
+```python
+def list_models(self) -> ModelsListResponse
+```
+
+###### image_generate()
+
+Generate an image.
+
+**Signature:**
+
+```python
+def image_generate(self, req: CreateImageRequest) -> ImagesResponse
+```
+
+###### speech()
+
+Generate speech audio from text.
+
+**Signature:**
+
+```python
+def speech(self, req: CreateSpeechRequest) -> bytes
+```
+
+###### transcribe()
+
+Transcribe audio to text.
+
+**Signature:**
+
+```python
+def transcribe(self, req: CreateTranscriptionRequest) -> TranscriptionResponse
+```
+
+###### moderate()
+
+Check content against moderation policies.
+
+**Signature:**
+
+```python
+def moderate(self, req: ModerationRequest) -> ModerationResponse
+```
+
+###### rerank()
+
+Rerank documents by relevance to a query.
+
+**Signature:**
+
+```python
+def rerank(self, req: RerankRequest) -> RerankResponse
+```
+
+###### search()
+
+Perform a web/document search.
+
+**Signature:**
+
+```python
+def search(self, req: SearchRequest) -> SearchResponse
+```
+
+###### ocr()
+
+Extract text from a document via OCR.
+
+**Signature:**
+
+```python
+def ocr(self, req: OcrRequest) -> OcrResponse
+```
+
+
+---
+
+#### LlmClientRaw
+
+Extension of `LlmClient` that returns raw request/response data
+alongside the typed response.
+
+Every `_raw` method mirrors its counterpart on `LlmClient` but wraps the
+result in a `RawExchange` that exposes the final request body (after
+`transform_request`) and the raw provider response (before
+`transform_response`). This is useful for debugging provider-specific
+transformations, capturing wire-level data, or implementing custom parsing.
+
+##### Methods
+
+###### chat_raw()
+
+Send a chat completion request and return the raw exchange.
+
+The `raw_request` field contains the final JSON body sent to the
+provider; `raw_response` contains the provider JSON before
+normalization.
+
+**Signature:**
+
+```python
+def chat_raw(self, req: ChatCompletionRequest) -> RawExchange
+```
+
+###### chat_stream_raw()
+
+Send a streaming chat completion request and return the raw exchange.
+
+Only `raw_request` is available upfront — the stream itself is
+returned in `stream` and consumed incrementally.
+
+**Signature:**
+
+```python
+def chat_stream_raw(self, req: ChatCompletionRequest) -> RawStreamExchange
+```
+
+###### embed_raw()
+
+Send an embedding request and return the raw exchange.
+
+**Signature:**
+
+```python
+def embed_raw(self, req: EmbeddingRequest) -> RawExchange
+```
+
+###### image_generate_raw()
+
+Generate an image and return the raw exchange.
+
+**Signature:**
+
+```python
+def image_generate_raw(self, req: CreateImageRequest) -> RawExchange
+```
+
+###### transcribe_raw()
+
+Transcribe audio to text and return the raw exchange.
+
+**Signature:**
+
+```python
+def transcribe_raw(self, req: CreateTranscriptionRequest) -> RawExchange
+```
+
+###### moderate_raw()
+
+Check content against moderation policies and return the raw exchange.
+
+**Signature:**
+
+```python
+def moderate_raw(self, req: ModerationRequest) -> RawExchange
+```
+
+###### rerank_raw()
+
+Rerank documents by relevance to a query and return the raw exchange.
+
+**Signature:**
+
+```python
+def rerank_raw(self, req: RerankRequest) -> RawExchange
+```
+
+###### search_raw()
+
+Perform a web/document search and return the raw exchange.
+
+**Signature:**
+
+```python
+def search_raw(self, req: SearchRequest) -> RawExchange
+```
+
+###### ocr_raw()
+
+Extract text from a document via OCR and return the raw exchange.
+
+**Signature:**
+
+```python
+def ocr_raw(self, req: OcrRequest) -> RawExchange
+```
+
+
+---
+
+#### ManagedClient
+
+A managed LLM client that wraps `DefaultClient` with optional Tower
+middleware (cache, cooldown, rate limiting, health checks, cost tracking,
+budget, hooks, tracing).
+
+Construct via `ManagedClient.new`.  If the provided `ClientConfig`
+contains any middleware configuration the corresponding Tower layers are
+composed into a service stack.  Otherwise requests pass straight through
+to the inner `DefaultClient`.
+
+`ManagedClient` implements `LlmClient` and can be used everywhere a
+`DefaultClient` is expected.
+
+##### Methods
+
+###### new()
+
+Build a managed client.
+
+`model_hint` guides provider auto-detection — see
+`DefaultClient.new` for details.
+
+If the config contains any middleware settings (cache, budget, hooks,
+cooldown, rate limit, health check, cost tracking, tracing) the
+corresponding Tower layers are composed into a service stack.
+Otherwise requests pass straight through to the inner client.
+
+**Errors:**
+
+Returns an error if the underlying `DefaultClient` cannot be
+constructed (e.g. invalid headers or HTTP client build failure).
+
+**Signature:**
+
+```python
+@staticmethod
+def new(config: ClientConfig, model_hint: str) -> ManagedClient
+```
+
+###### inner()
+
+Return a reference to the underlying `DefaultClient`.
+
+**Signature:**
+
+```python
+def inner(self) -> DefaultClient
+```
+
+###### budget_state()
+
+Return the budget state handle, if budget middleware is configured.
+
+Use this to query accumulated spend at runtime.
+
+**Signature:**
+
+```python
+def budget_state(self) -> BudgetState | None
+```
+
+###### has_middleware()
+
+Return `True` when middleware is active (requests go through the Tower
+service stack).
+
+**Signature:**
+
+```python
+def has_middleware(self) -> bool
+```
+
+###### chat()
+
+**Signature:**
+
+```python
+def chat(self, req: ChatCompletionRequest) -> ChatCompletionResponse
+```
+
+###### chat_stream()
+
+**Signature:**
+
+```python
+def chat_stream(self, req: ChatCompletionRequest) -> BoxStream
+```
+
+###### embed()
+
+**Signature:**
+
+```python
+def embed(self, req: EmbeddingRequest) -> EmbeddingResponse
+```
+
+###### list_models()
+
+**Signature:**
+
+```python
+def list_models(self) -> ModelsListResponse
+```
+
+###### image_generate()
+
+**Signature:**
+
+```python
+def image_generate(self, req: CreateImageRequest) -> ImagesResponse
+```
+
+###### speech()
+
+**Signature:**
+
+```python
+def speech(self, req: CreateSpeechRequest) -> bytes
+```
+
+###### transcribe()
+
+**Signature:**
+
+```python
+def transcribe(self, req: CreateTranscriptionRequest) -> TranscriptionResponse
+```
+
+###### moderate()
+
+**Signature:**
+
+```python
+def moderate(self, req: ModerationRequest) -> ModerationResponse
+```
+
+###### rerank()
+
+**Signature:**
+
+```python
+def rerank(self, req: RerankRequest) -> RerankResponse
+```
+
+###### search()
+
+**Signature:**
+
+```python
+def search(self, req: SearchRequest) -> SearchResponse
+```
+
+###### ocr()
+
+**Signature:**
+
+```python
+def ocr(self, req: OcrRequest) -> OcrResponse
+```
+
+###### create_file()
+
+**Signature:**
+
+```python
+def create_file(self, req: CreateFileRequest) -> FileObject
+```
+
+###### retrieve_file()
+
+**Signature:**
+
+```python
+def retrieve_file(self, file_id: str) -> FileObject
+```
+
+###### delete_file()
+
+**Signature:**
+
+```python
+def delete_file(self, file_id: str) -> DeleteResponse
+```
+
+###### list_files()
+
+**Signature:**
+
+```python
+def list_files(self, query: FileListQuery) -> FileListResponse
+```
+
+###### file_content()
+
+**Signature:**
+
+```python
+def file_content(self, file_id: str) -> bytes
+```
+
+###### create_batch()
+
+**Signature:**
+
+```python
+def create_batch(self, req: CreateBatchRequest) -> BatchObject
+```
+
+###### retrieve_batch()
+
+**Signature:**
+
+```python
+def retrieve_batch(self, batch_id: str) -> BatchObject
+```
+
+###### list_batches()
+
+**Signature:**
+
+```python
+def list_batches(self, query: BatchListQuery) -> BatchListResponse
+```
+
+###### cancel_batch()
+
+**Signature:**
+
+```python
+def cancel_batch(self, batch_id: str) -> BatchObject
+```
+
+###### create_response()
+
+**Signature:**
+
+```python
+def create_response(self, req: CreateResponseRequest) -> ResponseObject
+```
+
+###### retrieve_response()
+
+**Signature:**
+
+```python
+def retrieve_response(self, id: str) -> ResponseObject
+```
+
+###### cancel_response()
+
+**Signature:**
+
+```python
+def cancel_response(self, id: str) -> ResponseObject
+```
 
 
 ---
@@ -744,7 +2096,7 @@ Response from the rerank endpoint.
 |-------|------|---------|-------------|
 | `id` | `str | None` | `None` | Unique identifier |
 | `results` | `list[RerankResult]` | — | Results |
-| `meta` | `dict[str, Any] | None` | `None` | Meta |
+| `meta` | `Any | None` | `None` | Meta |
 
 
 ---
@@ -769,6 +2121,45 @@ The text content of a reranked document, returned when `return_documents` is tru
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `text` | `str` | — | Text |
+
+
+---
+
+#### ResponseClient
+
+Responses API operations (create, retrieve, cancel).
+
+##### Methods
+
+###### create_response()
+
+Create a new response.
+
+**Signature:**
+
+```python
+def create_response(self, req: CreateResponseRequest) -> ResponseObject
+```
+
+###### retrieve_response()
+
+Retrieve a response by ID.
+
+**Signature:**
+
+```python
+def retrieve_response(self, id: str) -> ResponseObject
+```
+
+###### cancel_response()
+
+Cancel an in-progress response.
+
+**Signature:**
+
+```python
+def cancel_response(self, id: str) -> ResponseObject
+```
 
 
 ---
@@ -1207,3 +2598,4 @@ All errors that can occur when using `liter-llm`.
 
 
 ---
+
