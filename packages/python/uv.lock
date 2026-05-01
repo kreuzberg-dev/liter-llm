@@ -93,7 +93,7 @@ wheels = [
 
 [[package]]
 name = "liter-llm"
-version = "1.4.0rc3"
+version = "1.4.0rc27"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
