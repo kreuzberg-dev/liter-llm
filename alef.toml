@@ -1,4 +1,4 @@
-version = "0.12.10"
+version = "0.12.15"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [crate]
@@ -84,8 +84,6 @@ types = [
     "ModelPricing",
 ]
 methods = [
-    # Methods not yet in core (no LlmClient trait method)
-    "DefaultClient.ocr",
     # Raw methods on DefaultClient
     "DefaultClient.chat_raw",
     "DefaultClient.chat_stream_raw",
@@ -96,19 +94,6 @@ methods = [
     "DefaultClient.rerank_raw",
     "DefaultClient.search_raw",
     "DefaultClient.ocr_raw",
-    # Batch/File/Response methods on DefaultClient
-    "DefaultClient.create_batch",
-    "DefaultClient.retrieve_batch",
-    "DefaultClient.list_batches",
-    "DefaultClient.cancel_batch",
-    "DefaultClient.create_file",
-    "DefaultClient.retrieve_file",
-    "DefaultClient.delete_file",
-    "DefaultClient.list_files",
-    "DefaultClient.file_content",
-    "DefaultClient.create_response",
-    "DefaultClient.retrieve_response",
-    "DefaultClient.cancel_response",
     # Constructor takes ClientConfig (excluded type) — use create_client() instead
     "DefaultClient.new",
     # Internal provider methods
@@ -118,9 +103,6 @@ methods = [
     "DefaultClient.all_headers",
     "DefaultClient.all_headers_for_provider",
     "DefaultClient.prepare_request",
-    # Methods returning bytes::Bytes
-    "DefaultClient.speech",
-    "DefaultClient.file_content",
     # Error internal methods
     "LiterLlmError.from_status",
     # Methods that require binding→core From on output types (not yet supported)

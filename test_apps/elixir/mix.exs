@@ -12,7 +12,6 @@ defmodule E2eElixir.MixProject do
 
   defp deps do
     [
-      {:liter_llm, "0.1.0"}
     ]
   end
 end

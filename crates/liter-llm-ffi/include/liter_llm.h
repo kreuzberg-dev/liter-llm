@@ -40,7 +40,6 @@ typedef struct LITERLLMImageDetail LITERLLMImageDetail;
 typedef struct LITERLLMImageUrl LITERLLMImageUrl;
 typedef struct LITERLLMImagesResponse LITERLLMImagesResponse;
 typedef struct LITERLLMJsonSchemaFormat LITERLLMJsonSchemaFormat;
-typedef struct LITERLLMLiterLlmError LITERLLMLiterLlmError;
 typedef struct LITERLLMMessage LITERLLMMessage;
 typedef struct LITERLLMModelObject LITERLLMModelObject;
 typedef struct LITERLLMModelsListResponse LITERLLMModelsListResponse;
@@ -125,13 +124,6 @@ void literllm_free_string(char *ptr);
  * Returned pointers must be freed with the appropriate free function.
  */
 const char *literllm_version(void);
-
-/**
- * Free a `LiterLlmError` handle.
- * # Safety
- * Pointer must have been returned by this library, or be null.
- */
-void literllm_liter_llm_error_free(LITERLLMLiterLlmError *ptr);
 
 /**
  * Create a `SystemMessage` from a JSON string. Returns null on failure.
@@ -2999,6 +2991,14 @@ LITERLLMImagesResponse *literllm_default_client_image_generate(const LITERLLMDef
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
+uint8_t *literllm_default_client_speech(const LITERLLMDefaultClient *this_,
+                                        const LITERLLMCreateSpeechRequest *req);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
 LITERLLMTranscriptionResponse *literllm_default_client_transcribe(const LITERLLMDefaultClient *this_,
                                                                   const LITERLLMCreateTranscriptionRequest *req);
 
@@ -3025,6 +3025,110 @@ LITERLLMRerankResponse *literllm_default_client_rerank(const LITERLLMDefaultClie
  */
 LITERLLMSearchResponse *literllm_default_client_search(const LITERLLMDefaultClient *this_,
                                                        const LITERLLMSearchRequest *req);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+LITERLLMOcrResponse *literllm_default_client_ocr(const LITERLLMDefaultClient *this_,
+                                                 const LITERLLMOcrRequest *req);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_create_file(const LITERLLMDefaultClient *_this,
+                                          const char *_req);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_retrieve_file(const LITERLLMDefaultClient *_this,
+                                            const char *_file_id);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_delete_file(const LITERLLMDefaultClient *_this,
+                                          const char *_file_id);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_list_files(const LITERLLMDefaultClient *_this,
+                                         const char *_query);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+uint8_t *literllm_default_client_file_content(const LITERLLMDefaultClient *this_,
+                                              const char *file_id);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_create_batch(const LITERLLMDefaultClient *_this,
+                                           const char *_req);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_retrieve_batch(const LITERLLMDefaultClient *_this,
+                                             const char *_batch_id);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_list_batches(const LITERLLMDefaultClient *_this,
+                                           const char *_query);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_cancel_batch(const LITERLLMDefaultClient *_this,
+                                           const char *_batch_id);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_create_response(const LITERLLMDefaultClient *_this,
+                                              const char *_req);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_retrieve_response(const LITERLLMDefaultClient *_this,
+                                                const char *_id);
+
+/**
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+char *literllm_default_client_cancel_response(const LITERLLMDefaultClient *_this,
+                                              const char *_id);
 
 /**
  * Create a `CustomProviderConfig` from a JSON string. Returns null on failure.

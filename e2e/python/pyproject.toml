@@ -21,7 +21,7 @@ dependencies = [ "pytest>=7.4", "pytest-asyncio>=0.23", "pytest-timeout>=2.1", "
 packages = [  ]
 
 [tool.uv]
-sources.kreuzcrawl = { workspace = true }
+sources.kreuzcrawl = { path = "../../packages/python" }
 
 [tool.ruff]
 lint.ignore = [ "PLR2004" ]

@@ -12,7 +12,6 @@ defmodule E2eElixir.MixProject do
 
   defp deps do
     [
-      {:liter_llm, path: "../../packages/elixir"}
     ]
   end
 end
