@@ -2408,7 +2408,7 @@ name = "liter-llm-wasm"
 version = "1.4.0-rc.27"
 dependencies = [
  "futures-util",
- "getrandom 0.3.4",
+ "getrandom 0.4.2",
  "js-sys",
  "liter-llm",
  "serde-wasm-bindgen",
