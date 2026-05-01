@@ -1,0 +1,24 @@
+[package]
+name = "liter-llm-rb"
+version = "1.4.0-rc.27"
+edition = "2024"
+license = "MIT"
+description = "Universal LLM API client — 142+ providers, streaming, tool calling. Rust-powered with polyglot bindings."
+readme = false
+keywords = ["llm", "api-client", "openai", "anthropic"]
+categories = ["text-processing"]
+
+[lib]
+name = "liter_llm_rb"
+path = "../src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+liter-llm = { path = "../../../../../crates/liter-llm", features = ["native-http", "full"] }
+magnus = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread"] }
+
+[lints]
+workspace = true
