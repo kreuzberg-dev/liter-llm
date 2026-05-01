@@ -58,6 +58,7 @@ jobs:
       npm_tag:          ${{ steps.meta.outputs.npm_tag }}
       dry_run:          ${{ steps.meta.outputs.dry_run }}
       force_republish:  ${{ steps.meta.outputs.force_republish }}
+      target_sha:       ${{ steps.meta.outputs.target_sha }}
       release_crates:   ${{ steps.meta.outputs.release_crates }}
       release_python:   ${{ steps.meta.outputs.release_python }}
       release_node:     ${{ steps.meta.outputs.release_node }}
@@ -525,63 +526,101 @@ jobs:
 
   # ── PHP extension ──────────────────────────────────────────────────────────
   build-php:
-    name: Build PHP extension (${{ matrix.label }})
+    name: Build PHP PIE binary (php${{ matrix.php }} ${{ matrix.platform.label }})
     needs: [prepare]
     if: |
       always() &&
       needs.prepare.outputs.release_php == 'true'
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.platform.os }}
     timeout-minutes: 60
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - label: linux-x86_64
-            runner: ubuntu-latest
+        php: ["8.2", "8.3", "8.4", "8.5"]
+        platform:
+          - os: ubuntu-latest
+            label: linux-x86_64
             target: x86_64-unknown-linux-gnu
-            os: linux
-            arch: x86_64
-          - label: linux-aarch64
-            runner: ubuntu-24.04-arm
+          - os: ubuntu-24.04-arm
+            label: linux-arm64
             target: aarch64-unknown-linux-gnu
-            os: linux
-            arch: aarch64
-          - label: macos-arm64
-            runner: macos-latest
+          - os: macos-latest
+            label: macos-arm64
             target: aarch64-apple-darwin
-            os: macos
-            arch: arm64
-          # Windows disabled: ext-php-rs requires abi_vectorcall feature (nightly-only) on Windows
-          # - label: windows-x86_64
-          #   runner: windows-latest
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows
-          #   arch: x86_64
+          - os: windows-latest
+            label: windows-x86_64
+            target: x86_64-pc-windows-msvc
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6 # v6
         with:
           ref: ${{ needs.prepare.outputs.tag }}
-      - uses: kreuzberg-dev/actions/setup-rust@v1
-        with:
-          target: ${{ matrix.target }}
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          tools: composer
-      - name: Install alef
-        uses: kreuzberg-dev/actions/install-alef@v1
-      - name: Build and package PHP extension
-        shell: bash
+          fetch-depth: 0
+
+      - name: Ensure target commit
+        if: ${{ needs.prepare.outputs.target_sha != '' }}
         env:
-          # ext-php-rs on macOS requires dynamic_lookup to resolve PHP symbols at runtime
-          RUSTFLAGS: ${{ matrix.os == 'macos' && '-C link-arg=-undefined -C link-arg=dynamic_lookup' || '' }}
-        run: |
-          alef publish build --lang php --target ${{ matrix.target }}
-          alef publish package --lang php --target ${{ matrix.target }} -o dist/php
-      - uses: actions/upload-artifact@v7
+          TARGET_SHA: ${{ needs.prepare.outputs.target_sha }}
+        run: scripts/publish/common/ensure-target-commit.sh
+        shell: bash
+
+      - name: Setup PHP
+        uses: kreuzberg-dev/actions/setup-php@v1 # v1
         with:
-          name: php-pie-${{ matrix.label }}
-          path: dist/php/liter-llm-*.tar.gz*
+          php-version: ${{ matrix.php }}
+
+      - name: Setup Rust
+        uses: kreuzberg-dev/actions/setup-rust@v1 # v1
+        with:
+          cache-key-prefix: publish-php-${{ matrix.platform.label }}-php${{ matrix.php }}
+          toolchain: stable
+
+      - name: Install alef
+        uses: kreuzberg-dev/actions/install-alef@v1 # v1
+
+      - name: Build PHP extension
+        uses: kreuzberg-dev/actions/build-php-extension@v1 # v1
+        with:
+          crate-name: liter-llm-php
+          lib-name: liter_llm_php
+          php-version: ${{ matrix.php }}
+          php-ts: nts
+
+      - name: Determine Windows compiler
+        if: runner.os == 'Windows'
+        id: wincompiler
+        shell: pwsh
+        run: |
+          $compiler = switch ('${{ matrix.php }}') {
+            '8.2' { 'vs16' }
+            '8.3' { 'vs16' }
+            '8.4' { 'vs17' }
+            '8.5' { 'vs17' }
+            default { 'vs17' }
+          }
+          "compiler=$compiler" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Package PIE archive
+        uses: kreuzberg-dev/actions/package-php-pie@v1 # v1
+        with:
+          php-version: ${{ matrix.php }}
+          php-ts: nts
+          target: ${{ matrix.platform.target }}
+          windows-compiler: ${{ steps.wincompiler.outputs.compiler }}
+          version: ${{ needs.prepare.outputs.version }}
+          output-dir: dist/php-package
+
+      - name: Upload PHP PIE package artifact
+        uses: actions/upload-artifact@v7 # v7
+        with:
+          name: php-package-${{ matrix.platform.label }}-php${{ matrix.php }}
+          path: |
+            dist/php-package/php_*.tgz
+            dist/php-package/php_*.tgz.sha256
+            dist/php-package/php_*.zip
+            dist/php-package/php_*.zip.sha256
           retention-days: 14
 
   # ── Rust FFI (shared for Go / Java / C# / C consumers) ────────────────────
@@ -837,41 +876,14 @@ jobs:
         shell: bash
       - uses: actions/download-artifact@v7
         with:
-          pattern: php-pie-*
-          path: php-pie-artifacts
+          pattern: php-package-*
+          path: dist/php-package
           merge-multiple: true
-      - name: List PHP artifacts
-        run: ls -lah php-pie-artifacts/
-        shell: bash
-      - name: Rename PHP PIE archives so they can't be mistaken for CLI binaries
-        # alef publish package --lang php emits liter-llm-${VERSION}-${LABEL}.tar.gz,
-        # which collides with the CLI archive naming convention. Rename to
-        # liter-llm-php-* so the asset list on the release page is unambiguous.
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          for f in php-pie-artifacts/liter-llm-*.tar.gz*; do
-            base="$(basename "$f")"
-            new="${base/liter-llm-/liter-llm-php-}"
-            if [ "$base" != "$new" ]; then
-              mv "$f" "php-pie-artifacts/$new"
-              echo "Renamed: $base → $new"
-            fi
-          done
-          ls -lah php-pie-artifacts/
-        shell: bash
-      - name: Upload PIE packages to GitHub Release
+      - name: Upload PHP PIE packages
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.prepare.outputs.tag }}
-        run: |
-          echo "Uploading PHP PIE packages to GitHub release ${TAG}..."
-          for file in php-pie-artifacts/liter-llm-php-*.tar.gz*; do
-            if [ -f "$file" ]; then
-              echo "Uploading: $file"
-              gh release upload "$TAG" "$file" --clobber --repo ${{ github.repository }}
-            fi
-          done
+        run: scripts/publish/upload-php-pie.sh
         shell: bash
 
   # ─────────────────────────────────────────────────────────────────────────
