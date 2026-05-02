@@ -1,7 +1,0 @@
-Package: e2e.r
-Title: E2E Tests for liter_llm
-Version: 0.1.0
-Description: End-to-end test suite.
-Imports: liter_llm (0.1.0)
-Suggests: testthat (>= 3.0.0)
-Config/testthat/edition: 3
