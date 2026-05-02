@@ -1,16 +1,16 @@
 [files]
 extend-exclude = [
-    "fixtures/",
-    "e2e/",
-    "schemas/",
-    "*.lock",
-    "vendor/",
-    "node_modules/",
-    "target/",
-    ".alef/",
-    ".lycheecache",
-    "docs/assets/",
-    "*.svg",
+  "fixtures/",
+  "e2e/",
+  "schemas/",
+  "*.lock",
+  "vendor/",
+  "node_modules/",
+  "target/",
+  ".alef/",
+  ".lycheecache",
+  "docs/assets/",
+  "*.svg",
 ]
 
 [default.extend-words]

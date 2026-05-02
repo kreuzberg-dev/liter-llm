@@ -1,36 +1,36 @@
 {
-	"id": "smoke_chat_gemini",
-	"description": "Basic chat completion against real Google Gemini API",
-	"category": "smoke",
-	"tags": ["smoke", "gemini", "chat"],
-	"call": "chat",
-	"input": {
-		"model": "gemini/gemini-2.5-flash-lite",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say hello in exactly one word."
-			}
-		],
-		"max_tokens": 10
-	},
-	"env": {
-		"api_key_var": "GEMINI_API_KEY"
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "choices"
-		},
-		{
-			"type": "not_empty",
-			"field": "usage"
-		}
-	]
+  "id": "smoke_chat_gemini",
+  "description": "Basic chat completion against real Google Gemini API",
+  "category": "smoke",
+  "tags": ["smoke", "gemini", "chat"],
+  "call": "chat",
+  "input": {
+    "model": "gemini/gemini-2.5-flash-lite",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hello in exactly one word."
+      }
+    ],
+    "max_tokens": 10
+  },
+  "env": {
+    "api_key_var": "GEMINI_API_KEY"
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "choices"
+    },
+    {
+      "type": "not_empty",
+      "field": "usage"
+    }
+  ]
 }

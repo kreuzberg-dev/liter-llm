@@ -1,65 +1,65 @@
 {
-	"id": "local_provider_ollama",
-	"description": "Ollama local provider routes requests via ollama/ model prefix with no auth",
-	"category": "configuration",
-	"tags": ["configuration", "local", "ollama"],
-	"call": "chat",
-	"input": {
-		"model": "ollama/qwen2:0.5b",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-ollama-001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "qwen2:0.5b",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello! How can I help you today?"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 5,
-				"completion_tokens": 8,
-				"total_tokens": 13
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello! How can I help you today?"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "qwen2:0.5b"
-		}
-	]
+  "id": "local_provider_ollama",
+  "description": "Ollama local provider routes requests via ollama/ model prefix with no auth",
+  "category": "configuration",
+  "tags": ["configuration", "local", "ollama"],
+  "call": "chat",
+  "input": {
+    "model": "ollama/qwen2:0.5b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-ollama-001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "qwen2:0.5b",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello! How can I help you today?"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5,
+        "completion_tokens": 8,
+        "total_tokens": 13
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello! How can I help you today?"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "qwen2:0.5b"
+    }
+  ]
 }

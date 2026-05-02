@@ -1,993 +1,993 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"title": "Shared types used across endpoints",
-	"description": "Shared types used across endpoints",
-	"$defs": {
-		"AssistantsApiResponseFormatOption": {
-			"description": "Specifies the format that the model must output. Compatible with [GPT-4o](/docs/models#gpt-4o), [GPT-4 Turbo](/docs/models#gpt-4-turbo-and-gpt-4), and all GPT-3.5 Turbo models since `gpt-3.5-turbo-1106`.\n\nSetting to `{ \"type\": \"json_schema\", \"json_schema\": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](/docs/guides/structured-outputs).\n\nSetting to `{ \"type\": \"json_object\" }` enables JSON mode, which ensures the message the model generates is valid JSON.\n\n**Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly \"stuck\" request. Also note that the message content may be partially cut off if `finish_reason=\"length\"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.\n",
-			"oneOf": [
-				{
-					"type": "string",
-					"description": "`auto` is the default value\n",
-					"enum": ["auto"],
-					"x-stainless-const": true
-				},
-				{
-					"$ref": "#/$defs/ResponseFormatText"
-				},
-				{
-					"$ref": "#/$defs/ResponseFormatJsonObject"
-				},
-				{
-					"$ref": "#/$defs/ResponseFormatJsonSchema"
-				}
-			]
-		},
-		"AudioResponseFormat": {
-			"description": "The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, `vtt`, or `diarized_json`. For `gpt-4o-transcribe` and `gpt-4o-mini-transcribe`, the only supported format is `json`. For `gpt-4o-transcribe-diarize`, the supported formats are `json`, `text`, and `diarized_json`, with `diarized_json` required to receive speaker annotations.\n",
-			"type": "string",
-			"enum": ["json", "text", "srt", "verbose_json", "vtt", "diarized_json"],
-			"default": "json"
-		},
-		"ChatCompletionAllowedTools": {
-			"type": "object",
-			"title": "Allowed tools",
-			"description": "Constrains the tools available to the model to a pre-defined set.\n",
-			"properties": {
-				"mode": {
-					"type": "string",
-					"enum": ["auto", "required"],
-					"description": "Constrains the tools available to the model to a pre-defined set.\n\n`auto` allows the model to pick from among the allowed tools and generate a\nmessage.\n\n`required` requires the model to call one or more of the allowed tools.\n"
-				},
-				"tools": {
-					"type": "array",
-					"description": "A list of tool definitions that the model should be allowed to call.\n\nFor the Chat Completions API, the list of tool definitions might look like:\n```json\n[\n  { \"type\": \"function\", \"function\": { \"name\": \"get_weather\" } },\n  { \"type\": \"function\", \"function\": { \"name\": \"get_time\" } }\n]\n```\n",
-					"items": {
-						"type": "object",
-						"x-oaiExpandable": false,
-						"description": "A tool definition that the model should be allowed to call.\n",
-						"additionalProperties": true
-					}
-				}
-			},
-			"required": ["mode", "tools"]
-		},
-		"ChatCompletionAllowedToolsChoice": {
-			"type": "object",
-			"title": "Allowed tools",
-			"description": "Constrains the tools available to the model to a pre-defined set.\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["allowed_tools"],
-					"description": "Allowed tool configuration type. Always `allowed_tools`.",
-					"x-stainless-const": true
-				},
-				"allowed_tools": {
-					"$ref": "#/$defs/ChatCompletionAllowedTools"
-				}
-			},
-			"required": ["type", "allowed_tools"]
-		},
-		"ChatCompletionFunctionCallOption": {
-			"type": "object",
-			"description": "Specifying a particular function via `{\"name\": \"my_function\"}` forces the model to call that function.\n",
-			"properties": {
-				"name": {
-					"type": "string",
-					"description": "The name of the function to call."
-				}
-			},
-			"required": ["name"]
-		},
-		"ChatCompletionFunctions": {
-			"type": "object",
-			"deprecated": true,
-			"properties": {
-				"description": {
-					"type": "string",
-					"description": "A description of what the function does, used by the model to choose when and how to call the function."
-				},
-				"name": {
-					"type": "string",
-					"description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64."
-				},
-				"parameters": {
-					"$ref": "#/$defs/FunctionParameters"
-				}
-			},
-			"required": ["name"]
-		},
-		"ChatCompletionMessageCustomToolCall": {
-			"type": "object",
-			"title": "Custom tool call",
-			"description": "A call to a custom tool created by the model.\n",
-			"properties": {
-				"id": {
-					"type": "string",
-					"description": "The ID of the tool call."
-				},
-				"type": {
-					"type": "string",
-					"enum": ["custom"],
-					"description": "The type of the tool. Always `custom`.",
-					"x-stainless-const": true
-				},
-				"custom": {
-					"type": "object",
-					"description": "The custom tool that the model called.",
-					"properties": {
-						"name": {
-							"type": "string",
-							"description": "The name of the custom tool to call."
-						},
-						"input": {
-							"type": "string",
-							"description": "The input for the custom tool call generated by the model."
-						}
-					},
-					"required": ["name", "input"]
-				}
-			},
-			"required": ["id", "type", "custom"]
-		},
-		"ChatCompletionMessageToolCall": {
-			"type": "object",
-			"title": "Function tool call",
-			"description": "A call to a function tool created by the model.\n",
-			"properties": {
-				"id": {
-					"type": "string",
-					"description": "The ID of the tool call."
-				},
-				"type": {
-					"type": "string",
-					"enum": ["function"],
-					"description": "The type of the tool. Currently, only `function` is supported.",
-					"x-stainless-const": true
-				},
-				"function": {
-					"type": "object",
-					"description": "The function that the model called.",
-					"properties": {
-						"name": {
-							"type": "string",
-							"description": "The name of the function to call."
-						},
-						"arguments": {
-							"type": "string",
-							"description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function."
-						}
-					},
-					"required": ["name", "arguments"]
-				}
-			},
-			"required": ["id", "type", "function"]
-		},
-		"ChatCompletionMessageToolCalls": {
-			"type": "array",
-			"description": "The tool calls generated by the model, such as function calls.",
-			"items": {
-				"oneOf": [
-					{
-						"$ref": "#/$defs/ChatCompletionMessageToolCall"
-					},
-					{
-						"$ref": "#/$defs/ChatCompletionMessageCustomToolCall"
-					}
-				],
-				"discriminator": {
-					"propertyName": "type"
-				}
-			}
-		},
-		"ChatCompletionModalities": {
-			"anyOf": [
-				{
-					"type": "array",
-					"description": "Output types that you would like the model to generate for this request.\nMost models are capable of generating text, which is the default:\n\n`[\"text\"]`\n\nThe `gpt-4o-audio-preview` model can also be used to [generate audio](/docs/guides/audio). To\nrequest that this model generate both text and audio responses, you can\nuse:\n\n`[\"text\", \"audio\"]`\n",
-					"items": {
-						"type": "string",
-						"enum": ["text", "audio"]
-					}
-				},
-				{
-					"type": "null"
-				}
-			]
-		},
-		"ChatCompletionNamedToolChoice": {
-			"type": "object",
-			"title": "Function tool choice",
-			"description": "Specifies a tool the model should use. Use to force the model to call a specific function.",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["function"],
-					"description": "For function calling, the type is always `function`.",
-					"x-stainless-const": true
-				},
-				"function": {
-					"type": "object",
-					"properties": {
-						"name": {
-							"type": "string",
-							"description": "The name of the function to call."
-						}
-					},
-					"required": ["name"]
-				}
-			},
-			"required": ["type", "function"]
-		},
-		"ChatCompletionNamedToolChoiceCustom": {
-			"type": "object",
-			"title": "Custom tool choice",
-			"description": "Specifies a tool the model should use. Use to force the model to call a specific custom tool.",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["custom"],
-					"description": "For custom tool calling, the type is always `custom`.",
-					"x-stainless-const": true
-				},
-				"custom": {
-					"type": "object",
-					"properties": {
-						"name": {
-							"type": "string",
-							"description": "The name of the custom tool to call."
-						}
-					},
-					"required": ["name"]
-				}
-			},
-			"required": ["type", "custom"]
-		},
-		"ChatCompletionRequestAssistantMessage": {
-			"type": "object",
-			"title": "Assistant message",
-			"description": "Messages sent by the model in response to user messages.\n",
-			"properties": {
-				"content": {
-					"anyOf": [
-						{
-							"oneOf": [
-								{
-									"type": "string",
-									"description": "The contents of the assistant message.",
-									"title": "Text content"
-								},
-								{
-									"type": "array",
-									"description": "An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.",
-									"title": "Array of content parts",
-									"items": {
-										"$ref": "#/$defs/ChatCompletionRequestAssistantMessageContentPart"
-									},
-									"minItems": 1
-								}
-							],
-							"description": "The contents of the assistant message. Required unless `tool_calls` or `function_call` is specified.\n"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"refusal": {
-					"anyOf": [
-						{
-							"type": "string",
-							"description": "The refusal message by the assistant."
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"role": {
-					"type": "string",
-					"enum": ["assistant"],
-					"description": "The role of the messages author, in this case `assistant`.",
-					"x-stainless-const": true
-				},
-				"name": {
-					"type": "string",
-					"description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
-				},
-				"audio": {
-					"anyOf": [
-						{
-							"type": "object",
-							"description": "Data about a previous audio response from the model.\n[Learn more](/docs/guides/audio).\n",
-							"required": ["id"],
-							"properties": {
-								"id": {
-									"type": "string",
-									"description": "Unique identifier for a previous audio response from the model.\n"
-								}
-							}
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"tool_calls": {
-					"$ref": "#/$defs/ChatCompletionMessageToolCalls"
-				},
-				"function_call": {
-					"anyOf": [
-						{
-							"type": "object",
-							"deprecated": true,
-							"description": "Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.",
-							"properties": {
-								"arguments": {
-									"type": "string",
-									"description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function."
-								},
-								"name": {
-									"type": "string",
-									"description": "The name of the function to call."
-								}
-							},
-							"required": ["arguments", "name"]
-						},
-						{
-							"type": "null"
-						}
-					]
-				}
-			},
-			"required": ["role"]
-		},
-		"ChatCompletionRequestAssistantMessageContentPart": {
-			"oneOf": [
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartRefusal"
-				}
-			],
-			"discriminator": {
-				"propertyName": "type"
-			}
-		},
-		"ChatCompletionRequestDeveloperMessage": {
-			"type": "object",
-			"title": "Developer message",
-			"description": "Developer-provided instructions that the model should follow, regardless of\nmessages sent by the user. With o1 models and newer, `developer` messages\nreplace the previous `system` messages.\n",
-			"properties": {
-				"content": {
-					"description": "The contents of the developer message.",
-					"oneOf": [
-						{
-							"type": "string",
-							"description": "The contents of the developer message.",
-							"title": "Text content"
-						},
-						{
-							"type": "array",
-							"description": "An array of content parts with a defined type. For developer messages, only type `text` is supported.",
-							"title": "Array of content parts",
-							"items": {
-								"$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
-							},
-							"minItems": 1
-						}
-					]
-				},
-				"role": {
-					"type": "string",
-					"enum": ["developer"],
-					"description": "The role of the messages author, in this case `developer`.",
-					"x-stainless-const": true
-				},
-				"name": {
-					"type": "string",
-					"description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
-				}
-			},
-			"required": ["content", "role"]
-		},
-		"ChatCompletionRequestFunctionMessage": {
-			"type": "object",
-			"title": "Function message",
-			"deprecated": true,
-			"properties": {
-				"role": {
-					"type": "string",
-					"enum": ["function"],
-					"description": "The role of the messages author, in this case `function`.",
-					"x-stainless-const": true
-				},
-				"content": {
-					"anyOf": [
-						{
-							"type": "string",
-							"description": "The contents of the function message."
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"name": {
-					"type": "string",
-					"description": "The name of the function to call."
-				}
-			},
-			"required": ["role", "content", "name"]
-		},
-		"ChatCompletionRequestMessageContentPartAudio": {
-			"type": "object",
-			"title": "Audio content part",
-			"description": "Learn about [audio inputs](/docs/guides/audio).\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["input_audio"],
-					"description": "The type of the content part. Always `input_audio`.",
-					"x-stainless-const": true
-				},
-				"input_audio": {
-					"type": "object",
-					"properties": {
-						"data": {
-							"type": "string",
-							"description": "Base64 encoded audio data."
-						},
-						"format": {
-							"type": "string",
-							"enum": ["wav", "mp3"],
-							"description": "The format of the encoded audio data. Currently supports \"wav\" and \"mp3\".\n"
-						}
-					},
-					"required": ["data", "format"]
-				}
-			},
-			"required": ["type", "input_audio"]
-		},
-		"ChatCompletionRequestMessageContentPartFile": {
-			"type": "object",
-			"title": "File content part",
-			"description": "Learn about [file inputs](/docs/guides/text) for text generation.\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["file"],
-					"description": "The type of the content part. Always `file`.",
-					"x-stainless-const": true
-				},
-				"file": {
-					"type": "object",
-					"properties": {
-						"filename": {
-							"type": "string",
-							"description": "The name of the file, used when passing the file to the model as a \nstring.\n"
-						},
-						"file_data": {
-							"type": "string",
-							"description": "The base64 encoded file data, used when passing the file to the model \nas a string.\n"
-						},
-						"file_id": {
-							"type": "string",
-							"description": "The ID of an uploaded file to use as input.\n"
-						}
-					}
-				}
-			},
-			"required": ["type", "file"]
-		},
-		"ChatCompletionRequestMessageContentPartImage": {
-			"type": "object",
-			"title": "Image content part",
-			"description": "Learn about [image inputs](/docs/guides/vision).\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["image_url"],
-					"description": "The type of the content part.",
-					"x-stainless-const": true
-				},
-				"image_url": {
-					"type": "object",
-					"properties": {
-						"url": {
-							"type": "string",
-							"description": "Either a URL of the image or the base64 encoded image data.",
-							"format": "uri"
-						},
-						"detail": {
-							"type": "string",
-							"description": "Specifies the detail level of the image. Learn more in the [Vision guide](/docs/guides/vision#low-or-high-fidelity-image-understanding).",
-							"enum": ["auto", "low", "high"],
-							"default": "auto"
-						}
-					},
-					"required": ["url"]
-				}
-			},
-			"required": ["type", "image_url"]
-		},
-		"ChatCompletionRequestMessageContentPartRefusal": {
-			"type": "object",
-			"title": "Refusal content part",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["refusal"],
-					"description": "The type of the content part.",
-					"x-stainless-const": true
-				},
-				"refusal": {
-					"type": "string",
-					"description": "The refusal message generated by the model."
-				}
-			},
-			"required": ["type", "refusal"]
-		},
-		"ChatCompletionRequestMessageContentPartText": {
-			"type": "object",
-			"title": "Text content part",
-			"description": "Learn about [text inputs](/docs/guides/text-generation).\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["text"],
-					"description": "The type of the content part.",
-					"x-stainless-const": true
-				},
-				"text": {
-					"type": "string",
-					"description": "The text content."
-				}
-			},
-			"required": ["type", "text"]
-		},
-		"ChatCompletionRequestSystemMessage": {
-			"type": "object",
-			"title": "System message",
-			"description": "Developer-provided instructions that the model should follow, regardless of\nmessages sent by the user. With o1 models and newer, use `developer` messages\nfor this purpose instead.\n",
-			"properties": {
-				"content": {
-					"description": "The contents of the system message.",
-					"oneOf": [
-						{
-							"type": "string",
-							"description": "The contents of the system message.",
-							"title": "Text content"
-						},
-						{
-							"type": "array",
-							"description": "An array of content parts with a defined type. For system messages, only type `text` is supported.",
-							"title": "Array of content parts",
-							"items": {
-								"$ref": "#/$defs/ChatCompletionRequestSystemMessageContentPart"
-							},
-							"minItems": 1
-						}
-					]
-				},
-				"role": {
-					"type": "string",
-					"enum": ["system"],
-					"description": "The role of the messages author, in this case `system`.",
-					"x-stainless-const": true
-				},
-				"name": {
-					"type": "string",
-					"description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
-				}
-			},
-			"required": ["content", "role"]
-		},
-		"ChatCompletionRequestSystemMessageContentPart": {
-			"oneOf": [
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
-				}
-			]
-		},
-		"ChatCompletionRequestToolMessage": {
-			"type": "object",
-			"title": "Tool message",
-			"properties": {
-				"role": {
-					"type": "string",
-					"enum": ["tool"],
-					"description": "The role of the messages author, in this case `tool`.",
-					"x-stainless-const": true
-				},
-				"content": {
-					"oneOf": [
-						{
-							"type": "string",
-							"description": "The contents of the tool message.",
-							"title": "Text content"
-						},
-						{
-							"type": "array",
-							"description": "An array of content parts with a defined type. For tool messages, only type `text` is supported.",
-							"title": "Array of content parts",
-							"items": {
-								"$ref": "#/$defs/ChatCompletionRequestToolMessageContentPart"
-							},
-							"minItems": 1
-						}
-					],
-					"description": "The contents of the tool message."
-				},
-				"tool_call_id": {
-					"type": "string",
-					"description": "Tool call that this message is responding to."
-				}
-			},
-			"required": ["role", "content", "tool_call_id"]
-		},
-		"ChatCompletionRequestToolMessageContentPart": {
-			"oneOf": [
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
-				}
-			]
-		},
-		"ChatCompletionRequestUserMessage": {
-			"type": "object",
-			"title": "User message",
-			"description": "Messages sent by an end user, containing prompts or additional context\ninformation.\n",
-			"properties": {
-				"content": {
-					"description": "The contents of the user message.\n",
-					"oneOf": [
-						{
-							"type": "string",
-							"description": "The text contents of the message.",
-							"title": "Text content"
-						},
-						{
-							"type": "array",
-							"description": "An array of content parts with a defined type. Supported options differ based on the [model](/docs/models) being used to generate the response. Can contain text, image, or audio inputs.",
-							"title": "Array of content parts",
-							"items": {
-								"$ref": "#/$defs/ChatCompletionRequestUserMessageContentPart"
-							},
-							"minItems": 1
-						}
-					]
-				},
-				"role": {
-					"type": "string",
-					"enum": ["user"],
-					"description": "The role of the messages author, in this case `user`.",
-					"x-stainless-const": true
-				},
-				"name": {
-					"type": "string",
-					"description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
-				}
-			},
-			"required": ["content", "role"]
-		},
-		"ChatCompletionRequestUserMessageContentPart": {
-			"oneOf": [
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartImage"
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartAudio"
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionRequestMessageContentPartFile"
-				}
-			]
-		},
-		"ChatCompletionRole": {
-			"type": "string",
-			"description": "The role of the author of a message",
-			"enum": ["developer", "system", "user", "assistant", "tool", "function"]
-		},
-		"ChatCompletionStreamOptions": {
-			"anyOf": [
-				{
-					"description": "Options for streaming response. Only set this when you set `stream: true`.\n",
-					"type": "object",
-					"default": null,
-					"properties": {
-						"include_usage": {
-							"type": "boolean",
-							"description": "If set, an additional chunk will be streamed before the `data: [DONE]`\nmessage. The `usage` field on this chunk shows the token usage statistics\nfor the entire request, and the `choices` field will always be an empty\narray.\n\nAll other chunks will also include a `usage` field, but with a null\nvalue. **NOTE:** If the stream is interrupted, you may not receive the\nfinal usage chunk which contains the total token usage for the request.\n"
-						},
-						"include_obfuscation": {
-							"type": "boolean",
-							"description": "When true, stream obfuscation will be enabled. Stream obfuscation adds\nrandom characters to an `obfuscation` field on streaming delta events to\nnormalize payload sizes as a mitigation to certain side-channel attacks.\nThese obfuscation fields are included by default, but add a small amount\nof overhead to the data stream. You can set `include_obfuscation` to\nfalse to optimize for bandwidth if you trust the network links between\nyour application and the OpenAI API.\n"
-						}
-					}
-				},
-				{
-					"type": "null"
-				}
-			]
-		},
-		"ChatCompletionTokenLogprob": {
-			"type": "object",
-			"properties": {
-				"token": {
-					"description": "The token.",
-					"type": "string"
-				},
-				"logprob": {
-					"description": "The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.",
-					"type": "number"
-				},
-				"bytes": {
-					"anyOf": [
-						{
-							"description": "A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.",
-							"type": "array",
-							"items": {
-								"type": "integer"
-							}
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"top_logprobs": {
-					"description": "List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned.",
-					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"token": {
-								"description": "The token.",
-								"type": "string"
-							},
-							"logprob": {
-								"description": "The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.",
-								"type": "number"
-							},
-							"bytes": {
-								"anyOf": [
-									{
-										"description": "A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.",
-										"type": "array",
-										"items": {
-											"type": "integer"
-										}
-									},
-									{
-										"type": "null"
-									}
-								]
-							}
-						},
-						"required": ["token", "logprob", "bytes"]
-					}
-				}
-			},
-			"required": ["token", "logprob", "bytes", "top_logprobs"]
-		},
-		"ChatCompletionTool": {
-			"type": "object",
-			"title": "Function tool",
-			"description": "A function tool that can be used to generate a response.\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": ["function"],
-					"description": "The type of the tool. Currently, only `function` is supported.",
-					"x-stainless-const": true
-				},
-				"function": {
-					"$ref": "#/$defs/FunctionObject"
-				}
-			},
-			"required": ["type", "function"]
-		},
-		"ChatCompletionToolChoiceOption": {
-			"description": "Controls which (if any) tool is called by the model.\n`none` means the model will not call any tool and instead generates a message.\n`auto` means the model can pick between generating a message or calling one or more tools.\n`required` means the model must call one or more tools.\nSpecifying a particular tool via `{\"type\": \"function\", \"function\": {\"name\": \"my_function\"}}` forces the model to call that tool.\n\n`none` is the default when no tools are present. `auto` is the default if tools are present.\n",
-			"oneOf": [
-				{
-					"type": "string",
-					"title": "Tool choice mode",
-					"description": "`none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools.\n",
-					"enum": ["none", "auto", "required"]
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionAllowedToolsChoice"
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionNamedToolChoice"
-				},
-				{
-					"$ref": "#/$defs/ChatCompletionNamedToolChoiceCustom"
-				}
-			]
-		},
-		"CompletionUsage": {
-			"type": "object",
-			"description": "Usage statistics for the completion request.",
-			"properties": {
-				"completion_tokens": {
-					"type": "integer",
-					"default": 0,
-					"description": "Number of tokens in the generated completion."
-				},
-				"prompt_tokens": {
-					"type": "integer",
-					"default": 0,
-					"description": "Number of tokens in the prompt."
-				},
-				"total_tokens": {
-					"type": "integer",
-					"default": 0,
-					"description": "Total number of tokens used in the request (prompt + completion)."
-				},
-				"completion_tokens_details": {
-					"type": "object",
-					"description": "Breakdown of tokens used in a completion.",
-					"properties": {
-						"accepted_prediction_tokens": {
-							"type": "integer",
-							"default": 0,
-							"description": "When using Predicted Outputs, the number of tokens in the\nprediction that appeared in the completion.\n"
-						},
-						"audio_tokens": {
-							"type": "integer",
-							"default": 0,
-							"description": "Audio input tokens generated by the model."
-						},
-						"reasoning_tokens": {
-							"type": "integer",
-							"default": 0,
-							"description": "Tokens generated by the model for reasoning."
-						},
-						"rejected_prediction_tokens": {
-							"type": "integer",
-							"default": 0,
-							"description": "When using Predicted Outputs, the number of tokens in the\nprediction that did not appear in the completion. However, like\nreasoning tokens, these tokens are still counted in the total\ncompletion tokens for purposes of billing, output, and context window\nlimits.\n"
-						}
-					}
-				},
-				"prompt_tokens_details": {
-					"type": "object",
-					"description": "Breakdown of tokens used in the prompt.",
-					"properties": {
-						"audio_tokens": {
-							"type": "integer",
-							"default": 0,
-							"description": "Audio input tokens present in the prompt."
-						},
-						"cached_tokens": {
-							"type": "integer",
-							"default": 0,
-							"description": "Cached tokens present in the prompt."
-						}
-					}
-				}
-			},
-			"required": ["prompt_tokens", "completion_tokens", "total_tokens"]
-		},
-		"FunctionObject": {
-			"type": "object",
-			"properties": {
-				"description": {
-					"type": "string",
-					"description": "A description of what the function does, used by the model to choose when and how to call the function."
-				},
-				"name": {
-					"type": "string",
-					"description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64."
-				},
-				"parameters": {
-					"$ref": "#/$defs/FunctionParameters"
-				},
-				"strict": {
-					"anyOf": [
-						{
-							"type": "boolean",
-							"default": false,
-							"description": "Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](/docs/guides/function-calling)."
-						},
-						{
-							"type": "null"
-						}
-					]
-				}
-			},
-			"required": ["name"]
-		},
-		"FunctionParameters": {
-			"type": "object",
-			"description": "The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. \n\nOmitting `parameters` defines a function with an empty parameter list.",
-			"additionalProperties": true
-		},
-		"ResponseFormatJsonObject": {
-			"type": "object",
-			"title": "JSON object",
-			"description": "JSON object response format. An older method of generating JSON responses.\nUsing `json_schema` is recommended for models that support it. Note that the\nmodel will not generate JSON without a system or user message instructing it\nto do so.\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"description": "The type of response format being defined. Always `json_object`.",
-					"enum": ["json_object"],
-					"x-stainless-const": true
-				}
-			},
-			"required": ["type"]
-		},
-		"ResponseFormatJsonSchema": {
-			"type": "object",
-			"title": "JSON schema",
-			"description": "JSON Schema response format. Used to generate structured JSON responses.\nLearn more about [Structured Outputs](/docs/guides/structured-outputs).\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"description": "The type of response format being defined. Always `json_schema`.",
-					"enum": ["json_schema"],
-					"x-stainless-const": true
-				},
-				"json_schema": {
-					"type": "object",
-					"title": "JSON schema",
-					"description": "Structured Outputs configuration options, including a JSON Schema.\n",
-					"properties": {
-						"description": {
-							"type": "string",
-							"description": "A description of what the response format is for, used by the model to\ndetermine how to respond in the format.\n"
-						},
-						"name": {
-							"type": "string",
-							"description": "The name of the response format. Must be a-z, A-Z, 0-9, or contain\nunderscores and dashes, with a maximum length of 64.\n"
-						},
-						"schema": {
-							"$ref": "#/$defs/ResponseFormatJsonSchemaSchema"
-						},
-						"strict": {
-							"anyOf": [
-								{
-									"type": "boolean",
-									"default": false,
-									"description": "Whether to enable strict schema adherence when generating the output.\nIf set to true, the model will always follow the exact schema defined\nin the `schema` field. Only a subset of JSON Schema is supported when\n`strict` is `true`. To learn more, read the [Structured Outputs\nguide](/docs/guides/structured-outputs).\n"
-								},
-								{
-									"type": "null"
-								}
-							]
-						}
-					},
-					"required": ["name"]
-				}
-			},
-			"required": ["type", "json_schema"]
-		},
-		"ResponseFormatJsonSchemaSchema": {
-			"type": "object",
-			"title": "JSON schema",
-			"description": "The schema for the response format, described as a JSON Schema object.\nLearn how to build JSON schemas [here](https://json-schema.org/).\n",
-			"additionalProperties": true
-		},
-		"ResponseFormatText": {
-			"type": "object",
-			"title": "Text",
-			"description": "Default response format. Used to generate text responses.\n",
-			"properties": {
-				"type": {
-					"type": "string",
-					"description": "The type of response format being defined. Always `text`.",
-					"enum": ["text"],
-					"x-stainless-const": true
-				}
-			},
-			"required": ["type"]
-		}
-	}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shared types used across endpoints",
+  "description": "Shared types used across endpoints",
+  "$defs": {
+    "AssistantsApiResponseFormatOption": {
+      "description": "Specifies the format that the model must output. Compatible with [GPT-4o](/docs/models#gpt-4o), [GPT-4 Turbo](/docs/models#gpt-4-turbo-and-gpt-4), and all GPT-3.5 Turbo models since `gpt-3.5-turbo-1106`.\n\nSetting to `{ \"type\": \"json_schema\", \"json_schema\": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](/docs/guides/structured-outputs).\n\nSetting to `{ \"type\": \"json_object\" }` enables JSON mode, which ensures the message the model generates is valid JSON.\n\n**Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly \"stuck\" request. Also note that the message content may be partially cut off if `finish_reason=\"length\"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.\n",
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "`auto` is the default value\n",
+          "enum": ["auto"],
+          "x-stainless-const": true
+        },
+        {
+          "$ref": "#/$defs/ResponseFormatText"
+        },
+        {
+          "$ref": "#/$defs/ResponseFormatJsonObject"
+        },
+        {
+          "$ref": "#/$defs/ResponseFormatJsonSchema"
+        }
+      ]
+    },
+    "AudioResponseFormat": {
+      "description": "The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, `vtt`, or `diarized_json`. For `gpt-4o-transcribe` and `gpt-4o-mini-transcribe`, the only supported format is `json`. For `gpt-4o-transcribe-diarize`, the supported formats are `json`, `text`, and `diarized_json`, with `diarized_json` required to receive speaker annotations.\n",
+      "type": "string",
+      "enum": ["json", "text", "srt", "verbose_json", "vtt", "diarized_json"],
+      "default": "json"
+    },
+    "ChatCompletionAllowedTools": {
+      "type": "object",
+      "title": "Allowed tools",
+      "description": "Constrains the tools available to the model to a pre-defined set.\n",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["auto", "required"],
+          "description": "Constrains the tools available to the model to a pre-defined set.\n\n`auto` allows the model to pick from among the allowed tools and generate a\nmessage.\n\n`required` requires the model to call one or more of the allowed tools.\n"
+        },
+        "tools": {
+          "type": "array",
+          "description": "A list of tool definitions that the model should be allowed to call.\n\nFor the Chat Completions API, the list of tool definitions might look like:\n```json\n[\n  { \"type\": \"function\", \"function\": { \"name\": \"get_weather\" } },\n  { \"type\": \"function\", \"function\": { \"name\": \"get_time\" } }\n]\n```\n",
+          "items": {
+            "type": "object",
+            "x-oaiExpandable": false,
+            "description": "A tool definition that the model should be allowed to call.\n",
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": ["mode", "tools"]
+    },
+    "ChatCompletionAllowedToolsChoice": {
+      "type": "object",
+      "title": "Allowed tools",
+      "description": "Constrains the tools available to the model to a pre-defined set.\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["allowed_tools"],
+          "description": "Allowed tool configuration type. Always `allowed_tools`.",
+          "x-stainless-const": true
+        },
+        "allowed_tools": {
+          "$ref": "#/$defs/ChatCompletionAllowedTools"
+        }
+      },
+      "required": ["type", "allowed_tools"]
+    },
+    "ChatCompletionFunctionCallOption": {
+      "type": "object",
+      "description": "Specifying a particular function via `{\"name\": \"my_function\"}` forces the model to call that function.\n",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the function to call."
+        }
+      },
+      "required": ["name"]
+    },
+    "ChatCompletionFunctions": {
+      "type": "object",
+      "deprecated": true,
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "A description of what the function does, used by the model to choose when and how to call the function."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64."
+        },
+        "parameters": {
+          "$ref": "#/$defs/FunctionParameters"
+        }
+      },
+      "required": ["name"]
+    },
+    "ChatCompletionMessageCustomToolCall": {
+      "type": "object",
+      "title": "Custom tool call",
+      "description": "A call to a custom tool created by the model.\n",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ID of the tool call."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["custom"],
+          "description": "The type of the tool. Always `custom`.",
+          "x-stainless-const": true
+        },
+        "custom": {
+          "type": "object",
+          "description": "The custom tool that the model called.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the custom tool to call."
+            },
+            "input": {
+              "type": "string",
+              "description": "The input for the custom tool call generated by the model."
+            }
+          },
+          "required": ["name", "input"]
+        }
+      },
+      "required": ["id", "type", "custom"]
+    },
+    "ChatCompletionMessageToolCall": {
+      "type": "object",
+      "title": "Function tool call",
+      "description": "A call to a function tool created by the model.\n",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ID of the tool call."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["function"],
+          "description": "The type of the tool. Currently, only `function` is supported.",
+          "x-stainless-const": true
+        },
+        "function": {
+          "type": "object",
+          "description": "The function that the model called.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the function to call."
+            },
+            "arguments": {
+              "type": "string",
+              "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function."
+            }
+          },
+          "required": ["name", "arguments"]
+        }
+      },
+      "required": ["id", "type", "function"]
+    },
+    "ChatCompletionMessageToolCalls": {
+      "type": "array",
+      "description": "The tool calls generated by the model, such as function calls.",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ChatCompletionMessageToolCall"
+          },
+          {
+            "$ref": "#/$defs/ChatCompletionMessageCustomToolCall"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type"
+        }
+      }
+    },
+    "ChatCompletionModalities": {
+      "anyOf": [
+        {
+          "type": "array",
+          "description": "Output types that you would like the model to generate for this request.\nMost models are capable of generating text, which is the default:\n\n`[\"text\"]`\n\nThe `gpt-4o-audio-preview` model can also be used to [generate audio](/docs/guides/audio). To\nrequest that this model generate both text and audio responses, you can\nuse:\n\n`[\"text\", \"audio\"]`\n",
+          "items": {
+            "type": "string",
+            "enum": ["text", "audio"]
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ChatCompletionNamedToolChoice": {
+      "type": "object",
+      "title": "Function tool choice",
+      "description": "Specifies a tool the model should use. Use to force the model to call a specific function.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["function"],
+          "description": "For function calling, the type is always `function`.",
+          "x-stainless-const": true
+        },
+        "function": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the function to call."
+            }
+          },
+          "required": ["name"]
+        }
+      },
+      "required": ["type", "function"]
+    },
+    "ChatCompletionNamedToolChoiceCustom": {
+      "type": "object",
+      "title": "Custom tool choice",
+      "description": "Specifies a tool the model should use. Use to force the model to call a specific custom tool.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["custom"],
+          "description": "For custom tool calling, the type is always `custom`.",
+          "x-stainless-const": true
+        },
+        "custom": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the custom tool to call."
+            }
+          },
+          "required": ["name"]
+        }
+      },
+      "required": ["type", "custom"]
+    },
+    "ChatCompletionRequestAssistantMessage": {
+      "type": "object",
+      "title": "Assistant message",
+      "description": "Messages sent by the model in response to user messages.\n",
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "The contents of the assistant message.",
+                  "title": "Text content"
+                },
+                {
+                  "type": "array",
+                  "description": "An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.",
+                  "title": "Array of content parts",
+                  "items": {
+                    "$ref": "#/$defs/ChatCompletionRequestAssistantMessageContentPart"
+                  },
+                  "minItems": 1
+                }
+              ],
+              "description": "The contents of the assistant message. Required unless `tool_calls` or `function_call` is specified.\n"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "refusal": {
+          "anyOf": [
+            {
+              "type": "string",
+              "description": "The refusal message by the assistant."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["assistant"],
+          "description": "The role of the messages author, in this case `assistant`.",
+          "x-stainless-const": true
+        },
+        "name": {
+          "type": "string",
+          "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
+        },
+        "audio": {
+          "anyOf": [
+            {
+              "type": "object",
+              "description": "Data about a previous audio response from the model.\n[Learn more](/docs/guides/audio).\n",
+              "required": ["id"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier for a previous audio response from the model.\n"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_calls": {
+          "$ref": "#/$defs/ChatCompletionMessageToolCalls"
+        },
+        "function_call": {
+          "anyOf": [
+            {
+              "type": "object",
+              "deprecated": true,
+              "description": "Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.",
+              "properties": {
+                "arguments": {
+                  "type": "string",
+                  "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "The name of the function to call."
+                }
+              },
+              "required": ["arguments", "name"]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["role"]
+    },
+    "ChatCompletionRequestAssistantMessageContentPart": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartRefusal"
+        }
+      ],
+      "discriminator": {
+        "propertyName": "type"
+      }
+    },
+    "ChatCompletionRequestDeveloperMessage": {
+      "type": "object",
+      "title": "Developer message",
+      "description": "Developer-provided instructions that the model should follow, regardless of\nmessages sent by the user. With o1 models and newer, `developer` messages\nreplace the previous `system` messages.\n",
+      "properties": {
+        "content": {
+          "description": "The contents of the developer message.",
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "The contents of the developer message.",
+              "title": "Text content"
+            },
+            {
+              "type": "array",
+              "description": "An array of content parts with a defined type. For developer messages, only type `text` is supported.",
+              "title": "Array of content parts",
+              "items": {
+                "$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["developer"],
+          "description": "The role of the messages author, in this case `developer`.",
+          "x-stainless-const": true
+        },
+        "name": {
+          "type": "string",
+          "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
+        }
+      },
+      "required": ["content", "role"]
+    },
+    "ChatCompletionRequestFunctionMessage": {
+      "type": "object",
+      "title": "Function message",
+      "deprecated": true,
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["function"],
+          "description": "The role of the messages author, in this case `function`.",
+          "x-stainless-const": true
+        },
+        "content": {
+          "anyOf": [
+            {
+              "type": "string",
+              "description": "The contents of the function message."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the function to call."
+        }
+      },
+      "required": ["role", "content", "name"]
+    },
+    "ChatCompletionRequestMessageContentPartAudio": {
+      "type": "object",
+      "title": "Audio content part",
+      "description": "Learn about [audio inputs](/docs/guides/audio).\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["input_audio"],
+          "description": "The type of the content part. Always `input_audio`.",
+          "x-stainless-const": true
+        },
+        "input_audio": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "Base64 encoded audio data."
+            },
+            "format": {
+              "type": "string",
+              "enum": ["wav", "mp3"],
+              "description": "The format of the encoded audio data. Currently supports \"wav\" and \"mp3\".\n"
+            }
+          },
+          "required": ["data", "format"]
+        }
+      },
+      "required": ["type", "input_audio"]
+    },
+    "ChatCompletionRequestMessageContentPartFile": {
+      "type": "object",
+      "title": "File content part",
+      "description": "Learn about [file inputs](/docs/guides/text) for text generation.\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["file"],
+          "description": "The type of the content part. Always `file`.",
+          "x-stainless-const": true
+        },
+        "file": {
+          "type": "object",
+          "properties": {
+            "filename": {
+              "type": "string",
+              "description": "The name of the file, used when passing the file to the model as a \nstring.\n"
+            },
+            "file_data": {
+              "type": "string",
+              "description": "The base64 encoded file data, used when passing the file to the model \nas a string.\n"
+            },
+            "file_id": {
+              "type": "string",
+              "description": "The ID of an uploaded file to use as input.\n"
+            }
+          }
+        }
+      },
+      "required": ["type", "file"]
+    },
+    "ChatCompletionRequestMessageContentPartImage": {
+      "type": "object",
+      "title": "Image content part",
+      "description": "Learn about [image inputs](/docs/guides/vision).\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["image_url"],
+          "description": "The type of the content part.",
+          "x-stainless-const": true
+        },
+        "image_url": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "Either a URL of the image or the base64 encoded image data.",
+              "format": "uri"
+            },
+            "detail": {
+              "type": "string",
+              "description": "Specifies the detail level of the image. Learn more in the [Vision guide](/docs/guides/vision#low-or-high-fidelity-image-understanding).",
+              "enum": ["auto", "low", "high"],
+              "default": "auto"
+            }
+          },
+          "required": ["url"]
+        }
+      },
+      "required": ["type", "image_url"]
+    },
+    "ChatCompletionRequestMessageContentPartRefusal": {
+      "type": "object",
+      "title": "Refusal content part",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["refusal"],
+          "description": "The type of the content part.",
+          "x-stainless-const": true
+        },
+        "refusal": {
+          "type": "string",
+          "description": "The refusal message generated by the model."
+        }
+      },
+      "required": ["type", "refusal"]
+    },
+    "ChatCompletionRequestMessageContentPartText": {
+      "type": "object",
+      "title": "Text content part",
+      "description": "Learn about [text inputs](/docs/guides/text-generation).\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text"],
+          "description": "The type of the content part.",
+          "x-stainless-const": true
+        },
+        "text": {
+          "type": "string",
+          "description": "The text content."
+        }
+      },
+      "required": ["type", "text"]
+    },
+    "ChatCompletionRequestSystemMessage": {
+      "type": "object",
+      "title": "System message",
+      "description": "Developer-provided instructions that the model should follow, regardless of\nmessages sent by the user. With o1 models and newer, use `developer` messages\nfor this purpose instead.\n",
+      "properties": {
+        "content": {
+          "description": "The contents of the system message.",
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "The contents of the system message.",
+              "title": "Text content"
+            },
+            {
+              "type": "array",
+              "description": "An array of content parts with a defined type. For system messages, only type `text` is supported.",
+              "title": "Array of content parts",
+              "items": {
+                "$ref": "#/$defs/ChatCompletionRequestSystemMessageContentPart"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["system"],
+          "description": "The role of the messages author, in this case `system`.",
+          "x-stainless-const": true
+        },
+        "name": {
+          "type": "string",
+          "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
+        }
+      },
+      "required": ["content", "role"]
+    },
+    "ChatCompletionRequestSystemMessageContentPart": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
+        }
+      ]
+    },
+    "ChatCompletionRequestToolMessage": {
+      "type": "object",
+      "title": "Tool message",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["tool"],
+          "description": "The role of the messages author, in this case `tool`.",
+          "x-stainless-const": true
+        },
+        "content": {
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "The contents of the tool message.",
+              "title": "Text content"
+            },
+            {
+              "type": "array",
+              "description": "An array of content parts with a defined type. For tool messages, only type `text` is supported.",
+              "title": "Array of content parts",
+              "items": {
+                "$ref": "#/$defs/ChatCompletionRequestToolMessageContentPart"
+              },
+              "minItems": 1
+            }
+          ],
+          "description": "The contents of the tool message."
+        },
+        "tool_call_id": {
+          "type": "string",
+          "description": "Tool call that this message is responding to."
+        }
+      },
+      "required": ["role", "content", "tool_call_id"]
+    },
+    "ChatCompletionRequestToolMessageContentPart": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
+        }
+      ]
+    },
+    "ChatCompletionRequestUserMessage": {
+      "type": "object",
+      "title": "User message",
+      "description": "Messages sent by an end user, containing prompts or additional context\ninformation.\n",
+      "properties": {
+        "content": {
+          "description": "The contents of the user message.\n",
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "The text contents of the message.",
+              "title": "Text content"
+            },
+            {
+              "type": "array",
+              "description": "An array of content parts with a defined type. Supported options differ based on the [model](/docs/models) being used to generate the response. Can contain text, image, or audio inputs.",
+              "title": "Array of content parts",
+              "items": {
+                "$ref": "#/$defs/ChatCompletionRequestUserMessageContentPart"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user"],
+          "description": "The role of the messages author, in this case `user`.",
+          "x-stainless-const": true
+        },
+        "name": {
+          "type": "string",
+          "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role."
+        }
+      },
+      "required": ["content", "role"]
+    },
+    "ChatCompletionRequestUserMessageContentPart": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartText"
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartImage"
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartAudio"
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionRequestMessageContentPartFile"
+        }
+      ]
+    },
+    "ChatCompletionRole": {
+      "type": "string",
+      "description": "The role of the author of a message",
+      "enum": ["developer", "system", "user", "assistant", "tool", "function"]
+    },
+    "ChatCompletionStreamOptions": {
+      "anyOf": [
+        {
+          "description": "Options for streaming response. Only set this when you set `stream: true`.\n",
+          "type": "object",
+          "default": null,
+          "properties": {
+            "include_usage": {
+              "type": "boolean",
+              "description": "If set, an additional chunk will be streamed before the `data: [DONE]`\nmessage. The `usage` field on this chunk shows the token usage statistics\nfor the entire request, and the `choices` field will always be an empty\narray.\n\nAll other chunks will also include a `usage` field, but with a null\nvalue. **NOTE:** If the stream is interrupted, you may not receive the\nfinal usage chunk which contains the total token usage for the request.\n"
+            },
+            "include_obfuscation": {
+              "type": "boolean",
+              "description": "When true, stream obfuscation will be enabled. Stream obfuscation adds\nrandom characters to an `obfuscation` field on streaming delta events to\nnormalize payload sizes as a mitigation to certain side-channel attacks.\nThese obfuscation fields are included by default, but add a small amount\nof overhead to the data stream. You can set `include_obfuscation` to\nfalse to optimize for bandwidth if you trust the network links between\nyour application and the OpenAI API.\n"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ChatCompletionTokenLogprob": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "description": "The token.",
+          "type": "string"
+        },
+        "logprob": {
+          "description": "The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.",
+          "type": "number"
+        },
+        "bytes": {
+          "anyOf": [
+            {
+              "description": "A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.",
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "top_logprobs": {
+          "description": "List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "description": "The token.",
+                "type": "string"
+              },
+              "logprob": {
+                "description": "The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.",
+                "type": "number"
+              },
+              "bytes": {
+                "anyOf": [
+                  {
+                    "description": "A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.",
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": ["token", "logprob", "bytes"]
+          }
+        }
+      },
+      "required": ["token", "logprob", "bytes", "top_logprobs"]
+    },
+    "ChatCompletionTool": {
+      "type": "object",
+      "title": "Function tool",
+      "description": "A function tool that can be used to generate a response.\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["function"],
+          "description": "The type of the tool. Currently, only `function` is supported.",
+          "x-stainless-const": true
+        },
+        "function": {
+          "$ref": "#/$defs/FunctionObject"
+        }
+      },
+      "required": ["type", "function"]
+    },
+    "ChatCompletionToolChoiceOption": {
+      "description": "Controls which (if any) tool is called by the model.\n`none` means the model will not call any tool and instead generates a message.\n`auto` means the model can pick between generating a message or calling one or more tools.\n`required` means the model must call one or more tools.\nSpecifying a particular tool via `{\"type\": \"function\", \"function\": {\"name\": \"my_function\"}}` forces the model to call that tool.\n\n`none` is the default when no tools are present. `auto` is the default if tools are present.\n",
+      "oneOf": [
+        {
+          "type": "string",
+          "title": "Tool choice mode",
+          "description": "`none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools.\n",
+          "enum": ["none", "auto", "required"]
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionAllowedToolsChoice"
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionNamedToolChoice"
+        },
+        {
+          "$ref": "#/$defs/ChatCompletionNamedToolChoiceCustom"
+        }
+      ]
+    },
+    "CompletionUsage": {
+      "type": "object",
+      "description": "Usage statistics for the completion request.",
+      "properties": {
+        "completion_tokens": {
+          "type": "integer",
+          "default": 0,
+          "description": "Number of tokens in the generated completion."
+        },
+        "prompt_tokens": {
+          "type": "integer",
+          "default": 0,
+          "description": "Number of tokens in the prompt."
+        },
+        "total_tokens": {
+          "type": "integer",
+          "default": 0,
+          "description": "Total number of tokens used in the request (prompt + completion)."
+        },
+        "completion_tokens_details": {
+          "type": "object",
+          "description": "Breakdown of tokens used in a completion.",
+          "properties": {
+            "accepted_prediction_tokens": {
+              "type": "integer",
+              "default": 0,
+              "description": "When using Predicted Outputs, the number of tokens in the\nprediction that appeared in the completion.\n"
+            },
+            "audio_tokens": {
+              "type": "integer",
+              "default": 0,
+              "description": "Audio input tokens generated by the model."
+            },
+            "reasoning_tokens": {
+              "type": "integer",
+              "default": 0,
+              "description": "Tokens generated by the model for reasoning."
+            },
+            "rejected_prediction_tokens": {
+              "type": "integer",
+              "default": 0,
+              "description": "When using Predicted Outputs, the number of tokens in the\nprediction that did not appear in the completion. However, like\nreasoning tokens, these tokens are still counted in the total\ncompletion tokens for purposes of billing, output, and context window\nlimits.\n"
+            }
+          }
+        },
+        "prompt_tokens_details": {
+          "type": "object",
+          "description": "Breakdown of tokens used in the prompt.",
+          "properties": {
+            "audio_tokens": {
+              "type": "integer",
+              "default": 0,
+              "description": "Audio input tokens present in the prompt."
+            },
+            "cached_tokens": {
+              "type": "integer",
+              "default": 0,
+              "description": "Cached tokens present in the prompt."
+            }
+          }
+        }
+      },
+      "required": ["prompt_tokens", "completion_tokens", "total_tokens"]
+    },
+    "FunctionObject": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "A description of what the function does, used by the model to choose when and how to call the function."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64."
+        },
+        "parameters": {
+          "$ref": "#/$defs/FunctionParameters"
+        },
+        "strict": {
+          "anyOf": [
+            {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](/docs/guides/function-calling)."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["name"]
+    },
+    "FunctionParameters": {
+      "type": "object",
+      "description": "The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. \n\nOmitting `parameters` defines a function with an empty parameter list.",
+      "additionalProperties": true
+    },
+    "ResponseFormatJsonObject": {
+      "type": "object",
+      "title": "JSON object",
+      "description": "JSON object response format. An older method of generating JSON responses.\nUsing `json_schema` is recommended for models that support it. Note that the\nmodel will not generate JSON without a system or user message instructing it\nto do so.\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of response format being defined. Always `json_object`.",
+          "enum": ["json_object"],
+          "x-stainless-const": true
+        }
+      },
+      "required": ["type"]
+    },
+    "ResponseFormatJsonSchema": {
+      "type": "object",
+      "title": "JSON schema",
+      "description": "JSON Schema response format. Used to generate structured JSON responses.\nLearn more about [Structured Outputs](/docs/guides/structured-outputs).\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of response format being defined. Always `json_schema`.",
+          "enum": ["json_schema"],
+          "x-stainless-const": true
+        },
+        "json_schema": {
+          "type": "object",
+          "title": "JSON schema",
+          "description": "Structured Outputs configuration options, including a JSON Schema.\n",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "A description of what the response format is for, used by the model to\ndetermine how to respond in the format.\n"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the response format. Must be a-z, A-Z, 0-9, or contain\nunderscores and dashes, with a maximum length of 64.\n"
+            },
+            "schema": {
+              "$ref": "#/$defs/ResponseFormatJsonSchemaSchema"
+            },
+            "strict": {
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether to enable strict schema adherence when generating the output.\nIf set to true, the model will always follow the exact schema defined\nin the `schema` field. Only a subset of JSON Schema is supported when\n`strict` is `true`. To learn more, read the [Structured Outputs\nguide](/docs/guides/structured-outputs).\n"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["name"]
+        }
+      },
+      "required": ["type", "json_schema"]
+    },
+    "ResponseFormatJsonSchemaSchema": {
+      "type": "object",
+      "title": "JSON schema",
+      "description": "The schema for the response format, described as a JSON Schema object.\nLearn how to build JSON schemas [here](https://json-schema.org/).\n",
+      "additionalProperties": true
+    },
+    "ResponseFormatText": {
+      "type": "object",
+      "title": "Text",
+      "description": "Default response format. Used to generate text responses.\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of response format being defined. Always `text`.",
+          "enum": ["text"],
+          "x-stainless-const": true
+        }
+      },
+      "required": ["type"]
+    }
+  }
 }

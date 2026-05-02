@@ -1,36 +1,36 @@
 {
-	"id": "content_policy_violation",
-	"description": "400 error when a request is rejected due to content policy",
-	"category": "error-handling",
-	"tags": ["error-handling"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Generate harmful content"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Your request was rejected as a result of our content_policy",
-				"type": "invalid_request_error"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "ContentPolicy"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "content_policy_violation",
+  "description": "400 error when a request is rejected due to content policy",
+  "category": "error-handling",
+  "tags": ["error-handling"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Generate harmful content"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Your request was rejected as a result of our content_policy",
+        "type": "invalid_request_error"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "ContentPolicy"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

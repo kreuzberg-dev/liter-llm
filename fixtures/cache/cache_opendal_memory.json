@@ -1,49 +1,49 @@
 {
-	"id": "cache_opendal_memory",
-	"description": "Cache hit with OpenDAL memory backend returns cached response on repeat request",
-	"category": "cache",
-	"tags": ["cache", "opendal"],
-	"call": "chat",
-	"input": {
-		"model": "openai/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-opendal-mem-001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "gpt-4o",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hi there!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 5,
-				"completion_tokens": 2,
-				"total_tokens": 7
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "is_true",
-			"field": "cache_hit"
-		}
-	]
+  "id": "cache_opendal_memory",
+  "description": "Cache hit with OpenDAL memory backend returns cached response on repeat request",
+  "category": "cache",
+  "tags": ["cache", "opendal"],
+  "call": "chat",
+  "input": {
+    "model": "openai/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-opendal-mem-001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "gpt-4o",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hi there!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5,
+        "completion_tokens": 2,
+        "total_tokens": 7
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "is_true",
+      "field": "cache_hit"
+    }
+  ]
 }

@@ -1,112 +1,112 @@
 {
-	"id": "proxy_chat_streaming",
-	"description": "Streaming chat completion routed through the proxy",
-	"category": "proxy",
-	"tags": ["proxy", "streaming"],
-	"call": "chat_stream",
-	"input": {
-		"model": "openai/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Count to 3"
-			}
-		],
-		"stream": true
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-proxystream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-proxystream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "1"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-proxystream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " 2"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-proxystream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " 3"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-proxystream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				]
-			}
-		]
-	},
-	"assertions": [
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 3
-		},
-		{
-			"type": "equals",
-			"field": "stream_content",
-			"value": "1 2 3"
-		},
-		{
-			"type": "is_true",
-			"field": "stream_complete"
-		}
-	]
+  "id": "proxy_chat_streaming",
+  "description": "Streaming chat completion routed through the proxy",
+  "category": "proxy",
+  "tags": ["proxy", "streaming"],
+  "call": "chat_stream",
+  "input": {
+    "model": "openai/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Count to 3"
+      }
+    ],
+    "stream": true
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-proxystream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-proxystream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "1"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-proxystream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " 2"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-proxystream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " 3"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-proxystream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 3
+    },
+    {
+      "type": "equals",
+      "field": "stream_content",
+      "value": "1 2 3"
+    },
+    {
+      "type": "is_true",
+      "field": "stream_complete"
+    }
+  ]
 }

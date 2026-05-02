@@ -1,32 +1,32 @@
 {
-	"id": "proxy_health",
-	"description": "Health check verifying proxy connectivity via list models",
-	"category": "proxy",
-	"tags": ["proxy", "health"],
-	"call": "list_models",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": [
-				{
-					"id": "gpt-4o",
-					"object": "model",
-					"created": 1715367049,
-					"owned_by": "openai"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "data",
-			"value": 1
-		}
-	]
+  "id": "proxy_health",
+  "description": "Health check verifying proxy connectivity via list models",
+  "category": "proxy",
+  "tags": ["proxy", "health"],
+  "call": "list_models",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": [
+        {
+          "id": "gpt-4o",
+          "object": "model",
+          "created": 1715367049,
+          "owned_by": "openai"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "data",
+      "value": 1
+    }
+  ]
 }

@@ -1,144 +1,144 @@
 {
-	"id": "stream_with_tool_calls",
-	"description": "Streaming chat completion where the assistant responds with a tool call across multiple chunks",
-	"category": "streaming",
-	"tags": ["streaming", "tool-calling"],
-	"call": "chat_stream",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "What is the weather in NYC?"
-			}
-		],
-		"tools": [
-			{
-				"type": "function",
-				"function": {
-					"name": "get_weather",
-					"description": "Get the current weather for a given location",
-					"parameters": {
-						"type": "object",
-						"properties": {
-							"location": {
-								"type": "string",
-								"description": "The city and state, e.g. New York, NY"
-							}
-						},
-						"required": ["location"]
-					}
-				}
-			}
-		],
-		"stream": true
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-toolstream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000010,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"tool_calls": [
-								{
-									"index": 0,
-									"id": "call_1",
-									"type": "function",
-									"function": {
-										"name": "get_weather"
-									}
-								}
-							]
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-toolstream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000010,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"tool_calls": [
-								{
-									"index": 0,
-									"function": {
-										"arguments": "{\"loc"
-									}
-								}
-							]
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-toolstream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000010,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"tool_calls": [
-								{
-									"index": 0,
-									"function": {
-										"arguments": "ation\":\"NYC\"}"
-									}
-								}
-							]
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-toolstream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000010,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "tool_calls"
-					}
-				]
-			}
-		]
-	},
-	"assertions": [
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 4
-		},
-		{
-			"type": "equals",
-			"field": "finish_reason",
-			"value": "tool_calls"
-		},
-		{
-			"type": "not_empty",
-			"field": "tool_calls"
-		},
-		{
-			"type": "equals",
-			"field": "tool_calls[0].function.name",
-			"value": "get_weather"
-		}
-	]
+  "id": "stream_with_tool_calls",
+  "description": "Streaming chat completion where the assistant responds with a tool call across multiple chunks",
+  "category": "streaming",
+  "tags": ["streaming", "tool-calling"],
+  "call": "chat_stream",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the weather in NYC?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "description": "Get the current weather for a given location",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city and state, e.g. New York, NY"
+              }
+            },
+            "required": ["location"]
+          }
+        }
+      }
+    ],
+    "stream": true
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-toolstream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000010,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "index": 0,
+                  "id": "call_1",
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather"
+                  }
+                }
+              ]
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-toolstream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000010,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "tool_calls": [
+                {
+                  "index": 0,
+                  "function": {
+                    "arguments": "{\"loc"
+                  }
+                }
+              ]
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-toolstream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000010,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "tool_calls": [
+                {
+                  "index": 0,
+                  "function": {
+                    "arguments": "ation\":\"NYC\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-toolstream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000010,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "tool_calls"
+          }
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 4
+    },
+    {
+      "type": "equals",
+      "field": "finish_reason",
+      "value": "tool_calls"
+    },
+    {
+      "type": "not_empty",
+      "field": "tool_calls"
+    },
+    {
+      "type": "equals",
+      "field": "tool_calls[0].function.name",
+      "value": "get_weather"
+    }
+  ]
 }

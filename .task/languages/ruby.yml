@@ -92,7 +92,7 @@ tasks:
     env:
       PROJECT_ROOT: "{{.PROJECT_ROOT}}"
     cmds:
-      - cargo run -p e2e-generator -- generate --lang ruby
+      - alef e2e generate --lang ruby
 
   e2e:test:
     desc: Run Ruby E2E tests

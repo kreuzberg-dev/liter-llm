@@ -14,7 +14,7 @@ tasks:
     desc: List all documentation snippets
     deps: [build]
     cmds:
-      - '{{.RUNNER_PATH}} list --snippets {{.SNIPPETS_DIR}}'
+      - "{{.RUNNER_PATH}} list --snippets {{.SNIPPETS_DIR}}"
 
   list:lang:
     desc: List snippets for specific languages (set LANGUAGES=rust,python)
@@ -22,25 +22,25 @@ tasks:
     requires:
       vars: [LANGUAGES]
     cmds:
-      - '{{.RUNNER_PATH}} list --snippets {{.SNIPPETS_DIR}} --languages {{.LANGUAGES}}'
+      - "{{.RUNNER_PATH}} list --snippets {{.SNIPPETS_DIR}} --languages {{.LANGUAGES}}"
 
   validate:syntax:
     desc: Syntax-check all snippets
     deps: [build]
     cmds:
-      - '{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --level syntax'
+      - "{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --level syntax"
 
   validate:compile:
     desc: Compile-check all snippets
     deps: [build]
     cmds:
-      - '{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --level compile'
+      - "{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --level compile"
 
   validate:run:
     desc: Run all snippets
     deps: [build]
     cmds:
-      - '{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --level run'
+      - "{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --level run"
 
   validate:lang:
     desc: Validate snippets for specific languages (set LANGUAGES=rust,python LEVEL=syntax)
@@ -50,4 +50,4 @@ tasks:
     vars:
       LEVEL: '{{ .LEVEL | default "syntax" }}'
     cmds:
-      - '{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --languages {{.LANGUAGES}} --level {{.LEVEL}}'
+      - "{{.RUNNER_PATH}} validate --snippets {{.SNIPPETS_DIR}} --languages {{.LANGUAGES}} --level {{.LEVEL}}"

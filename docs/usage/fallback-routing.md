@@ -25,7 +25,7 @@ let service = FallbackLayer::new(backup).layer(primary);
 ```
 
 !!! warning "Streaming buffer"
-    When `LlmService` is used inside the Tower stack, streaming responses (`ChatStream`) are fully buffered in memory before being yielded. This is required by Tower's `Service` trait, which mandates `'static` futures. All chunks are collected into a `VecDeque` and replayed. If unbuffered streaming is required, call `LlmClient::chat_stream()` directly, bypassing the Tower stack.
+When `LlmService` is used inside the Tower stack, streaming responses (`ChatStream`) are fully buffered in memory before being yielded. This is required by Tower's `Service` trait, which mandates `'static` futures. All chunks are collected into a `VecDeque` and replayed. If unbuffered streaming is required, call `LlmClient::chat_stream()` directly, bypassing the Tower stack.
 
 ## Router
 
@@ -47,13 +47,13 @@ let router = Router::new(deployments, RoutingStrategy::RoundRobin)?;
 
 ## Routing strategies
 
-| Strategy | Description |
-|----------|-------------|
-| `RoundRobin` | Cycles through deployments in order using an atomic counter. |
-| `Fallback` | Tries deployments in order. Advances to the next on a transient error. Returns the last error when all deployments fail. |
-| `LatencyBased` | Routes to the deployment with the lowest observed latency using an exponential moving average (alpha = 0.3). Deployments with no data default to EMA 0.0 (treated as fastest). |
-| `CostBased` | Tries deployments in order, logging estimated USD cost per response. In the current implementation, routes identically to `Fallback` while cost telemetry is recorded. Per-deployment provider metadata for true cost comparison is planned. |
-| `WeightedRandom` | Selects a deployment by weighted random distribution. Weights need not sum to 1.0; they are used as relative proportions. |
+| Strategy         | Description                                                                                                                                                                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RoundRobin`     | Cycles through deployments in order using an atomic counter.                                                                                                                                                                                 |
+| `Fallback`       | Tries deployments in order. Advances to the next on a transient error. Returns the last error when all deployments fail.                                                                                                                     |
+| `LatencyBased`   | Routes to the deployment with the lowest observed latency using an exponential moving average (alpha = 0.3). Deployments with no data default to EMA 0.0 (treated as fastest).                                                               |
+| `CostBased`      | Tries deployments in order, logging estimated USD cost per response. In the current implementation, routes identically to `Fallback` while cost telemetry is recorded. Per-deployment provider metadata for true cost comparison is planned. |
+| `WeightedRandom` | Selects a deployment by weighted random distribution. Weights need not sum to 1.0; they are used as relative proportions.                                                                                                                    |
 
 ### RoundRobin
 

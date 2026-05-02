@@ -1,33 +1,33 @@
 {
-	"id": "embed_error_401",
-	"description": "401 Unauthorized error on embedding request when API key is invalid",
-	"category": "embed",
-	"tags": ["embed", "error-handling"],
-	"call": "embed",
-	"input": {
-		"model": "text-embedding-3-small",
-		"input": "Hello world"
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Incorrect API key provided.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": "invalid_api_key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "embed_error_401",
+  "description": "401 Unauthorized error on embedding request when API key is invalid",
+  "category": "embed",
+  "tags": ["embed", "error-handling"],
+  "call": "embed",
+  "input": {
+    "model": "text-embedding-3-small",
+    "input": "Hello world"
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Incorrect API key provided.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

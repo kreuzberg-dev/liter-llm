@@ -1,64 +1,64 @@
 {
-	"id": "proxy_moderation",
-	"description": "Content moderation request routed through the proxy",
-	"category": "proxy",
-	"tags": ["proxy", "moderate"],
-	"call": "moderate",
-	"input": {
-		"model": "omni-moderation-latest",
-		"input": "The weather is nice today."
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "modr-proxy001",
-			"model": "omni-moderation-latest",
-			"results": [
-				{
-					"flagged": false,
-					"categories": {
-						"sexual": false,
-						"hate": false,
-						"harassment": false,
-						"self-harm": false,
-						"sexual/minors": false,
-						"hate/threatening": false,
-						"violence/graphic": false,
-						"self-harm/intent": false,
-						"self-harm/instructions": false,
-						"harassment/threatening": false,
-						"violence": false
-					},
-					"category_scores": {
-						"sexual": 0.0001,
-						"hate": 0.0001,
-						"harassment": 0.0002,
-						"self-harm": 0.0001,
-						"sexual/minors": 0.0001,
-						"hate/threatening": 0.0001,
-						"violence/graphic": 0.0001,
-						"self-harm/intent": 0.0001,
-						"self-harm/instructions": 0.0001,
-						"harassment/threatening": 0.0001,
-						"violence": 0.0001
-					}
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "results[0].flagged",
-			"value": false
-		}
-	]
+  "id": "proxy_moderation",
+  "description": "Content moderation request routed through the proxy",
+  "category": "proxy",
+  "tags": ["proxy", "moderate"],
+  "call": "moderate",
+  "input": {
+    "model": "omni-moderation-latest",
+    "input": "The weather is nice today."
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "modr-proxy001",
+      "model": "omni-moderation-latest",
+      "results": [
+        {
+          "flagged": false,
+          "categories": {
+            "sexual": false,
+            "hate": false,
+            "harassment": false,
+            "self-harm": false,
+            "sexual/minors": false,
+            "hate/threatening": false,
+            "violence/graphic": false,
+            "self-harm/intent": false,
+            "self-harm/instructions": false,
+            "harassment/threatening": false,
+            "violence": false
+          },
+          "category_scores": {
+            "sexual": 0.0001,
+            "hate": 0.0001,
+            "harassment": 0.0002,
+            "self-harm": 0.0001,
+            "sexual/minors": 0.0001,
+            "hate/threatening": 0.0001,
+            "violence/graphic": 0.0001,
+            "self-harm/intent": 0.0001,
+            "self-harm/instructions": 0.0001,
+            "harassment/threatening": 0.0001,
+            "violence": 0.0001
+          }
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "results[0].flagged",
+      "value": false
+    }
+  ]
 }

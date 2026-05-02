@@ -1,44 +1,44 @@
 {
-	"id": "basic_list_models",
-	"description": "List available models from the API",
-	"category": "smoke",
-	"tags": ["smoke"],
-	"call": "list_models",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": [
-				{
-					"id": "gpt-4",
-					"object": "model",
-					"created": 1687882411,
-					"owned_by": "openai"
-				},
-				{
-					"id": "gpt-3.5-turbo",
-					"object": "model",
-					"created": 1677610602,
-					"owned_by": "openai"
-				},
-				{
-					"id": "text-embedding-3-small",
-					"object": "model",
-					"created": 1705948997,
-					"owned_by": "openai"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "data",
-			"value": 1
-		}
-	]
+  "id": "basic_list_models",
+  "description": "List available models from the API",
+  "category": "smoke",
+  "tags": ["smoke"],
+  "call": "list_models",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": [
+        {
+          "id": "gpt-4",
+          "object": "model",
+          "created": 1687882411,
+          "owned_by": "openai"
+        },
+        {
+          "id": "gpt-3.5-turbo",
+          "object": "model",
+          "created": 1677610602,
+          "owned_by": "openai"
+        },
+        {
+          "id": "text-embedding-3-small",
+          "object": "model",
+          "created": 1705948997,
+          "owned_by": "openai"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "data",
+      "value": 1
+    }
+  ]
 }

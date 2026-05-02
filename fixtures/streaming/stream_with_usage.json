@@ -1,106 +1,106 @@
 {
-	"id": "stream_with_usage",
-	"description": "Streaming chat completion that includes a usage summary in the final chunk",
-	"category": "streaming",
-	"tags": ["streaming"],
-	"call": "chat_stream",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say hi"
-			}
-		],
-		"stream": true,
-		"stream_options": {
-			"include_usage": true
-		}
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-usage001",
-				"object": "chat.completion.chunk",
-				"created": 1711000020,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-usage001",
-				"object": "chat.completion.chunk",
-				"created": 1711000020,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "Hi"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-usage001",
-				"object": "chat.completion.chunk",
-				"created": 1711000020,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " there!"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-usage001",
-				"object": "chat.completion.chunk",
-				"created": 1711000020,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				],
-				"usage": {
-					"prompt_tokens": 10,
-					"completion_tokens": 8,
-					"total_tokens": 18
-				}
-			}
-		]
-	},
-	"assertions": [
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 3
-		},
-		{
-			"type": "equals",
-			"field": "stream_content",
-			"value": "Hi there!"
-		},
-		{
-			"type": "equals",
-			"field": "usage.total_tokens",
-			"value": 18
-		}
-	]
+  "id": "stream_with_usage",
+  "description": "Streaming chat completion that includes a usage summary in the final chunk",
+  "category": "streaming",
+  "tags": ["streaming"],
+  "call": "chat_stream",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hi"
+      }
+    ],
+    "stream": true,
+    "stream_options": {
+      "include_usage": true
+    }
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-usage001",
+        "object": "chat.completion.chunk",
+        "created": 1711000020,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-usage001",
+        "object": "chat.completion.chunk",
+        "created": 1711000020,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "Hi"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-usage001",
+        "object": "chat.completion.chunk",
+        "created": 1711000020,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " there!"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-usage001",
+        "object": "chat.completion.chunk",
+        "created": 1711000020,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 8,
+          "total_tokens": 18
+        }
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 3
+    },
+    {
+      "type": "equals",
+      "field": "stream_content",
+      "value": "Hi there!"
+    },
+    {
+      "type": "equals",
+      "field": "usage.total_tokens",
+      "value": 18
+    }
+  ]
 }

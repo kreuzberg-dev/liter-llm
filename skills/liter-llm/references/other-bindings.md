@@ -362,13 +362,13 @@ npm install @kreuzberg/liter-llm-wasm
 ```
 
 ```javascript
-import init, { LlmClient } from '@kreuzberg/liter-llm-wasm';
-await init();  // Required: initialize WASM module
+import init, { LlmClient } from "@kreuzberg/liter-llm-wasm";
+await init(); // Required: initialize WASM module
 
 const client = new LlmClient({
-  apiKey: 'sk-...',
+  apiKey: "sk-...",
   cache: { maxEntries: 256, ttlSeconds: 300 },
-  budget: { globalLimit: 10.0, enforcement: 'hard' },
+  budget: { globalLimit: 10.0, enforcement: "hard" },
 });
 
 // Chat
@@ -390,7 +390,8 @@ for (const chunk of chunks) {
 
 // Embeddings
 const resp = await client.embed({
-  model: "text-embedding-3-small", input: "Hello",
+  model: "text-embedding-3-small",
+  input: "Hello",
 });
 ```
 
@@ -451,12 +452,12 @@ if (result == NULL) {
 
 **Memory rules:**
 
-| Source | Who frees | How |
-|--------|-----------|-----|
-| `literllm_client_new()` | Caller | `literllm_client_free()` |
-| `literllm_chat()` etc. | Caller | `literllm_free_string()` |
-| `literllm_last_error()` | Nobody | Thread-local, overwritten on next call |
-| `literllm_version()` | Nobody | Static lifetime |
-| `chunk_json` in callback | Nobody | Valid only during callback |
+| Source                   | Who frees | How                                    |
+| ------------------------ | --------- | -------------------------------------- |
+| `literllm_client_new()`  | Caller    | `literllm_client_free()`               |
+| `literllm_chat()` etc.   | Caller    | `literllm_free_string()`               |
+| `literllm_last_error()`  | Nobody    | Thread-local, overwritten on next call |
+| `literllm_version()`     | Nobody    | Static lifetime                        |
+| `chunk_json` in callback | Nobody    | Valid only during callback             |
 
 **Key notes:** Opaque `LiterLlmClient*` handle. Every `_new()` has a matching `_free()`. Config via JSON string. Bracketed error categories for programmatic matching. Used by Go (cgo), Java (Panama FFM), and C# (P/Invoke) as the underlying FFI layer when needed.

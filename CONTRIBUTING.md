@@ -203,20 +203,19 @@ task c:e2e:test        # Run C E2E tests
 
 1. **Add a provider entry** to `schemas/providers.json`:
 
-    ```json
-    {
-      "my-provider": {
-        "base_url": "https://api.myprovider.com/v1",
-        "auth_header": "Authorization",
-        "auth_prefix": "Bearer",
-        "model_prefixes": ["my-provider/"],
-        "parameter_mappings": {}
-      }
-    }
-    ```
+   ```json
+   {
+     "my-provider": {
+       "base_url": "https://api.myprovider.com/v1",
+       "auth_header": "Authorization",
+       "auth_prefix": "Bearer",
+       "model_prefixes": ["my-provider/"],
+       "parameter_mappings": {}
+     }
+   }
+   ```
 
-    Fields:
-
+   Fields:
    - `base_url` (required): Provider API base URL
    - `auth_header` (required): Header name for authentication
    - `auth_prefix` (optional): Prefix for the auth value (e.g. "Bearer")
@@ -225,23 +224,23 @@ task c:e2e:test        # Run C E2E tests
 
 1. **Regenerate types**
 
-    ```bash
-    task generate:types
-    ```
+   ```bash
+   task generate:types
+   ```
 
 1. **Build and test**
 
-    ```bash
-    task build:dev
-    task test
-    ```
+   ```bash
+   task build:dev
+   task test
+   ```
 
 1. **Regenerate E2E tests**
 
-    ```bash
-    task e2e:generate:all
-    task test
-    ```
+   ```bash
+   task e2e:generate:all
+   task test
+   ```
 
 ## E2E Tests
 
@@ -297,22 +296,22 @@ We use conventional commits:
 
 1. **Create a feature branch**
 
-    ```bash
-    git checkout -b feat/add-provider-support
-    ```
+   ```bash
+   git checkout -b feat/add-provider-support
+   ```
 
 1. **Make your changes** and run checks locally:
 
-    ```bash
-    task check
-    ```
+   ```bash
+   task check
+   ```
 
 1. **Commit and push**
 
-    ```bash
-    git commit -m "feat: add support for new provider"
-    git push origin feat/add-provider-support
-    ```
+   ```bash
+   git commit -m "feat: add support for new provider"
+   git push origin feat/add-provider-support
+   ```
 
 1. **Create a Pull Request** — link any related issues and ensure CI passes.
 

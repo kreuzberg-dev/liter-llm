@@ -1,56 +1,56 @@
 {
-	"id": "stop_sequences",
-	"description": "Chat request with custom stop sequences that terminates generation at a stop token",
-	"category": "chat",
-	"tags": ["chat"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "List items until you see STOP"
-			}
-		],
-		"stop": ["STOP", "END"]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-stop001",
-			"object": "chat.completion",
-			"created": 1711000110,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Item 1\nItem 2\n"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 18,
-				"completion_tokens": 7,
-				"total_tokens": 25
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		}
-	]
+  "id": "stop_sequences",
+  "description": "Chat request with custom stop sequences that terminates generation at a stop token",
+  "category": "chat",
+  "tags": ["chat"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "List items until you see STOP"
+      }
+    ],
+    "stop": ["STOP", "END"]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-stop001",
+      "object": "chat.completion",
+      "created": 1711000110,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Item 1\nItem 2\n"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 18,
+        "completion_tokens": 7,
+        "total_tokens": 25
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    }
+  ]
 }

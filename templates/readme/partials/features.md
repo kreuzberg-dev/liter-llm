@@ -2,17 +2,17 @@
 
 Route to any provider using the `provider/model` prefix convention:
 
-| Provider | Example Model |
-|----------|--------------|
-| **OpenAI** | `openai/gpt-4o`, `openai/gpt-4o-mini` |
-| **Anthropic** | `anthropic/claude-3-5-sonnet-20241022` |
-| **Groq** | `groq/llama-3.1-70b-versatile` |
-| **Mistral** | `mistral/mistral-large-latest` |
-| **Cohere** | `cohere/command-r-plus` |
-| **Together AI** | `together/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo` |
-| **Fireworks** | `fireworks/accounts/fireworks/models/llama-v3p1-70b-instruct` |
-| **Google Vertex** | `vertexai/gemini-1.5-pro` |
-| **Amazon Bedrock** | `bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0` |
+| Provider           | Example Model                                                 |
+| ------------------ | ------------------------------------------------------------- |
+| **OpenAI**         | `openai/gpt-4o`, `openai/gpt-4o-mini`                         |
+| **Anthropic**      | `anthropic/claude-3-5-sonnet-20241022`                        |
+| **Groq**           | `groq/llama-3.1-70b-versatile`                                |
+| **Mistral**        | `mistral/mistral-large-latest`                                |
+| **Cohere**         | `cohere/command-r-plus`                                       |
+| **Together AI**    | `together/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo`       |
+| **Fireworks**      | `fireworks/accounts/fireworks/models/llama-v3p1-70b-instruct` |
+| **Google Vertex**  | `vertexai/gemini-1.5-pro`                                     |
+| **Amazon Bedrock** | `bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0`           |
 
 **[Complete Provider List](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
 
@@ -21,12 +21,12 @@ Route to any provider using the `provider/model` prefix convention:
 - **Provider Routing** -- Single client for 143+ LLM providers via `provider/model` prefix
 - **Local LLMs** — Connect to locally-hosted models via Ollama, LM Studio, vLLM, llama.cpp, and other local inference servers
 - **Unified API** -- Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
-{% if features.streaming %}
+  {% if features.streaming %}
 - **Streaming** -- Real-time token streaming via `chat_stream`
-{% endif %}
-{% if features.tool_calling %}
+  {% endif %}
+  {% if features.tool_calling %}
 - **Tool Calling** -- Function calling and tool use across all supporting providers
-{% endif %}
+  {% endif %}
 - **Type Safe** -- Schema-driven types compiled from JSON schemas
 - **Secure** -- API keys never logged or serialized, managed via environment variables
 - **Observability** -- Built-in [OpenTelemetry](https://opentelemetry.io/docs/specs/semconv/gen-ai/) with GenAI semantic conventions

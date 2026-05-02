@@ -50,6 +50,8 @@ includes:
     taskfile: .task/workflows/snippets.yml
   local:
     taskfile: .task/workflows/local.yml
+  e2e:
+    taskfile: .task/workflows/e2e.yml
 
 vars:
   PROJECT_ROOT:
@@ -278,20 +280,19 @@ tasks:
       - uv run python scripts/generate_pricing.py --validate
 
   test:e2e:
-    desc: Generate and run e2e tests across all bindings
+    desc: Generate and run e2e tests across all bindings (alias for e2e:verify:all)
     cmds:
-      - alef e2e generate
-      - alef test --e2e
+      - task: e2e:verify:all
 
   e2e:generate:
-    desc: Generate E2E tests for all languages from fixtures
+    desc: Generate E2E tests for all languages from fixtures (alias for e2e:generate:all)
     cmds:
-      - alef e2e generate
+      - task: e2e:generate:all
 
   e2e:test:
-    desc: Run E2E tests for all languages (alias for test:e2e)
+    desc: Run E2E tests for all languages (alias for e2e:test:all)
     cmds:
-      - task: test:e2e
+      - task: e2e:test:all
 
   publish:validate:
     desc: "Validate publish manifests are consistent"
@@ -314,8 +315,6 @@ tasks:
       - alef publish package -o dist/
 
   e2e:test:rust:
-    desc: Run Rust E2E tests
+    desc: Run Rust E2E tests (alias for rust:e2e:test)
     cmds:
-      - cargo test --manifest-path e2e/rust/Cargo.toml
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+      - task: rust:e2e:test

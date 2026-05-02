@@ -53,22 +53,22 @@ jobs:
     permissions:
       contents: write
     outputs:
-      tag:              ${{ steps.meta.outputs.tag }}
-      version:          ${{ steps.meta.outputs.version }}
-      npm_tag:          ${{ steps.meta.outputs.npm_tag }}
-      dry_run:          ${{ steps.meta.outputs.dry_run }}
-      force_republish:  ${{ steps.meta.outputs.force_republish }}
-      target_sha:       ${{ steps.meta.outputs.target_sha }}
-      release_crates:   ${{ steps.meta.outputs.release_crates }}
-      release_python:   ${{ steps.meta.outputs.release_python }}
-      release_node:     ${{ steps.meta.outputs.release_node }}
-      release_wasm:     ${{ steps.meta.outputs.release_wasm }}
-      release_ruby:     ${{ steps.meta.outputs.release_ruby }}
-      release_go:       ${{ steps.meta.outputs.release_go }}
-      release_java:     ${{ steps.meta.outputs.release_java }}
-      release_elixir:   ${{ steps.meta.outputs.release_elixir }}
-      release_csharp:   ${{ steps.meta.outputs.release_csharp }}
-      release_php:      ${{ steps.meta.outputs.release_php }}
+      tag: ${{ steps.meta.outputs.tag }}
+      version: ${{ steps.meta.outputs.version }}
+      npm_tag: ${{ steps.meta.outputs.npm_tag }}
+      dry_run: ${{ steps.meta.outputs.dry_run }}
+      force_republish: ${{ steps.meta.outputs.force_republish }}
+      target_sha: ${{ steps.meta.outputs.target_sha }}
+      release_crates: ${{ steps.meta.outputs.release_crates }}
+      release_python: ${{ steps.meta.outputs.release_python }}
+      release_node: ${{ steps.meta.outputs.release_node }}
+      release_wasm: ${{ steps.meta.outputs.release_wasm }}
+      release_ruby: ${{ steps.meta.outputs.release_ruby }}
+      release_go: ${{ steps.meta.outputs.release_go }}
+      release_java: ${{ steps.meta.outputs.release_java }}
+      release_elixir: ${{ steps.meta.outputs.release_elixir }}
+      release_csharp: ${{ steps.meta.outputs.release_csharp }}
+      release_php: ${{ steps.meta.outputs.release_php }}
       release_homebrew: ${{ steps.meta.outputs.release_homebrew }}
     steps:
       - name: Checkout
@@ -145,16 +145,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     outputs:
-      cratesio:  ${{ steps.parse.outputs.cratesio }}
-      pypi:      ${{ steps.parse.outputs.pypi }}
-      npm:       ${{ steps.parse.outputs.npm }}
-      npm_wasm:  ${{ steps.parse.outputs.npm_wasm }}
-      rubygems:  ${{ steps.parse.outputs.rubygems }}
-      maven:     ${{ steps.parse.outputs.maven }}
-      hex:       ${{ steps.parse.outputs.hex }}
+      cratesio: ${{ steps.parse.outputs.cratesio }}
+      pypi: ${{ steps.parse.outputs.pypi }}
+      npm: ${{ steps.parse.outputs.npm }}
+      npm_wasm: ${{ steps.parse.outputs.npm_wasm }}
+      rubygems: ${{ steps.parse.outputs.rubygems }}
+      maven: ${{ steps.parse.outputs.maven }}
+      hex: ${{ steps.parse.outputs.hex }}
       packagist: ${{ steps.parse.outputs.packagist }}
-      nuget:     ${{ steps.parse.outputs.nuget }}
-      go:        ${{ steps.parse.outputs.go }}
+      nuget: ${{ steps.parse.outputs.nuget }}
+      go: ${{ steps.parse.outputs.go }}
     steps:
       - name: Parse check results
         id: parse
@@ -734,7 +734,7 @@ jobs:
         shell: bash
       - uses: actions/setup-java@v5
         with:
-          java-version: '25'
+          java-version: "25"
           distribution: temurin
           cache: maven
       - name: Setup Maven 3.9.11
@@ -1203,7 +1203,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
+          ruby-version: "3.3"
           bundler: none
           bundler-cache: false
 
@@ -1311,7 +1311,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: "25"
           cache: maven
           server-id: ossrh
           server-username: MAVEN_USERNAME
@@ -1337,7 +1337,15 @@ jobs:
 
   publish-hex:
     name: Publish Hex.pm
-    needs: [prepare, validate-versions, registry-results, publish-crates, build-elixir-nifs, upload-elixir-nifs]
+    needs:
+      [
+        prepare,
+        validate-versions,
+        registry-results,
+        publish-crates,
+        build-elixir-nifs,
+        upload-elixir-nifs,
+      ]
     if: |
       always() &&
       needs.prepare.outputs.release_elixir == 'true' &&

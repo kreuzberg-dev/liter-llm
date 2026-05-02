@@ -1,35 +1,35 @@
 {
-	"id": "edge_image_empty_prompt",
-	"description": "Image generation with an empty prompt returns 400",
-	"category": "image-generate",
-	"tags": ["edge-case", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "",
-		"n": 1,
-		"size": "1024x1024"
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "You must provide a prompt.",
-				"type": "invalid_request_error",
-				"param": "prompt",
-				"code": null
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "edge_image_empty_prompt",
+  "description": "Image generation with an empty prompt returns 400",
+  "category": "image-generate",
+  "tags": ["edge-case", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "",
+    "n": 1,
+    "size": "1024x1024"
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "You must provide a prompt.",
+        "type": "invalid_request_error",
+        "param": "prompt",
+        "code": null
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

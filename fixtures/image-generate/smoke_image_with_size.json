@@ -1,39 +1,39 @@
 {
-	"id": "smoke_image_with_size",
-	"description": "Image generation with explicit size parameter",
-	"category": "image-generate",
-	"tags": ["smoke", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "A sunset over mountains",
-		"n": 1,
-		"size": "1792x1024"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"created": 1711000000,
-			"data": [
-				{
-					"url": "https://example.com/images/img-def456.png",
-					"revised_prompt": "A breathtaking sunset over snow-capped mountains"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "data[0].url"
-		}
-	]
+  "id": "smoke_image_with_size",
+  "description": "Image generation with explicit size parameter",
+  "category": "image-generate",
+  "tags": ["smoke", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "A sunset over mountains",
+    "n": 1,
+    "size": "1792x1024"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "created": 1711000000,
+      "data": [
+        {
+          "url": "https://example.com/images/img-def456.png",
+          "revised_prompt": "A breathtaking sunset over snow-capped mountains"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "data[0].url"
+    }
+  ]
 }

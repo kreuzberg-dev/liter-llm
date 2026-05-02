@@ -1,114 +1,114 @@
 {
-	"id": "anthropic_stream",
-	"description": "Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks",
-	"category": "streaming",
-	"tags": ["streaming", "anthropic"],
-	"call": "chat_stream",
-	"input": {
-		"model": "anthropic/claude-3-5-sonnet-20241022",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Count to three, one word per response."
-			}
-		],
-		"stream": true,
-		"max_tokens": 32
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-anthropic-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000200,
-				"model": "claude-3-5-sonnet-20241022",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-anthropic-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000200,
-				"model": "claude-3-5-sonnet-20241022",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "One"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-anthropic-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000200,
-				"model": "claude-3-5-sonnet-20241022",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " Two"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-anthropic-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000200,
-				"model": "claude-3-5-sonnet-20241022",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " Three"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-anthropic-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000200,
-				"model": "claude-3-5-sonnet-20241022",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				]
-			}
-		],
-		"stream_terminator": "[DONE]"
-	},
-	"assertions": [
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 3
-		},
-		{
-			"type": "equals",
-			"field": "stream_content",
-			"value": "One Two Three"
-		},
-		{
-			"type": "is_true",
-			"field": "stream_complete"
-		}
-	]
+  "id": "anthropic_stream",
+  "description": "Streaming chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) yielding multiple SSE chunks",
+  "category": "streaming",
+  "tags": ["streaming", "anthropic"],
+  "call": "chat_stream",
+  "input": {
+    "model": "anthropic/claude-3-5-sonnet-20241022",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Count to three, one word per response."
+      }
+    ],
+    "stream": true,
+    "max_tokens": 32
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-anthropic-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000200,
+        "model": "claude-3-5-sonnet-20241022",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-anthropic-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000200,
+        "model": "claude-3-5-sonnet-20241022",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "One"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-anthropic-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000200,
+        "model": "claude-3-5-sonnet-20241022",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " Two"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-anthropic-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000200,
+        "model": "claude-3-5-sonnet-20241022",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " Three"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-anthropic-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000200,
+        "model": "claude-3-5-sonnet-20241022",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "stream_terminator": "[DONE]"
+  },
+  "assertions": [
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 3
+    },
+    {
+      "type": "equals",
+      "field": "stream_content",
+      "value": "One Two Three"
+    },
+    {
+      "type": "is_true",
+      "field": "stream_complete"
+    }
+  ]
 }

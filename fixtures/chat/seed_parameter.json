@@ -1,61 +1,61 @@
 {
-	"id": "seed_parameter",
-	"description": "Chat request with seed parameter for deterministic output; response includes system_fingerprint",
-	"category": "chat",
-	"tags": ["chat"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Pick a random number"
-			}
-		],
-		"seed": 42
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-seed001",
-			"object": "chat.completion",
-			"created": 1711000120,
-			"model": "gpt-4",
-			"system_fingerprint": "fp_abc12345",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "7"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 12,
-				"completion_tokens": 1,
-				"total_tokens": 13
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "not_empty",
-			"field": "system_fingerprint"
-		}
-	]
+  "id": "seed_parameter",
+  "description": "Chat request with seed parameter for deterministic output; response includes system_fingerprint",
+  "category": "chat",
+  "tags": ["chat"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Pick a random number"
+      }
+    ],
+    "seed": 42
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-seed001",
+      "object": "chat.completion",
+      "created": 1711000120,
+      "model": "gpt-4",
+      "system_fingerprint": "fp_abc12345",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "7"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 1,
+        "total_tokens": 13
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "not_empty",
+      "field": "system_fingerprint"
+    }
+  ]
 }

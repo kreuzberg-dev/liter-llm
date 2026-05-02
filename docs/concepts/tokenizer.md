@@ -55,15 +55,15 @@ let n = tokenizer::count_request_tokens("gpt-4o", &req)?;
 
 liter-llm maps model name prefixes to HuggingFace tokenizer repository IDs. When no prefix matches, the GPT-4o tokenizer is used as a reasonable approximation for modern LLMs.
 
-| Model prefix | HuggingFace tokenizer | Notes |
-|---|---|---|
-| `gpt-4`, `gpt-3.5`, `chatgpt`, `o1`, `o3`, `o4` | `Xenova/gpt-4o` | Covers all OpenAI chat and reasoning models |
-| `claude`, `anthropic` | `Xenova/claude-tokenizer` | Anthropic models |
-| `gemini`, `vertex_ai` | `google/gemma-2b` | Google / Vertex AI models |
-| `mistral`, `codestral` | `mistralai/Mistral-7B-v0.1` | Mistral models |
-| `command`, `cohere` | `Cohere/command-r-plus-tokenizer` | Cohere models |
-| `llama`, `meta-llama` | `meta-llama/Meta-Llama-3-8B` | Meta Llama models |
-| (all others) | `Xenova/gpt-4o` | Fallback; approximation only |
+| Model prefix                                    | HuggingFace tokenizer             | Notes                                       |
+| ----------------------------------------------- | --------------------------------- | ------------------------------------------- |
+| `gpt-4`, `gpt-3.5`, `chatgpt`, `o1`, `o3`, `o4` | `Xenova/gpt-4o`                   | Covers all OpenAI chat and reasoning models |
+| `claude`, `anthropic`                           | `Xenova/claude-tokenizer`         | Anthropic models                            |
+| `gemini`, `vertex_ai`                           | `google/gemma-2b`                 | Google / Vertex AI models                   |
+| `mistral`, `codestral`                          | `mistralai/Mistral-7B-v0.1`       | Mistral models                              |
+| `command`, `cohere`                             | `Cohere/command-r-plus-tokenizer` | Cohere models                               |
+| `llama`, `meta-llama`                           | `meta-llama/Meta-Llama-3-8B`      | Meta Llama models                           |
+| (all others)                                    | `Xenova/gpt-4o`                   | Fallback; approximation only                |
 
 These counts are estimates. Every provider tokenizes slightly differently; the numbers are useful for pre-flight checks (avoiding obvious context-window overflows) but not for exact billing.
 

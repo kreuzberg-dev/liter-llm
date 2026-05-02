@@ -8,10 +8,10 @@ liter-llm emits OpenTelemetry-compatible tracing spans for every LLM request via
 
 ## Feature flags
 
-| Flag | Purpose |
-|------|---------|
-| `tracing` | Enables `TracingLayer` and `CostTrackingLayer`. Required for any span emission. |
-| `otel` | Re-exports `tracing_opentelemetry` and `opentelemetry` crates so callers can wire a full OTEL pipeline without adding direct dependencies. |
+| Flag      | Purpose                                                                                                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tracing` | Enables `TracingLayer` and `CostTrackingLayer`. Required for any span emission.                                                            |
+| `otel`    | Re-exports `tracing_opentelemetry` and `opentelemetry` crates so callers can wire a full OTEL pipeline without adding direct dependencies. |
 
 Enable in `Cargo.toml`:
 
@@ -26,18 +26,18 @@ liter-llm = { version = "...", features = ["tracing", "otel"] }
 
 Each request creates a `gen_ai` span. The following attributes are populated according to the GenAI semantic conventions:
 
-| Attribute | Type | When set |
-|-----------|------|----------|
-| `gen_ai.operation.name` | string | Always. Values: `"chat"`, `"embeddings"`, `"list_models"`, `"image_generate"`, `"speech"`, `"transcribe"`, `"moderate"`, `"rerank"`, `"search"`, `"ocr"`. |
-| `gen_ai.request.model` | string | Always. Empty string for `list_models`. |
-| `gen_ai.system` | string | Always. The provider prefix from the model name (e.g. `"openai"` for `"openai/gpt-4"`). Empty when no prefix is present. |
-| `gen_ai.response.id` | string | Successful chat responses. |
-| `gen_ai.response.model` | string | Successful chat and embedding responses. |
-| `gen_ai.response.finish_reasons` | string | Successful chat responses. Space-separated finish reason names (e.g. `"stop"` or `"length tool_calls"`). |
-| `gen_ai.usage.input_tokens` | int | Successful chat and embedding responses when usage data is present. |
-| `gen_ai.usage.output_tokens` | int | Successful chat responses when usage data is present. |
-| `gen_ai.usage.cost` | float | Set by `CostTrackingLayer` when the model appears in the pricing registry. Value is USD. |
-| `error.type` | string | On error. Set to the `LiterLlmError` variant name (e.g. `"RateLimited"`, `"Timeout"`). |
+| Attribute                        | Type   | When set                                                                                                                                                  |
+| -------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gen_ai.operation.name`          | string | Always. Values: `"chat"`, `"embeddings"`, `"list_models"`, `"image_generate"`, `"speech"`, `"transcribe"`, `"moderate"`, `"rerank"`, `"search"`, `"ocr"`. |
+| `gen_ai.request.model`           | string | Always. Empty string for `list_models`.                                                                                                                   |
+| `gen_ai.system`                  | string | Always. The provider prefix from the model name (e.g. `"openai"` for `"openai/gpt-4"`). Empty when no prefix is present.                                  |
+| `gen_ai.response.id`             | string | Successful chat responses.                                                                                                                                |
+| `gen_ai.response.model`          | string | Successful chat and embedding responses.                                                                                                                  |
+| `gen_ai.response.finish_reasons` | string | Successful chat responses. Space-separated finish reason names (e.g. `"stop"` or `"length tool_calls"`).                                                  |
+| `gen_ai.usage.input_tokens`      | int    | Successful chat and embedding responses when usage data is present.                                                                                       |
+| `gen_ai.usage.output_tokens`     | int    | Successful chat responses when usage data is present.                                                                                                     |
+| `gen_ai.usage.cost`              | float  | Set by `CostTrackingLayer` when the model appears in the pricing registry. Value is USD.                                                                  |
+| `error.type`                     | string | On error. Set to the `LiterLlmError` variant name (e.g. `"RateLimited"`, `"Timeout"`).                                                                    |
 
 ## Enabling tracing on the client
 

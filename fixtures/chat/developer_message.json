@@ -1,64 +1,64 @@
 {
-	"id": "developer_message",
-	"description": "Chat request that includes a developer role message alongside user messages",
-	"category": "chat",
-	"tags": ["chat"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "developer",
-				"content": "You are a coding assistant. Always respond with concise code examples."
-			},
-			{
-				"role": "user",
-				"content": "How do I reverse a string in Python?"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-dev001",
-			"object": "chat.completion",
-			"created": 1711000130,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "s[::-1]"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 28,
-				"completion_tokens": 5,
-				"total_tokens": 33
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "s[::-1]"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		}
-	]
+  "id": "developer_message",
+  "description": "Chat request that includes a developer role message alongside user messages",
+  "category": "chat",
+  "tags": ["chat"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "developer",
+        "content": "You are a coding assistant. Always respond with concise code examples."
+      },
+      {
+        "role": "user",
+        "content": "How do I reverse a string in Python?"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-dev001",
+      "object": "chat.completion",
+      "created": 1711000130,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "s[::-1]"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 28,
+        "completion_tokens": 5,
+        "total_tokens": 33
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "s[::-1]"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    }
+  ]
 }

@@ -45,13 +45,13 @@ See [Proxy Configuration](proxy-configuration.md) for every config field.
 
 ## Command-line flags
 
-| Flag | Default | Purpose |
-|------|---------|---------|
-| `--config`, `-c` | auto-discover | Path to `liter-llm-proxy.toml`. Walks from the current directory up to the filesystem root when omitted. |
-| `--host` | `0.0.0.0` | Bind address. Overrides `[server].host`. |
-| `--port`, `-p` | `4000` | Bind port. Overrides `[server].port`. |
-| `--master-key` | reads env: `LITER_LLM_MASTER_KEY` | Master API key. Overrides `[general].master_key`. |
-| `--debug` | off | Enable debug-level tracing. Equivalent to `RUST_LOG=debug`. |
+| Flag             | Default                           | Purpose                                                                                                  |
+| ---------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `--config`, `-c` | auto-discover                     | Path to `liter-llm-proxy.toml`. Walks from the current directory up to the filesystem root when omitted. |
+| `--host`         | `0.0.0.0`                         | Bind address. Overrides `[server].host`.                                                                 |
+| `--port`, `-p`   | `4000`                            | Bind port. Overrides `[server].port`.                                                                    |
+| `--master-key`   | reads env: `LITER_LLM_MASTER_KEY` | Master API key. Overrides `[general].master_key`.                                                        |
+| `--debug`        | off                               | Enable debug-level tracing. Equivalent to `RUST_LOG=debug`.                                              |
 
 CLI flags take precedence over config file values, which take precedence over defaults.
 
@@ -61,54 +61,54 @@ The proxy exposes 23 API routes with 26 endpoints (verb+path combinations). All 
 
 ### LLM operations
 
-| Method | Path | Request body | Notes |
-|--------|------|--------------|-------|
-| POST | `/v1/chat/completions` | `ChatCompletionRequest` | Supports SSE streaming when `stream: true`. |
-| POST | `/v1/embeddings` | `EmbeddingRequest` | |
-| GET | `/v1/models` | n/a | Lists configured `[[models]]` and aliases. |
-| POST | `/v1/images/generations` | `CreateImageRequest` | |
-| POST | `/v1/audio/speech` | `CreateSpeechRequest` | Returns audio bytes. |
-| POST | `/v1/audio/transcriptions` | multipart | Speech to text. |
-| POST | `/v1/moderations` | `ModerationRequest` | |
-| POST | `/v1/rerank` | `RerankRequest` | Extended endpoint, not in OpenAI API. |
-| POST | `/v1/search` | `SearchRequest` | Extended endpoint. |
-| POST | `/v1/ocr` | `OcrRequest` | Extended endpoint. |
+| Method | Path                       | Request body            | Notes                                       |
+| ------ | -------------------------- | ----------------------- | ------------------------------------------- |
+| POST   | `/v1/chat/completions`     | `ChatCompletionRequest` | Supports SSE streaming when `stream: true`. |
+| POST   | `/v1/embeddings`           | `EmbeddingRequest`      |                                             |
+| GET    | `/v1/models`               | n/a                     | Lists configured `[[models]]` and aliases.  |
+| POST   | `/v1/images/generations`   | `CreateImageRequest`    |                                             |
+| POST   | `/v1/audio/speech`         | `CreateSpeechRequest`   | Returns audio bytes.                        |
+| POST   | `/v1/audio/transcriptions` | multipart               | Speech to text.                             |
+| POST   | `/v1/moderations`          | `ModerationRequest`     |                                             |
+| POST   | `/v1/rerank`               | `RerankRequest`         | Extended endpoint, not in OpenAI API.       |
+| POST   | `/v1/search`               | `SearchRequest`         | Extended endpoint.                          |
+| POST   | `/v1/ocr`                  | `OcrRequest`            | Extended endpoint.                          |
 
 ### Files
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| POST | `/v1/files` | Upload a file (multipart). |
-| GET | `/v1/files` | List files. |
-| GET | `/v1/files/{file_id}` | Retrieve file metadata. |
-| DELETE | `/v1/files/{file_id}` | Delete a file. |
-| GET | `/v1/files/{file_id}/content` | Retrieve raw file bytes. |
+| Method | Path                          | Purpose                    |
+| ------ | ----------------------------- | -------------------------- |
+| POST   | `/v1/files`                   | Upload a file (multipart). |
+| GET    | `/v1/files`                   | List files.                |
+| GET    | `/v1/files/{file_id}`         | Retrieve file metadata.    |
+| DELETE | `/v1/files/{file_id}`         | Delete a file.             |
+| GET    | `/v1/files/{file_id}/content` | Retrieve raw file bytes.   |
 
 ### Batches
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| POST | `/v1/batches` | Create a batch job. |
-| GET | `/v1/batches` | List batch jobs. |
-| GET | `/v1/batches/{batch_id}` | Retrieve a batch job. |
-| POST | `/v1/batches/{batch_id}/cancel` | Cancel an in-progress batch. |
+| Method | Path                            | Purpose                      |
+| ------ | ------------------------------- | ---------------------------- |
+| POST   | `/v1/batches`                   | Create a batch job.          |
+| GET    | `/v1/batches`                   | List batch jobs.             |
+| GET    | `/v1/batches/{batch_id}`        | Retrieve a batch job.        |
+| POST   | `/v1/batches/{batch_id}/cancel` | Cancel an in-progress batch. |
 
 ### Responses
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| POST | `/v1/responses` | Create a response (Responses API). |
-| GET | `/v1/responses/{response_id}` | Retrieve a response. |
-| POST | `/v1/responses/{response_id}/cancel` | Cancel a response. |
+| Method | Path                                 | Purpose                            |
+| ------ | ------------------------------------ | ---------------------------------- |
+| POST   | `/v1/responses`                      | Create a response (Responses API). |
+| GET    | `/v1/responses/{response_id}`        | Retrieve a response.               |
+| POST   | `/v1/responses/{response_id}/cancel` | Cancel a response.                 |
 
 ### Health and discovery
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| GET | `/health` | public | Full status including configured model list. |
-| GET | `/health/liveness` | public | Always returns 200 while the process is alive. Use as a Kubernetes liveness probe. |
-| GET | `/health/readiness` | public | Returns 200 once the service pool is initialised. Use as a readiness probe. |
-| GET | `/openapi.json` | public | Machine-readable OpenAPI 3.1 schema for every `/v1/*` route. |
+| Method | Path                | Auth   | Purpose                                                                            |
+| ------ | ------------------- | ------ | ---------------------------------------------------------------------------------- |
+| GET    | `/health`           | public | Full status including configured model list.                                       |
+| GET    | `/health/liveness`  | public | Always returns 200 while the process is alive. Use as a Kubernetes liveness probe. |
+| GET    | `/health/readiness` | public | Returns 200 once the service pool is initialised. Use as a readiness probe.        |
+| GET    | `/openapi.json`     | public | Machine-readable OpenAPI 3.1 schema for every `/v1/*` route.                       |
 
 ## Request lifecycle
 
@@ -190,14 +190,14 @@ readinessProbe:
 
 ## HTTP behaviour
 
-| Concern | Default | Controlled by |
-|---------|---------|---------------|
-| Request timeout | 600 s | `[server].request_timeout_secs` |
-| Body size limit | 10 MiB | `[server].body_limit_bytes` |
-| CORS origins | `*` | `[server].cors_origins` |
-| Response compression | always on | built in (`tower_http::CompressionLayer`) |
-| Panic handling | caught and returned as 500 | built in (`tower_http::CatchPanicLayer`) |
-| `Authorization` redaction in logs | always on | built in (`SetSensitiveHeadersLayer`) |
+| Concern                           | Default                    | Controlled by                             |
+| --------------------------------- | -------------------------- | ----------------------------------------- |
+| Request timeout                   | 600 s                      | `[server].request_timeout_secs`           |
+| Body size limit                   | 10 MiB                     | `[server].body_limit_bytes`               |
+| CORS origins                      | `*`                        | `[server].cors_origins`                   |
+| Response compression              | always on                  | built in (`tower_http::CompressionLayer`) |
+| Panic handling                    | caught and returned as 500 | built in (`tower_http::CatchPanicLayer`)  |
+| `Authorization` redaction in logs | always on                  | built in (`SetSensitiveHeadersLayer`)     |
 
 CORS is wide open by default so the proxy works from any browser app during development. Restrict it to a known origin list before shipping to production.
 

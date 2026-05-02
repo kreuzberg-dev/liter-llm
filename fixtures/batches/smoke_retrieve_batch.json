@@ -1,42 +1,42 @@
 {
-	"id": "smoke_retrieve_batch",
-	"description": "Retrieve the status of a batch job",
-	"category": "batches",
-	"tags": ["smoke", "batches"],
-	"call": "retrieve_batch",
-	"input": {
-		"batch_id": "batch-abc123"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "batch-abc123",
-			"object": "batch",
-			"endpoint": "/v1/chat/completions",
-			"input_file_id": "file-abc123",
-			"completion_window": "24h",
-			"status": "in_progress",
-			"created_at": 1711000000,
-			"in_progress_at": 1711000100,
-			"request_counts": {
-				"total": 100,
-				"completed": 45,
-				"failed": 2
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "status",
-			"value": "in_progress"
-		}
-	]
+  "id": "smoke_retrieve_batch",
+  "description": "Retrieve the status of a batch job",
+  "category": "batches",
+  "tags": ["smoke", "batches"],
+  "call": "retrieve_batch",
+  "input": {
+    "batch_id": "batch-abc123"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "batch-abc123",
+      "object": "batch",
+      "endpoint": "/v1/chat/completions",
+      "input_file_id": "file-abc123",
+      "completion_window": "24h",
+      "status": "in_progress",
+      "created_at": 1711000000,
+      "in_progress_at": 1711000100,
+      "request_counts": {
+        "total": 100,
+        "completed": 45,
+        "failed": 2
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "status",
+      "value": "in_progress"
+    }
+  ]
 }

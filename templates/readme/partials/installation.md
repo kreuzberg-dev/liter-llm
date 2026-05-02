@@ -217,7 +217,7 @@ dotnet add package {{ package_name }}
 
 - **Python 3.10+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "typescript" %}
+  {% elif language == "typescript" %}
 - **Node.js 22+** required (NAPI-RS native bindings)
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
 
@@ -233,24 +233,24 @@ Pre-built binaries available for:
 
 - **Go 1.21+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "java" %}
+  {% elif language == "java" %}
 - **Java 21+** required (Panama FFM API)
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "ruby" %}
+  {% elif language == "ruby" %}
 - **Ruby 3.2+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "php" %}
+  {% elif language == "php" %}
 - **PHP 8.2+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "csharp" %}
+  {% elif language == "csharp" %}
 - **.NET 8.0+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "elixir" %}
+  {% elif language == "elixir" %}
 - **Elixir 1.14+** and **Erlang/OTP 25+** required
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
-{% elif language == "wasm" %}
+  {% elif language == "wasm" %}
 - Modern browser with WebAssembly support, or Deno 1.0+, or Cloudflare Workers
 - API keys via environment variables or runtime configuration
-{% else %}
+  {% else %}
 - See [Installation Guide](https://github.com/kreuzberg-dev/liter-llm#installation) for requirements
-{% endif %}
+  {% endif %}

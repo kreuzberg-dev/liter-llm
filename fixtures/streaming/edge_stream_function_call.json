@@ -1,109 +1,109 @@
 {
-	"id": "edge_stream_function_call",
-	"description": "Streaming chat completion with tool/function call chunks",
-	"category": "streaming",
-	"tags": ["streaming", "edge-case"],
-	"call": "chat_stream",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "What's the weather?"
-			}
-		],
-		"tools": [
-			{
-				"type": "function",
-				"function": {
-					"name": "get_weather",
-					"parameters": {
-						"type": "object",
-						"properties": {
-							"city": {
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-func-001",
-				"object": "chat.completion.chunk",
-				"created": 1711000400,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": null,
-							"tool_calls": [
-								{
-									"index": 0,
-									"id": "call-001",
-									"type": "function",
-									"function": {
-										"name": "get_weather",
-										"arguments": ""
-									}
-								}
-							]
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-func-001",
-				"object": "chat.completion.chunk",
-				"created": 1711000400,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"tool_calls": [
-								{
-									"index": 0,
-									"function": {
-										"arguments": "{\"city\": \"New York\"}"
-									}
-								}
-							]
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-func-001",
-				"object": "chat.completion.chunk",
-				"created": 1711000400,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "tool_calls"
-					}
-				]
-			}
-		]
-	},
-	"assertions": [
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 2
-		},
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "edge_stream_function_call",
+  "description": "Streaming chat completion with tool/function call chunks",
+  "category": "streaming",
+  "tags": ["streaming", "edge-case"],
+  "call": "chat_stream",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What's the weather?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-func-001",
+        "object": "chat.completion.chunk",
+        "created": 1711000400,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "index": 0,
+                  "id": "call-001",
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "arguments": ""
+                  }
+                }
+              ]
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-func-001",
+        "object": "chat.completion.chunk",
+        "created": 1711000400,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "tool_calls": [
+                {
+                  "index": 0,
+                  "function": {
+                    "arguments": "{\"city\": \"New York\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-func-001",
+        "object": "chat.completion.chunk",
+        "created": 1711000400,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "tool_calls"
+          }
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 2
+    },
+    {
+      "type": "not_error"
+    }
+  ]
 }

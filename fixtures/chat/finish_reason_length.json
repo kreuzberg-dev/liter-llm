@@ -1,56 +1,56 @@
 {
-	"id": "finish_reason_length",
-	"description": "Chat response truncated due to max_tokens limit with finish_reason of length",
-	"category": "chat",
-	"tags": ["chat"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Tell me a long story"
-			}
-		],
-		"max_tokens": 5
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-length001",
-			"object": "chat.completion",
-			"created": 1711000090,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Once upon a time"
-					},
-					"finish_reason": "length"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 12,
-				"completion_tokens": 5,
-				"total_tokens": 17
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "length"
-		}
-	]
+  "id": "finish_reason_length",
+  "description": "Chat response truncated due to max_tokens limit with finish_reason of length",
+  "category": "chat",
+  "tags": ["chat"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Tell me a long story"
+      }
+    ],
+    "max_tokens": 5
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-length001",
+      "object": "chat.completion",
+      "created": 1711000090,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Once upon a time"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "length"
+    }
+  ]
 }

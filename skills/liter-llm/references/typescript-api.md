@@ -32,45 +32,45 @@ const client = new LlmClient({
 });
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `apiKey` | `string` | *required* | API key for authentication (wrapped in `SecretString` internally) |
-| `baseUrl` | `string \| undefined` | `undefined` | Override provider base URL |
-| `modelHint` | `string \| undefined` | `undefined` | Hint for provider auto-detection (e.g. `"groq/llama3-70b"`) |
-| `maxRetries` | `number \| undefined` | `3` | Retries on 429 / 5xx responses |
-| `timeoutSecs` | `number \| undefined` | `60` | Request timeout in seconds |
-| `cache` | `CacheOptions \| undefined` | `undefined` | Cache config |
-| `budget` | `BudgetOptions \| undefined` | `undefined` | Budget config |
-| `extraHeaders` | `Record<string, string> \| undefined` | `undefined` | Additional HTTP headers sent with every request |
-| `cooldown` | `number \| undefined` | `undefined` | Cooldown period in seconds after transient errors |
-| `rateLimit` | `RateLimitOptions \| undefined` | `undefined` | Rate limit config |
-| `healthCheck` | `number \| undefined` | `undefined` | Health check interval in seconds |
-| `costTracking` | `boolean \| undefined` | `undefined` | Enable per-request cost tracking |
-| `tracing` | `boolean \| undefined` | `undefined` | Enable OpenTelemetry tracing spans |
+| Parameter      | Type                                  | Default     | Description                                                       |
+| -------------- | ------------------------------------- | ----------- | ----------------------------------------------------------------- |
+| `apiKey`       | `string`                              | _required_  | API key for authentication (wrapped in `SecretString` internally) |
+| `baseUrl`      | `string \| undefined`                 | `undefined` | Override provider base URL                                        |
+| `modelHint`    | `string \| undefined`                 | `undefined` | Hint for provider auto-detection (e.g. `"groq/llama3-70b"`)       |
+| `maxRetries`   | `number \| undefined`                 | `3`         | Retries on 429 / 5xx responses                                    |
+| `timeoutSecs`  | `number \| undefined`                 | `60`        | Request timeout in seconds                                        |
+| `cache`        | `CacheOptions \| undefined`           | `undefined` | Cache config                                                      |
+| `budget`       | `BudgetOptions \| undefined`          | `undefined` | Budget config                                                     |
+| `extraHeaders` | `Record<string, string> \| undefined` | `undefined` | Additional HTTP headers sent with every request                   |
+| `cooldown`     | `number \| undefined`                 | `undefined` | Cooldown period in seconds after transient errors                 |
+| `rateLimit`    | `RateLimitOptions \| undefined`       | `undefined` | Rate limit config                                                 |
+| `healthCheck`  | `number \| undefined`                 | `undefined` | Health check interval in seconds                                  |
+| `costTracking` | `boolean \| undefined`                | `undefined` | Enable per-request cost tracking                                  |
+| `tracing`      | `boolean \| undefined`                | `undefined` | Enable OpenTelemetry tracing spans                                |
 
 ### Configuration Types
 
 **CacheOptions:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `maxEntries` | `number` | Maximum cached responses (default: 256) |
+| Field        | Type     | Description                                    |
+| ------------ | -------- | ---------------------------------------------- |
+| `maxEntries` | `number` | Maximum cached responses (default: 256)        |
 | `ttlSeconds` | `number` | Time-to-live for cached entries (default: 300) |
 
 **BudgetOptions:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `globalLimit` | `number` | Maximum USD spend across all models |
-| `modelLimits` | `Record<string, number>` | Per-model USD spend limits |
-| `enforcement` | `"hard" \| "soft"` | `"hard"` rejects, `"soft"` warns |
+| Field         | Type                     | Description                         |
+| ------------- | ------------------------ | ----------------------------------- |
+| `globalLimit` | `number`                 | Maximum USD spend across all models |
+| `modelLimits` | `Record<string, number>` | Per-model USD spend limits          |
+| `enforcement` | `"hard" \| "soft"`       | `"hard"` rejects, `"soft"` warns    |
 
 **RateLimitOptions:**
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field | Type     | Description         |
+| ----- | -------- | ------------------- |
 | `rpm` | `number` | Requests per minute |
-| `tpm` | `number` | Tokens per minute |
+| `tpm` | `number` | Tokens per minute   |
 
 ---
 
@@ -126,13 +126,13 @@ const resp = await client.embed({
 const vector = resp.data[0].embedding; // number[]
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | Embedding model name |
-| `input` | `string \| string[]` | Text(s) to embed |
-| `encodingFormat` | `string \| undefined` | `"float"` or `"base64"` |
-| `dimensions` | `number \| undefined` | Output dimensions (model-dependent) |
-| `user` | `string \| undefined` | End-user identifier |
+| Field            | Type                  | Description                         |
+| ---------------- | --------------------- | ----------------------------------- |
+| `model`          | `string`              | Embedding model name                |
+| `input`          | `string \| string[]`  | Text(s) to embed                    |
+| `encodingFormat` | `string \| undefined` | `"float"` or `"base64"`             |
+| `dimensions`     | `number \| undefined` | Output dimensions (model-dependent) |
+| `user`           | `string \| undefined` | End-user identifier                 |
 
 ### Model Discovery
 
@@ -162,16 +162,16 @@ const resp = await client.imageGenerate({
 });
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `prompt` | `string` | Text description |
-| `model` | `string` | Image generation model |
-| `n` | `number \| undefined` | Number of images |
-| `size` | `string \| undefined` | Image size (e.g. `"1024x1024"`) |
-| `quality` | `string \| undefined` | Quality level |
-| `responseFormat` | `string \| undefined` | `"url"` or `"b64Json"` |
-| `style` | `string \| undefined` | `"vivid"` or `"natural"` |
-| `user` | `string \| undefined` | End-user identifier |
+| Field            | Type                  | Description                     |
+| ---------------- | --------------------- | ------------------------------- |
+| `prompt`         | `string`              | Text description                |
+| `model`          | `string`              | Image generation model          |
+| `n`              | `number \| undefined` | Number of images                |
+| `size`           | `string \| undefined` | Image size (e.g. `"1024x1024"`) |
+| `quality`        | `string \| undefined` | Quality level                   |
+| `responseFormat` | `string \| undefined` | `"url"` or `"b64Json"`          |
+| `style`          | `string \| undefined` | `"vivid"` or `"natural"`        |
+| `user`           | `string \| undefined` | End-user identifier             |
 
 ### Audio
 
@@ -189,13 +189,13 @@ import { writeFileSync } from "node:fs";
 writeFileSync("output.mp3", audio);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | TTS model |
-| `input` | `string` | Text to speak |
-| `voice` | `string` | Voice name |
-| `responseFormat` | `string \| undefined` | Audio format |
-| `speed` | `number \| undefined` | Speed multiplier (0.25 to 4.0) |
+| Field            | Type                  | Description                    |
+| ---------------- | --------------------- | ------------------------------ |
+| `model`          | `string`              | TTS model                      |
+| `input`          | `string`              | Text to speak                  |
+| `voice`          | `string`              | Voice name                     |
+| `responseFormat` | `string \| undefined` | Audio format                   |
+| `speed`          | `number \| undefined` | Speed multiplier (0.25 to 4.0) |
 
 #### `transcribe(request): Promise<object>`
 
@@ -209,14 +209,14 @@ const resp = await client.transcribe({
 console.log(resp.text);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | Transcription model |
-| `file` | `Buffer` | Audio file bytes |
-| `language` | `string \| undefined` | ISO-639-1 language code |
-| `prompt` | `string \| undefined` | Optional context prompt |
-| `responseFormat` | `string \| undefined` | Output format |
-| `temperature` | `number \| undefined` | Sampling temperature |
+| Field            | Type                  | Description             |
+| ---------------- | --------------------- | ----------------------- |
+| `model`          | `string`              | Transcription model     |
+| `file`           | `Buffer`              | Audio file bytes        |
+| `language`       | `string \| undefined` | ISO-639-1 language code |
+| `prompt`         | `string \| undefined` | Optional context prompt |
+| `responseFormat` | `string \| undefined` | Output format           |
+| `temperature`    | `number \| undefined` | Sampling temperature    |
 
 ### Content Safety
 
@@ -247,12 +247,12 @@ const resp = await client.rerank({
 });
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | Reranking model |
-| `query` | `string` | Query to rank against |
-| `documents` | `string[]` | Documents to rerank |
-| `topN` | `number \| undefined` | Number of top results |
+| Field       | Type                  | Description           |
+| ----------- | --------------------- | --------------------- |
+| `model`     | `string`              | Reranking model       |
+| `query`     | `string`              | Query to rank against |
+| `documents` | `string[]`            | Documents to rerank   |
+| `topN`      | `number \| undefined` | Number of top results |
 
 #### `search(request): Promise<object>`
 
@@ -266,11 +266,11 @@ const resp = await client.search({
 });
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | Search provider/model |
-| `query` | `string` | Search query |
-| `maxResults` | `number \| undefined` | Maximum results |
+| Field        | Type                  | Description                     |
+| ------------ | --------------------- | ------------------------------- |
+| `model`      | `string`              | Search provider/model           |
+| `query`      | `string`              | Search query                    |
+| `maxResults` | `number \| undefined` | Maximum results                 |
 | `searchType` | `string \| undefined` | Search type (provider-specific) |
 
 ### OCR
@@ -288,12 +288,12 @@ const resp = await client.ocr({
 console.log(resp.text);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | OCR model |
-| `file` | `string \| Buffer` | File content (base64 or buffer) |
-| `mimeType` | `string \| undefined` | MIME type of the file |
-| `pages` | `string \| undefined` | Page range (e.g. `"1-5"`) |
+| Field      | Type                  | Description                     |
+| ---------- | --------------------- | ------------------------------- |
+| `model`    | `string`              | OCR model                       |
+| `file`     | `string \| Buffer`    | File content (base64 or buffer) |
+| `mimeType` | `string \| undefined` | MIME type of the file           |
+| `pages`    | `string \| undefined` | Page range (e.g. `"1-5"`)       |
 
 ---
 
@@ -312,11 +312,11 @@ const result = await client.createFile({
 const fileId = result.id;
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `file` | `Buffer` | File content |
-| `purpose` | `string` | File purpose (e.g. `"batch"`, `"fine-tune"`) |
-| `filename` | `string \| undefined` | Original filename |
+| Field      | Type                  | Description                                  |
+| ---------- | --------------------- | -------------------------------------------- |
+| `file`     | `Buffer`              | File content                                 |
+| `purpose`  | `string`              | File purpose (e.g. `"batch"`, `"fine-tune"`) |
+| `filename` | `string \| undefined` | Original filename                            |
 
 #### `retrieveFile(fileId: string): Promise<object>`
 
@@ -342,11 +342,11 @@ List files, optionally filtered.
 const files = await client.listFiles({ purpose: "batch", limit: 10 });
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `purpose` | `string \| undefined` | Filter by purpose |
-| `limit` | `number \| undefined` | Max results |
-| `after` | `string \| undefined` | Cursor for pagination |
+| Field     | Type                  | Description           |
+| --------- | --------------------- | --------------------- |
+| `purpose` | `string \| undefined` | Filter by purpose     |
+| `limit`   | `number \| undefined` | Max results           |
+| `after`   | `string \| undefined` | Cursor for pagination |
 
 #### `fileContent(fileId: string): Promise<Buffer>`
 
@@ -372,12 +372,12 @@ const batch = await client.createBatch({
 });
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `inputFileId` | `string` | ID of the uploaded JSONL file |
-| `endpoint` | `string` | API endpoint for batch requests |
-| `completionWindow` | `string` | Time window (e.g. `"24h"`) |
-| `metadata` | `Record<string, string> \| undefined` | Optional metadata |
+| Field              | Type                                  | Description                     |
+| ------------------ | ------------------------------------- | ------------------------------- |
+| `inputFileId`      | `string`                              | ID of the uploaded JSONL file   |
+| `endpoint`         | `string`                              | API endpoint for batch requests |
+| `completionWindow` | `string`                              | Time window (e.g. `"24h"`)      |
+| `metadata`         | `Record<string, string> \| undefined` | Optional metadata               |
 
 #### `retrieveBatch(batchId: string): Promise<object>`
 
@@ -420,14 +420,14 @@ const resp = await client.createResponse({
 });
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `model` | `string` | Model name |
-| `input` | `string` | Input text |
-| `instructions` | `string \| undefined` | System instructions |
-| `maxOutputTokens` | `number \| undefined` | Max output tokens |
-| `temperature` | `number \| undefined` | Sampling temperature |
-| `topP` | `number \| undefined` | Nucleus sampling |
+| Field             | Type                  | Description          |
+| ----------------- | --------------------- | -------------------- |
+| `model`           | `string`              | Model name           |
+| `input`           | `string`              | Input text           |
+| `instructions`    | `string \| undefined` | System instructions  |
+| `maxOutputTokens` | `number \| undefined` | Max output tokens    |
+| `temperature`     | `number \| undefined` | Sampling temperature |
+| `topP`            | `number \| undefined` | Nucleus sampling     |
 
 #### `retrieveResponse(id: string): Promise<object>`
 
@@ -482,17 +482,23 @@ Register a lifecycle hook for request/response/error events. All callbacks are o
 
 ```typescript
 client.addHook({
-  onRequest(req) { console.log(`Sending: ${req.model}`); },
-  onResponse(req, res) { console.log(`Tokens: ${res.usage?.totalTokens}`); },
-  onError(req, err) { console.error(`Error: ${err}`); },
+  onRequest(req) {
+    console.log(`Sending: ${req.model}`);
+  },
+  onResponse(req, res) {
+    console.log(`Tokens: ${res.usage?.totalTokens}`);
+  },
+  onError(req, err) {
+    console.error(`Error: ${err}`);
+  },
 });
 ```
 
-| Callback | Arguments | Description |
-|----------|-----------|-------------|
-| `onRequest(req)` | request object | Called before each request |
+| Callback               | Arguments                 | Description                      |
+| ---------------------- | ------------------------- | -------------------------------- |
+| `onRequest(req)`       | request object            | Called before each request       |
 | `onResponse(req, res)` | request, response objects | Called after successful response |
-| `onError(req, err)` | request, Error | Called on error |
+| `onError(req, err)`    | request, Error            | Called on error                  |
 
 ---
 
@@ -515,7 +521,7 @@ console.log(`Budget used: $${client.budgetUsed.toFixed(2)}`);
 Returns the library version string.
 
 ```typescript
-import { version } from '@kreuzberg/liter-llm';
+import { version } from "@kreuzberg/liter-llm";
 console.log(version());
 ```
 
@@ -527,106 +533,106 @@ Response objects are plain JavaScript objects with **camelCase** keys (automatic
 
 ### ChatCompletionResponse
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Response ID |
-| `model` | `string` | Model used |
-| `choices` | `Choice[]` | Completion choices |
-| `usage` | `Usage \| undefined` | Token usage |
-| `created` | `number` | Unix timestamp |
+| Field     | Type                 | Description        |
+| --------- | -------------------- | ------------------ |
+| `id`      | `string`             | Response ID        |
+| `model`   | `string`             | Model used         |
+| `choices` | `Choice[]`           | Completion choices |
+| `usage`   | `Usage \| undefined` | Token usage        |
+| `created` | `number`             | Unix timestamp     |
 
 ### Choice
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `index` | `number` | Choice index |
-| `message` | `AssistantMessage` | The assistant's message |
-| `finishReason` | `string \| null` | Why generation stopped (`stop`, `length`, `toolCalls`) |
+| Field          | Type               | Description                                            |
+| -------------- | ------------------ | ------------------------------------------------------ |
+| `index`        | `number`           | Choice index                                           |
+| `message`      | `AssistantMessage` | The assistant's message                                |
+| `finishReason` | `string \| null`   | Why generation stopped (`stop`, `length`, `toolCalls`) |
 
 ### AssistantMessage
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `content` | `string \| null` | Text content |
+| Field       | Type                      | Description                      |
+| ----------- | ------------------------- | -------------------------------- |
+| `content`   | `string \| null`          | Text content                     |
 | `toolCalls` | `ToolCall[] \| undefined` | Tool calls made by the assistant |
-| `refusal` | `string \| null` | Refusal message |
+| `refusal`   | `string \| null`          | Refusal message                  |
 
 ### ToolCall
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Tool call ID |
-| `type` | `string` | Always `"function"` |
+| Field      | Type           | Description                 |
+| ---------- | -------------- | --------------------------- |
+| `id`       | `string`       | Tool call ID                |
+| `type`     | `string`       | Always `"function"`         |
 | `function` | `FunctionCall` | Function name and arguments |
 
 ### FunctionCall
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | `string` | Function name |
+| Field       | Type     | Description            |
+| ----------- | -------- | ---------------------- |
+| `name`      | `string` | Function name          |
 | `arguments` | `string` | JSON-encoded arguments |
 
 ### ChatCompletionChunk
 
 Returned as array elements from `chatStream()`.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Response ID |
-| `model` | `string` | Model used |
-| `choices` | `StreamChoice[]` | Stream choices with deltas |
-| `usage` | `Usage \| undefined` | Token usage (final chunk only) |
+| Field     | Type                 | Description                    |
+| --------- | -------------------- | ------------------------------ |
+| `id`      | `string`             | Response ID                    |
+| `model`   | `string`             | Model used                     |
+| `choices` | `StreamChoice[]`     | Stream choices with deltas     |
+| `usage`   | `Usage \| undefined` | Token usage (final chunk only) |
 
 ### StreamChoice
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `index` | `number` | Choice index |
-| `delta` | `Delta` | Incremental content |
-| `finishReason` | `string \| null` | Set on final chunk |
+| Field          | Type             | Description         |
+| -------------- | ---------------- | ------------------- |
+| `index`        | `number`         | Choice index        |
+| `delta`        | `Delta`          | Incremental content |
+| `finishReason` | `string \| null` | Set on final chunk  |
 
 ### Delta
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `content` | `string \| null` | Incremental text |
+| Field       | Type                      | Description            |
+| ----------- | ------------------------- | ---------------------- |
+| `content`   | `string \| null`          | Incremental text       |
 | `toolCalls` | `ToolCall[] \| undefined` | Incremental tool calls |
 
 ### Usage
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `promptTokens` | `number` | Tokens consumed by the prompt |
+| Field              | Type     | Description                       |
+| ------------------ | -------- | --------------------------------- |
+| `promptTokens`     | `number` | Tokens consumed by the prompt     |
 | `completionTokens` | `number` | Tokens consumed by the completion |
-| `totalTokens` | `number` | Total tokens |
+| `totalTokens`      | `number` | Total tokens                      |
 
 ### EmbeddingResponse
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `data` | `EmbeddingObject[]` | Embedding vectors |
-| `model` | `string` | Model used |
-| `usage` | `Usage` | Token usage |
+| Field   | Type                | Description       |
+| ------- | ------------------- | ----------------- |
+| `data`  | `EmbeddingObject[]` | Embedding vectors |
+| `model` | `string`            | Model used        |
+| `usage` | `Usage`             | Token usage       |
 
 ### EmbeddingObject
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `index` | `number` | Index in the input list |
-| `embedding` | `number[]` | Embedding vector |
+| Field       | Type       | Description             |
+| ----------- | ---------- | ----------------------- |
+| `index`     | `number`   | Index in the input list |
+| `embedding` | `number[]` | Embedding vector        |
 
 ### ModelsListResponse
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field  | Type            | Description      |
+| ------ | --------------- | ---------------- |
 | `data` | `ModelObject[]` | Available models |
 
 ### ModelObject
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Model identifier |
-| `ownedBy` | `string` | Model owner |
+| Field     | Type     | Description      |
+| --------- | -------- | ---------------- |
+| `id`      | `string` | Model identifier |
+| `ownedBy` | `string` | Model owner      |
 
 ---
 
@@ -648,22 +654,22 @@ try {
 
 ### Error categories
 
-| Category | Trigger |
-|----------|---------|
-| `Authentication` | API key rejected (HTTP 401/403) |
-| `RateLimited` | Rate limit exceeded (HTTP 429) |
-| `BadRequest` | Malformed request (HTTP 400) |
-| `ContextWindowExceeded` | Prompt exceeds context window |
-| `ContentPolicy` | Content policy violation |
-| `NotFound` | Model/resource not found (HTTP 404) |
-| `ServerError` | Provider 5xx error |
-| `ServiceUnavailable` | Provider temporarily unavailable (HTTP 502/503) |
-| `Timeout` | Request timed out |
-| `Network` | Network-level failure |
-| `Streaming` | Error reading streaming response |
-| `EndpointNotSupported` | Provider does not support the endpoint |
-| `InvalidHeader` | Custom header name or value is invalid |
-| `Serialization` | JSON serialization/deserialization failure |
+| Category                | Trigger                                         |
+| ----------------------- | ----------------------------------------------- |
+| `Authentication`        | API key rejected (HTTP 401/403)                 |
+| `RateLimited`           | Rate limit exceeded (HTTP 429)                  |
+| `BadRequest`            | Malformed request (HTTP 400)                    |
+| `ContextWindowExceeded` | Prompt exceeds context window                   |
+| `ContentPolicy`         | Content policy violation                        |
+| `NotFound`              | Model/resource not found (HTTP 404)             |
+| `ServerError`           | Provider 5xx error                              |
+| `ServiceUnavailable`    | Provider temporarily unavailable (HTTP 502/503) |
+| `Timeout`               | Request timed out                               |
+| `Network`               | Network-level failure                           |
+| `Streaming`             | Error reading streaming response                |
+| `EndpointNotSupported`  | Provider does not support the endpoint          |
+| `InvalidHeader`         | Custom header name or value is invalid          |
+| `Serialization`         | JSON serialization/deserialization failure      |
 
 ### Parsing error categories
 
@@ -689,7 +695,7 @@ try {
 ### Basic chat
 
 ```typescript
-import { LlmClient } from '@kreuzberg/liter-llm';
+import { LlmClient } from "@kreuzberg/liter-llm";
 
 const client = new LlmClient({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -765,20 +771,22 @@ await client.chat({ model: "local/my-model", messages: [...] });
 const resp = await client.chat({
   model: "gpt-4",
   messages: [{ role: "user", content: "What's the weather in Paris?" }],
-  tools: [{
-    type: "function",
-    function: {
-      name: "getWeather",
-      description: "Get weather for a location",
-      parameters: {
-        type: "object",
-        properties: {
-          location: { type: "string" }
+  tools: [
+    {
+      type: "function",
+      function: {
+        name: "getWeather",
+        description: "Get weather for a location",
+        parameters: {
+          type: "object",
+          properties: {
+            location: { type: "string" },
+          },
+          required: ["location"],
         },
-        required: ["location"],
       },
     },
-  }],
+  ],
 });
 
 const toolCall = resp.choices[0].message.toolCalls?.[0];

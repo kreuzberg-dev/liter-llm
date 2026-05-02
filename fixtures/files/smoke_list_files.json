@@ -1,44 +1,44 @@
 {
-	"id": "smoke_list_files",
-	"description": "List all uploaded files",
-	"category": "files",
-	"tags": ["smoke", "files"],
-	"call": "list_files",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": [
-				{
-					"id": "file-abc123",
-					"object": "file",
-					"bytes": 1024,
-					"created_at": 1711000000,
-					"filename": "training_data.jsonl",
-					"purpose": "fine-tune",
-					"status": "processed"
-				},
-				{
-					"id": "file-def456",
-					"object": "file",
-					"bytes": 2048,
-					"created_at": 1711000100,
-					"filename": "batch_input.jsonl",
-					"purpose": "batch",
-					"status": "processed"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 2
-		}
-	]
+  "id": "smoke_list_files",
+  "description": "List all uploaded files",
+  "category": "files",
+  "tags": ["smoke", "files"],
+  "call": "list_files",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": [
+        {
+          "id": "file-abc123",
+          "object": "file",
+          "bytes": 1024,
+          "created_at": 1711000000,
+          "filename": "training_data.jsonl",
+          "purpose": "fine-tune",
+          "status": "processed"
+        },
+        {
+          "id": "file-def456",
+          "object": "file",
+          "bytes": 2048,
+          "created_at": 1711000100,
+          "filename": "batch_input.jsonl",
+          "purpose": "batch",
+          "status": "processed"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 2
+    }
+  ]
 }

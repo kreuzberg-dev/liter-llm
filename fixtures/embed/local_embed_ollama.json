@@ -1,50 +1,49 @@
 {
-	"id": "local_embed_ollama",
-	"description": "Embedding request via Ollama local provider with all-minilm model",
-	"category": "embed",
-	"tags": ["embed", "local", "ollama"],
-	"call": "embed",
-	"input": {
-		"model": "ollama/all-minilm",
-		"input": "The quick brown fox jumps over the lazy dog"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"model": "all-minilm",
-			"data": [
-				{
-					"object": "embedding",
-					"index": 0,
-					"embedding": [
-						0.013, -0.008, 0.027, 0.041, -0.019, 0.033, -0.012, 0.005, 0.029,
-						-0.015, 0.022, -0.031, 0.017, 0.044, -0.026, 0.009, -0.038, 0.014,
-						0.036, -0.007, 0.021, -0.029, 0.011, 0.048, -0.016, 0.032, -0.023,
-						0.006, 0.039, -0.013, 0.025, -0.035
-					]
-				}
-			],
-			"usage": {
-				"prompt_tokens": 10,
-				"completion_tokens": 0,
-				"total_tokens": 10
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 1
-		},
-		{
-			"type": "count_equals",
-			"field": "data[0].embedding",
-			"value": 32
-		}
-	]
+  "id": "local_embed_ollama",
+  "description": "Embedding request via Ollama local provider with all-minilm model",
+  "category": "embed",
+  "tags": ["embed", "local", "ollama"],
+  "call": "embed",
+  "input": {
+    "model": "ollama/all-minilm",
+    "input": "The quick brown fox jumps over the lazy dog"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "model": "all-minilm",
+      "data": [
+        {
+          "object": "embedding",
+          "index": 0,
+          "embedding": [
+            0.013, -0.008, 0.027, 0.041, -0.019, 0.033, -0.012, 0.005, 0.029, -0.015, 0.022, -0.031,
+            0.017, 0.044, -0.026, 0.009, -0.038, 0.014, 0.036, -0.007, 0.021, -0.029, 0.011, 0.048,
+            -0.016, 0.032, -0.023, 0.006, 0.039, -0.013, 0.025, -0.035
+          ]
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 0,
+        "total_tokens": 10
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 1
+    },
+    {
+      "type": "count_equals",
+      "field": "data[0].embedding",
+      "value": 32
+    }
+  ]
 }

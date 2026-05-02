@@ -1,76 +1,76 @@
 {
-	"id": "anthropic_chat",
-	"description": "Basic chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) with system and user messages",
-	"category": "smoke",
-	"tags": ["smoke", "anthropic"],
-	"call": "chat",
-	"input": {
-		"model": "anthropic/claude-3-5-sonnet-20241022",
-		"messages": [
-			{
-				"role": "system",
-				"content": "You are a helpful assistant."
-			},
-			{
-				"role": "user",
-				"content": "Say hello in one word."
-			}
-		],
-		"temperature": 0,
-		"max_tokens": 16
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-anthropic-001",
-			"object": "chat.completion",
-			"created": 1711000100,
-			"model": "claude-3-5-sonnet-20241022",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 20,
-				"completion_tokens": 3,
-				"total_tokens": 23
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello!"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "claude-3-5-sonnet-20241022"
-		},
-		{
-			"type": "equals",
-			"field": "usage.total_tokens",
-			"value": 23
-		}
-	]
+  "id": "anthropic_chat",
+  "description": "Basic chat completion via the Anthropic provider (claude-3-5-sonnet-20241022) with system and user messages",
+  "category": "smoke",
+  "tags": ["smoke", "anthropic"],
+  "call": "chat",
+  "input": {
+    "model": "anthropic/claude-3-5-sonnet-20241022",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "Say hello in one word."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 16
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-anthropic-001",
+      "object": "chat.completion",
+      "created": 1711000100,
+      "model": "claude-3-5-sonnet-20241022",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 20,
+        "completion_tokens": 3,
+        "total_tokens": 23
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello!"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "type": "equals",
+      "field": "usage.total_tokens",
+      "value": 23
+    }
+  ]
 }

@@ -201,7 +201,7 @@ export AWS_SECRET_ACCESS_KEY="..."
 ```
 
 !!! tip "You only need one key"
-    If you only call OpenAI models, only `OPENAI_API_KEY` is needed. liter-llm resolves the provider from the model prefix (e.g. `openai/gpt-4o`) and picks the matching key automatically.
+If you only call OpenAI models, only `OPENAI_API_KEY` is needed. liter-llm resolves the provider from the model prefix (e.g. `openai/gpt-4o`) and picks the matching key automatically.
 
 You can also pass the key at client construction:
 
@@ -231,7 +231,7 @@ You can also pass the key at client construction:
     ```
 
 !!! warning "Don't hard-code keys in source files"
-    Use environment variables or a secret manager. Keys passed to `LlmClient` are wrapped in `secrecy::SecretString` and never logged.
+Use environment variables or a secret manager. Keys passed to `LlmClient` are wrapped in `secrecy::SecretString` and never logged.
 
 ---
 

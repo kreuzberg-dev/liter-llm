@@ -1,32 +1,32 @@
 {
-	"id": "edge_batch_already_cancelled",
-	"description": "Attempt to cancel an already-cancelled batch",
-	"category": "batches",
-	"tags": ["edge-case", "batches"],
-	"call": "cancel_batch",
-	"input": {
-		"batch_id": "batch-cancelled001"
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Batch batch-cancelled001 is already in terminal state 'cancelled' and cannot be cancelled.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": null
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "edge_batch_already_cancelled",
+  "description": "Attempt to cancel an already-cancelled batch",
+  "category": "batches",
+  "tags": ["edge-case", "batches"],
+  "call": "cancel_batch",
+  "input": {
+    "batch_id": "batch-cancelled001"
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Batch batch-cancelled001 is already in terminal state 'cancelled' and cannot be cancelled.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": null
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

@@ -9,19 +9,19 @@ liter-llm = { version = "1.4.0-rc.17", features = ["native-http"] }
 
 ## Feature Flags
 
-| Feature | Description | Dependencies |
-|---------|-------------|--------------|
-| `native-http` | Native HTTP stack (reqwest + tokio). **Default.** Required for `DefaultClient`. | `reqwest`, `tokio`, `memchr`, `base64` |
-| `tracing` | Structured tracing via `tracing` crate. Adds `#[instrument]` spans on HTTP functions. | `tracing` |
-| `tower` | Tower middleware integration (all layers below). Implies `tracing`. | `tower`, `tower-http`, `dashmap`, `futures-util` |
-| `otel` | OpenTelemetry export bridge via `tracing-opentelemetry`. Implies `tracing`. | `tracing-opentelemetry`, `opentelemetry` |
-| `bedrock` | AWS Bedrock SigV4 signing. Implies `native-http`. | `aws-credential-types`, `aws-sigv4` |
-| `azure-auth` | Azure AD OAuth2 credential provider (client-credentials flow). Implies `native-http`. | -- |
-| `vertex-auth` | Google Vertex AI OAuth2 credential provider (service-account JWT flow). Implies `native-http`. | `jsonwebtoken` |
-| `bedrock-auth` | AWS STS Web Identity credential provider (EKS / IRSA). Implies `native-http`. | -- |
-| `tokenizer` | Token counting via HuggingFace tokenizers. Lazy-cached tokenizer loading. | `tokenizers` |
-| `opendal-cache` | OpenDAL-backed cache store (S3, GCS, etc.). Implies `tower`. | `opendal` |
-| `full` | All features: `native-http` + `tower` + `tracing` + `otel` + `bedrock` + `tokenizer` + all auth + `opendal-cache`. | all of the above |
+| Feature         | Description                                                                                                        | Dependencies                                     |
+| --------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| `native-http`   | Native HTTP stack (reqwest + tokio). **Default.** Required for `DefaultClient`.                                    | `reqwest`, `tokio`, `memchr`, `base64`           |
+| `tracing`       | Structured tracing via `tracing` crate. Adds `#[instrument]` spans on HTTP functions.                              | `tracing`                                        |
+| `tower`         | Tower middleware integration (all layers below). Implies `tracing`.                                                | `tower`, `tower-http`, `dashmap`, `futures-util` |
+| `otel`          | OpenTelemetry export bridge via `tracing-opentelemetry`. Implies `tracing`.                                        | `tracing-opentelemetry`, `opentelemetry`         |
+| `bedrock`       | AWS Bedrock SigV4 signing. Implies `native-http`.                                                                  | `aws-credential-types`, `aws-sigv4`              |
+| `azure-auth`    | Azure AD OAuth2 credential provider (client-credentials flow). Implies `native-http`.                              | --                                               |
+| `vertex-auth`   | Google Vertex AI OAuth2 credential provider (service-account JWT flow). Implies `native-http`.                     | `jsonwebtoken`                                   |
+| `bedrock-auth`  | AWS STS Web Identity credential provider (EKS / IRSA). Implies `native-http`.                                      | --                                               |
+| `tokenizer`     | Token counting via HuggingFace tokenizers. Lazy-cached tokenizer loading.                                          | `tokenizers`                                     |
+| `opendal-cache` | OpenDAL-backed cache store (S3, GCS, etc.). Implies `tower`.                                                       | `opendal`                                        |
+| `full`          | All features: `native-http` + `tower` + `tracing` + `otel` + `bedrock` + `tokenizer` + all auth + `opendal-cache`. | all of the above                                 |
 
 Default feature: `native-http`.
 
@@ -58,22 +58,22 @@ let config = ClientConfigBuilder::new("sk-...")
 let client = DefaultClient::new(config, Some("gpt-4"))?;
 ```
 
-| Method | Description |
-|--------|-------------|
-| `new(api_key)` | Create builder with API key and defaults |
-| `base_url(url)` | Override provider base URL |
-| `max_retries(n)` | Set retry count for 429/5xx (default: 3) |
-| `timeout(duration)` | Set request timeout (default: 60s) |
-| `credential_provider(provider)` | Set dynamic credential provider (Azure AD, Vertex OAuth2) |
-| `header(key, value)` | Add a custom header (`native-http` only). Returns `Result`. |
-| `cache(config)` | Enable response caching (`tower` feature) |
-| `budget(config)` | Enable budget tracking (`tower` feature) |
-| `cooldown(duration)` | Set cooldown period after transient errors (`tower` feature) |
-| `rate_limit(config)` | Set rate limiting (`tower` feature) |
-| `health_check(interval)` | Set health check interval (`tower` feature) |
-| `cost_tracking(enabled)` | Enable per-request cost tracking (`tower` feature) |
-| `tracing(enabled)` | Enable OpenTelemetry tracing spans (`tower` feature) |
-| `build()` | Consume builder, return `ClientConfig` |
+| Method                          | Description                                                  |
+| ------------------------------- | ------------------------------------------------------------ |
+| `new(api_key)`                  | Create builder with API key and defaults                     |
+| `base_url(url)`                 | Override provider base URL                                   |
+| `max_retries(n)`                | Set retry count for 429/5xx (default: 3)                     |
+| `timeout(duration)`             | Set request timeout (default: 60s)                           |
+| `credential_provider(provider)` | Set dynamic credential provider (Azure AD, Vertex OAuth2)    |
+| `header(key, value)`            | Add a custom header (`native-http` only). Returns `Result`.  |
+| `cache(config)`                 | Enable response caching (`tower` feature)                    |
+| `budget(config)`                | Enable budget tracking (`tower` feature)                     |
+| `cooldown(duration)`            | Set cooldown period after transient errors (`tower` feature) |
+| `rate_limit(config)`            | Set rate limiting (`tower` feature)                          |
+| `health_check(interval)`        | Set health check interval (`tower` feature)                  |
+| `cost_tracking(enabled)`        | Enable per-request cost tracking (`tower` feature)           |
+| `tracing(enabled)`              | Enable OpenTelemetry tracing spans (`tower` feature)         |
+| `build()`                       | Consume builder, return `ClientConfig`                       |
 
 ### `DefaultClient`
 
@@ -260,28 +260,28 @@ let service = LlmService::new(client);
 
 ### Layer Reference
 
-| Layer | Service | Description |
-|-------|---------|-------------|
-| `CacheLayer` | `CacheService` | In-memory response caching for non-streaming requests |
-| `BudgetLayer` | `BudgetService` | Global and per-model spending budget enforcement (hard reject or soft warn) |
-| `HooksLayer` | `HooksService` | User-defined pre/post request hooks for guardrails, logging, auditing |
-| `CooldownLayer` | `CooldownService` | Deployment cooldowns after transient errors |
-| `CostTrackingLayer` | `CostTrackingService` | Emit `gen_ai.usage.cost` tracing span attribute from embedded pricing data |
-| `ModelRateLimitLayer` | `ModelRateLimitService` | Per-model RPM / TPM rate limiting |
-| `HealthCheckLayer` | `HealthCheckService` | Periodic health probes with automatic request rejection on failure |
-| `TracingLayer` | `TracingService` | OTEL-compatible tracing middleware |
-| `FallbackLayer` | `FallbackService` | Route to a backup service on transient errors |
+| Layer                 | Service                 | Description                                                                 |
+| --------------------- | ----------------------- | --------------------------------------------------------------------------- |
+| `CacheLayer`          | `CacheService`          | In-memory response caching for non-streaming requests                       |
+| `BudgetLayer`         | `BudgetService`         | Global and per-model spending budget enforcement (hard reject or soft warn) |
+| `HooksLayer`          | `HooksService`          | User-defined pre/post request hooks for guardrails, logging, auditing       |
+| `CooldownLayer`       | `CooldownService`       | Deployment cooldowns after transient errors                                 |
+| `CostTrackingLayer`   | `CostTrackingService`   | Emit `gen_ai.usage.cost` tracing span attribute from embedded pricing data  |
+| `ModelRateLimitLayer` | `ModelRateLimitService` | Per-model RPM / TPM rate limiting                                           |
+| `HealthCheckLayer`    | `HealthCheckService`    | Periodic health probes with automatic request rejection on failure          |
+| `TracingLayer`        | `TracingService`        | OTEL-compatible tracing middleware                                          |
+| `FallbackLayer`       | `FallbackService`       | Route to a backup service on transient errors                               |
 
 ### Additional re-exports
 
-| Type | Description |
-|------|-------------|
-| `Router` | Multi-provider routing with configurable `RoutingStrategy` |
-| `CacheBackend` / `CacheStore` / `InMemoryStore` | Cache storage abstraction and in-memory implementation |
-| `OpenDalCacheStore` | OpenDAL-backed cache store (requires `opendal-cache` feature) |
-| `BudgetConfig` / `BudgetState` / `Enforcement` | Budget configuration and state types |
-| `RateLimitConfig` | Rate limit configuration (`rpm`, `tpm`) |
-| `LlmRequest` / `LlmResponse` | Request/response enums crossing the Tower `Service` boundary |
+| Type                                            | Description                                                   |
+| ----------------------------------------------- | ------------------------------------------------------------- |
+| `Router`                                        | Multi-provider routing with configurable `RoutingStrategy`    |
+| `CacheBackend` / `CacheStore` / `InMemoryStore` | Cache storage abstraction and in-memory implementation        |
+| `OpenDalCacheStore`                             | OpenDAL-backed cache store (requires `opendal-cache` feature) |
+| `BudgetConfig` / `BudgetState` / `Enforcement`  | Budget configuration and state types                          |
+| `RateLimitConfig`                               | Rate limit configuration (`rpm`, `tpm`)                       |
+| `LlmRequest` / `LlmResponse`                    | Request/response enums crossing the Tower `Service` boundary  |
 
 ### Composing a custom middleware stack
 
@@ -315,16 +315,16 @@ All types derive `Serialize`, `Deserialize`, `Debug`, `Clone`.
 
 ### `ChatCompletionRequest`
 
-| Field | Type | Required |
-|-------|------|----------|
-| `model` | `String` | yes |
-| `messages` | `Vec<Message>` | yes |
-| `temperature` | `Option<f64>` | no |
-| `top_p` | `Option<f64>` | no |
-| `max_tokens` | `Option<u64>` | no |
-| `tools` | `Option<Vec<ChatCompletionTool>>` | no |
-| `tool_choice` | `Option<ToolChoice>` | no |
-| `response_format` | `Option<ResponseFormat>` | no |
+| Field             | Type                              | Required |
+| ----------------- | --------------------------------- | -------- |
+| `model`           | `String`                          | yes      |
+| `messages`        | `Vec<Message>`                    | yes      |
+| `temperature`     | `Option<f64>`                     | no       |
+| `top_p`           | `Option<f64>`                     | no       |
+| `max_tokens`      | `Option<u64>`                     | no       |
+| `tools`           | `Option<Vec<ChatCompletionTool>>` | no       |
+| `tool_choice`     | `Option<ToolChoice>`              | no       |
+| `response_format` | `Option<ResponseFormat>`          | no       |
 
 ### `Message` enum
 
@@ -340,100 +340,100 @@ pub enum Message {
 
 ### `SystemMessage`
 
-| Field | Type |
-|-------|------|
-| `content` | `String` |
-| `name` | `Option<String>` |
+| Field     | Type             |
+| --------- | ---------------- |
+| `content` | `String`         |
+| `name`    | `Option<String>` |
 
 ### `UserMessage`
 
-| Field | Type |
-|-------|------|
-| `content` | `UserContent` |
-| `name` | `Option<String>` |
+| Field     | Type             |
+| --------- | ---------------- |
+| `content` | `UserContent`    |
+| `name`    | `Option<String>` |
 
 `UserContent` is an enum: `Text(String)` or `Parts(Vec<ContentPart>)`.
 
 ### `AssistantMessage`
 
-| Field | Type |
-|-------|------|
-| `content` | `Option<String>` |
+| Field        | Type                    |
+| ------------ | ----------------------- |
+| `content`    | `Option<String>`        |
 | `tool_calls` | `Option<Vec<ToolCall>>` |
-| `refusal` | `Option<String>` |
+| `refusal`    | `Option<String>`        |
 
 ### `ToolMessage`
 
-| Field | Type |
-|-------|------|
-| `content` | `String` |
+| Field          | Type     |
+| -------------- | -------- |
+| `content`      | `String` |
 | `tool_call_id` | `String` |
 
 ### `ChatCompletionResponse`
 
-| Field | Type |
-|-------|------|
-| `id` | `String` |
-| `model` | `String` |
-| `choices` | `Vec<Choice>` |
-| `usage` | `Option<Usage>` |
-| `created` | `u64` |
+| Field     | Type            |
+| --------- | --------------- |
+| `id`      | `String`        |
+| `model`   | `String`        |
+| `choices` | `Vec<Choice>`   |
+| `usage`   | `Option<Usage>` |
+| `created` | `u64`           |
 
 ### `Choice`
 
-| Field | Type |
-|-------|------|
-| `index` | `u32` |
-| `message` | `AssistantMessage` |
-| `finish_reason` | `Option<String>` |
+| Field           | Type               |
+| --------------- | ------------------ |
+| `index`         | `u32`              |
+| `message`       | `AssistantMessage` |
+| `finish_reason` | `Option<String>`   |
 
 ### `ChatCompletionChunk`
 
-| Field | Type |
-|-------|------|
-| `id` | `String` |
-| `model` | `String` |
+| Field     | Type                |
+| --------- | ------------------- |
+| `id`      | `String`            |
+| `model`   | `String`            |
 | `choices` | `Vec<StreamChoice>` |
-| `usage` | `Option<Usage>` |
+| `usage`   | `Option<Usage>`     |
 
 ### `StreamChoice`
 
-| Field | Type |
-|-------|------|
-| `index` | `u32` |
-| `delta` | `Delta` |
+| Field           | Type             |
+| --------------- | ---------------- |
+| `index`         | `u32`            |
+| `delta`         | `Delta`          |
 | `finish_reason` | `Option<String>` |
 
 ### `Usage`
 
-| Field | Type |
-|-------|------|
-| `prompt_tokens` | `u64` |
+| Field               | Type  |
+| ------------------- | ----- |
+| `prompt_tokens`     | `u64` |
 | `completion_tokens` | `u64` |
-| `total_tokens` | `u64` |
+| `total_tokens`      | `u64` |
 
 ### `EmbeddingRequest`
 
-| Field | Type | Required |
-|-------|------|----------|
-| `model` | `String` | yes |
-| `input` | `EmbeddingInput` | yes |
-| `encoding_format` | `Option<String>` | no |
-| `dimensions` | `Option<u64>` | no |
-| `user` | `Option<String>` | no |
+| Field             | Type             | Required |
+| ----------------- | ---------------- | -------- |
+| `model`           | `String`         | yes      |
+| `input`           | `EmbeddingInput` | yes      |
+| `encoding_format` | `Option<String>` | no       |
+| `dimensions`      | `Option<u64>`    | no       |
+| `user`            | `Option<String>` | no       |
 
 ### `EmbeddingResponse`
 
-| Field | Type |
-|-------|------|
-| `data` | `Vec<EmbeddingObject>` |
-| `model` | `String` |
-| `usage` | `Usage` |
+| Field   | Type                   |
+| ------- | ---------------------- |
+| `data`  | `Vec<EmbeddingObject>` |
+| `model` | `String`               |
+| `usage` | `Usage`                |
 
 ### `ModelsListResponse`
 
-| Field | Type |
-|-------|------|
+| Field  | Type               |
+| ------ | ------------------ |
 | `data` | `Vec<ModelObject>` |
 
 ---
@@ -444,22 +444,22 @@ All methods return `Result<T, LiterLlmError>`. The error type is defined with `t
 
 ### `LiterLlmError` variants
 
-| Variant | Trigger |
-|---------|---------|
-| `Authentication` | API key rejected (HTTP 401/403) |
-| `RateLimited` | Rate limit exceeded (HTTP 429) |
-| `BadRequest` | Invalid request (HTTP 400/422) |
-| `ContextWindowExceeded` | Input too long for model's context window |
-| `ContentPolicy` | Content policy violation |
-| `NotFound` | Model/resource not found (HTTP 404) |
-| `ServerError` | Provider 5xx error |
-| `ServiceUnavailable` | Provider temporarily unavailable (HTTP 502/503) |
-| `Timeout` | Request timeout |
-| `Network` | Network-level error |
-| `Streaming` | Stream parse error |
-| `EndpointNotSupported` | Provider does not support the endpoint |
-| `InvalidHeader` | Custom header name or value is invalid |
-| `Serialization` | JSON serialization/deserialization error |
+| Variant                 | Trigger                                         |
+| ----------------------- | ----------------------------------------------- |
+| `Authentication`        | API key rejected (HTTP 401/403)                 |
+| `RateLimited`           | Rate limit exceeded (HTTP 429)                  |
+| `BadRequest`            | Invalid request (HTTP 400/422)                  |
+| `ContextWindowExceeded` | Input too long for model's context window       |
+| `ContentPolicy`         | Content policy violation                        |
+| `NotFound`              | Model/resource not found (HTTP 404)             |
+| `ServerError`           | Provider 5xx error                              |
+| `ServiceUnavailable`    | Provider temporarily unavailable (HTTP 502/503) |
+| `Timeout`               | Request timeout                                 |
+| `Network`               | Network-level error                             |
+| `Streaming`             | Stream parse error                              |
+| `EndpointNotSupported`  | Provider does not support the endpoint          |
+| `InvalidHeader`         | Custom header name or value is invalid          |
+| `Serialization`         | JSON serialization/deserialization error        |
 
 ### Error handling pattern
 

@@ -3,13 +3,7 @@ name = "liter-llm"
 version = "1.2.2"
 description = "A universal LM API client with polyglot bindings — fast, type-safe, compiled"
 readme = "README.md"
-keywords = [
-  "ai",
-  "api-client",
-  "kreuzberg",
-  "llm",
-  "openai",
-]
+keywords = [ "ai", "api-client", "kreuzberg", "llm", "openai" ]
 license = "MIT"
 authors = [ { name = "Na'aman Hirschfeld", email = "naaman@kreuzberg.dev" } ]
 requires-python = ">=3.10"
@@ -45,15 +39,11 @@ dev = [
   "typing-extensions>=4",
   "uv-bump",
 ]
-doc = [
-  "zensical",
-]
+doc = [ "zensical" ]
 
 [tool.uv]
 sources.uv-bump = { git = "https://github.com/Goldziher/uv-bump" }
-workspace.exclude = [
-  "tests/test_apps/*",
-]
+workspace.exclude = [ "tests/test_apps/*" ]
 
 [tool.ruff]
 target-version = "py310"

@@ -1,32 +1,32 @@
 {
-	"id": "smoke_create_file",
-	"description": "Upload a file for use with the API",
-	"category": "files",
-	"tags": ["smoke", "files"],
-	"call": "create_file",
-	"input": {
-		"file": "training_data.jsonl",
-		"purpose": "fine-tune"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "file-abc123",
-			"object": "file",
-			"bytes": 1024,
-			"created_at": 1711000000,
-			"filename": "training_data.jsonl",
-			"purpose": "fine-tune",
-			"status": "processed"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		}
-	]
+  "id": "smoke_create_file",
+  "description": "Upload a file for use with the API",
+  "category": "files",
+  "tags": ["smoke", "files"],
+  "call": "create_file",
+  "input": {
+    "file": "training_data.jsonl",
+    "purpose": "fine-tune"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "file-abc123",
+      "object": "file",
+      "bytes": 1024,
+      "created_at": 1711000000,
+      "filename": "training_data.jsonl",
+      "purpose": "fine-tune",
+      "status": "processed"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    }
+  ]
 }

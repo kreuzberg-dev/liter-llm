@@ -1,59 +1,59 @@
 {
-	"id": "smoke_rerank_basic",
-	"description": "Basic reranking of documents against a query",
-	"category": "rerank",
-	"tags": ["smoke", "rerank"],
-	"call": "rerank",
-	"input": {
-		"model": "rerank-v3.5",
-		"query": "What is machine learning?",
-		"documents": [
-			"Machine learning is a subset of AI.",
-			"The weather is sunny today.",
-			"Deep learning uses neural networks."
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "rerank-abc123",
-			"results": [
-				{
-					"index": 0,
-					"relevance_score": 0.95
-				},
-				{
-					"index": 2,
-					"relevance_score": 0.82
-				},
-				{
-					"index": 1,
-					"relevance_score": 0.05
-				}
-			],
-			"meta": {
-				"api_version": {
-					"version": "2"
-				},
-				"billed_units": {
-					"search_units": 1
-				}
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 3
-		},
-		{
-			"type": "greater_than",
-			"field": "results[0].relevance_score",
-			"value": 0.9
-		}
-	]
+  "id": "smoke_rerank_basic",
+  "description": "Basic reranking of documents against a query",
+  "category": "rerank",
+  "tags": ["smoke", "rerank"],
+  "call": "rerank",
+  "input": {
+    "model": "rerank-v3.5",
+    "query": "What is machine learning?",
+    "documents": [
+      "Machine learning is a subset of AI.",
+      "The weather is sunny today.",
+      "Deep learning uses neural networks."
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "rerank-abc123",
+      "results": [
+        {
+          "index": 0,
+          "relevance_score": 0.95
+        },
+        {
+          "index": 2,
+          "relevance_score": 0.82
+        },
+        {
+          "index": 1,
+          "relevance_score": 0.05
+        }
+      ],
+      "meta": {
+        "api_version": {
+          "version": "2"
+        },
+        "billed_units": {
+          "search_units": 1
+        }
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 3
+    },
+    {
+      "type": "greater_than",
+      "field": "results[0].relevance_score",
+      "value": 0.9
+    }
+  ]
 }

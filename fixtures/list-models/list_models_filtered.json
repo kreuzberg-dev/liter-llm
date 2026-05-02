@@ -1,67 +1,67 @@
 {
-	"id": "list_models_filtered",
-	"description": "List models response with multiple model objects",
-	"category": "list-models",
-	"tags": ["list-models", "edge-case"],
-	"call": "list_models",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": [
-				{
-					"id": "gpt-4",
-					"object": "model",
-					"created": 1687882411,
-					"owned_by": "openai"
-				},
-				{
-					"id": "gpt-3.5-turbo",
-					"object": "model",
-					"created": 1677649963,
-					"owned_by": "openai"
-				},
-				{
-					"id": "text-embedding-3-small",
-					"object": "model",
-					"created": 1694463867,
-					"owned_by": "openai"
-				},
-				{
-					"id": "dall-e-3",
-					"object": "model",
-					"created": 1698785189,
-					"owned_by": "openai"
-				},
-				{
-					"id": "whisper-1",
-					"object": "model",
-					"created": 1677532384,
-					"owned_by": "openai"
-				},
-				{
-					"id": "tts-1",
-					"object": "model",
-					"created": 1681767283,
-					"owned_by": "openai"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "data",
-			"value": 5
-		},
-		{
-			"type": "equals",
-			"field": "data[0].object",
-			"value": "model"
-		}
-	]
+  "id": "list_models_filtered",
+  "description": "List models response with multiple model objects",
+  "category": "list-models",
+  "tags": ["list-models", "edge-case"],
+  "call": "list_models",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": [
+        {
+          "id": "gpt-4",
+          "object": "model",
+          "created": 1687882411,
+          "owned_by": "openai"
+        },
+        {
+          "id": "gpt-3.5-turbo",
+          "object": "model",
+          "created": 1677649963,
+          "owned_by": "openai"
+        },
+        {
+          "id": "text-embedding-3-small",
+          "object": "model",
+          "created": 1694463867,
+          "owned_by": "openai"
+        },
+        {
+          "id": "dall-e-3",
+          "object": "model",
+          "created": 1698785189,
+          "owned_by": "openai"
+        },
+        {
+          "id": "whisper-1",
+          "object": "model",
+          "created": 1677532384,
+          "owned_by": "openai"
+        },
+        {
+          "id": "tts-1",
+          "object": "model",
+          "created": 1681767283,
+          "owned_by": "openai"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "data",
+      "value": 5
+    },
+    {
+      "type": "equals",
+      "field": "data[0].object",
+      "value": "model"
+    }
+  ]
 }

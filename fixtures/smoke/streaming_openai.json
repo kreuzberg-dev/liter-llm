@@ -1,33 +1,33 @@
 {
-	"id": "smoke_streaming_openai",
-	"description": "Chat streaming against real OpenAI API, verifies chunks received",
-	"category": "smoke",
-	"tags": ["smoke", "openai", "streaming"],
-	"call": "chat_stream",
-	"input": {
-		"model": "openai/gpt-4o-mini",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Count from 1 to 5."
-			}
-		],
-		"max_tokens": 50
-	},
-	"env": {
-		"api_key_var": "OPENAI_API_KEY"
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 1
-		}
-	]
+  "id": "smoke_streaming_openai",
+  "description": "Chat streaming against real OpenAI API, verifies chunks received",
+  "category": "smoke",
+  "tags": ["smoke", "openai", "streaming"],
+  "call": "chat_stream",
+  "input": {
+    "model": "openai/gpt-4o-mini",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Count from 1 to 5."
+      }
+    ],
+    "max_tokens": 50
+  },
+  "env": {
+    "api_key_var": "OPENAI_API_KEY"
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 1
+    }
+  ]
 }

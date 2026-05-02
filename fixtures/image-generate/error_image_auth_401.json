@@ -1,35 +1,35 @@
 {
-	"id": "error_image_auth_401",
-	"description": "401 Unauthorized when generating images with invalid API key",
-	"category": "image-generate",
-	"tags": ["error-handling", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "A cat",
-		"n": 1,
-		"size": "1024x1024"
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Incorrect API key provided.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": "invalid_api_key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "error_image_auth_401",
+  "description": "401 Unauthorized when generating images with invalid API key",
+  "category": "image-generate",
+  "tags": ["error-handling", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "A cat",
+    "n": 1,
+    "size": "1024x1024"
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Incorrect API key provided.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

@@ -1,65 +1,65 @@
 {
-	"id": "smoke_moderate_batch",
-	"description": "Moderate multiple inputs in a single request",
-	"category": "moderate",
-	"tags": ["smoke", "moderate"],
-	"call": "moderate",
-	"input": {
-		"model": "omni-moderation-latest",
-		"input": ["Hello world", "Nice weather today"]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "modr-def456",
-			"model": "omni-moderation-latest",
-			"results": [
-				{
-					"flagged": false,
-					"categories": {
-						"sexual": false,
-						"hate": false,
-						"harassment": false,
-						"violence": false
-					},
-					"category_scores": {
-						"sexual": 0.0001,
-						"hate": 0.0001,
-						"harassment": 0.0001,
-						"violence": 0.0001
-					}
-				},
-				{
-					"flagged": false,
-					"categories": {
-						"sexual": false,
-						"hate": false,
-						"harassment": false,
-						"violence": false
-					},
-					"category_scores": {
-						"sexual": 0.0001,
-						"hate": 0.0001,
-						"harassment": 0.0001,
-						"violence": 0.0001
-					}
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 2
-		},
-		{
-			"type": "equals",
-			"field": "results[0].flagged",
-			"value": false
-		}
-	]
+  "id": "smoke_moderate_batch",
+  "description": "Moderate multiple inputs in a single request",
+  "category": "moderate",
+  "tags": ["smoke", "moderate"],
+  "call": "moderate",
+  "input": {
+    "model": "omni-moderation-latest",
+    "input": ["Hello world", "Nice weather today"]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "modr-def456",
+      "model": "omni-moderation-latest",
+      "results": [
+        {
+          "flagged": false,
+          "categories": {
+            "sexual": false,
+            "hate": false,
+            "harassment": false,
+            "violence": false
+          },
+          "category_scores": {
+            "sexual": 0.0001,
+            "hate": 0.0001,
+            "harassment": 0.0001,
+            "violence": 0.0001
+          }
+        },
+        {
+          "flagged": false,
+          "categories": {
+            "sexual": false,
+            "hate": false,
+            "harassment": false,
+            "violence": false
+          },
+          "category_scores": {
+            "sexual": 0.0001,
+            "hate": 0.0001,
+            "harassment": 0.0001,
+            "violence": 0.0001
+          }
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 2
+    },
+    {
+      "type": "equals",
+      "field": "results[0].flagged",
+      "value": false
+    }
+  ]
 }

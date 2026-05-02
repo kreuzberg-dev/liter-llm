@@ -78,36 +78,36 @@ We give credit to [litellm](https://github.com/BerriAI/litellm) for proving the 
 
 An honest look at where things stand. We're newer and leaner -- litellm has breadth we haven't matched yet, and we have depth they can't easily retrofit.
 
-| | liter-llm | litellm |
-|---|---|---|
-| **Language** | Rust (compiled, memory-safe) | Python |
-| **Bindings** | 11 native (Rust, Python, TS, Go, Java, Ruby, PHP, C#, Elixir, WASM, C) | Python (+ OpenAI-compatible proxy) |
-| **Providers** | 143 (compiled at build time) | 100+ (runtime resolution) |
-| **Streaming** | SSE + AWS EventStream binary protocol | SSE + AWS EventStream |
-| **Observability** | Built-in OpenTelemetry (GenAI semconv) | 40+ callback integrations |
-| **API key safety** | `secrecy::SecretString` (zeroed, redacted) | Plain strings |
-| **Middleware** | Composable Tower stack | Built-in callback system |
-| **Proxy / Gateway** | Yes (22 OpenAI-compatible endpoints, 35MB Docker) | Yes |
-| **Guardrails** | -- | 10+ integrations, 4 execution modes (advanced: enterprise) |
-| **Semantic caching** | -- | Redis + Qdrant backends |
-| **Virtual key mgmt** | Yes (per-key model restrictions, RPM/TPM, budgets) | Yes (key rotation: enterprise) |
-| **Management API** | Config-driven (REST admin API planned) | Multi-tenant (teams, budgets, keys; tiers + reporting: enterprise) |
-| **Fine-tuning API** | -- | Enterprise only |
-| **Load balancer** | Fallback + round-robin via Tower router | Full router with strategies |
-| **Cost tracking** | Embedded pricing + OTEL spans | Per-key/team/model budgets |
-| **Rate limiting** | Per-model RPM/TPM (Tower layer) | Per-key/user/team/model |
-| **Caching** | In-memory LRU + 40+ backends via OpenDAL (S3, Redis, GCS, DynamoDB, disk, ...) | 7 backends (Redis, S3, GCS, disk, Qdrant) |
-| **Tool calling** | Parallel tools, structured output, JSON schema | Full support |
-| **Embeddings** | Yes | Yes |
-| **Batch API** | Yes | Yes |
-| **Audio / Speech** | Yes | Yes |
-| **Lifecycle hooks** | onRequest/onResponse/onError per-client | Callback integrations |
-| **Budget enforcement** | Per-model + global limits, hard/soft modes | Per-key/team budgets |
-| **Health checks** | Automatic provider probes + cooldown | -- |
-| **Custom providers** | Runtime API + TOML config file | Config + code-based |
-| **Config files** | TOML with auto-discovery (`liter-llm.toml`) | YAML proxy config |
-| **Search / OCR** | 12 search + 4 OCR providers | Yes |
-| **Image generation** | Yes | Yes |
+|                        | liter-llm                                                                      | litellm                                                            |
+| ---------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| **Language**           | Rust (compiled, memory-safe)                                                   | Python                                                             |
+| **Bindings**           | 11 native (Rust, Python, TS, Go, Java, Ruby, PHP, C#, Elixir, WASM, C)         | Python (+ OpenAI-compatible proxy)                                 |
+| **Providers**          | 143 (compiled at build time)                                                   | 100+ (runtime resolution)                                          |
+| **Streaming**          | SSE + AWS EventStream binary protocol                                          | SSE + AWS EventStream                                              |
+| **Observability**      | Built-in OpenTelemetry (GenAI semconv)                                         | 40+ callback integrations                                          |
+| **API key safety**     | `secrecy::SecretString` (zeroed, redacted)                                     | Plain strings                                                      |
+| **Middleware**         | Composable Tower stack                                                         | Built-in callback system                                           |
+| **Proxy / Gateway**    | Yes (22 OpenAI-compatible endpoints, 35MB Docker)                              | Yes                                                                |
+| **Guardrails**         | --                                                                             | 10+ integrations, 4 execution modes (advanced: enterprise)         |
+| **Semantic caching**   | --                                                                             | Redis + Qdrant backends                                            |
+| **Virtual key mgmt**   | Yes (per-key model restrictions, RPM/TPM, budgets)                             | Yes (key rotation: enterprise)                                     |
+| **Management API**     | Config-driven (REST admin API planned)                                         | Multi-tenant (teams, budgets, keys; tiers + reporting: enterprise) |
+| **Fine-tuning API**    | --                                                                             | Enterprise only                                                    |
+| **Load balancer**      | Fallback + round-robin via Tower router                                        | Full router with strategies                                        |
+| **Cost tracking**      | Embedded pricing + OTEL spans                                                  | Per-key/team/model budgets                                         |
+| **Rate limiting**      | Per-model RPM/TPM (Tower layer)                                                | Per-key/user/team/model                                            |
+| **Caching**            | In-memory LRU + 40+ backends via OpenDAL (S3, Redis, GCS, DynamoDB, disk, ...) | 7 backends (Redis, S3, GCS, disk, Qdrant)                          |
+| **Tool calling**       | Parallel tools, structured output, JSON schema                                 | Full support                                                       |
+| **Embeddings**         | Yes                                                                            | Yes                                                                |
+| **Batch API**          | Yes                                                                            | Yes                                                                |
+| **Audio / Speech**     | Yes                                                                            | Yes                                                                |
+| **Lifecycle hooks**    | onRequest/onResponse/onError per-client                                        | Callback integrations                                              |
+| **Budget enforcement** | Per-model + global limits, hard/soft modes                                     | Per-key/team budgets                                               |
+| **Health checks**      | Automatic provider probes + cooldown                                           | --                                                                 |
+| **Custom providers**   | Runtime API + TOML config file                                                 | Config + code-based                                                |
+| **Config files**       | TOML with auto-discovery (`liter-llm.toml`)                                    | YAML proxy config                                                  |
+| **Search / OCR**       | 12 search + 4 OCR providers                                                    | Yes                                                                |
+| **Image generation**   | Yes                                                                            | Yes                                                                |
 
 ## Key Features
 
@@ -206,19 +206,19 @@ liter-llm/
 
 Install in your language of choice:
 
-| Language | Install |
-|----------|---------|
-| Python | `pip install liter-llm` |
-| Node.js | `pnpm add @kreuzberg/liter-llm` |
-| Rust | `cargo add liter-llm` |
-| Go | `go get github.com/kreuzberg-dev/liter-llm/packages/go` |
-| Java | `dev.kreuzberg:liter-llm` (Maven/Gradle) |
-| Ruby | `gem install liter_llm` |
-| PHP | `composer require kreuzberg/liter-llm` |
-| C# | `dotnet add package LiterLlm` |
-| Elixir | `{:liter_llm, "~> 1.4.0-rc.17"}` in mix.exs |
-| WASM | `pnpm add @kreuzberg/liter-llm-wasm` |
-| C/FFI | Build from source -- see [FFI crate](crates/liter-llm-ffi) |
+| Language | Install                                                    |
+| -------- | ---------------------------------------------------------- |
+| Python   | `pip install liter-llm`                                    |
+| Node.js  | `pnpm add @kreuzberg/liter-llm`                            |
+| Rust     | `cargo add liter-llm`                                      |
+| Go       | `go get github.com/kreuzberg-dev/liter-llm/packages/go`    |
+| Java     | `dev.kreuzberg:liter-llm` (Maven/Gradle)                   |
+| Ruby     | `gem install liter_llm`                                    |
+| PHP      | `composer require kreuzberg/liter-llm`                     |
+| C#       | `dotnet add package LiterLlm`                              |
+| Elixir   | `{:liter_llm, "~> 1.4.0-rc.17"}` in mix.exs                |
+| WASM     | `pnpm add @kreuzberg/liter-llm-wasm`                       |
+| C/FFI    | Build from source -- see [FFI crate](crates/liter-llm-ffi) |
 
 ### Usage
 
@@ -275,34 +275,34 @@ The same API is available in all 11 languages -- see the language READMEs below 
 
 All bindings expose a unified `chat()` function:
 
-| Language | Usage |
-| -------- | ----- |
-| Rust | `DefaultClient::new(config).chat(messages, options).await` |
-| Python | `LlmClient(api_key=...).chat(messages, config)` |
-| Node.js | `new LlmClient({ apiKey }).chat(messages, config)` |
-| Go | `client.Chat(ctx, messages, config)` |
-| Java | `client.chat(messages, configJson)` |
-| Ruby | `LiterLlm::LlmClient.new(api_key, config).chat(messages)` |
-| Elixir | `LiterLlm.chat(messages, config)` |
-| PHP | `LiterLlm\LlmClient::new($apiKey)->chat($messages, $config)` |
-| C# | `new LlmClient(apiKey).ChatAsync(messages, config)` |
-| WASM | `new LlmClient({ apiKey }).chat(messages, config)` |
-| C FFI | `liter_llm_chat(client, messages_json, config_json)` |
+| Language | Usage                                                        |
+| -------- | ------------------------------------------------------------ |
+| Rust     | `DefaultClient::new(config).chat(messages, options).await`   |
+| Python   | `LlmClient(api_key=...).chat(messages, config)`              |
+| Node.js  | `new LlmClient({ apiKey }).chat(messages, config)`           |
+| Go       | `client.Chat(ctx, messages, config)`                         |
+| Java     | `client.chat(messages, configJson)`                          |
+| Ruby     | `LiterLlm::LlmClient.new(api_key, config).chat(messages)`    |
+| Elixir   | `LiterLlm.chat(messages, config)`                            |
+| PHP      | `LiterLlm\LlmClient::new($apiKey)->chat($messages, $config)` |
+| C#       | `new LlmClient(apiKey).ChatAsync(messages, config)`          |
+| WASM     | `new LlmClient({ apiKey }).chat(messages, config)`           |
+| C FFI    | `liter_llm_chat(client, messages_json, config_json)`         |
 
 ## Language READMEs
 
-| Language | README | Binding |
-| -------- | ------ | ------- |
-| Python | [packages/python](packages/python/README.md) | PyO3 |
-| TypeScript / Node.js | [crates/liter-llm-node](crates/liter-llm-node/README.md) | NAPI-RS |
-| Go | [packages/go](packages/go/README.md) | cgo |
-| Java | [packages/java](packages/java/README.md) | Panama FFI |
-| Ruby | [packages/ruby](packages/ruby/README.md) | Magnus |
-| Elixir | [packages/elixir](packages/elixir/README.md) | Rustler NIF |
-| PHP | [packages/php](packages/php/README.md) | ext-php-rs |
-| .NET (C#) | [packages/csharp](packages/csharp/README.md) | P/Invoke |
-| WebAssembly | [crates/liter-llm-wasm](crates/liter-llm-wasm/README.md) | wasm-bindgen |
-| C/C++ (FFI) | [crates/liter-llm-ffi](crates/liter-llm-ffi) | C ABI |
+| Language             | README                                                   | Binding      |
+| -------------------- | -------------------------------------------------------- | ------------ |
+| Python               | [packages/python](packages/python/README.md)             | PyO3         |
+| TypeScript / Node.js | [crates/liter-llm-node](crates/liter-llm-node/README.md) | NAPI-RS      |
+| Go                   | [packages/go](packages/go/README.md)                     | cgo          |
+| Java                 | [packages/java](packages/java/README.md)                 | Panama FFI   |
+| Ruby                 | [packages/ruby](packages/ruby/README.md)                 | Magnus       |
+| Elixir               | [packages/elixir](packages/elixir/README.md)             | Rustler NIF  |
+| PHP                  | [packages/php](packages/php/README.md)                   | ext-php-rs   |
+| .NET (C#)            | [packages/csharp](packages/csharp/README.md)             | P/Invoke     |
+| WebAssembly          | [crates/liter-llm-wasm](crates/liter-llm-wasm/README.md) | wasm-bindgen |
+| C/C++ (FFI)          | [crates/liter-llm-ffi](crates/liter-llm-ffi)             | C ABI        |
 
 ## Part of kreuzberg.dev
 

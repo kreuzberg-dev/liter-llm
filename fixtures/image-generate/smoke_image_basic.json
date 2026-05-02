@@ -1,39 +1,39 @@
 {
-	"id": "smoke_image_basic",
-	"description": "Basic image generation with a text prompt",
-	"category": "image-generate",
-	"tags": ["smoke", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "A white cat sitting on a windowsill",
-		"n": 1,
-		"size": "1024x1024"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"created": 1711000000,
-			"data": [
-				{
-					"url": "https://example.com/images/img-abc123.png",
-					"revised_prompt": "A fluffy white cat sitting peacefully on a sunlit windowsill"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "data[0].url"
-		}
-	]
+  "id": "smoke_image_basic",
+  "description": "Basic image generation with a text prompt",
+  "category": "image-generate",
+  "tags": ["smoke", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "A white cat sitting on a windowsill",
+    "n": 1,
+    "size": "1024x1024"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "created": 1711000000,
+      "data": [
+        {
+          "url": "https://example.com/images/img-abc123.png",
+          "revised_prompt": "A fluffy white cat sitting peacefully on a sunlit windowsill"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "data[0].url"
+    }
+  ]
 }

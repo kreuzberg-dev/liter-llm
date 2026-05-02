@@ -1,36 +1,36 @@
 {
-	"id": "gateway_timeout_504",
-	"description": "504 Gateway Timeout error when the upstream service times out",
-	"category": "error-handling",
-	"tags": ["error-handling"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 504,
-		"body": {
-			"error": {
-				"message": "Gateway timeout",
-				"type": "server_error"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "ServiceUnavailable"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 504
-		}
-	]
+  "id": "gateway_timeout_504",
+  "description": "504 Gateway Timeout error when the upstream service times out",
+  "category": "error-handling",
+  "tags": ["error-handling"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 504,
+    "body": {
+      "error": {
+        "message": "Gateway timeout",
+        "type": "server_error"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "ServiceUnavailable"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 504
+    }
+  ]
 }

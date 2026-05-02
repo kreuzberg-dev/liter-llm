@@ -6,42 +6,42 @@ root_dir = "site"
 
 # Exclude common patterns that produce false positives
 exclude = [
-    # Localhost / loopback addresses
-    "localhost",
-    "127\\.0\\.0\\.1",
-    "0\\.0\\.0\\.0",
+  # Localhost / loopback addresses
+  "localhost",
+  "127\\.0\\.0\\.1",
+  "0\\.0\\.0\\.0",
 
-    # Placeholder / example domains
-    "example\\.com",
-    "example\\.org",
+  # Placeholder / example domains
+  "example\\.com",
+  "example\\.org",
 
-    # Template variables (e.g. ${var}, {{ var }})
-    "\\$\\{",
-    "\\{\\{",
+  # Template variables (e.g. ${var}, {{ var }})
+  "\\$\\{",
+  "\\{\\{",
 
-    # GitHub edit links (require auth)
-    "github\\.com/.*/edit/",
+  # GitHub edit links (require auth)
+  "github\\.com/.*/edit/",
 
-    # GitHub raw links for new/renamed files (404 until pushed)
-    "github\\.com/.*/raw/",
+  # GitHub raw links for new/renamed files (404 until pushed)
+  "github\\.com/.*/raw/",
 
-    # Docs site self-references (404 until deployed)
-    "docs\\.liter-llm\\.kreuzberg\\.dev",
+  # Docs site self-references (404 until deployed)
+  "docs\\.liter-llm\\.kreuzberg\\.dev",
 
-    # Placeholder provider URL used in docs examples
-    "api\\.my-provider\\.com",
+  # Placeholder provider URL used in docs examples
+  "api\\.my-provider\\.com",
 
-    # PyPI project pages (rate-limited)
-    "pypi\\.org/project/",
+  # PyPI project pages (rate-limited)
+  "pypi\\.org/project/",
 
-    # crates.io (rate-limited)
-    "crates\\.io/crates/",
+  # crates.io (rate-limited)
+  "crates\\.io/crates/",
 
-    # npm (rate-limited)
-    "npmjs\\.com/package/",
+  # npm (rate-limited)
+  "npmjs\\.com/package/",
 
-    # Discord invite links (require auth)
-    "discord\\.gg/",
+  # Discord invite links (require auth)
+  "discord\\.gg/",
 ]
 
 # Accept these HTTP status codes as valid

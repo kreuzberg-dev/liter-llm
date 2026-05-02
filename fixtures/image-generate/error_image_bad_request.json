@@ -1,35 +1,35 @@
 {
-	"id": "error_image_bad_request",
-	"description": "400 Bad Request when image generation parameters are invalid",
-	"category": "image-generate",
-	"tags": ["error-handling", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "A cat",
-		"n": 1,
-		"size": "9999x9999"
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Invalid value for 'size': '9999x9999'. Supported values are: '1024x1024', '1792x1024', '1024x1792'.",
-				"type": "invalid_request_error",
-				"param": "size",
-				"code": null
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "error_image_bad_request",
+  "description": "400 Bad Request when image generation parameters are invalid",
+  "category": "image-generate",
+  "tags": ["error-handling", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "A cat",
+    "n": 1,
+    "size": "9999x9999"
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Invalid value for 'size': '9999x9999'. Supported values are: '1024x1024', '1792x1024', '1024x1792'.",
+        "type": "invalid_request_error",
+        "param": "size",
+        "code": null
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

@@ -1,37 +1,37 @@
 {
-	"id": "github_copilot_error_auth",
-	"description": "401 Authentication error returned by the GitHub Copilot API when the token is invalid or expired",
-	"category": "error-handling",
-	"tags": ["error-handling", "github_copilot"],
-	"call": "chat",
-	"input": {
-		"model": "github_copilot/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Unauthorized: invalid or expired token",
-				"type": "authentication_error",
-				"code": "401"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "github_copilot_error_auth",
+  "description": "401 Authentication error returned by the GitHub Copilot API when the token is invalid or expired",
+  "category": "error-handling",
+  "tags": ["error-handling", "github_copilot"],
+  "call": "chat",
+  "input": {
+    "model": "github_copilot/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Unauthorized: invalid or expired token",
+        "type": "authentication_error",
+        "code": "401"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

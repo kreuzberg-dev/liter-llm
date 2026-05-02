@@ -1,38 +1,38 @@
 {
-	"id": "proxy_auth_invalid",
-	"description": "401 Unauthorized when an invalid API key is provided through the proxy",
-	"category": "proxy",
-	"tags": ["proxy", "error-handling"],
-	"call": "chat",
-	"input": {
-		"model": "openai/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Incorrect API key provided: sk-invalid. You can find your API key at https://platform.openai.com/account/api-keys.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": "invalid_api_key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "proxy_auth_invalid",
+  "description": "401 Unauthorized when an invalid API key is provided through the proxy",
+  "category": "proxy",
+  "tags": ["proxy", "error-handling"],
+  "call": "chat",
+  "input": {
+    "model": "openai/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Incorrect API key provided: sk-invalid. You can find your API key at https://platform.openai.com/account/api-keys.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

@@ -1,11 +1,11 @@
 {
-	"id": "api_surface_parity",
-	"description": "Canonical API surface definition for cross-binding parity verification",
-	"category": "parity",
-	"call": "chat",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {}
-	}
+  "id": "api_surface_parity",
+  "description": "Canonical API surface definition for cross-binding parity verification",
+  "category": "parity",
+  "call": "chat",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {}
+  }
 }

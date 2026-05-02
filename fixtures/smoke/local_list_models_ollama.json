@@ -1,23 +1,23 @@
 {
-	"id": "local_list_models_ollama",
-	"description": "List models from local Ollama instance",
-	"category": "smoke",
-	"tags": ["smoke", "local", "ollama"],
-	"call": "list_models",
-	"input": {
-		"model": "ollama/any"
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "data",
-			"value": 1
-		}
-	]
+  "id": "local_list_models_ollama",
+  "description": "List models from local Ollama instance",
+  "category": "smoke",
+  "tags": ["smoke", "local", "ollama"],
+  "call": "list_models",
+  "input": {
+    "model": "ollama/any"
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "data",
+      "value": 1
+    }
+  ]
 }

@@ -16,30 +16,30 @@ Instead of hard-coding integrations for each provider (OpenAI, Anthropic, Google
 
 The liter-llm MCP server exposes 22 tools for core LLM operations:
 
-| Tool | Description |
-| --- | --- |
-| `chat` | Send a chat completion request to any LLM provider |
-| `embed` | Generate text embeddings from configured embedding models |
-| `list_models` | List available models from all configured providers |
-| `generate_image` | Generate images from a text prompt (DALL-E, Flux, etc.) |
-| `speech` | Generate speech audio from text (text-to-speech) |
-| `transcribe` | Transcribe audio to text (speech-to-text) |
-| `moderate` | Check content against moderation policies |
-| `rerank` | Rerank documents by relevance to a query |
-| `search` | Perform web or document search |
-| `ocr` | Extract text from an image or document via OCR |
-| `create_file` | Upload a file to the LLM provider |
-| `list_files` | List uploaded files from the provider |
-| `retrieve_file` | Retrieve metadata for an uploaded file |
-| `delete_file` | Delete an uploaded file |
-| `file_content` | Retrieve the raw content of an uploaded file |
-| `create_batch` | Create a new batch processing job |
-| `list_batches` | List batch processing jobs |
-| `retrieve_batch` | Retrieve a batch processing job by ID |
-| `cancel_batch` | Cancel an in-progress batch job |
-| `create_response` | Create a new response (Responses API) |
-| `retrieve_response` | Retrieve a response by ID (Responses API) |
-| `cancel_response` | Cancel an in-progress response |
+| Tool                | Description                                               |
+| ------------------- | --------------------------------------------------------- |
+| `chat`              | Send a chat completion request to any LLM provider        |
+| `embed`             | Generate text embeddings from configured embedding models |
+| `list_models`       | List available models from all configured providers       |
+| `generate_image`    | Generate images from a text prompt (DALL-E, Flux, etc.)   |
+| `speech`            | Generate speech audio from text (text-to-speech)          |
+| `transcribe`        | Transcribe audio to text (speech-to-text)                 |
+| `moderate`          | Check content against moderation policies                 |
+| `rerank`            | Rerank documents by relevance to a query                  |
+| `search`            | Perform web or document search                            |
+| `ocr`               | Extract text from an image or document via OCR            |
+| `create_file`       | Upload a file to the LLM provider                         |
+| `list_files`        | List uploaded files from the provider                     |
+| `retrieve_file`     | Retrieve metadata for an uploaded file                    |
+| `delete_file`       | Delete an uploaded file                                   |
+| `file_content`      | Retrieve the raw content of an uploaded file              |
+| `create_batch`      | Create a new batch processing job                         |
+| `list_batches`      | List batch processing jobs                                |
+| `retrieve_batch`    | Retrieve a batch processing job by ID                     |
+| `cancel_batch`      | Cancel an in-progress batch job                           |
+| `create_response`   | Create a new response (Responses API)                     |
+| `retrieve_response` | Retrieve a response by ID (Responses API)                 |
+| `cancel_response`   | Cancel an in-progress response                            |
 
 ## Prerequisites
 
@@ -196,7 +196,7 @@ export REPLICATE_API_KEY="..."
 ```
 
 !!! tip "Provider-specific keys"
-    You only need to set keys for providers you plan to use. If you only use OpenAI, set `OPENAI_API_KEY` and liter-llm will automatically route requests to OpenAI based on the model prefix (e.g., `openai/gpt-4o`).
+You only need to set keys for providers you plan to use. If you only use OpenAI, set `OPENAI_API_KEY` and liter-llm will automatically route requests to OpenAI based on the model prefix (e.g., `openai/gpt-4o`).
 
 ### Custom Config File
 
@@ -354,7 +354,7 @@ Or hardcode them in the IDE config (less secure):
 ```
 
 !!! warning "Never commit API keys"
-    Use environment variables or a `.env` file (not committed to git). See [Secrets and API Key Handling](../getting-started/installation.md#api-key-setup) for best practices.
+Use environment variables or a `.env` file (not committed to git). See [Secrets and API Key Handling](../getting-started/installation.md#api-key-setup) for best practices.
 
 ### Timeout Errors
 
@@ -404,7 +404,7 @@ curl http://127.0.0.1:3001/health
 ```
 
 !!! note
-    Use `0.0.0.0` to allow remote connections. For local development, `127.0.0.1` is safer.
+Use `0.0.0.0` to allow remote connections. For local development, `127.0.0.1` is safer.
 
 ## Next Steps
 

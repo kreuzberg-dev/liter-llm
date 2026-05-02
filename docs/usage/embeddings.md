@@ -50,30 +50,30 @@ Generate vector embeddings from text. Embeddings are fixed-length numeric arrays
 
 ### Embedding Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | Embedding model (e.g. `"openai/text-embedding-3-small"`) |
-| `input` | string/array | Text(s) to embed |
-| `encoding_format` | string | Output format (`"float"` or `"base64"`) |
-| `dimensions` | int | Output dimensionality (model-dependent) |
+| Parameter         | Type         | Description                                              |
+| ----------------- | ------------ | -------------------------------------------------------- |
+| `model`           | string       | Embedding model (e.g. `"openai/text-embedding-3-small"`) |
+| `input`           | string/array | Text(s) to embed                                         |
+| `encoding_format` | string       | Output format (`"float"` or `"base64"`)                  |
+| `dimensions`      | int          | Output dimensionality (model-dependent)                  |
 
 ### Embedding Providers
 
-| Provider | Prefix | Example Model |
-| --- | --- | --- |
-| OpenAI | `openai/` | `text-embedding-3-small`, `text-embedding-3-large` |
-| Cohere | `cohere/` | `embed-english-v3.0` |
-| Voyage AI | `voyage/` | `voyage-3` |
-| Mistral | `mistral/` | `mistral-embed` |
-| Google Vertex AI | `vertex_ai/` | `text-embedding-004` |
-| AWS Bedrock | `bedrock/` | `amazon.titan-embed-text-v2:0` |
-| Ollama | `ollama/` | `nomic-embed-text` |
-| LM Studio | `lmstudio/` | Depends on loaded model |
-| vLLM | `vllm/` | `BAAI/bge-base-en-v1.5` |
-| llama.cpp | `llamacpp/` | Depends on loaded GGUF |
-| LocalAI | `localai/` | Depends on configuration |
-| llamafile | `llamafile/` | Depends on loaded model |
-| Jina AI | `jina_ai/` | `jina-embeddings-v3` |
+| Provider         | Prefix       | Example Model                                      |
+| ---------------- | ------------ | -------------------------------------------------- |
+| OpenAI           | `openai/`    | `text-embedding-3-small`, `text-embedding-3-large` |
+| Cohere           | `cohere/`    | `embed-english-v3.0`                               |
+| Voyage AI        | `voyage/`    | `voyage-3`                                         |
+| Mistral          | `mistral/`   | `mistral-embed`                                    |
+| Google Vertex AI | `vertex_ai/` | `text-embedding-004`                               |
+| AWS Bedrock      | `bedrock/`   | `amazon.titan-embed-text-v2:0`                     |
+| Ollama           | `ollama/`    | `nomic-embed-text`                                 |
+| LM Studio        | `lmstudio/`  | Depends on loaded model                            |
+| vLLM             | `vllm/`      | `BAAI/bge-base-en-v1.5`                            |
+| llama.cpp        | `llamacpp/`  | Depends on loaded GGUF                             |
+| LocalAI          | `localai/`   | Depends on configuration                           |
+| llamafile        | `llamafile/` | Depends on loaded model                            |
+| Jina AI          | `jina_ai/`   | `jina-embeddings-v3`                               |
 
 See the [Providers](../providers.md) page for the complete capability matrix.
 
@@ -123,10 +123,10 @@ Rerank documents by relevance to a query. Useful for improving retrieval quality
 
 ### Rerank Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | Rerank model (e.g. `"cohere/rerank-v3.5"`) |
-| `query` | string | The query to rank documents against |
-| `documents` | array | Documents to rerank |
-| `top_n` | int | Number of top results to return |
-| `return_documents` | bool | Include document text in results |
+| Parameter          | Type   | Description                                |
+| ------------------ | ------ | ------------------------------------------ |
+| `model`            | string | Rerank model (e.g. `"cohere/rerank-v3.5"`) |
+| `query`            | string | The query to rank documents against        |
+| `documents`        | array  | Documents to rerank                        |
+| `top_n`            | int    | Number of top results to return            |
+| `return_documents` | bool   | Include document text in results           |

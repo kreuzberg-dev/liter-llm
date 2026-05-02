@@ -50,14 +50,14 @@ Generate images from text prompts:
 
 ### Image Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | Image model (e.g. `"openai/dall-e-3"`) |
-| `prompt` | string | Text description of the image |
-| `n` | int | Number of images to generate |
-| `size` | string | Image size (`"1024x1024"`, `"1792x1024"`, `"1024x1792"`) |
-| `quality` | string | Quality level (`"standard"` or `"hd"`) |
-| `style` | string | Style (`"vivid"` or `"natural"`) |
+| Parameter | Type   | Description                                              |
+| --------- | ------ | -------------------------------------------------------- |
+| `model`   | string | Image model (e.g. `"openai/dall-e-3"`)                   |
+| `prompt`  | string | Text description of the image                            |
+| `n`       | int    | Number of images to generate                             |
+| `size`    | string | Image size (`"1024x1024"`, `"1792x1024"`, `"1024x1792"`) |
+| `quality` | string | Quality level (`"standard"` or `"hd"`)                   |
+| `style`   | string | Style (`"vivid"` or `"natural"`)                         |
 
 ## Text-to-Speech
 
@@ -105,13 +105,13 @@ Generate audio from text:
 
 ### Speech Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | TTS model (e.g. `"openai/tts-1"`) |
-| `input` | string | Text to synthesize |
-| `voice` | string | Voice preset (`"alloy"`, `"echo"`, `"fable"`, `"onyx"`, `"nova"`, `"shimmer"`) |
-| `response_format` | string | Audio format (`"mp3"`, `"opus"`, `"aac"`, `"flac"`) |
-| `speed` | float | Playback speed (0.25-4.0) |
+| Parameter         | Type   | Description                                                                    |
+| ----------------- | ------ | ------------------------------------------------------------------------------ |
+| `model`           | string | TTS model (e.g. `"openai/tts-1"`)                                              |
+| `input`           | string | Text to synthesize                                                             |
+| `voice`           | string | Voice preset (`"alloy"`, `"echo"`, `"fable"`, `"onyx"`, `"nova"`, `"shimmer"`) |
+| `response_format` | string | Audio format (`"mp3"`, `"opus"`, `"aac"`, `"flac"`)                            |
+| `speed`           | float  | Playback speed (0.25-4.0)                                                      |
 
 ## Speech-to-Text
 
@@ -159,13 +159,13 @@ Transcribe audio to text:
 
 ### Transcription Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | STT model (e.g. `"openai/whisper-1"`) |
-| `file` | bytes | Audio file data |
-| `language` | string | ISO-639-1 language code |
-| `prompt` | string | Optional context hint |
-| `temperature` | float | Sampling temperature |
+| Parameter         | Type   | Description                                          |
+| ----------------- | ------ | ---------------------------------------------------- |
+| `model`           | string | STT model (e.g. `"openai/whisper-1"`)                |
+| `file`            | bytes  | Audio file data                                      |
+| `language`        | string | ISO-639-1 language code                              |
+| `prompt`          | string | Optional context hint                                |
+| `temperature`     | float  | Sampling temperature                                 |
 | `response_format` | string | Output format (`"json"`, `"text"`, `"srt"`, `"vtt"`) |
 
 ## Content Moderation
@@ -214,7 +214,7 @@ Classify content for policy violations:
 
 ### Moderation Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `input` | string/array | Content to classify |
-| `model` | string | Moderation model (e.g. `"openai/omni-moderation-latest"`) |
+| Parameter | Type         | Description                                               |
+| --------- | ------------ | --------------------------------------------------------- |
+| `input`   | string/array | Content to classify                                       |
+| `model`   | string       | Moderation model (e.g. `"openai/omni-moderation-latest"`) |

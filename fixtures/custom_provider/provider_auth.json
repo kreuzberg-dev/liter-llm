@@ -1,45 +1,45 @@
 {
-	"id": "provider_auth",
-	"description": "Tests custom provider with custom auth header",
-	"category": "custom_provider",
-	"tags": ["custom_provider"],
-	"call": "chat",
-	"input": {
-		"model": "my-auth-model-v1",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-auth-001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "my-auth-model-v1",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello with custom auth!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 8,
-				"completion_tokens": 6,
-				"total_tokens": 14
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "provider_auth",
+  "description": "Tests custom provider with custom auth header",
+  "category": "custom_provider",
+  "tags": ["custom_provider"],
+  "call": "chat",
+  "input": {
+    "model": "my-auth-model-v1",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-auth-001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "my-auth-model-v1",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello with custom auth!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 6,
+        "total_tokens": 14
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

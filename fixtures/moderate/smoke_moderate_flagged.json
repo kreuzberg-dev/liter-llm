@@ -1,50 +1,50 @@
 {
-	"id": "smoke_moderate_flagged",
-	"description": "Moderation detects flagged content",
-	"category": "moderate",
-	"tags": ["smoke", "moderate"],
-	"call": "moderate",
-	"input": {
-		"model": "omni-moderation-latest",
-		"input": "I want to hurt someone very badly"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "modr-ghi789",
-			"model": "omni-moderation-latest",
-			"results": [
-				{
-					"flagged": true,
-					"categories": {
-						"sexual": false,
-						"hate": false,
-						"harassment": false,
-						"violence": true
-					},
-					"category_scores": {
-						"sexual": 0.0001,
-						"hate": 0.01,
-						"harassment": 0.15,
-						"violence": 0.92
-					}
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "results[0].flagged",
-			"value": true
-		}
-	]
+  "id": "smoke_moderate_flagged",
+  "description": "Moderation detects flagged content",
+  "category": "moderate",
+  "tags": ["smoke", "moderate"],
+  "call": "moderate",
+  "input": {
+    "model": "omni-moderation-latest",
+    "input": "I want to hurt someone very badly"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "modr-ghi789",
+      "model": "omni-moderation-latest",
+      "results": [
+        {
+          "flagged": true,
+          "categories": {
+            "sexual": false,
+            "hate": false,
+            "harassment": false,
+            "violence": true
+          },
+          "category_scores": {
+            "sexual": 0.0001,
+            "hate": 0.01,
+            "harassment": 0.15,
+            "violence": 0.92
+          }
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "results[0].flagged",
+      "value": true
+    }
+  ]
 }

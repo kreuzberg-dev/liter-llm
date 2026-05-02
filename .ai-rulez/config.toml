@@ -9,18 +9,18 @@ presets = ["claude", "gemini", "codex"]
 style = "minimal"
 
 builtins = [
-    "rust",
-    "python",
-    "typescript",
-    "ruby",
-    "php",
-    "elixir",
-    "go",
-    "java",
-    "csharp",
-    "pyo3",
-    "napi-rs",
-    "default-commands",
+  "rust",
+  "python",
+  "typescript",
+  "ruby",
+  "php",
+  "elixir",
+  "go",
+  "java",
+  "csharp",
+  "pyo3",
+  "napi-rs",
+  "default-commands",
 ]
 
 [[includes]]

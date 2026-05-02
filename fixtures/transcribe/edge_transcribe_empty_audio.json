@@ -1,27 +1,27 @@
 {
-	"id": "edge_transcribe_empty_audio",
-	"description": "Transcription of a silent or empty audio file returns empty text",
-	"category": "transcribe",
-	"tags": ["edge-case", "transcribe"],
-	"call": "transcribe",
-	"input": {
-		"model": "whisper-1",
-		"file": "silence.mp3"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"text": ""
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "contains",
-			"field": "text",
-			"value": ""
-		}
-	]
+  "id": "edge_transcribe_empty_audio",
+  "description": "Transcription of a silent or empty audio file returns empty text",
+  "category": "transcribe",
+  "tags": ["edge-case", "transcribe"],
+  "call": "transcribe",
+  "input": {
+    "model": "whisper-1",
+    "file": "silence.mp3"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "text": ""
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "contains",
+      "field": "text",
+      "value": ""
+    }
+  ]
 }

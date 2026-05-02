@@ -143,27 +143,27 @@ response = await client.chat(model="together_ai/meta-llama/Llama-3-70b-chat-hf",
 
 The provider registry defines three auth header patterns:
 
-| Auth Type | Header Format | Providers |
-|-----------|--------------|-----------|
-| Bearer | `Authorization: Bearer {key}` | Most providers (OpenAI, Anthropic, Groq, Mistral, etc.) |
-| ApiKey | `api-key: {key}` | Azure |
-| None | No auth header | Ollama, local servers |
+| Auth Type | Header Format                 | Providers                                               |
+| --------- | ----------------------------- | ------------------------------------------------------- |
+| Bearer    | `Authorization: Bearer {key}` | Most providers (OpenAI, Anthropic, Groq, Mistral, etc.) |
+| ApiKey    | `api-key: {key}`              | Azure                                                   |
+| None      | No auth header                | Ollama, local servers                                   |
 
 ## Capability Matrix (Selected)
 
-| Provider | Chat | Embed | Image | Audio | Moderation | Search | OCR |
-|----------|:----:|:-----:|:-----:|:-----:|:----------:|:------:|:---:|
-| OpenAI | Y | Y | Y | Y | Y | - | - |
-| Anthropic | Y | - | - | - | - | - | - |
-| Azure | Y | Y | Y | Y | Y | - | - |
-| Vertex AI | Y | Y | Y | Y | - | - | - |
-| Bedrock | Y | Y | - | - | - | - | - |
-| Groq | Y | - | - | - | - | - | - |
-| Mistral | Y | Y | - | - | - | - | Y |
-| Cohere | Y | Y | - | - | - | - | - |
-| Ollama | Y | Y | - | - | - | - | - |
-| Brave | - | - | - | - | - | Y | - |
-| Tavily | - | - | - | - | - | Y | - |
+| Provider  | Chat | Embed | Image | Audio | Moderation | Search | OCR |
+| --------- | :--: | :---: | :---: | :---: | :--------: | :----: | :-: |
+| OpenAI    |  Y   |   Y   |   Y   |   Y   |     Y      |   -    |  -  |
+| Anthropic |  Y   |   -   |   -   |   -   |     -      |   -    |  -  |
+| Azure     |  Y   |   Y   |   Y   |   Y   |     Y      |   -    |  -  |
+| Vertex AI |  Y   |   Y   |   Y   |   Y   |     -      |   -    |  -  |
+| Bedrock   |  Y   |   Y   |   -   |   -   |     -      |   -    |  -  |
+| Groq      |  Y   |   -   |   -   |   -   |     -      |   -    |  -  |
+| Mistral   |  Y   |   Y   |   -   |   -   |     -      |   -    |  Y  |
+| Cohere    |  Y   |   Y   |   -   |   -   |     -      |   -    |  -  |
+| Ollama    |  Y   |   Y   |   -   |   -   |     -      |   -    |  -  |
+| Brave     |  -   |   -   |   -   |   -   |     -      |   Y    |  -  |
+| Tavily    |  -   |   -   |   -   |   -   |     -      |   Y    |  -  |
 
 ## Custom Provider Registration
 

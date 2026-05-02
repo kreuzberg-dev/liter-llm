@@ -1,50 +1,50 @@
 {
-	"id": "edge_moderate_empty_input",
-	"description": "Moderation with empty string input",
-	"category": "moderate",
-	"tags": ["edge-case", "moderate"],
-	"call": "moderate",
-	"input": {
-		"model": "omni-moderation-latest",
-		"input": ""
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "modr-empty001",
-			"model": "omni-moderation-latest",
-			"results": [
-				{
-					"flagged": false,
-					"categories": {
-						"sexual": false,
-						"hate": false,
-						"harassment": false,
-						"violence": false
-					},
-					"category_scores": {
-						"sexual": 0.0,
-						"hate": 0.0,
-						"harassment": 0.0,
-						"violence": 0.0
-					}
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "results[0].flagged",
-			"value": false
-		}
-	]
+  "id": "edge_moderate_empty_input",
+  "description": "Moderation with empty string input",
+  "category": "moderate",
+  "tags": ["edge-case", "moderate"],
+  "call": "moderate",
+  "input": {
+    "model": "omni-moderation-latest",
+    "input": ""
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "modr-empty001",
+      "model": "omni-moderation-latest",
+      "results": [
+        {
+          "flagged": false,
+          "categories": {
+            "sexual": false,
+            "hate": false,
+            "harassment": false,
+            "violence": false
+          },
+          "category_scores": {
+            "sexual": 0.0,
+            "hate": 0.0,
+            "harassment": 0.0,
+            "violence": 0.0
+          }
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "results[0].flagged",
+      "value": false
+    }
+  ]
 }

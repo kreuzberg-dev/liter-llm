@@ -1,42 +1,42 @@
 {
-	"name": "@kreuzberg/liter-llm-node-win32-x64-msvc",
-	"version": "1.4.0-rc.27",
-	"cpu": [
-		"x64"
-	],
-	"main": "liter-llm-node.win32-x64-msvc.node",
-	"files": [
-		"liter-llm-node.win32-x64-msvc.node"
-	],
-	"description": "Native NAPI-RS bindings for liter-llm \u2014 high-performance LLM client powered by Rust",
-	"keywords": [
-		"llm",
-		"llm-client",
-		"openai",
-		"anthropic",
-		"streaming",
-		"tool-calling",
-		"napi",
-		"rust",
-		"native"
-	],
-	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
-	"license": "MIT",
-	"engines": {
-		"node": ">= 22"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kreuzberg-dev/liter-llm.git"
-	},
-	"bugs": {
-		"url": "https://github.com/kreuzberg-dev/liter-llm/issues"
-	},
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/",
-		"access": "public"
-	},
-	"os": [
-		"win32"
-	]
+  "name": "@kreuzberg/liter-llm-node-win32-x64-msvc",
+  "version": "1.4.0-rc.27",
+  "description": "Native NAPI-RS bindings for liter-llm — high-performance LLM client powered by Rust",
+  "keywords": [
+    "anthropic",
+    "llm",
+    "llm-client",
+    "napi",
+    "native",
+    "openai",
+    "rust",
+    "streaming",
+    "tool-calling"
+  ],
+  "homepage": "https://github.com/kreuzberg-dev/liter-llm",
+  "bugs": {
+    "url": "https://github.com/kreuzberg-dev/liter-llm/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kreuzberg-dev/liter-llm.git"
+  },
+  "files": [
+    "liter-llm-node.win32-x64-msvc.node"
+  ],
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "liter-llm-node.win32-x64-msvc.node",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">= 22"
+  }
 }

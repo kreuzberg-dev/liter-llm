@@ -247,20 +247,20 @@ const client = new LlmClient({
 
 ### Configuration Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `api_key` | string | **required** | Provider API key. Wrapped in `SecretString` internally. |
-| `base_url` | string | from registry | Override the provider's base URL. |
-| `model_hint` | string | none | Pre-resolve a provider at construction (e.g. `"openai"`). |
-| `timeout` | duration | 60s | Request timeout. |
-| `max_retries` | int | 3 | Retries on 429/5xx responses with exponential backoff. |
-| `cache` | object | none | Response caching config (`max_entries`, `ttl_seconds`). |
-| `budget` | object | none | Spending limits (`global_limit`, `model_limits`, `enforcement`). |
-| `cooldown` | int | none | Circuit breaker cooldown in seconds after transient errors. |
-| `rate_limit` | object | none | Rate limiting (`rpm`, `tpm`). |
-| `health_check` | int | none | Background health check interval in seconds. |
-| `cost_tracking` | bool | false | Enable per-request cost tracking. |
-| `tracing` | bool | false | Enable OpenTelemetry tracing spans. |
+| Option          | Type     | Default       | Description                                                      |
+| --------------- | -------- | ------------- | ---------------------------------------------------------------- |
+| `api_key`       | string   | **required**  | Provider API key. Wrapped in `SecretString` internally.          |
+| `base_url`      | string   | from registry | Override the provider's base URL.                                |
+| `model_hint`    | string   | none          | Pre-resolve a provider at construction (e.g. `"openai"`).        |
+| `timeout`       | duration | 60s           | Request timeout.                                                 |
+| `max_retries`   | int      | 3             | Retries on 429/5xx responses with exponential backoff.           |
+| `cache`         | object   | none          | Response caching config (`max_entries`, `ttl_seconds`).          |
+| `budget`        | object   | none          | Spending limits (`global_limit`, `model_limits`, `enforcement`). |
+| `cooldown`      | int      | none          | Circuit breaker cooldown in seconds after transient errors.      |
+| `rate_limit`    | object   | none          | Rate limiting (`rpm`, `tpm`).                                    |
+| `health_check`  | int      | none          | Background health check interval in seconds.                     |
+| `cost_tracking` | bool     | false         | Enable per-request cost tracking.                                |
+| `tracing`       | bool     | false         | Enable OpenTelemetry tracing spans.                              |
 
 ### Configuration File
 
@@ -322,15 +322,15 @@ if let Some(config) = FileConfig::discover()? {
 
 ### API Key Environment Variables
 
-| Provider | Environment Variable |
-| --- | --- |
-| OpenAI | `OPENAI_API_KEY` |
-| Anthropic | `ANTHROPIC_API_KEY` |
-| Google (Gemini) | `GEMINI_API_KEY` |
-| Groq | `GROQ_API_KEY` |
-| Mistral | `MISTRAL_API_KEY` |
-| Cohere | `CO_API_KEY` |
-| AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
+| Provider        | Environment Variable                          |
+| --------------- | --------------------------------------------- |
+| OpenAI          | `OPENAI_API_KEY`                              |
+| Anthropic       | `ANTHROPIC_API_KEY`                           |
+| Google (Gemini) | `GEMINI_API_KEY`                              |
+| Groq            | `GROQ_API_KEY`                                |
+| Mistral         | `MISTRAL_API_KEY`                             |
+| Cohere          | `CO_API_KEY`                                  |
+| AWS Bedrock     | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
 
 ## Provider Routing
 
@@ -577,9 +577,15 @@ import { LlmClient } from "@kreuzberg/liter-llm";
 
 const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
 client.addHook({
-  onRequest(req) { console.log(`Sending: ${req.model}`); },
-  onResponse(req, res) { console.log(`Tokens: ${res.usage?.totalTokens}`); },
-  onError(req, err) { console.error(`Error: ${err}`); },
+  onRequest(req) {
+    console.log(`Sending: ${req.model}`);
+  },
+  onResponse(req, res) {
+    console.log(`Tokens: ${res.usage?.totalTokens}`);
+  },
+  onError(req, err) {
+    console.error(`Error: ${err}`);
+  },
 });
 ```
 

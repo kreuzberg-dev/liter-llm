@@ -1,70 +1,70 @@
 {
-	"id": "binding_api_parity",
-	"description": "Verify all bindings expose the full API surface — constructor accepts all config options and every method exists",
-	"category": "contract",
-	"tags": ["contract", "parity"],
-	"call": "chat",
-	"input": {
-		"model": "openai/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Contract test"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-contract",
-			"object": "chat.completion",
-			"created": 1234567890,
-			"model": "gpt-4o",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "OK"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 5,
-				"completion_tokens": 1,
-				"total_tokens": 6
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "OK"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "usage.total_tokens",
-			"value": 6
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "gpt-4o"
-		}
-	]
+  "id": "binding_api_parity",
+  "description": "Verify all bindings expose the full API surface — constructor accepts all config options and every method exists",
+  "category": "contract",
+  "tags": ["contract", "parity"],
+  "call": "chat",
+  "input": {
+    "model": "openai/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Contract test"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-contract",
+      "object": "chat.completion",
+      "created": 1234567890,
+      "model": "gpt-4o",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "OK"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5,
+        "completion_tokens": 1,
+        "total_tokens": 6
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "OK"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "usage.total_tokens",
+      "value": 6
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "gpt-4o"
+    }
+  ]
 }

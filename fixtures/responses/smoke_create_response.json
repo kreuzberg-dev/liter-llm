@@ -1,58 +1,58 @@
 {
-	"id": "smoke_create_response",
-	"description": "Create a basic response using the Responses API",
-	"category": "responses",
-	"tags": ["smoke", "responses"],
-	"call": "create_response",
-	"input": {
-		"model": "gpt-4o",
-		"input": "Explain quantum computing in one sentence."
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "resp-abc123",
-			"object": "response",
-			"created_at": 1711000000,
-			"status": "completed",
-			"model": "gpt-4o",
-			"output": [
-				{
-					"type": "message",
-					"id": "msg-001",
-					"role": "assistant",
-					"content": [
-						{
-							"type": "output_text",
-							"text": "Quantum computing uses quantum bits that can exist in multiple states simultaneously to solve certain problems exponentially faster than classical computers."
-						}
-					]
-				}
-			],
-			"usage": {
-				"input_tokens": 12,
-				"output_tokens": 28,
-				"total_tokens": 40
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "status",
-			"value": "completed"
-		},
-		{
-			"type": "count_equals",
-			"field": "output",
-			"value": 1
-		}
-	]
+  "id": "smoke_create_response",
+  "description": "Create a basic response using the Responses API",
+  "category": "responses",
+  "tags": ["smoke", "responses"],
+  "call": "create_response",
+  "input": {
+    "model": "gpt-4o",
+    "input": "Explain quantum computing in one sentence."
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "resp-abc123",
+      "object": "response",
+      "created_at": 1711000000,
+      "status": "completed",
+      "model": "gpt-4o",
+      "output": [
+        {
+          "type": "message",
+          "id": "msg-001",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Quantum computing uses quantum bits that can exist in multiple states simultaneously to solve certain problems exponentially faster than classical computers."
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "input_tokens": 12,
+        "output_tokens": 28,
+        "total_tokens": 40
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "status",
+      "value": "completed"
+    },
+    {
+      "type": "count_equals",
+      "field": "output",
+      "value": 1
+    }
+  ]
 }

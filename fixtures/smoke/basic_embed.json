@@ -1,45 +1,45 @@
 {
-	"id": "basic_embed",
-	"description": "Basic embedding request for a single input string",
-	"category": "smoke",
-	"tags": ["smoke"],
-	"call": "embed",
-	"input": {
-		"model": "text-embedding-3-small",
-		"input": "Hello world"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"model": "text-embedding-3-small",
-			"data": [
-				{
-					"object": "embedding",
-					"index": 0,
-					"embedding": [0.1, 0.2, 0.3, 0.4, 0.5]
-				}
-			],
-			"usage": {
-				"prompt_tokens": 2,
-				"completion_tokens": 0,
-				"total_tokens": 2
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 1
-		},
-		{
-			"type": "count_equals",
-			"field": "data[0].embedding",
-			"value": 5
-		}
-	]
+  "id": "basic_embed",
+  "description": "Basic embedding request for a single input string",
+  "category": "smoke",
+  "tags": ["smoke"],
+  "call": "embed",
+  "input": {
+    "model": "text-embedding-3-small",
+    "input": "Hello world"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "model": "text-embedding-3-small",
+      "data": [
+        {
+          "object": "embedding",
+          "index": 0,
+          "embedding": [0.1, 0.2, 0.3, 0.4, 0.5]
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2,
+        "completion_tokens": 0,
+        "total_tokens": 2
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 1
+    },
+    {
+      "type": "count_equals",
+      "field": "data[0].embedding",
+      "value": 5
+    }
+  ]
 }

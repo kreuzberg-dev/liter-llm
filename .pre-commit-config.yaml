@@ -143,13 +143,7 @@ repos:
       - id: clang-tidy
         files: ^crates/liter-llm-ffi/tests/c/
       - id: checkstyle
-        args:
-          [
-            "-c",
-            "packages/java/checkstyle.xml",
-            "-p",
-            "packages/java/checkstyle.properties",
-          ]
+        args: ["-c", "packages/java/checkstyle.xml", "-p", "packages/java/checkstyle.properties"]
         exclude: ^(\.mvn/wrapper/|e2e/|packages/java/src/)
       - id: mypy
         args: ["--strict", "packages/python/liter_llm/"]

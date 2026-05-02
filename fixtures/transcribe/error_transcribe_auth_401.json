@@ -1,33 +1,33 @@
 {
-	"id": "error_transcribe_auth_401",
-	"description": "401 Unauthorized for transcription with invalid API key",
-	"category": "transcribe",
-	"tags": ["error-handling", "transcribe"],
-	"call": "transcribe",
-	"input": {
-		"model": "whisper-1",
-		"file": "audio.mp3"
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Incorrect API key provided.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": "invalid_api_key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "error_transcribe_auth_401",
+  "description": "401 Unauthorized for transcription with invalid API key",
+  "category": "transcribe",
+  "tags": ["error-handling", "transcribe"],
+  "call": "transcribe",
+  "input": {
+    "model": "whisper-1",
+    "file": "audio.mp3"
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Incorrect API key provided.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

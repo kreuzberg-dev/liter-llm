@@ -22,53 +22,53 @@ liter-llm is an LLM API client written in Rust with native bindings for Python, 
 <!-- markdownlint-disable MD030 MD035 -->
 <div class="grid cards" markdown>
 
--   :material-rocket-launch:{ .lg .middle } **Getting Started**
+- :material-rocket-launch:{ .lg .middle } **Getting Started**
 
-    ---
+  ***
 
-    Install the package for your language and make your first API call.
+  Install the package for your language and make your first API call.
 
-    [:octicons-arrow-right-24: Installation](getting-started/installation.md)
+  [:octicons-arrow-right-24: Installation](getting-started/installation.md)
 
--   :material-chat:{ .lg .middle } **Chat & Streaming**
+- :material-chat:{ .lg .middle } **Chat & Streaming**
 
-    ---
+  ***
 
-    Single-turn and multi-turn chat, streaming, tool calling, structured outputs.
+  Single-turn and multi-turn chat, streaming, tool calling, structured outputs.
 
-    [:octicons-arrow-right-24: Chat Guide](usage/chat.md)
+  [:octicons-arrow-right-24: Chat Guide](usage/chat.md)
 
--   :material-server:{ .lg .middle } **Proxy Server**
+- :material-server:{ .lg .middle } **Proxy Server**
 
-    ---
+  ***
 
-    OpenAI-compatible proxy with virtual keys, budget enforcement, and TOML config.
+  OpenAI-compatible proxy with virtual keys, budget enforcement, and TOML config.
 
-    [:octicons-arrow-right-24: Proxy Server](server/proxy-server.md)
+  [:octicons-arrow-right-24: Proxy Server](server/proxy-server.md)
 
--   :material-routes:{ .lg .middle } **Fallback & Routing**
+- :material-routes:{ .lg .middle } **Fallback & Routing**
 
-    ---
+  ***
 
-    Round-robin, latency-based, cost-based, weighted-random, and ordered-fallback strategies.
+  Round-robin, latency-based, cost-based, weighted-random, and ordered-fallback strategies.
 
-    [:octicons-arrow-right-24: Routing Guide](usage/fallback-routing.md)
+  [:octicons-arrow-right-24: Routing Guide](usage/fallback-routing.md)
 
--   :material-key-variant:{ .lg .middle } **Authentication**
+- :material-key-variant:{ .lg .middle } **Authentication**
 
-    ---
+  ***
 
-    Azure AD, AWS Bedrock STS/IRSA, Vertex AI OAuth2 with automatic token caching.
+  Azure AD, AWS Bedrock STS/IRSA, Vertex AI OAuth2 with automatic token caching.
 
-    [:octicons-arrow-right-24: Auth Guide](usage/authentication.md)
+  [:octicons-arrow-right-24: Auth Guide](usage/authentication.md)
 
--   :material-code-braces:{ .lg .middle } **API Reference**
+- :material-code-braces:{ .lg .middle } **API Reference**
 
-    ---
+  ***
 
-    Full reference for Python, TypeScript, Rust, Go, Java, C#, Ruby, Elixir, PHP, WASM, C FFI.
+  Full reference for Python, TypeScript, Rust, Go, Java, C#, Ruby, Elixir, PHP, WASM, C FFI.
 
-    [:octicons-arrow-right-24: Python](api/python.md)
+  [:octicons-arrow-right-24: Python](reference/api-python.md)
 
 </div>
 <!-- markdownlint-enable MD030 MD035 -->

@@ -1,38 +1,38 @@
 {
-	"id": "proxy_upstream_429",
-	"description": "429 Too Many Requests from upstream provider through the proxy",
-	"category": "proxy",
-	"tags": ["proxy", "error-handling"],
-	"call": "chat",
-	"input": {
-		"model": "openai/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 429,
-		"body": {
-			"error": {
-				"message": "Rate limit reached for gpt-4o in organization org-abc123 on tokens per min. Limit: 10000, Used: 10000, Requested: 100. Please try again in 600ms.",
-				"type": "requests",
-				"param": null,
-				"code": "rate_limit_exceeded"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "RateLimited"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 429
-		}
-	]
+  "id": "proxy_upstream_429",
+  "description": "429 Too Many Requests from upstream provider through the proxy",
+  "category": "proxy",
+  "tags": ["proxy", "error-handling"],
+  "call": "chat",
+  "input": {
+    "model": "openai/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 429,
+    "body": {
+      "error": {
+        "message": "Rate limit reached for gpt-4o in organization org-abc123 on tokens per min. Limit: 10000, Used: 10000, Requested: 100. Please try again in 600ms.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "RateLimited"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 429
+    }
+  ]
 }

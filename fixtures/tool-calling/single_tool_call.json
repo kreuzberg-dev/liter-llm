@@ -1,99 +1,99 @@
 {
-	"id": "single_tool_call",
-	"description": "Chat request with a tool definition; assistant responds with a tool call",
-	"category": "tool-calling",
-	"tags": ["tool-calling"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "What is the weather in San Francisco?"
-			}
-		],
-		"tools": [
-			{
-				"type": "function",
-				"function": {
-					"name": "get_weather",
-					"description": "Get the current weather for a given location",
-					"parameters": {
-						"type": "object",
-						"properties": {
-							"location": {
-								"type": "string",
-								"description": "The city and state, e.g. San Francisco, CA"
-							},
-							"unit": {
-								"type": "string",
-								"enum": ["celsius", "fahrenheit"],
-								"description": "The temperature unit to use"
-							}
-						},
-						"required": ["location"]
-					}
-				}
-			}
-		],
-		"tool_choice": "auto"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-tool001",
-			"object": "chat.completion",
-			"created": 1711000002,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": null,
-						"tool_calls": [
-							{
-								"id": "call_abc123",
-								"type": "function",
-								"function": {
-									"name": "get_weather",
-									"arguments": "{\"location\": \"San Francisco, CA\", \"unit\": \"fahrenheit\"}"
-								}
-							}
-						]
-					},
-					"finish_reason": "tool_calls"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 82,
-				"completion_tokens": 17,
-				"total_tokens": 99
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "choices[0].message.tool_calls"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.tool_calls[0].function.name",
-			"value": "get_weather"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "tool_calls"
-		}
-	]
+  "id": "single_tool_call",
+  "description": "Chat request with a tool definition; assistant responds with a tool call",
+  "category": "tool-calling",
+  "tags": ["tool-calling"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the weather in San Francisco?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "description": "Get the current weather for a given location",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city and state, e.g. San Francisco, CA"
+              },
+              "unit": {
+                "type": "string",
+                "enum": ["celsius", "fahrenheit"],
+                "description": "The temperature unit to use"
+              }
+            },
+            "required": ["location"]
+          }
+        }
+      }
+    ],
+    "tool_choice": "auto"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-tool001",
+      "object": "chat.completion",
+      "created": 1711000002,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call_abc123",
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"location\": \"San Francisco, CA\", \"unit\": \"fahrenheit\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 82,
+        "completion_tokens": 17,
+        "total_tokens": 99
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "choices[0].message.tool_calls"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.tool_calls[0].function.name",
+      "value": "get_weather"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "tool_calls"
+    }
+  ]
 }

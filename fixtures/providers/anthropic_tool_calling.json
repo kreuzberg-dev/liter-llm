@@ -1,100 +1,100 @@
 {
-	"id": "anthropic_tool_calling",
-	"description": "Chat request to Anthropic provider with a tool definition; assistant responds with a tool call",
-	"category": "tool-calling",
-	"tags": ["tool-calling", "anthropic"],
-	"call": "chat",
-	"input": {
-		"model": "anthropic/claude-3-5-sonnet-20241022",
-		"messages": [
-			{
-				"role": "user",
-				"content": "What is the weather in London?"
-			}
-		],
-		"tools": [
-			{
-				"type": "function",
-				"function": {
-					"name": "get_weather",
-					"description": "Get the current weather for a given location",
-					"parameters": {
-						"type": "object",
-						"properties": {
-							"location": {
-								"type": "string",
-								"description": "The city and country, e.g. London, UK"
-							},
-							"unit": {
-								"type": "string",
-								"enum": ["celsius", "fahrenheit"],
-								"description": "The temperature unit to use"
-							}
-						},
-						"required": ["location"]
-					}
-				}
-			}
-		],
-		"tool_choice": "auto",
-		"max_tokens": 256
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-anthropic-tool001",
-			"object": "chat.completion",
-			"created": 1711000300,
-			"model": "claude-3-5-sonnet-20241022",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": null,
-						"tool_calls": [
-							{
-								"id": "toolu_01abc123",
-								"type": "function",
-								"function": {
-									"name": "get_weather",
-									"arguments": "{\"location\": \"London, UK\", \"unit\": \"celsius\"}"
-								}
-							}
-						]
-					},
-					"finish_reason": "tool_calls"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 95,
-				"completion_tokens": 22,
-				"total_tokens": 117
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "choices[0].message.tool_calls"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.tool_calls[0].function.name",
-			"value": "get_weather"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "tool_calls"
-		}
-	]
+  "id": "anthropic_tool_calling",
+  "description": "Chat request to Anthropic provider with a tool definition; assistant responds with a tool call",
+  "category": "tool-calling",
+  "tags": ["tool-calling", "anthropic"],
+  "call": "chat",
+  "input": {
+    "model": "anthropic/claude-3-5-sonnet-20241022",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the weather in London?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "description": "Get the current weather for a given location",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city and country, e.g. London, UK"
+              },
+              "unit": {
+                "type": "string",
+                "enum": ["celsius", "fahrenheit"],
+                "description": "The temperature unit to use"
+              }
+            },
+            "required": ["location"]
+          }
+        }
+      }
+    ],
+    "tool_choice": "auto",
+    "max_tokens": 256
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-anthropic-tool001",
+      "object": "chat.completion",
+      "created": 1711000300,
+      "model": "claude-3-5-sonnet-20241022",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "toolu_01abc123",
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"location\": \"London, UK\", \"unit\": \"celsius\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 95,
+        "completion_tokens": 22,
+        "total_tokens": 117
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "choices[0].message.tool_calls"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.tool_calls[0].function.name",
+      "value": "get_weather"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "tool_calls"
+    }
+  ]
 }

@@ -1,41 +1,41 @@
 {
-	"id": "smoke_list_batches",
-	"description": "List all batch jobs",
-	"category": "batches",
-	"tags": ["smoke", "batches"],
-	"call": "list_batches",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": [
-				{
-					"id": "batch-abc123",
-					"object": "batch",
-					"endpoint": "/v1/chat/completions",
-					"status": "completed",
-					"created_at": 1711000000
-				},
-				{
-					"id": "batch-def456",
-					"object": "batch",
-					"endpoint": "/v1/embeddings",
-					"status": "in_progress",
-					"created_at": 1711000200
-				}
-			],
-			"has_more": false
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 2
-		}
-	]
+  "id": "smoke_list_batches",
+  "description": "List all batch jobs",
+  "category": "batches",
+  "tags": ["smoke", "batches"],
+  "call": "list_batches",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": [
+        {
+          "id": "batch-abc123",
+          "object": "batch",
+          "endpoint": "/v1/chat/completions",
+          "status": "completed",
+          "created_at": 1711000000
+        },
+        {
+          "id": "batch-def456",
+          "object": "batch",
+          "endpoint": "/v1/embeddings",
+          "status": "in_progress",
+          "created_at": 1711000200
+        }
+      ],
+      "has_more": false
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 2
+    }
+  ]
 }

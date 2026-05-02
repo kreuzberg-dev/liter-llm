@@ -1,102 +1,102 @@
 {
-	"id": "parallel_tool_calls",
-	"description": "Chat request that results in parallel tool calls in the response",
-	"category": "chat",
-	"tags": ["chat", "tool-calling"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "What is the weather in NYC and London?"
-			}
-		],
-		"tools": [
-			{
-				"type": "function",
-				"function": {
-					"name": "get_weather",
-					"description": "Get the current weather for a given location",
-					"parameters": {
-						"type": "object",
-						"properties": {
-							"location": {
-								"type": "string",
-								"description": "The city name"
-							}
-						},
-						"required": ["location"]
-					}
-				}
-			}
-		],
-		"parallel_tool_calls": true
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-parallel001",
-			"object": "chat.completion",
-			"created": 1711000060,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": null,
-						"tool_calls": [
-							{
-								"id": "call_par001",
-								"type": "function",
-								"function": {
-									"name": "get_weather",
-									"arguments": "{\"location\": \"New York\"}"
-								}
-							},
-							{
-								"id": "call_par002",
-								"type": "function",
-								"function": {
-									"name": "get_weather",
-									"arguments": "{\"location\": \"London\"}"
-								}
-							}
-						]
-					},
-					"finish_reason": "tool_calls"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 65,
-				"completion_tokens": 30,
-				"total_tokens": 95
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "choices[0].message.tool_calls"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices[0].message.tool_calls",
-			"value": 2
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "tool_calls"
-		}
-	]
+  "id": "parallel_tool_calls",
+  "description": "Chat request that results in parallel tool calls in the response",
+  "category": "chat",
+  "tags": ["chat", "tool-calling"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the weather in NYC and London?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "description": "Get the current weather for a given location",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city name"
+              }
+            },
+            "required": ["location"]
+          }
+        }
+      }
+    ],
+    "parallel_tool_calls": true
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-parallel001",
+      "object": "chat.completion",
+      "created": 1711000060,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call_par001",
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"location\": \"New York\"}"
+                }
+              },
+              {
+                "id": "call_par002",
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"location\": \"London\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 65,
+        "completion_tokens": 30,
+        "total_tokens": 95
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "choices[0].message.tool_calls"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices[0].message.tool_calls",
+      "value": 2
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "tool_calls"
+    }
+  ]
 }

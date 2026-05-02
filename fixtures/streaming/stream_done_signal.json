@@ -1,82 +1,82 @@
 {
-	"id": "stream_done_signal",
-	"description": "Verify that the [DONE] sentinel signal properly terminates the stream",
-	"category": "streaming",
-	"tags": ["streaming"],
-	"call": "chat_stream",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say done"
-			}
-		],
-		"stream": true
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-done001",
-				"object": "chat.completion.chunk",
-				"created": 1711000001,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-done001",
-				"object": "chat.completion.chunk",
-				"created": 1711000001,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "Done"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-done001",
-				"object": "chat.completion.chunk",
-				"created": 1711000001,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				]
-			}
-		],
-		"stream_terminator": "[DONE]"
-	},
-	"assertions": [
-		{
-			"type": "is_true",
-			"field": "stream_complete"
-		},
-		{
-			"type": "equals",
-			"field": "stream_content",
-			"value": "Done"
-		},
-		{
-			"type": "is_true",
-			"field": "no_chunks_after_done"
-		}
-	]
+  "id": "stream_done_signal",
+  "description": "Verify that the [DONE] sentinel signal properly terminates the stream",
+  "category": "streaming",
+  "tags": ["streaming"],
+  "call": "chat_stream",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say done"
+      }
+    ],
+    "stream": true
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-done001",
+        "object": "chat.completion.chunk",
+        "created": 1711000001,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-done001",
+        "object": "chat.completion.chunk",
+        "created": 1711000001,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "Done"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-done001",
+        "object": "chat.completion.chunk",
+        "created": 1711000001,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "stream_terminator": "[DONE]"
+  },
+  "assertions": [
+    {
+      "type": "is_true",
+      "field": "stream_complete"
+    },
+    {
+      "type": "equals",
+      "field": "stream_content",
+      "value": "Done"
+    },
+    {
+      "type": "is_true",
+      "field": "no_chunks_after_done"
+    }
+  ]
 }

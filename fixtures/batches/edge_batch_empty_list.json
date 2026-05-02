@@ -1,26 +1,26 @@
 {
-	"id": "edge_batch_empty_list",
-	"description": "List batches when no batches exist",
-	"category": "batches",
-	"tags": ["edge-case", "batches"],
-	"call": "list_batches",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": [],
-			"has_more": false
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 0
-		}
-	]
+  "id": "edge_batch_empty_list",
+  "description": "List batches when no batches exist",
+  "category": "batches",
+  "tags": ["edge-case", "batches"],
+  "call": "list_batches",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": [],
+      "has_more": false
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 0
+    }
+  ]
 }

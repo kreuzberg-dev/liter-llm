@@ -1,35 +1,35 @@
 {
-	"id": "ocr_error_400",
-	"description": "400 Bad Request error when OCR input has an invalid image format",
-	"category": "ocr",
-	"tags": ["ocr", "error-handling"],
-	"call": "ocr",
-	"input": {
-		"model": "mistral/mistral-ocr-latest",
-		"document": {
-			"type": "document_url",
-			"url": "invalid://url"
-		}
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Invalid image format",
-				"type": "invalid_request_error",
-				"code": "invalid_image"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "BadRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "ocr_error_400",
+  "description": "400 Bad Request error when OCR input has an invalid image format",
+  "category": "ocr",
+  "tags": ["ocr", "error-handling"],
+  "call": "ocr",
+  "input": {
+    "model": "mistral/mistral-ocr-latest",
+    "document": {
+      "type": "document_url",
+      "url": "invalid://url"
+    }
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Invalid image format",
+        "type": "invalid_request_error",
+        "code": "invalid_image"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "BadRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

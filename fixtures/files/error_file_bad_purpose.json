@@ -1,33 +1,33 @@
 {
-	"id": "error_file_bad_purpose",
-	"description": "400 Bad Request when uploading a file with invalid purpose",
-	"category": "files",
-	"tags": ["error-handling", "files"],
-	"call": "create_file",
-	"input": {
-		"file": "data.jsonl",
-		"purpose": "invalid-purpose"
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Invalid value for 'purpose': 'invalid-purpose'. Supported values are: 'fine-tune', 'assistants', 'batch'.",
-				"type": "invalid_request_error",
-				"param": "purpose",
-				"code": null
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "error_file_bad_purpose",
+  "description": "400 Bad Request when uploading a file with invalid purpose",
+  "category": "files",
+  "tags": ["error-handling", "files"],
+  "call": "create_file",
+  "input": {
+    "file": "data.jsonl",
+    "purpose": "invalid-purpose"
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Invalid value for 'purpose': 'invalid-purpose'. Supported values are: 'fine-tune', 'assistants', 'batch'.",
+        "type": "invalid_request_error",
+        "param": "purpose",
+        "code": null
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

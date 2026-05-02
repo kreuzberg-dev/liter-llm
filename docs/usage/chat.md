@@ -65,13 +65,13 @@ Switch providers by changing the model string -- no other code changes needed.
 
 ## Message Roles
 
-| Role | Purpose |
-| --- | --- |
-| `system` | Sets the assistant's behavior. Sent once at the start. |
-| `user` | User input -- questions, instructions, data. |
-| `assistant` | Previous assistant responses for multi-turn context. |
-| `tool` | Results from tool calls. |
-| `developer` | Developer-level instructions (some providers). |
+| Role        | Purpose                                                |
+| ----------- | ------------------------------------------------------ |
+| `system`    | Sets the assistant's behavior. Sent once at the start. |
+| `user`      | User input -- questions, instructions, data.           |
+| `assistant` | Previous assistant responses for multi-turn context.   |
+| `tool`      | Results from tool calls.                               |
+| `developer` | Developer-level instructions (some providers).         |
 
 ## Multi-Turn Conversations
 
@@ -255,23 +255,23 @@ Define tools as JSON schema functions. The model can request tool calls, which y
 
 All chat parameters work with both `chat` and `chat_stream`:
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | Provider/model identifier (e.g. `"openai/gpt-4o"`) |
-| `messages` | array | Conversation messages |
-| `temperature` | float | Sampling temperature (0.0-2.0) |
-| `max_tokens` | int | Maximum tokens to generate |
-| `top_p` | float | Nucleus sampling threshold |
-| `n` | int | Number of completions to generate |
-| `stop` | string/array | Stop sequences |
-| `tools` | array | Tool/function definitions |
-| `tool_choice` | string/object | Tool selection strategy |
-| `response_format` | object | Force JSON output (`{"type": "json_object"}`) |
-| `seed` | int | Deterministic sampling seed |
-| `presence_penalty` | float | Penalize new topics (-2.0 to 2.0) |
-| `frequency_penalty` | float | Penalize repetition (-2.0 to 2.0) |
-| `reasoning_effort` | string | Reasoning budget for o-series and extended-thinking models. |
-| `extra_body` | object | Provider-specific fields passed through verbatim. |
+| Parameter           | Type          | Description                                                 |
+| ------------------- | ------------- | ----------------------------------------------------------- |
+| `model`             | string        | Provider/model identifier (e.g. `"openai/gpt-4o"`)          |
+| `messages`          | array         | Conversation messages                                       |
+| `temperature`       | float         | Sampling temperature (0.0-2.0)                              |
+| `max_tokens`        | int           | Maximum tokens to generate                                  |
+| `top_p`             | float         | Nucleus sampling threshold                                  |
+| `n`                 | int           | Number of completions to generate                           |
+| `stop`              | string/array  | Stop sequences                                              |
+| `tools`             | array         | Tool/function definitions                                   |
+| `tool_choice`       | string/object | Tool selection strategy                                     |
+| `response_format`   | object        | Force JSON output (`{"type": "json_object"}`)               |
+| `seed`              | int           | Deterministic sampling seed                                 |
+| `presence_penalty`  | float         | Penalize new topics (-2.0 to 2.0)                           |
+| `frequency_penalty` | float         | Penalize repetition (-2.0 to 2.0)                           |
+| `reasoning_effort`  | string        | Reasoning budget for o-series and extended-thinking models. |
+| `extra_body`        | object        | Provider-specific fields passed through verbatim.           |
 
 ## Reasoning Effort
 
@@ -561,4 +561,4 @@ When routing to Bedrock providers, responses arrive in AWS EventStream framing r
     ```
 
 !!! warning "Tower streaming buffer"
-    When Bedrock streaming is routed through the Tower middleware stack (`LlmService`), the entire stream is buffered in memory before chunks are yielded. This is a Tower `Service` trait constraint. For unbuffered Bedrock streaming, call `LlmClient::chat_stream()` directly, bypassing the Tower stack. See [Architecture](../concepts/architecture.md) for details.
+When Bedrock streaming is routed through the Tower middleware stack (`LlmService`), the entire stream is buffered in memory before chunks are yielded. This is a Tower `Service` trait constraint. For unbuffered Bedrock streaming, call `LlmClient::chat_stream()` directly, bypassing the Tower stack. See [Architecture](../concepts/architecture.md) for details.

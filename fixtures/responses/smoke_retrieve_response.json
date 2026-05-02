@@ -1,52 +1,52 @@
 {
-	"id": "smoke_retrieve_response",
-	"description": "Retrieve a previously created response",
-	"category": "responses",
-	"tags": ["smoke", "responses"],
-	"call": "retrieve_response",
-	"input": {
-		"response_id": "resp-abc123"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "resp-abc123",
-			"object": "response",
-			"created_at": 1711000000,
-			"status": "completed",
-			"model": "gpt-4o",
-			"output": [
-				{
-					"type": "message",
-					"id": "msg-001",
-					"role": "assistant",
-					"content": [
-						{
-							"type": "output_text",
-							"text": "Quantum computing uses qubits."
-						}
-					]
-				}
-			],
-			"usage": {
-				"input_tokens": 12,
-				"output_tokens": 8,
-				"total_tokens": 20
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "status",
-			"value": "completed"
-		}
-	]
+  "id": "smoke_retrieve_response",
+  "description": "Retrieve a previously created response",
+  "category": "responses",
+  "tags": ["smoke", "responses"],
+  "call": "retrieve_response",
+  "input": {
+    "response_id": "resp-abc123"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "resp-abc123",
+      "object": "response",
+      "created_at": 1711000000,
+      "status": "completed",
+      "model": "gpt-4o",
+      "output": [
+        {
+          "type": "message",
+          "id": "msg-001",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Quantum computing uses qubits."
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "input_tokens": 12,
+        "output_tokens": 8,
+        "total_tokens": 20
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "status",
+      "value": "completed"
+    }
+  ]
 }

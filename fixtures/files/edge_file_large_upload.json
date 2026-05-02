@@ -1,32 +1,32 @@
 {
-	"id": "edge_file_large_upload",
-	"description": "Upload a large file successfully",
-	"category": "files",
-	"tags": ["edge-case", "files"],
-	"call": "create_file",
-	"input": {
-		"file": "large_training_data.jsonl",
-		"purpose": "fine-tune"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "file-large001",
-			"object": "file",
-			"bytes": 536870912,
-			"created_at": 1711000000,
-			"filename": "large_training_data.jsonl",
-			"purpose": "fine-tune",
-			"status": "processed"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		}
-	]
+  "id": "edge_file_large_upload",
+  "description": "Upload a large file successfully",
+  "category": "files",
+  "tags": ["edge-case", "files"],
+  "call": "create_file",
+  "input": {
+    "file": "large_training_data.jsonl",
+    "purpose": "fine-tune"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "file-large001",
+      "object": "file",
+      "bytes": 536870912,
+      "created_at": 1711000000,
+      "filename": "large_training_data.jsonl",
+      "purpose": "fine-tune",
+      "status": "processed"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    }
+  ]
 }

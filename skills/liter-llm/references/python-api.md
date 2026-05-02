@@ -33,45 +33,45 @@ client = LlmClient(
 
 All parameters are keyword-only. The client is immutable after construction and safe to share across tasks.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `api_key` | `str` | *required* | API key for authentication (wrapped in `SecretString` internally) |
-| `base_url` | `str \| None` | `None` | Override provider base URL |
-| `model_hint` | `str \| None` | `None` | Hint for provider auto-detection (e.g. `"groq/llama3-70b"`) |
-| `max_retries` | `int` | `3` | Retries on 429 / 5xx responses |
-| `timeout` | `int` | `60` | Request timeout in seconds |
-| `cache` | `dict \| None` | `None` | Cache config: `{"max_entries": 256, "ttl_seconds": 300}` |
-| `budget` | `dict \| None` | `None` | Budget config: `{"global_limit": 10.0, "model_limits": {}, "enforcement": "hard"}` |
-| `extra_headers` | `dict \| None` | `None` | Additional HTTP headers sent with every request |
-| `cooldown` | `int \| None` | `None` | Cooldown period in seconds after transient errors |
-| `rate_limit` | `dict \| None` | `None` | Rate limit config: `{"rpm": 60, "tpm": 100000}` |
-| `health_check` | `int \| None` | `None` | Health check interval in seconds |
-| `cost_tracking` | `bool` | `False` | Enable per-request cost tracking |
-| `tracing` | `bool` | `False` | Enable OpenTelemetry tracing spans |
+| Parameter       | Type           | Default    | Description                                                                        |
+| --------------- | -------------- | ---------- | ---------------------------------------------------------------------------------- |
+| `api_key`       | `str`          | _required_ | API key for authentication (wrapped in `SecretString` internally)                  |
+| `base_url`      | `str \| None`  | `None`     | Override provider base URL                                                         |
+| `model_hint`    | `str \| None`  | `None`     | Hint for provider auto-detection (e.g. `"groq/llama3-70b"`)                        |
+| `max_retries`   | `int`          | `3`        | Retries on 429 / 5xx responses                                                     |
+| `timeout`       | `int`          | `60`       | Request timeout in seconds                                                         |
+| `cache`         | `dict \| None` | `None`     | Cache config: `{"max_entries": 256, "ttl_seconds": 300}`                           |
+| `budget`        | `dict \| None` | `None`     | Budget config: `{"global_limit": 10.0, "model_limits": {}, "enforcement": "hard"}` |
+| `extra_headers` | `dict \| None` | `None`     | Additional HTTP headers sent with every request                                    |
+| `cooldown`      | `int \| None`  | `None`     | Cooldown period in seconds after transient errors                                  |
+| `rate_limit`    | `dict \| None` | `None`     | Rate limit config: `{"rpm": 60, "tpm": 100000}`                                    |
+| `health_check`  | `int \| None`  | `None`     | Health check interval in seconds                                                   |
+| `cost_tracking` | `bool`         | `False`    | Enable per-request cost tracking                                                   |
+| `tracing`       | `bool`         | `False`    | Enable OpenTelemetry tracing spans                                                 |
 
 ### Configuration Details
 
 **Cache config fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `max_entries` | `int` | Maximum cached responses (default: 256) |
+| Field         | Type  | Description                                    |
+| ------------- | ----- | ---------------------------------------------- |
+| `max_entries` | `int` | Maximum cached responses (default: 256)        |
 | `ttl_seconds` | `int` | Time-to-live for cached entries (default: 300) |
 
 **Budget config fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `global_limit` | `float` | Maximum USD spend across all models |
-| `model_limits` | `dict[str, float]` | Per-model USD spend limits |
-| `enforcement` | `str` | `"hard"` (reject) or `"soft"` (warn) |
+| Field          | Type               | Description                          |
+| -------------- | ------------------ | ------------------------------------ |
+| `global_limit` | `float`            | Maximum USD spend across all models  |
+| `model_limits` | `dict[str, float]` | Per-model USD spend limits           |
+| `enforcement`  | `str`              | `"hard"` (reject) or `"soft"` (warn) |
 
 **Rate limit config fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field | Type  | Description         |
+| ----- | ----- | ------------------- |
 | `rpm` | `int` | Requests per minute |
-| `tpm` | `int` | Tokens per minute |
+| `tpm` | `int` | Tokens per minute   |
 
 ---
 
@@ -131,13 +131,13 @@ response = await client.embed(
 vector = response.data[0].embedding  # list[float]
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | Embedding model name |
-| `input` | `str \| list[str]` | Text(s) to embed |
-| `encoding_format` | `str \| None` | `"float"` or `"base64"` |
-| `dimensions` | `int \| None` | Output dimensions (model-dependent) |
-| `user` | `str \| None` | End-user identifier |
+| Parameter         | Type               | Description                         |
+| ----------------- | ------------------ | ----------------------------------- |
+| `model`           | `str`              | Embedding model name                |
+| `input`           | `str \| list[str]` | Text(s) to embed                    |
+| `encoding_format` | `str \| None`      | `"float"` or `"base64"`             |
+| `dimensions`      | `int \| None`      | Output dimensions (model-dependent) |
+| `user`            | `str \| None`      | End-user identifier                 |
 
 ### Model Discovery
 
@@ -166,16 +166,16 @@ response = await client.image_generate(
 )
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `prompt` | `str` | Text description of the image |
-| `model` | `str` | Image generation model |
-| `n` | `int \| None` | Number of images to generate |
-| `size` | `str \| None` | Image size (e.g. `"1024x1024"`) |
-| `quality` | `str \| None` | Quality level (`"standard"`, `"hd"`) |
-| `response_format` | `str \| None` | `"url"` or `"b64_json"` |
-| `style` | `str \| None` | Style (`"vivid"`, `"natural"`) |
-| `user` | `str \| None` | End-user identifier |
+| Parameter         | Type          | Description                          |
+| ----------------- | ------------- | ------------------------------------ |
+| `prompt`          | `str`         | Text description of the image        |
+| `model`           | `str`         | Image generation model               |
+| `n`               | `int \| None` | Number of images to generate         |
+| `size`            | `str \| None` | Image size (e.g. `"1024x1024"`)      |
+| `quality`         | `str \| None` | Quality level (`"standard"`, `"hd"`) |
+| `response_format` | `str \| None` | `"url"` or `"b64_json"`              |
+| `style`           | `str \| None` | Style (`"vivid"`, `"natural"`)       |
+| `user`            | `str \| None` | End-user identifier                  |
 
 ### Audio
 
@@ -193,13 +193,13 @@ with open("output.mp3", "wb") as f:
     f.write(audio)
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | TTS model |
-| `input` | `str` | Text to speak |
-| `voice` | `str` | Voice name |
-| `response_format` | `str \| None` | Audio format (`"mp3"`, `"opus"`, `"aac"`, `"flac"`) |
-| `speed` | `float \| None` | Speed multiplier (0.25 to 4.0) |
+| Parameter         | Type            | Description                                         |
+| ----------------- | --------------- | --------------------------------------------------- |
+| `model`           | `str`           | TTS model                                           |
+| `input`           | `str`           | Text to speak                                       |
+| `voice`           | `str`           | Voice name                                          |
+| `response_format` | `str \| None`   | Audio format (`"mp3"`, `"opus"`, `"aac"`, `"flac"`) |
+| `speed`           | `float \| None` | Speed multiplier (0.25 to 4.0)                      |
 
 #### `transcribe(**kwargs) -> TranscriptionResponse`
 
@@ -213,14 +213,14 @@ response = await client.transcribe(
 print(response.text)
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | Transcription model |
-| `file` | `bytes` | Audio file bytes |
-| `language` | `str \| None` | ISO-639-1 language code |
-| `prompt` | `str \| None` | Optional context prompt |
-| `response_format` | `str \| None` | Output format |
-| `temperature` | `float \| None` | Sampling temperature |
+| Parameter         | Type            | Description             |
+| ----------------- | --------------- | ----------------------- |
+| `model`           | `str`           | Transcription model     |
+| `file`            | `bytes`         | Audio file bytes        |
+| `language`        | `str \| None`   | ISO-639-1 language code |
+| `prompt`          | `str \| None`   | Optional context prompt |
+| `response_format` | `str \| None`   | Output format           |
+| `temperature`     | `float \| None` | Sampling temperature    |
 
 ### Content Safety
 
@@ -236,10 +236,10 @@ response = await client.moderate(
 flagged = response.results[0].flagged
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `input` | `str` | Content to classify |
-| `model` | `str \| None` | Moderation model |
+| Parameter | Type          | Description         |
+| --------- | ------------- | ------------------- |
+| `input`   | `str`         | Content to classify |
+| `model`   | `str \| None` | Moderation model    |
 
 ### Search and Retrieval
 
@@ -256,12 +256,12 @@ response = await client.rerank(
 )
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | Reranking model |
-| `query` | `str` | Query to rank against |
-| `documents` | `list[str]` | Documents to rerank |
-| `top_n` | `int \| None` | Number of top results |
+| Parameter   | Type          | Description           |
+| ----------- | ------------- | --------------------- |
+| `model`     | `str`         | Reranking model       |
+| `query`     | `str`         | Query to rank against |
+| `documents` | `list[str]`   | Documents to rerank   |
+| `top_n`     | `int \| None` | Number of top results |
 
 #### `search(**kwargs) -> SearchResponse`
 
@@ -275,11 +275,11 @@ response = await client.search(
 )
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | Search provider/model |
-| `query` | `str` | Search query |
-| `max_results` | `int \| None` | Maximum results |
+| Parameter     | Type          | Description                     |
+| ------------- | ------------- | ------------------------------- |
+| `model`       | `str`         | Search provider/model           |
+| `query`       | `str`         | Search query                    |
+| `max_results` | `int \| None` | Maximum results                 |
 | `search_type` | `str \| None` | Search type (provider-specific) |
 
 ### OCR
@@ -297,12 +297,12 @@ response = await client.ocr(
 print(response.text)
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | OCR model |
-| `file` | `bytes` | File content |
-| `mime_type` | `str \| None` | MIME type of the file |
-| `pages` | `str \| None` | Page range (e.g. `"1-5"`) |
+| Parameter   | Type          | Description               |
+| ----------- | ------------- | ------------------------- |
+| `model`     | `str`         | OCR model                 |
+| `file`      | `bytes`       | File content              |
+| `mime_type` | `str \| None` | MIME type of the file     |
+| `pages`     | `str \| None` | Page range (e.g. `"1-5"`) |
 
 ---
 
@@ -321,11 +321,11 @@ result = await client.create_file(
 file_id = result["id"]
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `file` | `bytes` | File content |
-| `purpose` | `str` | File purpose (e.g. `"batch"`, `"fine-tune"`) |
-| `filename` | `str \| None` | Original filename |
+| Parameter  | Type          | Description                                  |
+| ---------- | ------------- | -------------------------------------------- |
+| `file`     | `bytes`       | File content                                 |
+| `purpose`  | `str`         | File purpose (e.g. `"batch"`, `"fine-tune"`) |
+| `filename` | `str \| None` | Original filename                            |
 
 #### `retrieve_file(file_id: str) -> dict`
 
@@ -351,11 +351,11 @@ List uploaded files.
 files = await client.list_files(purpose="batch", limit=10)
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `purpose` | `str \| None` | Filter by purpose |
-| `limit` | `int \| None` | Max results |
-| `after` | `str \| None` | Cursor for pagination |
+| Parameter | Type          | Description           |
+| --------- | ------------- | --------------------- |
+| `purpose` | `str \| None` | Filter by purpose     |
+| `limit`   | `int \| None` | Max results           |
+| `after`   | `str \| None` | Cursor for pagination |
 
 #### `file_content(file_id: str) -> bytes`
 
@@ -381,12 +381,12 @@ batch = await client.create_batch(
 )
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `input_file_id` | `str` | ID of the uploaded JSONL file |
-| `endpoint` | `str` | API endpoint for batch requests |
-| `completion_window` | `str` | Time window (e.g. `"24h"`) |
-| `metadata` | `dict \| None` | Optional metadata |
+| Parameter           | Type           | Description                     |
+| ------------------- | -------------- | ------------------------------- |
+| `input_file_id`     | `str`          | ID of the uploaded JSONL file   |
+| `endpoint`          | `str`          | API endpoint for batch requests |
+| `completion_window` | `str`          | Time window (e.g. `"24h"`)      |
+| `metadata`          | `dict \| None` | Optional metadata               |
 
 #### `retrieve_batch(batch_id: str) -> dict`
 
@@ -405,10 +405,10 @@ List batches.
 batches = await client.list_batches(limit=10)
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `limit` | `int \| None` | Max results |
-| `after` | `str \| None` | Cursor for pagination |
+| Parameter | Type          | Description           |
+| --------- | ------------- | --------------------- |
+| `limit`   | `int \| None` | Max results           |
+| `after`   | `str \| None` | Cursor for pagination |
 
 #### `cancel_batch(batch_id: str) -> dict`
 
@@ -434,14 +434,14 @@ resp = await client.create_response(
 )
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `model` | `str` | Model name |
-| `input` | `str` | Input text |
-| `instructions` | `str \| None` | System instructions |
-| `max_output_tokens` | `int \| None` | Max output tokens |
-| `temperature` | `float \| None` | Sampling temperature |
-| `top_p` | `float \| None` | Nucleus sampling |
+| Parameter           | Type            | Description          |
+| ------------------- | --------------- | -------------------- |
+| `model`             | `str`           | Model name           |
+| `input`             | `str`           | Input text           |
+| `instructions`      | `str \| None`   | System instructions  |
+| `max_output_tokens` | `int \| None`   | Max output tokens    |
+| `temperature`       | `float \| None` | Sampling temperature |
+| `top_p`             | `float \| None` | Nucleus sampling     |
 
 #### `retrieve_response(response_id: str) -> dict`
 
@@ -508,11 +508,11 @@ class LoggingHook:
 client.add_hook(LoggingHook())
 ```
 
-| Callback | Arguments | Description |
-|----------|-----------|-------------|
-| `on_request(request)` | `dict` | Called before each request |
+| Callback                         | Arguments               | Description                      |
+| -------------------------------- | ----------------------- | -------------------------------- |
+| `on_request(request)`            | `dict`                  | Called before each request       |
 | `on_response(request, response)` | `dict`, response object | Called after successful response |
-| `on_error(request, error)` | `dict`, exception | Called on error |
+| `on_error(request, error)`       | `dict`, exception       | Called on error                  |
 
 ---
 
@@ -532,106 +532,106 @@ print(f"Budget used: ${client.budget_used:.2f}")
 
 ### `ChatCompletionResponse`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `str` | Response ID |
-| `model` | `str` | Model used |
-| `choices` | `list[Choice]` | Completion choices |
-| `usage` | `Usage \| None` | Token usage |
-| `created` | `int` | Unix timestamp |
+| Field     | Type            | Description        |
+| --------- | --------------- | ------------------ |
+| `id`      | `str`           | Response ID        |
+| `model`   | `str`           | Model used         |
+| `choices` | `list[Choice]`  | Completion choices |
+| `usage`   | `Usage \| None` | Token usage        |
+| `created` | `int`           | Unix timestamp     |
 
 ### `Choice`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `index` | `int` | Choice index |
-| `message` | `AssistantMessage` | The assistant's message |
-| `finish_reason` | `str \| None` | Why generation stopped (`stop`, `length`, `tool_calls`) |
+| Field           | Type               | Description                                             |
+| --------------- | ------------------ | ------------------------------------------------------- |
+| `index`         | `int`              | Choice index                                            |
+| `message`       | `AssistantMessage` | The assistant's message                                 |
+| `finish_reason` | `str \| None`      | Why generation stopped (`stop`, `length`, `tool_calls`) |
 
 ### `AssistantMessage`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `content` | `str \| None` | Text content |
+| Field        | Type                     | Description                      |
+| ------------ | ------------------------ | -------------------------------- |
+| `content`    | `str \| None`            | Text content                     |
 | `tool_calls` | `list[ToolCall] \| None` | Tool calls made by the assistant |
-| `refusal` | `str \| None` | Refusal message |
+| `refusal`    | `str \| None`            | Refusal message                  |
 
 ### `ToolCall`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `str` | Tool call ID |
-| `type` | `str` | Always `"function"` |
+| Field      | Type           | Description                 |
+| ---------- | -------------- | --------------------------- |
+| `id`       | `str`          | Tool call ID                |
+| `type`     | `str`          | Always `"function"`         |
 | `function` | `FunctionCall` | Function name and arguments |
 
 ### `FunctionCall`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | `str` | Function name |
+| Field       | Type  | Description            |
+| ----------- | ----- | ---------------------- |
+| `name`      | `str` | Function name          |
 | `arguments` | `str` | JSON-encoded arguments |
 
 ### `ChatCompletionChunk`
 
 Yielded by `chat_stream()`.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `str` | Response ID |
-| `model` | `str` | Model used |
-| `choices` | `list[StreamChoice]` | Stream choices with deltas |
-| `usage` | `Usage \| None` | Token usage (final chunk only) |
+| Field     | Type                 | Description                    |
+| --------- | -------------------- | ------------------------------ |
+| `id`      | `str`                | Response ID                    |
+| `model`   | `str`                | Model used                     |
+| `choices` | `list[StreamChoice]` | Stream choices with deltas     |
+| `usage`   | `Usage \| None`      | Token usage (final chunk only) |
 
 ### `StreamChoice`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `index` | `int` | Choice index |
-| `delta` | `Delta` | Incremental content |
-| `finish_reason` | `str \| None` | Set on final chunk |
+| Field           | Type          | Description         |
+| --------------- | ------------- | ------------------- |
+| `index`         | `int`         | Choice index        |
+| `delta`         | `Delta`       | Incremental content |
+| `finish_reason` | `str \| None` | Set on final chunk  |
 
 ### `Delta`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `content` | `str \| None` | Incremental text |
+| Field        | Type                     | Description            |
+| ------------ | ------------------------ | ---------------------- |
+| `content`    | `str \| None`            | Incremental text       |
 | `tool_calls` | `list[ToolCall] \| None` | Incremental tool calls |
 
 ### `Usage`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `prompt_tokens` | `int` | Tokens consumed by the prompt |
+| Field               | Type  | Description                       |
+| ------------------- | ----- | --------------------------------- |
+| `prompt_tokens`     | `int` | Tokens consumed by the prompt     |
 | `completion_tokens` | `int` | Tokens consumed by the completion |
-| `total_tokens` | `int` | Total tokens |
+| `total_tokens`      | `int` | Total tokens                      |
 
 ### `EmbeddingResponse`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `data` | `list[EmbeddingObject]` | Embedding vectors |
-| `model` | `str` | Model used |
-| `usage` | `Usage` | Token usage |
+| Field   | Type                    | Description       |
+| ------- | ----------------------- | ----------------- |
+| `data`  | `list[EmbeddingObject]` | Embedding vectors |
+| `model` | `str`                   | Model used        |
+| `usage` | `Usage`                 | Token usage       |
 
 ### `EmbeddingObject`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `index` | `int` | Index in the input list |
-| `embedding` | `list[float]` | Embedding vector |
+| Field       | Type          | Description             |
+| ----------- | ------------- | ----------------------- |
+| `index`     | `int`         | Index in the input list |
+| `embedding` | `list[float]` | Embedding vector        |
 
 ### `ModelsListResponse`
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field  | Type                | Description      |
+| ------ | ------------------- | ---------------- |
 | `data` | `list[ModelObject]` | Available models |
 
 ### `ModelObject`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `str` | Model identifier |
-| `owned_by` | `str` | Model owner |
+| Field      | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| `id`       | `str` | Model identifier |
+| `owned_by` | `str` | Model owner      |
 
 ---
 
@@ -639,24 +639,24 @@ Yielded by `chat_stream()`.
 
 All errors inherit from `liter_llm.LlmError` (which inherits from `Exception`). Invalid constructor arguments or malformed keyword arguments raise `ValueError`.
 
-| Exception | Trigger |
-|-----------|---------|
-| `LlmError` | Base class for all liter-llm errors |
-| `AuthenticationError` | API key rejected (HTTP 401/403) |
-| `RateLimitedError` | Rate limit exceeded (HTTP 429) |
-| `BadRequestError` | Malformed request (HTTP 400) |
+| Exception                    | Trigger                                                       |
+| ---------------------------- | ------------------------------------------------------------- |
+| `LlmError`                   | Base class for all liter-llm errors                           |
+| `AuthenticationError`        | API key rejected (HTTP 401/403)                               |
+| `RateLimitedError`           | Rate limit exceeded (HTTP 429)                                |
+| `BadRequestError`            | Malformed request (HTTP 400)                                  |
 | `ContextWindowExceededError` | Prompt exceeds context window (subclass of `BadRequestError`) |
-| `ContentPolicyError` | Content policy violation (subclass of `BadRequestError`) |
-| `NotFoundError` | Model/resource not found (HTTP 404) |
-| `ServerError` | Provider 5xx error |
-| `ServiceUnavailableError` | Provider temporarily unavailable (HTTP 502/503) |
-| `LlmTimeoutError` | Request timed out |
-| `NetworkError` | Network-level failure |
-| `StreamingError` | Error reading streaming response |
-| `EndpointNotSupportedError` | Provider does not support the endpoint |
-| `InvalidHeaderError` | Custom header name or value is invalid |
-| `SerializationError` | JSON serialization/deserialization failure |
-| `HookRejectedError` | A hook rejected the request before it was sent |
+| `ContentPolicyError`         | Content policy violation (subclass of `BadRequestError`)      |
+| `NotFoundError`              | Model/resource not found (HTTP 404)                           |
+| `ServerError`                | Provider 5xx error                                            |
+| `ServiceUnavailableError`    | Provider temporarily unavailable (HTTP 502/503)               |
+| `LlmTimeoutError`            | Request timed out                                             |
+| `NetworkError`               | Network-level failure                                         |
+| `StreamingError`             | Error reading streaming response                              |
+| `EndpointNotSupportedError`  | Provider does not support the endpoint                        |
+| `InvalidHeaderError`         | Custom header name or value is invalid                        |
+| `SerializationError`         | JSON serialization/deserialization failure                    |
+| `HookRejectedError`          | A hook rejected the request before it was sent                |
 
 ### Error handling pattern
 

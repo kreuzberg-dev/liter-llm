@@ -71,18 +71,18 @@ graph LR
 
 Layers run outermost to innermost. `CacheLayer` short-circuits the stack on a hit (before traffic control). `BudgetLayer` rejects a request before it reaches the network if it would exceed the configured spend cap.
 
-| Layer | File | Purpose |
-|-------|------|---------|
-| `TracingLayer` | `tower/tracing.rs` | Emits OpenTelemetry `gen_ai` spans |
-| `CostTrackingLayer` | `tower/cost.rs` | Records `gen_ai.usage.cost` on the span |
-| `CacheLayer` | `tower/cache.rs` | Response cache (LRU, configurable TTL) |
-| `BudgetLayer` | `tower/budget.rs` | Hard/soft spend caps per key |
-| `RateLimitLayer` | `tower/rate_limit.rs` | RPM / TPM sliding-window limits |
-| `CooldownLayer` | `tower/cooldown.rs` | Per-provider backoff after transient errors |
-| `HealthLayer` | `tower/health.rs` | Marks providers unhealthy after failure threshold |
-| `FallbackLayer` | `tower/fallback.rs` | Primary-plus-backup failover on transient errors |
-| `Router` | `tower/router.rs` | Multi-deployment load distribution (5 strategies) |
-| `LlmService` | `tower/service.rs` | Bridges `LlmClient` into the Tower `Service` trait |
+| Layer               | File                  | Purpose                                            |
+| ------------------- | --------------------- | -------------------------------------------------- |
+| `TracingLayer`      | `tower/tracing.rs`    | Emits OpenTelemetry `gen_ai` spans                 |
+| `CostTrackingLayer` | `tower/cost.rs`       | Records `gen_ai.usage.cost` on the span            |
+| `CacheLayer`        | `tower/cache.rs`      | Response cache (LRU, configurable TTL)             |
+| `BudgetLayer`       | `tower/budget.rs`     | Hard/soft spend caps per key                       |
+| `RateLimitLayer`    | `tower/rate_limit.rs` | RPM / TPM sliding-window limits                    |
+| `CooldownLayer`     | `tower/cooldown.rs`   | Per-provider backoff after transient errors        |
+| `HealthLayer`       | `tower/health.rs`     | Marks providers unhealthy after failure threshold  |
+| `FallbackLayer`     | `tower/fallback.rs`   | Primary-plus-backup failover on transient errors   |
+| `Router`            | `tower/router.rs`     | Multi-deployment load distribution (5 strategies)  |
+| `LlmService`        | `tower/service.rs`    | Bridges `LlmClient` into the Tower `Service` trait |
 
 ## Request lifecycle
 
@@ -104,13 +104,13 @@ On a transient provider error, `FallbackLayer` replays the request on the config
 
 All eleven bindings share the same Rust core. Six native-extension approaches cover the binding surface:
 
-| Approach | Used by | Mechanism |
-|----------|---------|-----------|
-| PyO3 | Python | Rust procedural macros generate Python module + exception classes |
-| napi-rs | Node.js | Rust procedural macros generate N-API addon |
-| wasm-bindgen | WebAssembly | Compiles to WASM + JS glue; fetch API replaces reqwest |
-| magnus | Ruby | Rust procedural macros generate Ruby C extension |
-| rustler | Elixir | Rust procedural macros generate Elixir NIF |
+| Approach         | Used by           | Mechanism                                                         |
+| ---------------- | ----------------- | ----------------------------------------------------------------- |
+| PyO3             | Python            | Rust procedural macros generate Python module + exception classes |
+| napi-rs          | Node.js           | Rust procedural macros generate N-API addon                       |
+| wasm-bindgen     | WebAssembly       | Compiles to WASM + JS glue; fetch API replaces reqwest            |
+| magnus           | Ruby              | Rust procedural macros generate Ruby C extension                  |
+| rustler          | Elixir            | Rust procedural macros generate Elixir NIF                        |
 | `extern "C"` FFI | Go, Java, C#, PHP | Single shared library; language calls via cgo/Panama FFM/P/Invoke |
 
 `crates/liter-llm-bindings-core` provides two helpers shared by every non-FFI binding: `error_kind_label()` maps a `LiterLlmError` variant to a stable string label, and `format_error()` produces the `[Label] message` prefix used by TypeScript and the C FFI.

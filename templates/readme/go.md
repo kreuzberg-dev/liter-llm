@@ -194,12 +194,12 @@ Part of [kreuzberg.dev](https://kreuzberg.dev).
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| `ld returned 1 exit status` or `undefined reference to 'liter_llm_...'` | Static library not found. Set `CGO_LDFLAGS="-L/path/to/lib -lliter_llm_ffi" go build` |
-| `cannot find -lliter_llm_ffi` | Download from [GitHub Releases](https://github.com/kreuzberg-dev/liter-llm/releases) or build: `cargo build -p liter-llm-ffi --release` |
-| `401 Unauthorized` | API key not set. Export `OPENAI_API_KEY` (or equivalent) before running. |
-| `unknown provider` | Check the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the correct prefix. |
+| Issue                                                                   | Fix                                                                                                                                     |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `ld returned 1 exit status` or `undefined reference to 'liter_llm_...'` | Static library not found. Set `CGO_LDFLAGS="-L/path/to/lib -lliter_llm_ffi" go build`                                                   |
+| `cannot find -lliter_llm_ffi`                                           | Download from [GitHub Releases](https://github.com/kreuzberg-dev/liter-llm/releases) or build: `cargo build -p liter-llm-ffi --release` |
+| `401 Unauthorized`                                                      | API key not set. Export `OPENAI_API_KEY` (or equivalent) before running.                                                                |
+| `unknown provider`                                                      | Check the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the correct prefix.      |
 
 ## Testing / Tooling
 

@@ -1,57 +1,57 @@
 {
-	"id": "smoke_rerank_with_top_n",
-	"description": "Reranking with top_n parameter to limit results",
-	"category": "rerank",
-	"tags": ["smoke", "rerank"],
-	"call": "rerank",
-	"input": {
-		"model": "rerank-v3.5",
-		"query": "What is Python?",
-		"documents": [
-			"Python is a programming language.",
-			"Cats are cute animals.",
-			"Python was created by Guido van Rossum.",
-			"The sun is a star."
-		],
-		"top_n": 2
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "rerank-def456",
-			"results": [
-				{
-					"index": 0,
-					"relevance_score": 0.97
-				},
-				{
-					"index": 2,
-					"relevance_score": 0.91
-				}
-			],
-			"meta": {
-				"api_version": {
-					"version": "2"
-				},
-				"billed_units": {
-					"search_units": 1
-				}
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 2
-		},
-		{
-			"type": "greater_than",
-			"field": "results[0].relevance_score",
-			"value": 0.9
-		}
-	]
+  "id": "smoke_rerank_with_top_n",
+  "description": "Reranking with top_n parameter to limit results",
+  "category": "rerank",
+  "tags": ["smoke", "rerank"],
+  "call": "rerank",
+  "input": {
+    "model": "rerank-v3.5",
+    "query": "What is Python?",
+    "documents": [
+      "Python is a programming language.",
+      "Cats are cute animals.",
+      "Python was created by Guido van Rossum.",
+      "The sun is a star."
+    ],
+    "top_n": 2
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "rerank-def456",
+      "results": [
+        {
+          "index": 0,
+          "relevance_score": 0.97
+        },
+        {
+          "index": 2,
+          "relevance_score": 0.91
+        }
+      ],
+      "meta": {
+        "api_version": {
+          "version": "2"
+        },
+        "billed_units": {
+          "search_units": 1
+        }
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 2
+    },
+    {
+      "type": "greater_than",
+      "field": "results[0].relevance_score",
+      "value": 0.9
+    }
+  ]
 }

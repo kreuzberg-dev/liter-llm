@@ -1,27 +1,27 @@
 {
-	"id": "smoke_file_content",
-	"description": "Retrieve the content of an uploaded file",
-	"category": "files",
-	"tags": ["smoke", "files"],
-	"call": "file_content",
-	"input": {
-		"file_id": "file-abc123"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"_binary": true,
-			"_content_type": "application/octet-stream",
-			"_description": "Mock file content bytes"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "content"
-		}
-	]
+  "id": "smoke_file_content",
+  "description": "Retrieve the content of an uploaded file",
+  "category": "files",
+  "tags": ["smoke", "files"],
+  "call": "file_content",
+  "input": {
+    "file_id": "file-abc123"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "_binary": true,
+      "_content_type": "application/octet-stream",
+      "_description": "Mock file content bytes"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "content"
+    }
+  ]
 }

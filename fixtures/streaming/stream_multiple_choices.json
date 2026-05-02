@@ -1,92 +1,92 @@
 {
-	"id": "stream_multiple_choices",
-	"description": "Streaming chat completion with multiple choice outputs (n > 1)",
-	"category": "streaming",
-	"tags": ["streaming", "edge-case"],
-	"call": "chat_stream",
-	"input": {
-		"model": "gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		],
-		"n": 2,
-		"stream": true
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-1",
-				"object": "chat.completion.chunk",
-				"created": 1700000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					},
-					{
-						"index": 1,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-1",
-				"object": "chat.completion.chunk",
-				"created": 1700000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "Hi"
-						},
-						"finish_reason": null
-					},
-					{
-						"index": 1,
-						"delta": {
-							"content": "Hey"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-1",
-				"object": "chat.completion.chunk",
-				"created": 1700000000,
-				"model": "gpt-4o",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					},
-					{
-						"index": 1,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				]
-			}
-		]
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "stream_multiple_choices",
+  "description": "Streaming chat completion with multiple choice outputs (n > 1)",
+  "category": "streaming",
+  "tags": ["streaming", "edge-case"],
+  "call": "chat_stream",
+  "input": {
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ],
+    "n": 2,
+    "stream": true
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-1",
+        "object": "chat.completion.chunk",
+        "created": 1700000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          },
+          {
+            "index": 1,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1",
+        "object": "chat.completion.chunk",
+        "created": 1700000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "Hi"
+            },
+            "finish_reason": null
+          },
+          {
+            "index": 1,
+            "delta": {
+              "content": "Hey"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1",
+        "object": "chat.completion.chunk",
+        "created": 1700000000,
+        "model": "gpt-4o",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          },
+          {
+            "index": 1,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

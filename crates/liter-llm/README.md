@@ -51,13 +51,11 @@
   </a>
 </div>
 
-
 <div align="center" style="margin: 20px 0;">
   <picture>
     <img width="100%" alt="kreuzberg.dev" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
   </picture>
 </div>
-
 
 <div align="center" style="margin-bottom: 20px;">
   <a href="https://discord.gg/xt9WY3GnKR">
@@ -65,25 +63,15 @@
   </a>
 </div>
 
-
 Universal LLM API client for Rust. Access 143+ LLM providers — OpenAI, Anthropic, Groq, Mistral, and more — through a single unified interface. Async/await with Tokio, streaming via BoxStream, composable Tower middleware stack, and compile-time type safety.
-
 
 ## Installation
 
 ### Package Installation
 
-
-
-
-
-
 ### System Requirements
 
-
 - See [Installation Guide](https://github.com/kreuzberg-dev/liter-llm#installation) for requirements
-
-
 
 ## Quick Start
 
@@ -120,9 +108,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-
 ### Common Use Cases
-
 
 #### Streaming Responses
 
@@ -164,16 +150,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-
-
-
-
 ### Next Steps
 
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** - Full list of supported providers
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
-
-
 
 ## Features
 
@@ -181,17 +161,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Route to any provider using the `provider/model` prefix convention:
 
-| Provider | Example Model |
-|----------|--------------|
-| **OpenAI** | `openai/gpt-4o`, `openai/gpt-4o-mini` |
-| **Anthropic** | `anthropic/claude-3-5-sonnet-20241022` |
-| **Groq** | `groq/llama-3.1-70b-versatile` |
-| **Mistral** | `mistral/mistral-large-latest` |
-| **Cohere** | `cohere/command-r-plus` |
-| **Together AI** | `together/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo` |
-| **Fireworks** | `fireworks/accounts/fireworks/models/llama-v3p1-70b-instruct` |
-| **Google Vertex** | `vertexai/gemini-1.5-pro` |
-| **Amazon Bedrock** | `bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0` |
+| Provider           | Example Model                                                 |
+| ------------------ | ------------------------------------------------------------- |
+| **OpenAI**         | `openai/gpt-4o`, `openai/gpt-4o-mini`                         |
+| **Anthropic**      | `anthropic/claude-3-5-sonnet-20241022`                        |
+| **Groq**           | `groq/llama-3.1-70b-versatile`                                |
+| **Mistral**        | `mistral/mistral-large-latest`                                |
+| **Cohere**         | `cohere/command-r-plus`                                       |
+| **Together AI**    | `together/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo`       |
+| **Fireworks**      | `fireworks/accounts/fireworks/models/llama-v3p1-70b-instruct` |
+| **Google Vertex**  | `vertexai/gemini-1.5-pro`                                     |
+| **Amazon Bedrock** | `bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0`           |
 
 **[Complete Provider List](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)**
 
@@ -202,7 +182,6 @@ Route to any provider using the `provider/model` prefix convention:
 - **Unified API** -- Consistent `chat`, `chat_stream`, `embeddings`, `list_models` interface
 
 - **Streaming** -- Real-time token streaming via `chat_stream`
-
 
 - **Tool Calling** -- Function calling and tool use across all supporting providers
 
@@ -220,8 +199,6 @@ Built on a compiled Rust core for speed and safety:
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
 
-
-
 ## Provider Routing
 
 Route to 143+ providers using the `provider/model` prefix convention:
@@ -235,8 +212,6 @@ mistral/mistral-large-latest
 
 See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the full list.
 
-
-
 ## Proxy Server
 
 liter-llm also ships as an OpenAI-compatible proxy server with Docker support:
@@ -246,7 +221,6 @@ docker run -p 4000:4000 -e LITER_LLM_MASTER_KEY=sk-your-key ghcr.io/kreuzberg-de
 ```
 
 See the [proxy server documentation](https://docs.liter-llm.kreuzberg.dev/server/proxy/) for configuration, CLI usage, and MCP integration.
-
 
 ## Documentation
 

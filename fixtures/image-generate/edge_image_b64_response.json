@@ -1,40 +1,40 @@
 {
-	"id": "edge_image_b64_response",
-	"description": "Image generation returning base64-encoded data instead of URL",
-	"category": "image-generate",
-	"tags": ["edge-case", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "A blue circle",
-		"n": 1,
-		"size": "1024x1024",
-		"response_format": "b64_json"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"created": 1711000000,
-			"data": [
-				{
-					"b64_json": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-					"revised_prompt": "A perfect blue circle on a white background"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "data[0].b64_json"
-		}
-	]
+  "id": "edge_image_b64_response",
+  "description": "Image generation returning base64-encoded data instead of URL",
+  "category": "image-generate",
+  "tags": ["edge-case", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "A blue circle",
+    "n": 1,
+    "size": "1024x1024",
+    "response_format": "b64_json"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "created": 1711000000,
+      "data": [
+        {
+          "b64_json": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          "revised_prompt": "A perfect blue circle on a white background"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "data[0].b64_json"
+    }
+  ]
 }

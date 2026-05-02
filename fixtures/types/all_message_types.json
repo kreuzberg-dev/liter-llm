@@ -1,78 +1,78 @@
 {
-	"id": "all_message_types",
-	"description": "Request with all message role types (system, user, assistant, tool) to verify round-trip serialization",
-	"category": "types",
-	"tags": ["types"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "system",
-				"content": "You are a helpful assistant."
-			},
-			{
-				"role": "user",
-				"content": "What is the weather in Paris?"
-			},
-			{
-				"role": "assistant",
-				"content": null,
-				"tool_calls": [
-					{
-						"id": "call_xyz789",
-						"type": "function",
-						"function": {
-							"name": "get_weather",
-							"arguments": "{\"location\": \"Paris, France\"}"
-						}
-					}
-				]
-			},
-			{
-				"role": "tool",
-				"tool_call_id": "call_xyz789",
-				"content": "{\"temperature\": 18, \"unit\": \"celsius\", \"description\": \"Partly cloudy\"}"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-types001",
-			"object": "chat.completion",
-			"created": 1711000003,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "The weather in Paris is currently 18°C and partly cloudy."
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 95,
-				"completion_tokens": 18,
-				"total_tokens": 113
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		}
-	]
+  "id": "all_message_types",
+  "description": "Request with all message role types (system, user, assistant, tool) to verify round-trip serialization",
+  "category": "types",
+  "tags": ["types"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "What is the weather in Paris?"
+      },
+      {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+          {
+            "id": "call_xyz789",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"location\": \"Paris, France\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_xyz789",
+        "content": "{\"temperature\": 18, \"unit\": \"celsius\", \"description\": \"Partly cloudy\"}"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-types001",
+      "object": "chat.completion",
+      "created": 1711000003,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The weather in Paris is currently 18°C and partly cloudy."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 95,
+        "completion_tokens": 18,
+        "total_tokens": 113
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    }
+  ]
 }

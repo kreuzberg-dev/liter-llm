@@ -1,31 +1,31 @@
 {
-	"id": "smoke_retrieve_file",
-	"description": "Retrieve metadata for an uploaded file",
-	"category": "files",
-	"tags": ["smoke", "files"],
-	"call": "retrieve_file",
-	"input": {
-		"file_id": "file-abc123"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "file-abc123",
-			"object": "file",
-			"bytes": 1024,
-			"created_at": 1711000000,
-			"filename": "training_data.jsonl",
-			"purpose": "fine-tune",
-			"status": "processed"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		}
-	]
+  "id": "smoke_retrieve_file",
+  "description": "Retrieve metadata for an uploaded file",
+  "category": "files",
+  "tags": ["smoke", "files"],
+  "call": "retrieve_file",
+  "input": {
+    "file_id": "file-abc123"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "file-abc123",
+      "object": "file",
+      "bytes": 1024,
+      "created_at": 1711000000,
+      "filename": "training_data.jsonl",
+      "purpose": "fine-tune",
+      "status": "processed"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    }
+  ]
 }

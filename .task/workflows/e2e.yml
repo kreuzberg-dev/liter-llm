@@ -1,0 +1,58 @@
+version: "3"
+
+# E2E workflow tasks: orchestrate fixture-driven cross-language e2e suites.
+#
+# Each per-language e2e suite is self-contained: it spawns its own mock HTTP
+# server (the `mock-server` binary built from `e2e/rust/src/main.rs`) and
+# invokes the language binding under test against the local mock URL.
+#
+# The Rust suite is the exception: it uses an in-process MockServer per test
+# (see `e2e/rust/tests/mock_server.rs`) and does not need the standalone
+# binary.
+
+tasks:
+  mock-server:build:
+    desc: Build the standalone e2e mock HTTP server binary (used by non-Rust suites)
+    cmds:
+      - cargo build --manifest-path e2e/rust/Cargo.toml --bin mock-server --release
+
+  generate:all:
+    desc: Generate all E2E tests from fixtures across all supported languages
+    cmds:
+      - alef e2e generate
+
+  test:all:
+    desc: Run all E2E tests across all supported languages
+    cmds:
+      - task: rust:e2e:test
+      - task: python:e2e:test
+      - task: node:e2e:test
+      - task: go:e2e:test
+      - task: java:e2e:test
+      - task: csharp:e2e:test
+      - task: ruby:e2e:test
+      - task: php:e2e:test
+      - task: elixir:e2e:test
+      - task: wasm:e2e:test
+      - task: c:e2e:test
+
+  test:quick:
+    desc: Quick E2E test (Rust only — fastest feedback)
+    cmds:
+      - task: rust:e2e:test
+
+  lint:all:
+    desc: Lint all generated E2E test code
+    cmds:
+      - task: python:e2e:lint
+      - task: go:e2e:lint
+      - task: java:e2e:lint
+      - task: csharp:e2e:lint
+      - task: c:e2e:lint
+
+  verify:all:
+    desc: Full E2E pipeline — generate, lint, and test all suites
+    cmds:
+      - task: generate:all
+      - task: lint:all
+      - task: test:all

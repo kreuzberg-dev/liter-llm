@@ -1,60 +1,60 @@
 {
-	"id": "proxy_chat_basic",
-	"description": "Basic chat completion request routed through the proxy",
-	"category": "proxy",
-	"tags": ["proxy", "chat"],
-	"call": "chat",
-	"input": {
-		"model": "openai/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-proxy001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "gpt-4o",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 10,
-				"completion_tokens": 3,
-				"total_tokens": 13
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello!"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		}
-	]
+  "id": "proxy_chat_basic",
+  "description": "Basic chat completion request routed through the proxy",
+  "category": "proxy",
+  "tags": ["proxy", "chat"],
+  "call": "chat",
+  "input": {
+    "model": "openai/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-proxy001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "gpt-4o",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 3,
+        "total_tokens": 13
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello!"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    }
+  ]
 }

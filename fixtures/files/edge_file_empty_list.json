@@ -1,25 +1,25 @@
 {
-	"id": "edge_file_empty_list",
-	"description": "List files when no files have been uploaded",
-	"category": "files",
-	"tags": ["edge-case", "files"],
-	"call": "list_files",
-	"input": {},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"object": "list",
-			"data": []
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 0
-		}
-	]
+  "id": "edge_file_empty_list",
+  "description": "List files when no files have been uploaded",
+  "category": "files",
+  "tags": ["edge-case", "files"],
+  "call": "list_files",
+  "input": {},
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "object": "list",
+      "data": []
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 0
+    }
+  ]
 }

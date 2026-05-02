@@ -1,45 +1,45 @@
 {
-	"id": "register_provider",
-	"description": "Tests that a custom provider can be registered and routes requests",
-	"category": "custom_provider",
-	"tags": ["custom_provider"],
-	"call": "chat",
-	"input": {
-		"model": "my-model-v1",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-custom-001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "my-model-v1",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello from custom provider!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 8,
-				"completion_tokens": 7,
-				"total_tokens": 15
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "register_provider",
+  "description": "Tests that a custom provider can be registered and routes requests",
+  "category": "custom_provider",
+  "tags": ["custom_provider"],
+  "call": "chat",
+  "input": {
+    "model": "my-model-v1",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-custom-001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "my-model-v1",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello from custom provider!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 7,
+        "total_tokens": 15
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

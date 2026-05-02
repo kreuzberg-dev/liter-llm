@@ -1,45 +1,45 @@
 {
-	"id": "smoke_cancel_response",
-	"description": "Cancel an in-progress response",
-	"category": "responses",
-	"tags": ["smoke", "responses"],
-	"call": "cancel_response",
-	"input": {
-		"response_id": "resp-def456"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "resp-def456",
-			"object": "response",
-			"created_at": 1711000000,
-			"status": "cancelled",
-			"model": "gpt-4o",
-			"output": [],
-			"usage": {
-				"input_tokens": 10,
-				"output_tokens": 0,
-				"total_tokens": 10
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "status",
-			"value": "cancelled"
-		},
-		{
-			"type": "count_equals",
-			"field": "output",
-			"value": 0
-		}
-	]
+  "id": "smoke_cancel_response",
+  "description": "Cancel an in-progress response",
+  "category": "responses",
+  "tags": ["smoke", "responses"],
+  "call": "cancel_response",
+  "input": {
+    "response_id": "resp-def456"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "resp-def456",
+      "object": "response",
+      "created_at": 1711000000,
+      "status": "cancelled",
+      "model": "gpt-4o",
+      "output": [],
+      "usage": {
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "total_tokens": 10
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "status",
+      "value": "cancelled"
+    },
+    {
+      "type": "count_equals",
+      "field": "output",
+      "value": 0
+    }
+  ]
 }

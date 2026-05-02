@@ -1,65 +1,65 @@
 {
-	"id": "local_provider_vllm",
-	"description": "vLLM local provider routes requests via vllm/ model prefix with no auth",
-	"category": "configuration",
-	"tags": ["configuration", "local", "vllm"],
-	"call": "chat",
-	"input": {
-		"model": "vllm/meta-llama/Llama-3.2-1B",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-vllm-001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "meta-llama/Llama-3.2-1B",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello! How may I assist you?"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 5,
-				"completion_tokens": 7,
-				"total_tokens": 12
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello! How may I assist you?"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "meta-llama/Llama-3.2-1B"
-		}
-	]
+  "id": "local_provider_vllm",
+  "description": "vLLM local provider routes requests via vllm/ model prefix with no auth",
+  "category": "configuration",
+  "tags": ["configuration", "local", "vllm"],
+  "call": "chat",
+  "input": {
+    "model": "vllm/meta-llama/Llama-3.2-1B",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-vllm-001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "meta-llama/Llama-3.2-1B",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello! How may I assist you?"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5,
+        "completion_tokens": 7,
+        "total_tokens": 12
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello! How may I assist you?"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "meta-llama/Llama-3.2-1B"
+    }
+  ]
 }

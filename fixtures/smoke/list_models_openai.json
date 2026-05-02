@@ -1,26 +1,26 @@
 {
-	"id": "smoke_list_models_openai",
-	"description": "List models against real OpenAI API",
-	"category": "smoke",
-	"tags": ["smoke", "openai", "list-models"],
-	"call": "list_models",
-	"input": {
-		"model": "openai/gpt-4o-mini"
-	},
-	"env": {
-		"api_key_var": "OPENAI_API_KEY"
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "data",
-			"value": 1
-		}
-	]
+  "id": "smoke_list_models_openai",
+  "description": "List models against real OpenAI API",
+  "category": "smoke",
+  "tags": ["smoke", "openai", "list-models"],
+  "call": "list_models",
+  "input": {
+    "model": "openai/gpt-4o-mini"
+  },
+  "env": {
+    "api_key_var": "OPENAI_API_KEY"
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "data",
+      "value": 1
+    }
+  ]
 }

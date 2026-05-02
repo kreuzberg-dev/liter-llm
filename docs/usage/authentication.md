@@ -8,11 +8,11 @@ liter-llm supports three enterprise credential flows in addition to plain API ke
 
 Feature flags gate each provider at compile time:
 
-| Feature flag | Provider | Credential type |
-|---|---|---|
-| `azure-auth` | Azure OpenAI | Bearer token (OAuth2 client credentials) |
-| `bedrock-auth` | AWS Bedrock | AWS SigV4 credentials (STS web identity) |
-| `vertex-auth` | Google Vertex AI | Bearer token (service-account JWT assertion) |
+| Feature flag   | Provider         | Credential type                              |
+| -------------- | ---------------- | -------------------------------------------- |
+| `azure-auth`   | Azure OpenAI     | Bearer token (OAuth2 client credentials)     |
+| `bedrock-auth` | AWS Bedrock      | AWS SigV4 credentials (STS web identity)     |
+| `vertex-auth`  | Google Vertex AI | Bearer token (service-account JWT assertion) |
 
 Enable the relevant flag when adding liter-llm to `Cargo.toml`:
 
@@ -48,13 +48,13 @@ All three built-in providers implement read-lock caching with a write-lock refre
 
 ### Environment variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `AZURE_TENANT_ID` | yes | Azure AD tenant ID. |
-| `AZURE_CLIENT_ID` | yes | Application (client) ID. |
-| `AZURE_CLIENT_SECRET` | yes | Client secret value. |
-| `AZURE_AD_TOKEN` | no | Static bearer token. When set, skips the OAuth flow entirely. |
-| `AZURE_AD_SCOPE` | no | OAuth2 scope. Defaults to `https://cognitiveservices.azure.com/.default`. |
+| Variable              | Required | Description                                                               |
+| --------------------- | -------- | ------------------------------------------------------------------------- |
+| `AZURE_TENANT_ID`     | yes      | Azure AD tenant ID.                                                       |
+| `AZURE_CLIENT_ID`     | yes      | Application (client) ID.                                                  |
+| `AZURE_CLIENT_SECRET` | yes      | Client secret value.                                                      |
+| `AZURE_AD_TOKEN`      | no       | Static bearer token. When set, skips the OAuth flow entirely.             |
+| `AZURE_AD_SCOPE`      | no       | OAuth2 scope. Defaults to `https://cognitiveservices.azure.com/.default`. |
 
 `AZURE_AD_TOKEN` takes precedence. If it is set, none of the other three variables are read.
 
@@ -99,17 +99,17 @@ let client = DefaultClient::new(config, None)?;
 Temporary credentials have a default lifetime of 3,600 seconds and are refreshed five minutes before expiry.
 
 !!! note "SigV4 signing"
-    SigV4 request signing is handled by the Bedrock provider crate (`crates/liter-llm/src/provider/bedrock.rs`), not by this credential provider. `WebIdentityCredentialProvider` only supplies the `access_key_id`, `secret_access_key`, and `session_token`.
+SigV4 request signing is handled by the Bedrock provider crate (`crates/liter-llm/src/provider/bedrock.rs`), not by this credential provider. `WebIdentityCredentialProvider` only supplies the `access_key_id`, `secret_access_key`, and `session_token`.
 
 ### Environment variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `AWS_ROLE_ARN` | yes | ARN of the IAM role to assume. |
-| `AWS_WEB_IDENTITY_TOKEN_FILE` | yes | Path to the file containing the OIDC JWT. |
-| `AWS_ROLE_SESSION_NAME` | no | Session name. Defaults to `liter-llm-session`. |
-| `AWS_REGION` | no | AWS region. Falls back to `AWS_DEFAULT_REGION`, then `us-east-1`. |
-| `AWS_DEFAULT_REGION` | no | Fallback region when `AWS_REGION` is not set. |
+| Variable                      | Required | Description                                                       |
+| ----------------------------- | -------- | ----------------------------------------------------------------- |
+| `AWS_ROLE_ARN`                | yes      | ARN of the IAM role to assume.                                    |
+| `AWS_WEB_IDENTITY_TOKEN_FILE` | yes      | Path to the file containing the OIDC JWT.                         |
+| `AWS_ROLE_SESSION_NAME`       | no       | Session name. Defaults to `liter-llm-session`.                    |
+| `AWS_REGION`                  | no       | AWS region. Falls back to `AWS_DEFAULT_REGION`, then `us-east-1`. |
+| `AWS_DEFAULT_REGION`          | no       | Fallback region when `AWS_REGION` is not set.                     |
 
 ### Usage
 
@@ -147,10 +147,10 @@ let client = DefaultClient::new(config, None)?;
 
 ### Environment variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GOOGLE_APPLICATION_CREDENTIALS` | yes | Path to the service account JSON key file. |
-| `VERTEX_AI_SCOPE` | no | OAuth2 scope. Defaults to `https://www.googleapis.com/auth/cloud-platform`. |
+| Variable                         | Required | Description                                                                 |
+| -------------------------------- | -------- | --------------------------------------------------------------------------- |
+| `GOOGLE_APPLICATION_CREDENTIALS` | yes      | Path to the service account JSON key file.                                  |
+| `VERTEX_AI_SCOPE`                | no       | OAuth2 scope. Defaults to `https://www.googleapis.com/auth/cloud-platform`. |
 
 ### Usage
 

@@ -1,32 +1,32 @@
 {
-	"id": "search_error_400",
-	"description": "400 Bad Request error when search query is empty",
-	"category": "search",
-	"tags": ["search", "error-handling"],
-	"call": "search",
-	"input": {
-		"model": "brave/web-search",
-		"query": ""
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Query cannot be empty",
-				"type": "invalid_request_error",
-				"code": "invalid_query"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "BadRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "search_error_400",
+  "description": "400 Bad Request error when search query is empty",
+  "category": "search",
+  "tags": ["search", "error-handling"],
+  "call": "search",
+  "input": {
+    "model": "brave/web-search",
+    "query": ""
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Query cannot be empty",
+        "type": "invalid_request_error",
+        "code": "invalid_query"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "BadRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

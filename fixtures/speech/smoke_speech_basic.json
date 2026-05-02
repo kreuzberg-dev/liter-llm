@@ -1,29 +1,29 @@
 {
-	"id": "smoke_speech_basic",
-	"description": "Basic text-to-speech generation",
-	"category": "speech",
-	"tags": ["smoke", "speech"],
-	"call": "speech",
-	"input": {
-		"model": "tts-1",
-		"input": "Hello, world!",
-		"voice": "alloy"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"_binary": true,
-			"_content_type": "audio/mpeg",
-			"_description": "Mock binary audio data"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "audio"
-		}
-	]
+  "id": "smoke_speech_basic",
+  "description": "Basic text-to-speech generation",
+  "category": "speech",
+  "tags": ["smoke", "speech"],
+  "call": "speech",
+  "input": {
+    "model": "tts-1",
+    "input": "Hello, world!",
+    "voice": "alloy"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "_binary": true,
+      "_content_type": "audio/mpeg",
+      "_description": "Mock binary audio data"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "audio"
+    }
+  ]
 }

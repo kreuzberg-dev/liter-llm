@@ -1,114 +1,114 @@
 {
-	"id": "azure_stream",
-	"description": "Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape",
-	"category": "streaming",
-	"tags": ["streaming", "azure"],
-	"call": "chat_stream",
-	"input": {
-		"model": "azure/gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Count to 3"
-			}
-		],
-		"stream": true,
-		"temperature": 0
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-azure-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000300,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-azure-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000300,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "1"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-azure-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000300,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " 2"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-azure-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000300,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": " 3"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-azure-stream001",
-				"object": "chat.completion.chunk",
-				"created": 1711000300,
-				"model": "gpt-4",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				]
-			}
-		],
-		"stream_terminator": "[DONE]"
-	},
-	"assertions": [
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 3
-		},
-		{
-			"type": "equals",
-			"field": "stream_content",
-			"value": "1 2 3"
-		},
-		{
-			"type": "is_true",
-			"field": "stream_complete"
-		}
-	]
+  "id": "azure_stream",
+  "description": "Streaming chat completion via Azure OpenAI — verifies the azure/ prefix routes correctly and SSE chunks are delivered in the standard OpenAI chat.completion.chunk shape",
+  "category": "streaming",
+  "tags": ["streaming", "azure"],
+  "call": "chat_stream",
+  "input": {
+    "model": "azure/gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Count to 3"
+      }
+    ],
+    "stream": true,
+    "temperature": 0
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-azure-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000300,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-azure-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000300,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "1"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-azure-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000300,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " 2"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-azure-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000300,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " 3"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-azure-stream001",
+        "object": "chat.completion.chunk",
+        "created": 1711000300,
+        "model": "gpt-4",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "stream_terminator": "[DONE]"
+  },
+  "assertions": [
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 3
+    },
+    {
+      "type": "equals",
+      "field": "stream_content",
+      "value": "1 2 3"
+    },
+    {
+      "type": "is_true",
+      "field": "stream_complete"
+    }
+  ]
 }

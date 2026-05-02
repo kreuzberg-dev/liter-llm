@@ -1,29 +1,29 @@
 {
-	"id": "search_basic",
-	"description": "Basic web search request with a simple query",
-	"category": "search",
-	"tags": ["search", "smoke"],
-	"call": "search",
-	"input": {
-		"model": "brave/web-search",
-		"query": "What is Rust programming language?"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"results": [
-				{
-					"title": "Rust Programming Language",
-					"url": "https://www.rust-lang.org",
-					"snippet": "A language empowering everyone to build reliable and efficient software."
-				}
-			],
-			"model": "brave/web-search"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "search_basic",
+  "description": "Basic web search request with a simple query",
+  "category": "search",
+  "tags": ["search", "smoke"],
+  "call": "search",
+  "input": {
+    "model": "brave/web-search",
+    "query": "What is Rust programming language?"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "results": [
+        {
+          "title": "Rust Programming Language",
+          "url": "https://www.rust-lang.org",
+          "snippet": "A language empowering everyone to build reliable and efficient software."
+        }
+      ],
+      "model": "brave/web-search"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

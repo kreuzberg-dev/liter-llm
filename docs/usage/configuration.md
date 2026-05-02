@@ -187,27 +187,27 @@ Load it in code:
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `api_key` | string | **required** | Provider API key. Wrapped in `SecretString` internally. |
-| `base_url` | string | from registry | Override the provider's base URL. |
-| `model_hint` | string | none | Pre-resolve a provider at construction (e.g. `"openai"`). |
-| `timeout` | duration | 60s | Request timeout. |
-| `max_retries` | int | 3 | Retries on 429/5xx responses with exponential backoff. |
+| Option        | Type     | Default       | Description                                               |
+| ------------- | -------- | ------------- | --------------------------------------------------------- |
+| `api_key`     | string   | **required**  | Provider API key. Wrapped in `SecretString` internally.   |
+| `base_url`    | string   | from registry | Override the provider's base URL.                         |
+| `model_hint`  | string   | none          | Pre-resolve a provider at construction (e.g. `"openai"`). |
+| `timeout`     | duration | 60s           | Request timeout.                                          |
+| `max_retries` | int      | 3             | Retries on 429/5xx responses with exponential backoff.    |
 
 ## API Key Management
 
 Read the standard environment variable for your provider:
 
-| Provider | Environment Variable |
-| --- | --- |
-| OpenAI | `OPENAI_API_KEY` |
-| Anthropic | `ANTHROPIC_API_KEY` |
-| Google (Gemini) | `GEMINI_API_KEY` |
-| Groq | `GROQ_API_KEY` |
-| Mistral | `MISTRAL_API_KEY` |
-| Cohere | `CO_API_KEY` |
-| AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
+| Provider        | Environment Variable                          |
+| --------------- | --------------------------------------------- |
+| OpenAI          | `OPENAI_API_KEY`                              |
+| Anthropic       | `ANTHROPIC_API_KEY`                           |
+| Google (Gemini) | `GEMINI_API_KEY`                              |
+| Groq            | `GROQ_API_KEY`                                |
+| Mistral         | `MISTRAL_API_KEY`                             |
+| Cohere          | `CO_API_KEY`                                  |
+| AWS Bedrock     | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
 
 API keys passed to the constructor are wrapped in `secrecy::SecretString`. They are never logged, serialized, or included in error messages.
 
@@ -333,10 +333,10 @@ Enable response caching to avoid repeated identical requests:
     });
     ```
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `max_entries` | int | 256 | Maximum cached responses |
-| `ttl_seconds` | int | 300 | Time-to-live in seconds |
+| Option        | Type | Default | Description              |
+| ------------- | ---- | ------- | ------------------------ |
+| `max_entries` | int  | 256     | Maximum cached responses |
+| `ttl_seconds` | int  | 300     | Time-to-live in seconds  |
 
 ## Budget
 
@@ -458,11 +458,11 @@ Track and enforce spending limits:
     console.log(`Budget used: $${client.budgetUsed.toFixed(2)}`);
     ```
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `global_limit` | float | Maximum total spend in USD |
-| `model_limits` | map | Per-model spend limits |
-| `enforcement` | string | `"hard"` (reject over-budget) or `"soft"` (warn only) |
+| Option         | Type   | Description                                           |
+| -------------- | ------ | ----------------------------------------------------- |
+| `global_limit` | float  | Maximum total spend in USD                            |
+| `model_limits` | map    | Per-model spend limits                                |
+| `enforcement`  | string | `"hard"` (reject over-budget) or `"soft"` (warn only) |
 
 ## Hooks
 
@@ -873,11 +873,11 @@ Configure OpenDAL-backed cache backends (Redis, S3, filesystem, and 40+ more via
     });
     ```
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `backend` | string | Backend type: `"redis"`, `"s3"`, `"fs"`, `"gcs"`, `"memory"`, etc. |
-| `backend_config` | map | Backend-specific config (connection strings, bucket names, paths) |
-| `ttl_seconds` | int | Time-to-live in seconds for cache entries |
+| Option           | Type   | Description                                                        |
+| ---------------- | ------ | ------------------------------------------------------------------ |
+| `backend`        | string | Backend type: `"redis"`, `"s3"`, `"fs"`, `"gcs"`, `"memory"`, etc. |
+| `backend_config` | map    | Backend-specific config (connection strings, bucket names, paths)  |
+| `ttl_seconds`    | int    | Time-to-live in seconds for cache entries                          |
 
 ## Cooldown
 
@@ -1043,10 +1043,10 @@ Configure per-model rate limits (requests per minute and tokens per minute):
     const client = new LlmClient({ apiKey: "sk-...", rateLimit: { rpm: 60, tpm: 100000 } });
     ```
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `rpm` | int | Maximum requests per minute |
-| `tpm` | int | Maximum tokens per minute |
+| Option | Type | Description                 |
+| ------ | ---- | --------------------------- |
+| `rpm`  | int  | Maximum requests per minute |
+| `tpm`  | int  | Maximum tokens per minute   |
 
 ## Health Checks
 
@@ -1215,4 +1215,4 @@ Enable per-request cost tracking to monitor spend in real time:
 ## Tracing
 
 !!! note
-    The tracing reference has moved to [Observability](./observability.md). That page covers span attributes, OTEL exporter setup, cost tracking, and Tower layer composition.
+The tracing reference has moved to [Observability](./observability.md). That page covers span attributes, OTEL exporter setup, cost tracking, and Tower layer composition.

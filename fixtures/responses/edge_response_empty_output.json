@@ -1,46 +1,46 @@
 {
-	"id": "edge_response_empty_output",
-	"description": "Response completes with empty output items",
-	"category": "responses",
-	"tags": ["edge-case", "responses"],
-	"call": "create_response",
-	"input": {
-		"model": "gpt-4o",
-		"input": ""
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "resp-empty001",
-			"object": "response",
-			"created_at": 1711000000,
-			"status": "completed",
-			"model": "gpt-4o",
-			"output": [],
-			"usage": {
-				"input_tokens": 0,
-				"output_tokens": 0,
-				"total_tokens": 0
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "status",
-			"value": "completed"
-		},
-		{
-			"type": "count_equals",
-			"field": "output",
-			"value": 0
-		}
-	]
+  "id": "edge_response_empty_output",
+  "description": "Response completes with empty output items",
+  "category": "responses",
+  "tags": ["edge-case", "responses"],
+  "call": "create_response",
+  "input": {
+    "model": "gpt-4o",
+    "input": ""
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "resp-empty001",
+      "object": "response",
+      "created_at": 1711000000,
+      "status": "completed",
+      "model": "gpt-4o",
+      "output": [],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "status",
+      "value": "completed"
+    },
+    {
+      "type": "count_equals",
+      "field": "output",
+      "value": 0
+    }
+  ]
 }

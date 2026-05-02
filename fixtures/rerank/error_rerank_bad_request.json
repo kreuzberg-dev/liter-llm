@@ -1,34 +1,34 @@
 {
-	"id": "error_rerank_bad_request",
-	"description": "400 Bad Request for reranking with invalid model",
-	"category": "rerank",
-	"tags": ["error-handling", "rerank"],
-	"call": "rerank",
-	"input": {
-		"model": "nonexistent-rerank",
-		"query": "test",
-		"documents": ["doc1"]
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "The model 'nonexistent-rerank' does not exist.",
-				"type": "invalid_request_error",
-				"param": "model",
-				"code": "model_not_found"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "error_rerank_bad_request",
+  "description": "400 Bad Request for reranking with invalid model",
+  "category": "rerank",
+  "tags": ["error-handling", "rerank"],
+  "call": "rerank",
+  "input": {
+    "model": "nonexistent-rerank",
+    "query": "test",
+    "documents": ["doc1"]
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "The model 'nonexistent-rerank' does not exist.",
+        "type": "invalid_request_error",
+        "param": "model",
+        "code": "model_not_found"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

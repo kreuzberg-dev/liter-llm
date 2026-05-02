@@ -1,115 +1,115 @@
 {
-	"id": "local_stream_ollama",
-	"description": "Streaming chat completion via Ollama local provider with SSE chunks",
-	"category": "streaming",
-	"tags": ["streaming", "local", "ollama"],
-	"call": "chat_stream",
-	"input": {
-		"model": "ollama/qwen2:0.5b",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Count to 3"
-			}
-		],
-		"stream": true
-	},
-	"mock_response": {
-		"status": 200,
-		"stream_chunks": [
-			{
-				"id": "chatcmpl-ollama-s1",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "qwen2:0.5b",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"role": "assistant",
-							"content": ""
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-ollama-s1",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "qwen2:0.5b",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "1 "
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-ollama-s1",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "qwen2:0.5b",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "2 "
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-ollama-s1",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "qwen2:0.5b",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {
-							"content": "3"
-						},
-						"finish_reason": null
-					}
-				]
-			},
-			{
-				"id": "chatcmpl-ollama-s1",
-				"object": "chat.completion.chunk",
-				"created": 1711000000,
-				"model": "qwen2:0.5b",
-				"choices": [
-					{
-						"index": 0,
-						"delta": {},
-						"finish_reason": "stop"
-					}
-				]
-			}
-		]
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_min",
-			"field": "chunks",
-			"value": 3
-		},
-		{
-			"type": "equals",
-			"field": "stream_content",
-			"value": "1 2 3"
-		},
-		{
-			"type": "is_true",
-			"field": "stream_complete"
-		}
-	]
+  "id": "local_stream_ollama",
+  "description": "Streaming chat completion via Ollama local provider with SSE chunks",
+  "category": "streaming",
+  "tags": ["streaming", "local", "ollama"],
+  "call": "chat_stream",
+  "input": {
+    "model": "ollama/qwen2:0.5b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Count to 3"
+      }
+    ],
+    "stream": true
+  },
+  "mock_response": {
+    "status": 200,
+    "stream_chunks": [
+      {
+        "id": "chatcmpl-ollama-s1",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "qwen2:0.5b",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-ollama-s1",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "qwen2:0.5b",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "1 "
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-ollama-s1",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "qwen2:0.5b",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "2 "
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-ollama-s1",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "qwen2:0.5b",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "3"
+            },
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-ollama-s1",
+        "object": "chat.completion.chunk",
+        "created": 1711000000,
+        "model": "qwen2:0.5b",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_min",
+      "field": "chunks",
+      "value": 3
+    },
+    {
+      "type": "equals",
+      "field": "stream_content",
+      "value": "1 2 3"
+    },
+    {
+      "type": "is_true",
+      "field": "stream_complete"
+    }
+  ]
 }

@@ -8,27 +8,27 @@ liter-llm supports local inference engines that expose an OpenAI-compatible API.
 
 ## Supported Providers
 
-| Provider | Default URL | Prefix | Notes |
-| --- | --- | --- | --- |
-| [Ollama](https://ollama.ai) | `http://localhost:11434/v1` | `ollama/` | Most popular, easy setup |
-| [LM Studio](https://lmstudio.ai) | `http://localhost:1234/v1` | `lm_studio/` or `lmstudio/` | GUI-based, beginner-friendly |
-| [vLLM](https://docs.vllm.ai) | `http://localhost:8000/v1` | `vllm/` | High-throughput serving |
-| [llama.cpp](https://github.com/ggerganov/llama.cpp) | `http://localhost:8080/v1` | `llamacpp/` | Lightweight C++ inference |
-| [LocalAI](https://localai.io) | `http://localhost:8080/v1` | `localai/` | Drop-in OpenAI replacement |
-| [llamafile](https://github.com/Mozilla-Ocho/llamafile) | `http://localhost:8080/v1` | `llamafile/` | Single-file executable |
+| Provider                                               | Default URL                 | Prefix                      | Notes                        |
+| ------------------------------------------------------ | --------------------------- | --------------------------- | ---------------------------- |
+| [Ollama](https://ollama.ai)                            | `http://localhost:11434/v1` | `ollama/`                   | Most popular, easy setup     |
+| [LM Studio](https://lmstudio.ai)                       | `http://localhost:1234/v1`  | `lm_studio/` or `lmstudio/` | GUI-based, beginner-friendly |
+| [vLLM](https://docs.vllm.ai)                           | `http://localhost:8000/v1`  | `vllm/`                     | High-throughput serving      |
+| [llama.cpp](https://github.com/ggerganov/llama.cpp)    | `http://localhost:8080/v1`  | `llamacpp/`                 | Lightweight C++ inference    |
+| [LocalAI](https://localai.io)                          | `http://localhost:8080/v1`  | `localai/`                  | Drop-in OpenAI replacement   |
+| [llamafile](https://github.com/Mozilla-Ocho/llamafile) | `http://localhost:8080/v1`  | `llamafile/`                | Single-file executable       |
 
 All of these providers are registered in the [provider registry](../providers.md) with their default base URLs. liter-llm routes requests automatically based on the model prefix.
 
 ## Supported Capabilities
 
-| Provider | Chat | Completions | Embeddings | Rerank | Audio | Images |
-|----------|:----:|:-----------:|:----------:|:------:|:-----:|:------:|
-| Ollama | :white_check_mark: | :white_check_mark: | :white_check_mark: | — | — | — |
-| LM Studio | :white_check_mark: | :white_check_mark: | :white_check_mark: | — | — | — |
-| vLLM | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | — | — |
-| llama.cpp | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | — | — |
-| LocalAI | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| llamafile | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | — | — |
+| Provider  |        Chat        |    Completions     |     Embeddings     |       Rerank       |       Audio        |       Images       |
+| --------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
+| Ollama    | :white_check_mark: | :white_check_mark: | :white_check_mark: |         —          |         —          |         —          |
+| LM Studio | :white_check_mark: | :white_check_mark: | :white_check_mark: |         —          |         —          |         —          |
+| vLLM      | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |         —          |         —          |
+| llama.cpp | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |         —          |         —          |
+| LocalAI   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| llamafile | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |         —          |         —          |
 
 All providers also support streaming via SSE and model listing via `/v1/models`.
 Tool calling and vision/multimodal are supported through the chat endpoint where the underlying model supports it.
@@ -70,7 +70,7 @@ ollama pull qwen2:0.5b
     --8<-- "snippets/go/usage/local_llm.md"
 
 !!! tip "No API key required"
-    Local providers do not require an API key. Pass an empty string (`""`) as the `api_key` parameter.
+Local providers do not require an API key. Pass an empty string (`""`) as the `api_key` parameter.
 
 ## Model Naming Convention
 
@@ -159,7 +159,7 @@ model_prefixes = ["ollama/"]
 ```
 
 !!! note "Ollama model names"
-    Ollama uses its own model naming (e.g., `llama3.2`, `qwen2:0.5b`, `codellama:13b`). Use `ollama list` to see installed models.
+Ollama uses its own model naming (e.g., `llama3.2`, `qwen2:0.5b`, `codellama:13b`). Use `ollama list` to see installed models.
 
 ### LM Studio
 
@@ -368,7 +368,7 @@ lsof -i :11434
 ```
 
 !!! tip
-    Make sure the server is started **before** making requests. Ollama starts automatically on macOS but may need `ollama serve` on Linux.
+Make sure the server is started **before** making requests. Ollama starts automatically on macOS but may need `ollama serve` on Linux.
 
 ### Model Not Found
 

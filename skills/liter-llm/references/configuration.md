@@ -4,23 +4,23 @@ All client configuration options in one place.
 
 ## ClientConfig Fields
 
-| Field | Rust Type | Default | Description |
-|-------|-----------|---------|-------------|
-| `api_key` | `SecretString` | **required** | Provider API key. Wrapped in `secrecy::SecretString`, never logged or serialized. |
-| `base_url` | `Option<String>` | from registry | Override provider base URL. Skips auto-detection when set. |
-| `timeout` | `Duration` | 60s | Per-request timeout. |
-| `max_retries` | `u32` | 3 | Retries on 429/5xx with exponential backoff. |
-| `extra_headers` | `Vec<(String, String)>` | `[]` | Custom headers sent on every request. |
-| `credential_provider` | `Option<Arc<dyn CredentialProvider>>` | `None` | Dynamic auth (Azure AD, Vertex OAuth2, AWS STS). |
-| `cache_config` | `Option<CacheConfig>` | `None` | Response cache settings (requires `tower` feature). |
-| `cache_store` | `Option<Arc<dyn CacheStore>>` | `None` | Custom cache backend (overrides default in-memory LRU). |
-| `budget_config` | `Option<BudgetConfig>` | `None` | Spending budget enforcement. |
-| `hooks` | `Vec<Arc<dyn LlmHook>>` | `[]` | Lifecycle hooks (pre-request, post-response, on-error). |
-| `cooldown_duration` | `Option<Duration>` | `None` | Circuit breaker after transient errors. |
-| `rate_limit_config` | `Option<RateLimitConfig>` | `None` | Per-model RPM/TPM limits. |
-| `health_check_interval` | `Option<Duration>` | `None` | Background health probe interval. |
-| `enable_cost_tracking` | `bool` | `false` | Record `gen_ai.usage.cost` on tracing spans. |
-| `enable_tracing` | `bool` | `false` | OpenTelemetry GenAI semantic convention spans. |
+| Field                   | Rust Type                             | Default       | Description                                                                       |
+| ----------------------- | ------------------------------------- | ------------- | --------------------------------------------------------------------------------- |
+| `api_key`               | `SecretString`                        | **required**  | Provider API key. Wrapped in `secrecy::SecretString`, never logged or serialized. |
+| `base_url`              | `Option<String>`                      | from registry | Override provider base URL. Skips auto-detection when set.                        |
+| `timeout`               | `Duration`                            | 60s           | Per-request timeout.                                                              |
+| `max_retries`           | `u32`                                 | 3             | Retries on 429/5xx with exponential backoff.                                      |
+| `extra_headers`         | `Vec<(String, String)>`               | `[]`          | Custom headers sent on every request.                                             |
+| `credential_provider`   | `Option<Arc<dyn CredentialProvider>>` | `None`        | Dynamic auth (Azure AD, Vertex OAuth2, AWS STS).                                  |
+| `cache_config`          | `Option<CacheConfig>`                 | `None`        | Response cache settings (requires `tower` feature).                               |
+| `cache_store`           | `Option<Arc<dyn CacheStore>>`         | `None`        | Custom cache backend (overrides default in-memory LRU).                           |
+| `budget_config`         | `Option<BudgetConfig>`                | `None`        | Spending budget enforcement.                                                      |
+| `hooks`                 | `Vec<Arc<dyn LlmHook>>`               | `[]`          | Lifecycle hooks (pre-request, post-response, on-error).                           |
+| `cooldown_duration`     | `Option<Duration>`                    | `None`        | Circuit breaker after transient errors.                                           |
+| `rate_limit_config`     | `Option<RateLimitConfig>`             | `None`        | Per-model RPM/TPM limits.                                                         |
+| `health_check_interval` | `Option<Duration>`                    | `None`        | Background health probe interval.                                                 |
+| `enable_cost_tracking`  | `bool`                                | `false`       | Record `gen_ai.usage.cost` on tracing spans.                                      |
+| `enable_tracing`        | `bool`                                | `false`       | OpenTelemetry GenAI semantic convention spans.                                    |
 
 ## File-Based Configuration
 
@@ -133,15 +133,15 @@ The first `liter-llm.toml` found is used. If no file is found, `discover()` retu
 
 ## API Key Management
 
-| Provider | Environment Variable |
-|----------|---------------------|
-| OpenAI | `OPENAI_API_KEY` |
-| Anthropic | `ANTHROPIC_API_KEY` |
-| Google (Gemini) | `GEMINI_API_KEY` |
-| Groq | `GROQ_API_KEY` |
-| Mistral | `MISTRAL_API_KEY` |
-| Cohere | `CO_API_KEY` |
-| AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
+| Provider        | Environment Variable                          |
+| --------------- | --------------------------------------------- |
+| OpenAI          | `OPENAI_API_KEY`                              |
+| Anthropic       | `ANTHROPIC_API_KEY`                           |
+| Google (Gemini) | `GEMINI_API_KEY`                              |
+| Groq            | `GROQ_API_KEY`                                |
+| Mistral         | `MISTRAL_API_KEY`                             |
+| Cohere          | `CO_API_KEY`                                  |
+| AWS Bedrock     | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
 
 Keys are wrapped in `secrecy::SecretString` internally -- never logged, serialized, or included in error messages.
 
@@ -195,10 +195,10 @@ const client = new LlmClient({
 });
 ```
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `max_entries` | int | 256 | Maximum cached responses |
-| `ttl_seconds` | int | 300 | Time-to-live in seconds |
+| Option        | Type | Default | Description              |
+| ------------- | ---- | ------- | ------------------------ |
+| `max_entries` | int  | 256     | Maximum cached responses |
+| `ttl_seconds` | int  | 300     | Time-to-live in seconds  |
 
 ### OpenDAL Backends
 
@@ -234,15 +234,19 @@ client = LlmClient(
 // TypeScript -- Redis example
 const client = new LlmClient({
   apiKey: process.env.OPENAI_API_KEY!,
-  cache: { backend: "redis", backendConfig: { connectionString: "redis://localhost" }, ttlSeconds: 3600 },
+  cache: {
+    backend: "redis",
+    backendConfig: { connectionString: "redis://localhost" },
+    ttlSeconds: 3600,
+  },
 });
 ```
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `backend` | string | `"memory"`, `"redis"`, `"s3"`, `"fs"`, `"gcs"`, `"azblob"`, etc. |
-| `backend_config` | map | Backend-specific config (connection strings, bucket names, paths) |
-| `ttl_seconds` | int | Time-to-live for entries |
+| Option           | Type   | Description                                                       |
+| ---------------- | ------ | ----------------------------------------------------------------- |
+| `backend`        | string | `"memory"`, `"redis"`, `"s3"`, `"fs"`, `"gcs"`, `"azblob"`, etc.  |
+| `backend_config` | map    | Backend-specific config (connection strings, bucket names, paths) |
+| `ttl_seconds`    | int    | Time-to-live for entries                                          |
 
 ## Budget
 
@@ -266,11 +270,11 @@ const client = new LlmClient({
 console.log(`Budget used: $${client.budgetUsed.toFixed(2)}`);
 ```
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `global_limit` | float | Maximum total spend in USD |
-| `model_limits` | map | Per-model spend limits (e.g. `{"openai/gpt-4o": 5.0}`) |
-| `enforcement` | string | `"hard"` (reject over-budget requests) or `"soft"` (warn only) |
+| Option         | Type   | Description                                                    |
+| -------------- | ------ | -------------------------------------------------------------- |
+| `global_limit` | float  | Maximum total spend in USD                                     |
+| `model_limits` | map    | Per-model spend limits (e.g. `{"openai/gpt-4o": 5.0}`)         |
+| `enforcement`  | string | `"hard"` (reject over-budget requests) or `"soft"` (warn only) |
 
 ## Hooks
 
@@ -294,9 +298,15 @@ client.add_hook(LoggingHook())
 // TypeScript
 const client = new LlmClient({ apiKey: process.env.OPENAI_API_KEY! });
 client.addHook({
-  onRequest(req) { console.log(`Sending: ${req.model}`); },
-  onResponse(req, res) { console.log(`Tokens: ${res.usage?.totalTokens}`); },
-  onError(req, err) { console.error(`Error: ${err}`); },
+  onRequest(req) {
+    console.log(`Sending: ${req.model}`);
+  },
+  onResponse(req, res) {
+    console.log(`Tokens: ${res.usage?.totalTokens}`);
+  },
+  onError(req, err) {
+    console.error(`Error: ${err}`);
+  },
 });
 ```
 
@@ -326,10 +336,10 @@ client = LlmClient(api_key="sk-...", rate_limit={"rpm": 60, "tpm": 100000})
 const client = new LlmClient({ apiKey: "sk-...", rateLimit: { rpm: 60, tpm: 100000 } });
 ```
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `rpm` | int | Maximum requests per minute |
-| `tpm` | int | Maximum tokens per minute |
+| Option | Type | Description                 |
+| ------ | ---- | --------------------------- |
+| `rpm`  | int  | Maximum requests per minute |
+| `tpm`  | int  | Maximum tokens per minute   |
 
 ## Health Checks
 

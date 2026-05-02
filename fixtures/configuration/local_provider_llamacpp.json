@@ -1,65 +1,65 @@
 {
-	"id": "local_provider_llamacpp",
-	"description": "llamacpp local provider routes requests via llamacpp/ model prefix with no auth",
-	"category": "configuration",
-	"tags": ["configuration", "local", "llamacpp"],
-	"call": "chat",
-	"input": {
-		"model": "llamacpp/my-model",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-llamacpp-001",
-			"object": "chat.completion",
-			"created": 1711000000,
-			"model": "my-model",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hi there! I'm running locally."
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 5,
-				"completion_tokens": 6,
-				"total_tokens": 11
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hi there! I'm running locally."
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "my-model"
-		}
-	]
+  "id": "local_provider_llamacpp",
+  "description": "llamacpp local provider routes requests via llamacpp/ model prefix with no auth",
+  "category": "configuration",
+  "tags": ["configuration", "local", "llamacpp"],
+  "call": "chat",
+  "input": {
+    "model": "llamacpp/my-model",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-llamacpp-001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "my-model",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hi there! I'm running locally."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5,
+        "completion_tokens": 6,
+        "total_tokens": 11
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hi there! I'm running locally."
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "my-model"
+    }
+  ]
 }

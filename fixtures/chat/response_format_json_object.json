@@ -1,66 +1,66 @@
 {
-	"id": "response_format_json_object",
-	"description": "Chat request with response_format json_object that returns valid JSON content",
-	"category": "chat",
-	"tags": ["chat"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "system",
-				"content": "Respond with JSON only."
-			},
-			{
-				"role": "user",
-				"content": "Give me a user object with name and age fields."
-			}
-		],
-		"response_format": {
-			"type": "json_object"
-		}
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-json001",
-			"object": "chat.completion",
-			"created": 1711000070,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "{\"name\": \"Alice\", \"age\": 30}"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 25,
-				"completion_tokens": 12,
-				"total_tokens": 37
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "not_empty",
-			"field": "choices[0].message.content"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		}
-	]
+  "id": "response_format_json_object",
+  "description": "Chat request with response_format json_object that returns valid JSON content",
+  "category": "chat",
+  "tags": ["chat"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Respond with JSON only."
+      },
+      {
+        "role": "user",
+        "content": "Give me a user object with name and age fields."
+      }
+    ],
+    "response_format": {
+      "type": "json_object"
+    }
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-json001",
+      "object": "chat.completion",
+      "created": 1711000070,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "{\"name\": \"Alice\", \"age\": 30}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 12,
+        "total_tokens": 37
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "not_empty",
+      "field": "choices[0].message.content"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    }
+  ]
 }

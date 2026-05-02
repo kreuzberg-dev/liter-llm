@@ -1,29 +1,29 @@
 {
-	"id": "edge_speech_all_voices",
-	"description": "Text-to-speech with specific voice selection",
-	"category": "speech",
-	"tags": ["speech", "edge-case"],
-	"call": "speech",
-	"input": {
-		"model": "tts-1",
-		"input": "Hello world",
-		"voice": "nova"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"_binary": true,
-			"_content_type": "audio/mpeg",
-			"_description": "Mock binary audio data for nova voice"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "audio"
-		}
-	]
+  "id": "edge_speech_all_voices",
+  "description": "Text-to-speech with specific voice selection",
+  "category": "speech",
+  "tags": ["speech", "edge-case"],
+  "call": "speech",
+  "input": {
+    "model": "tts-1",
+    "input": "Hello world",
+    "voice": "nova"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "_binary": true,
+      "_content_type": "audio/mpeg",
+      "_description": "Mock binary audio data for nova voice"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "audio"
+    }
+  ]
 }

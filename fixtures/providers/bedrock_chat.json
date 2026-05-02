@@ -1,72 +1,72 @@
 {
-	"id": "bedrock_chat",
-	"description": "Basic chat completion via the AWS Bedrock provider using the bedrock/ prefix for routing — verifies the prefix is stripped before dispatching and the Converse API response is normalised to the standard OpenAI chat completion shape",
-	"category": "smoke",
-	"tags": ["smoke", "bedrock"],
-	"call": "chat",
-	"input": {
-		"model": "bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say hello in one word."
-			}
-		],
-		"temperature": 0,
-		"max_tokens": 16
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-bedrock-001",
-			"object": "chat.completion",
-			"created": 1711000300,
-			"model": "anthropic.claude-3-sonnet-20240229-v1:0",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 12,
-				"completion_tokens": 3,
-				"total_tokens": 15
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello!"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "anthropic.claude-3-sonnet-20240229-v1:0"
-		},
-		{
-			"type": "equals",
-			"field": "usage.total_tokens",
-			"value": 15
-		}
-	]
+  "id": "bedrock_chat",
+  "description": "Basic chat completion via the AWS Bedrock provider using the bedrock/ prefix for routing — verifies the prefix is stripped before dispatching and the Converse API response is normalised to the standard OpenAI chat completion shape",
+  "category": "smoke",
+  "tags": ["smoke", "bedrock"],
+  "call": "chat",
+  "input": {
+    "model": "bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hello in one word."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 16
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-bedrock-001",
+      "object": "chat.completion",
+      "created": 1711000300,
+      "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 3,
+        "total_tokens": 15
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello!"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+    },
+    {
+      "type": "equals",
+      "field": "usage.total_tokens",
+      "value": 15
+    }
+  ]
 }

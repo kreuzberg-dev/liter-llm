@@ -1,37 +1,37 @@
 {
-	"id": "bad_request_400",
-	"description": "400 Bad Request error when a parameter value is invalid",
-	"category": "error-handling",
-	"tags": ["error-handling"],
-	"call": "chat",
-	"input": {
-		"model": "gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		],
-		"temperature": 5.0
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Invalid parameter: temperature must be between 0 and 2",
-				"type": "invalid_request_error"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "BadRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "bad_request_400",
+  "description": "400 Bad Request error when a parameter value is invalid",
+  "category": "error-handling",
+  "tags": ["error-handling"],
+  "call": "chat",
+  "input": {
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ],
+    "temperature": 5.0
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Invalid parameter: temperature must be between 0 and 2",
+        "type": "invalid_request_error"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "BadRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

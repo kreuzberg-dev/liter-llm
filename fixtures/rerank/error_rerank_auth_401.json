@@ -1,34 +1,34 @@
 {
-	"id": "error_rerank_auth_401",
-	"description": "401 Unauthorized for reranking with invalid API key",
-	"category": "rerank",
-	"tags": ["error-handling", "rerank"],
-	"call": "rerank",
-	"input": {
-		"model": "rerank-v3.5",
-		"query": "test",
-		"documents": ["doc1"]
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Incorrect API key provided.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": "invalid_api_key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "error_rerank_auth_401",
+  "description": "401 Unauthorized for reranking with invalid API key",
+  "category": "rerank",
+  "tags": ["error-handling", "rerank"],
+  "call": "rerank",
+  "input": {
+    "model": "rerank-v3.5",
+    "query": "test",
+    "documents": ["doc1"]
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Incorrect API key provided.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

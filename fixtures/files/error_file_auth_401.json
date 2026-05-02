@@ -1,30 +1,30 @@
 {
-	"id": "error_file_auth_401",
-	"description": "401 Unauthorized when listing files with invalid API key",
-	"category": "files",
-	"tags": ["error-handling", "files"],
-	"call": "list_files",
-	"input": {},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"error": {
-				"message": "Incorrect API key provided.",
-				"type": "invalid_request_error",
-				"param": null,
-				"code": "invalid_api_key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "error_file_auth_401",
+  "description": "401 Unauthorized when listing files with invalid API key",
+  "category": "files",
+  "tags": ["error-handling", "files"],
+  "call": "list_files",
+  "input": {},
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "error": {
+        "message": "Incorrect API key provided.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

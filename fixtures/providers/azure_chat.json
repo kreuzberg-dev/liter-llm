@@ -1,72 +1,72 @@
 {
-	"id": "azure_chat",
-	"description": "Chat completion via Azure OpenAI with the azure/ prefix for provider routing — verifies the prefix is stripped before dispatching and the response is normalised to the standard OpenAI chat completion shape",
-	"category": "smoke",
-	"tags": ["smoke", "azure"],
-	"call": "chat",
-	"input": {
-		"model": "azure/gpt-4",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say hello"
-			}
-		],
-		"temperature": 0,
-		"max_tokens": 16
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-azure-001",
-			"object": "chat.completion",
-			"created": 1711000200,
-			"model": "gpt-4",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 10,
-				"completion_tokens": 3,
-				"total_tokens": 13
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello!"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "gpt-4"
-		},
-		{
-			"type": "equals",
-			"field": "usage.total_tokens",
-			"value": 13
-		}
-	]
+  "id": "azure_chat",
+  "description": "Chat completion via Azure OpenAI with the azure/ prefix for provider routing — verifies the prefix is stripped before dispatching and the response is normalised to the standard OpenAI chat completion shape",
+  "category": "smoke",
+  "tags": ["smoke", "azure"],
+  "call": "chat",
+  "input": {
+    "model": "azure/gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hello"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 16
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-azure-001",
+      "object": "chat.completion",
+      "created": 1711000200,
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 3,
+        "total_tokens": 13
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello!"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "gpt-4"
+    },
+    {
+      "type": "equals",
+      "field": "usage.total_tokens",
+      "value": 13
+    }
+  ]
 }

@@ -1,44 +1,44 @@
 {
-	"id": "smoke_batch_completed",
-	"description": "Retrieve a completed batch job with output file",
-	"category": "batches",
-	"tags": ["smoke", "batches"],
-	"call": "retrieve_batch",
-	"input": {
-		"batch_id": "batch-ghi789"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "batch-ghi789",
-			"object": "batch",
-			"endpoint": "/v1/chat/completions",
-			"input_file_id": "file-input001",
-			"completion_window": "24h",
-			"status": "completed",
-			"output_file_id": "file-output001",
-			"created_at": 1711000000,
-			"in_progress_at": 1711000100,
-			"completed_at": 1711003600,
-			"request_counts": {
-				"total": 100,
-				"completed": 98,
-				"failed": 2
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "status",
-			"value": "completed"
-		}
-	]
+  "id": "smoke_batch_completed",
+  "description": "Retrieve a completed batch job with output file",
+  "category": "batches",
+  "tags": ["smoke", "batches"],
+  "call": "retrieve_batch",
+  "input": {
+    "batch_id": "batch-ghi789"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "batch-ghi789",
+      "object": "batch",
+      "endpoint": "/v1/chat/completions",
+      "input_file_id": "file-input001",
+      "completion_window": "24h",
+      "status": "completed",
+      "output_file_id": "file-output001",
+      "created_at": 1711000000,
+      "in_progress_at": 1711000100,
+      "completed_at": 1711003600,
+      "request_counts": {
+        "total": 100,
+        "completed": 98,
+        "failed": 2
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "status",
+      "value": "completed"
+    }
+  ]
 }

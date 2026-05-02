@@ -1,33 +1,33 @@
 {
-	"id": "error_moderate_bad_request",
-	"description": "400 Bad Request for moderation with invalid model",
-	"category": "moderate",
-	"tags": ["error-handling", "moderate"],
-	"call": "moderate",
-	"input": {
-		"model": "nonexistent-moderation",
-		"input": "Hello"
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "The model 'nonexistent-moderation' does not exist.",
-				"type": "invalid_request_error",
-				"param": "model",
-				"code": "model_not_found"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "error_moderate_bad_request",
+  "description": "400 Bad Request for moderation with invalid model",
+  "category": "moderate",
+  "tags": ["error-handling", "moderate"],
+  "call": "moderate",
+  "input": {
+    "model": "nonexistent-moderation",
+    "input": "Hello"
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "The model 'nonexistent-moderation' does not exist.",
+        "type": "invalid_request_error",
+        "param": "model",
+        "code": "model_not_found"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

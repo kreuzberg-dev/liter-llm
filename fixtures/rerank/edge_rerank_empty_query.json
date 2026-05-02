@@ -1,46 +1,46 @@
 {
-	"id": "edge_rerank_empty_query",
-	"description": "Reranking with an empty query string",
-	"category": "rerank",
-	"tags": ["edge-case", "rerank"],
-	"call": "rerank",
-	"input": {
-		"model": "rerank-v3.5",
-		"query": "",
-		"documents": ["Some document", "Another document"]
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "rerank-empty001",
-			"results": [
-				{
-					"index": 0,
-					"relevance_score": 0.5
-				},
-				{
-					"index": 1,
-					"relevance_score": 0.48
-				}
-			],
-			"meta": {
-				"api_version": {
-					"version": "2"
-				},
-				"billed_units": {
-					"search_units": 1
-				}
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "results",
-			"value": 2
-		}
-	]
+  "id": "edge_rerank_empty_query",
+  "description": "Reranking with an empty query string",
+  "category": "rerank",
+  "tags": ["edge-case", "rerank"],
+  "call": "rerank",
+  "input": {
+    "model": "rerank-v3.5",
+    "query": "",
+    "documents": ["Some document", "Another document"]
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "rerank-empty001",
+      "results": [
+        {
+          "index": 0,
+          "relevance_score": 0.5
+        },
+        {
+          "index": 1,
+          "relevance_score": 0.48
+        }
+      ],
+      "meta": {
+        "api_version": {
+          "version": "2"
+        },
+        "billed_units": {
+          "search_units": 1
+        }
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "results",
+      "value": 2
+    }
+  ]
 }

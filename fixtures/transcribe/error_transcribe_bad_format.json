@@ -1,33 +1,33 @@
 {
-	"id": "error_transcribe_bad_format",
-	"description": "400 Bad Request when audio format is unsupported",
-	"category": "transcribe",
-	"tags": ["error-handling", "transcribe"],
-	"call": "transcribe",
-	"input": {
-		"model": "whisper-1",
-		"file": "audio.xyz"
-	},
-	"mock_response": {
-		"status": 400,
-		"body": {
-			"error": {
-				"message": "Invalid file format. Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm.",
-				"type": "invalid_request_error",
-				"param": "file",
-				"code": null
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "InvalidRequest"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 400
-		}
-	]
+  "id": "error_transcribe_bad_format",
+  "description": "400 Bad Request when audio format is unsupported",
+  "category": "transcribe",
+  "tags": ["error-handling", "transcribe"],
+  "call": "transcribe",
+  "input": {
+    "model": "whisper-1",
+    "file": "audio.xyz"
+  },
+  "mock_response": {
+    "status": 400,
+    "body": {
+      "error": {
+        "message": "Invalid file format. Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm.",
+        "type": "invalid_request_error",
+        "param": "file",
+        "code": null
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "InvalidRequest"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 400
+    }
+  ]
 }

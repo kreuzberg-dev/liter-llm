@@ -1,31 +1,31 @@
 {
-	"id": "ocr_url_document",
-	"description": "OCR request with a document URL input",
-	"category": "ocr",
-	"tags": ["ocr", "smoke"],
-	"call": "ocr",
-	"input": {
-		"model": "mistral/mistral-ocr-latest",
-		"document": {
-			"type": "document_url",
-			"url": "https://example.com/doc.pdf"
-		}
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"pages": [
-				{
-					"index": 0,
-					"markdown": "# Test Document\n\nThis is a test."
-				}
-			],
-			"model": "mistral/mistral-ocr-latest"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "ocr_url_document",
+  "description": "OCR request with a document URL input",
+  "category": "ocr",
+  "tags": ["ocr", "smoke"],
+  "call": "ocr",
+  "input": {
+    "model": "mistral/mistral-ocr-latest",
+    "document": {
+      "type": "document_url",
+      "url": "https://example.com/doc.pdf"
+    }
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "pages": [
+        {
+          "index": 0,
+          "markdown": "# Test Document\n\nThis is a test."
+        }
+      ],
+      "model": "mistral/mistral-ocr-latest"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

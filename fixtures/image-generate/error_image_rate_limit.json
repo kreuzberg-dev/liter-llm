@@ -1,35 +1,35 @@
 {
-	"id": "error_image_rate_limit",
-	"description": "429 Rate limit exceeded for image generation",
-	"category": "image-generate",
-	"tags": ["error-handling", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-3",
-		"prompt": "A cat",
-		"n": 1,
-		"size": "1024x1024"
-	},
-	"mock_response": {
-		"status": 429,
-		"body": {
-			"error": {
-				"message": "Rate limit reached for images per minute. Limit: 5, Used: 5, Requested: 1.",
-				"type": "rate_limit_error",
-				"param": null,
-				"code": "rate_limit_exceeded"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "RateLimited"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 429
-		}
-	]
+  "id": "error_image_rate_limit",
+  "description": "429 Rate limit exceeded for image generation",
+  "category": "image-generate",
+  "tags": ["error-handling", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-3",
+    "prompt": "A cat",
+    "n": 1,
+    "size": "1024x1024"
+  },
+  "mock_response": {
+    "status": 429,
+    "body": {
+      "error": {
+        "message": "Rate limit reached for images per minute. Limit: 5, Used: 5, Requested: 1.",
+        "type": "rate_limit_error",
+        "param": null,
+        "code": "rate_limit_exceeded"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "RateLimited"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 429
+    }
+  ]
 }

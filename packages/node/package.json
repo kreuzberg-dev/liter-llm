@@ -1,0 +1,46 @@
+{
+	"name": "@kreuzberg/liter-llm-node",
+	"version": "1.4.0-rc.27",
+	"description": "Universal LLM API client with Rust-powered polyglot bindings.",
+	"keywords": [
+		"anthropic",
+		"api-client",
+		"llm",
+		"openai"
+	],
+	"license": "MIT",
+	"author": "Na'aman Hirschfeld",
+	"repository": "https://github.com/kreuzberg-dev/liter-llm",
+	"files": [
+		"index.js",
+		"index.d.ts",
+		"**/*.node"
+	],
+	"main": "index.js",
+	"types": "index.d.ts",
+	"scripts": {
+		"build": "napi build --release",
+		"build:debug": "napi build",
+		"build:ts": "echo 'No TypeScript wrapper to build'",
+		"test": "node -e \"console.log('Add test command')\"",
+		"format": "oxfmt",
+		"format:check": "oxfmt --check",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix"
+	},
+	"devDependencies": {
+		"@napi-rs/cli": "^3.0.0",
+		"oxfmt": "latest",
+		"oxlint": "latest",
+		"typescript": "^6.0.3"
+	},
+	"napi": {
+		"name": "liter-llm",
+		"triples": [
+			"x86_64-unknown-linux-gnu",
+			"x86_64-apple-darwin",
+			"aarch64-apple-darwin",
+			"x86_64-pc-windows-msvc"
+		]
+	}
+}

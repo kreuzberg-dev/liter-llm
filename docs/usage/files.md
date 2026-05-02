@@ -52,13 +52,13 @@ Upload, retrieve, list, and delete files. Files are used with batch processing, 
 
 ### File Methods
 
-| Method | Description |
-| --- | --- |
-| `create_file` | Upload a file with a purpose (`"batch"`, `"fine-tune"`, `"assistants"`) |
-| `retrieve_file` | Get metadata for an uploaded file by ID |
-| `delete_file` | Delete an uploaded file by ID |
-| `list_files` | List all uploaded files, optionally filtered by purpose |
-| `file_content` | Download the raw content of an uploaded file |
+| Method          | Description                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| `create_file`   | Upload a file with a purpose (`"batch"`, `"fine-tune"`, `"assistants"`) |
+| `retrieve_file` | Get metadata for an uploaded file by ID                                 |
+| `delete_file`   | Delete an uploaded file by ID                                           |
+| `list_files`    | List all uploaded files, optionally filtered by purpose                 |
+| `file_content`  | Download the raw content of an uploaded file                            |
 
 ## Batch Processing
 
@@ -106,21 +106,21 @@ Create batch jobs to process multiple requests asynchronously at reduced cost:
 
 ### Batch Methods
 
-| Method | Description |
-| --- | --- |
-| `create_batch` | Create a batch from an uploaded JSONL file |
-| `retrieve_batch` | Get batch status and results by ID |
-| `list_batches` | List all batches |
-| `cancel_batch` | Cancel a running batch |
+| Method           | Description                                |
+| ---------------- | ------------------------------------------ |
+| `create_batch`   | Create a batch from an uploaded JSONL file |
+| `retrieve_batch` | Get batch status and results by ID         |
+| `list_batches`   | List all batches                           |
+| `cancel_batch`   | Cancel a running batch                     |
 
 ### Batch Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `input_file_id` | string | ID of the uploaded JSONL file |
-| `endpoint` | string | API endpoint (`"/v1/chat/completions"`, `"/v1/embeddings"`) |
-| `completion_window` | string | Processing window (`"24h"`) |
-| `metadata` | object | Optional key-value metadata |
+| Parameter           | Type   | Description                                                 |
+| ------------------- | ------ | ----------------------------------------------------------- |
+| `input_file_id`     | string | ID of the uploaded JSONL file                               |
+| `endpoint`          | string | API endpoint (`"/v1/chat/completions"`, `"/v1/embeddings"`) |
+| `completion_window` | string | Processing window (`"24h"`)                                 |
+| `metadata`          | object | Optional key-value metadata                                 |
 
 ## Responses API
 
@@ -168,18 +168,18 @@ Create, retrieve, and cancel responses via the Responses API:
 
 ### Response Methods
 
-| Method | Description |
-| --- | --- |
-| `create_response` | Create a new response |
-| `retrieve_response` | Get a response by ID |
-| `cancel_response` | Cancel a response |
+| Method              | Description           |
+| ------------------- | --------------------- |
+| `create_response`   | Create a new response |
+| `retrieve_response` | Get a response by ID  |
+| `cancel_response`   | Cancel a response     |
 
 ### Response Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | Model to use |
-| `input` | string | Input text or conversation |
-| `instructions` | string | System-level instructions |
-| `max_output_tokens` | int | Maximum tokens to generate |
-| `temperature` | float | Sampling temperature |
+| Parameter           | Type   | Description                |
+| ------------------- | ------ | -------------------------- |
+| `model`             | string | Model to use               |
+| `input`             | string | Input text or conversation |
+| `instructions`      | string | System-level instructions  |
+| `max_output_tokens` | int    | Maximum tokens to generate |
+| `temperature`       | float  | Sampling temperature       |

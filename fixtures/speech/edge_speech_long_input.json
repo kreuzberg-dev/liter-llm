@@ -1,29 +1,29 @@
 {
-	"id": "edge_speech_long_input",
-	"description": "Speech generation with a very long input text",
-	"category": "speech",
-	"tags": ["edge-case", "speech"],
-	"call": "speech",
-	"input": {
-		"model": "tts-1",
-		"input": "This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.",
-		"voice": "echo"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"_binary": true,
-			"_content_type": "audio/mpeg",
-			"_description": "Mock binary audio data for long text"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "audio"
-		}
-	]
+  "id": "edge_speech_long_input",
+  "description": "Speech generation with a very long input text",
+  "category": "speech",
+  "tags": ["edge-case", "speech"],
+  "call": "speech",
+  "input": {
+    "model": "tts-1",
+    "input": "This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. This is a long input text. End of input.",
+    "voice": "echo"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "_binary": true,
+      "_content_type": "audio/mpeg",
+      "_description": "Mock binary audio data for long text"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "audio"
+    }
+  ]
 }

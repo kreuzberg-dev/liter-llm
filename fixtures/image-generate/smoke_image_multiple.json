@@ -1,44 +1,44 @@
 {
-	"id": "smoke_image_multiple",
-	"description": "Image generation requesting multiple images",
-	"category": "image-generate",
-	"tags": ["smoke", "image"],
-	"call": "image_generate",
-	"input": {
-		"model": "dall-e-2",
-		"prompt": "A red bicycle",
-		"n": 3,
-		"size": "256x256"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"created": 1711000000,
-			"data": [
-				{
-					"url": "https://example.com/images/img-001.png"
-				},
-				{
-					"url": "https://example.com/images/img-002.png"
-				},
-				{
-					"url": "https://example.com/images/img-003.png"
-				}
-			]
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "data",
-			"value": 3
-		},
-		{
-			"type": "not_empty",
-			"field": "data[0].url"
-		}
-	]
+  "id": "smoke_image_multiple",
+  "description": "Image generation requesting multiple images",
+  "category": "image-generate",
+  "tags": ["smoke", "image"],
+  "call": "image_generate",
+  "input": {
+    "model": "dall-e-2",
+    "prompt": "A red bicycle",
+    "n": 3,
+    "size": "256x256"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "created": 1711000000,
+      "data": [
+        {
+          "url": "https://example.com/images/img-001.png"
+        },
+        {
+          "url": "https://example.com/images/img-002.png"
+        },
+        {
+          "url": "https://example.com/images/img-003.png"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "data",
+      "value": 3
+    },
+    {
+      "type": "not_empty",
+      "field": "data[0].url"
+    }
+  ]
 }

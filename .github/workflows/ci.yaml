@@ -344,7 +344,7 @@ jobs:
               - zensical.toml
               - pyproject.toml
 
-# --- Stage 2: Core ---
+  # --- Stage 2: Core ---
 
   rust-tests:
     name: Rust Tests (${{ matrix.os }})
@@ -622,7 +622,7 @@ jobs:
           args: "--config .lychee.toml site/"
           fail: true
 
-# --- Stage 3: Language Tests ---
+  # --- Stage 3: Language Tests ---
 
   test-python:
     name: Python ${{ matrix.python }} on ${{ matrix.os }}

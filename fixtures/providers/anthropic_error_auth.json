@@ -1,37 +1,37 @@
 {
-	"id": "anthropic_error_auth",
-	"description": "401 Authentication error returned by the Anthropic API when the API key is invalid",
-	"category": "error-handling",
-	"tags": ["error-handling", "anthropic"],
-	"call": "chat",
-	"input": {
-		"model": "anthropic/claude-3-5-sonnet-20241022",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Hello"
-			}
-		]
-	},
-	"mock_response": {
-		"status": 401,
-		"body": {
-			"type": "error",
-			"error": {
-				"type": "authentication_error",
-				"message": "invalid x-api-key"
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "error",
-			"value": "Authentication"
-		},
-		{
-			"type": "equals",
-			"field": "error.status_code",
-			"value": 401
-		}
-	]
+  "id": "anthropic_error_auth",
+  "description": "401 Authentication error returned by the Anthropic API when the API key is invalid",
+  "category": "error-handling",
+  "tags": ["error-handling", "anthropic"],
+  "call": "chat",
+  "input": {
+    "model": "anthropic/claude-3-5-sonnet-20241022",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
+  "mock_response": {
+    "status": 401,
+    "body": {
+      "type": "error",
+      "error": {
+        "type": "authentication_error",
+        "message": "invalid x-api-key"
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "error",
+      "value": "Authentication"
+    },
+    {
+      "type": "equals",
+      "field": "error.status_code",
+      "value": 401
+    }
+  ]
 }

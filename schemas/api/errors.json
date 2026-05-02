@@ -1,66 +1,66 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"title": "Error types",
-	"description": "Error types",
-	"$defs": {
-		"Error": {
-			"type": "object",
-			"properties": {
-				"code": {
-					"anyOf": [
-						{
-							"type": "string"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"message": {
-					"type": "string"
-				},
-				"param": {
-					"anyOf": [
-						{
-							"type": "string"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"type": {
-					"type": "string"
-				}
-			},
-			"required": ["type", "message", "param", "code"]
-		},
-		"ErrorEvent": {
-			"type": "object",
-			"properties": {
-				"event": {
-					"type": "string",
-					"enum": ["error"],
-					"x-stainless-const": true
-				},
-				"data": {
-					"$ref": "#/$defs/Error"
-				}
-			},
-			"required": ["event", "data"],
-			"description": "Occurs when an [error](/docs/guides/error-codes#api-errors) occurs. This can happen due to an internal server error or a timeout.",
-			"x-oaiMeta": {
-				"dataDescription": "`data` is an [error](/docs/guides/error-codes#api-errors)"
-			}
-		},
-		"ErrorResponse": {
-			"type": "object",
-			"properties": {
-				"error": {
-					"$ref": "#/$defs/Error"
-				}
-			},
-			"required": ["error"]
-		}
-	}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Error types",
+  "description": "Error types",
+  "$defs": {
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "param": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": ["type", "message", "param", "code"]
+    },
+    "ErrorEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["error"],
+          "x-stainless-const": true
+        },
+        "data": {
+          "$ref": "#/$defs/Error"
+        }
+      },
+      "required": ["event", "data"],
+      "description": "Occurs when an [error](/docs/guides/error-codes#api-errors) occurs. This can happen due to an internal server error or a timeout.",
+      "x-oaiMeta": {
+        "dataDescription": "`data` is an [error](/docs/guides/error-codes#api-errors)"
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/Error"
+        }
+      },
+      "required": ["error"]
+    }
+  }
 }

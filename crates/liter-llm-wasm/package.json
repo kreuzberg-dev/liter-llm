@@ -1,40 +1,40 @@
 {
-	"name": "@kreuzberg/liter-llm-wasm",
-	"version": "1.4.0-rc.27",
-	"description": "WebAssembly bindings for liter-llm \u2014 high-performance LLM client powered by Rust",
-	"type": "module",
-	"main": "pkg/liter_llm_wasm.js",
-	"types": "pkg/liter_llm_wasm.d.ts",
-	"files": [
-		"pkg/"
-	],
-	"keywords": [
-		"wasm",
-		"webassembly",
-		"llm",
-		"api-client",
-		"rust"
-	],
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kreuzberg-dev/liter-llm.git"
-	},
-	"homepage": "https://github.com/kreuzberg-dev/liter-llm",
-	"bugs": {
-		"url": "https://github.com/kreuzberg-dev/liter-llm/issues"
-	},
-	"author": {
-		"name": "Na'aman Hirschfeld",
-		"email": "naaman@kreuzberg.dev",
-		"url": "https://github.com/kreuzberg-dev/liter-llm"
-	},
-	"scripts": {
-		"build": "wasm-pack build --target web --release",
-		"build:nodejs": "wasm-pack build --target nodejs --release"
-	},
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/",
-		"access": "public"
-	}
+  "name": "@kreuzberg/liter-llm-wasm",
+  "version": "1.4.0-rc.27",
+  "description": "WebAssembly bindings for liter-llm — high-performance LLM client powered by Rust",
+  "keywords": [
+    "api-client",
+    "llm",
+    "rust",
+    "wasm",
+    "webassembly"
+  ],
+  "homepage": "https://github.com/kreuzberg-dev/liter-llm",
+  "bugs": {
+    "url": "https://github.com/kreuzberg-dev/liter-llm/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Na'aman Hirschfeld",
+    "email": "naaman@kreuzberg.dev",
+    "url": "https://github.com/kreuzberg-dev/liter-llm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kreuzberg-dev/liter-llm.git"
+  },
+  "files": [
+    "pkg/"
+  ],
+  "type": "module",
+  "main": "pkg/liter_llm_wasm.js",
+  "types": "pkg/liter_llm_wasm.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "wasm-pack build --target web --release",
+    "build:nodejs": "wasm-pack build --target nodejs --release"
+  }
 }

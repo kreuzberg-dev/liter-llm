@@ -50,24 +50,24 @@ Search the web or documents across 12 providers (Brave, Tavily, Google PSE, etc.
 
 ### Search Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | Search provider (e.g. `"brave/web-search"`) |
-| `query` | string | Search query |
-| `max_results` | int | Maximum results to return |
-| `search_domain_filter` | array | Restrict to specific domains |
-| `country` | string | ISO country code for localized results |
+| Parameter              | Type   | Description                                 |
+| ---------------------- | ------ | ------------------------------------------- |
+| `model`                | string | Search provider (e.g. `"brave/web-search"`) |
+| `query`                | string | Search query                                |
+| `max_results`          | int    | Maximum results to return                   |
+| `search_domain_filter` | array  | Restrict to specific domains                |
+| `country`              | string | ISO country code for localized results      |
 
 ### Search Providers
 
-| Provider | Prefix | Example Model |
-| --- | --- | --- |
-| Brave | `brave/` | `web-search` |
-| Tavily | `tavily/` | `tavily-search` |
-| Google PSE | `google_pse/` | `google-search` |
-| Serper | `serper/` | `serper-search` |
-| SerpAPI | `serpapi/` | `serpapi-search` |
-| Bing | `bing/` | `bing-search` |
+| Provider   | Prefix        | Example Model    |
+| ---------- | ------------- | ---------------- |
+| Brave      | `brave/`      | `web-search`     |
+| Tavily     | `tavily/`     | `tavily-search`  |
+| Google PSE | `google_pse/` | `google-search`  |
+| Serper     | `serper/`     | `serper-search`  |
+| SerpAPI    | `serpapi/`    | `serpapi-search` |
+| Bing       | `bing/`       | `bing-search`    |
 
 See the [Providers](../providers.md) page for the complete capability matrix.
 
@@ -117,23 +117,23 @@ Extract text from documents via OCR across 4 providers (Mistral, Azure Doc Intel
 
 ### OCR Parameters
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `model` | string | OCR provider (e.g. `"mistral/mistral-ocr-latest"`) |
-| `document` | object | Document input (URL or base64) |
-| `pages` | array | Specific pages to process (1-indexed) |
-| `include_image_base64` | bool | Include extracted images |
+| Parameter              | Type   | Description                                        |
+| ---------------------- | ------ | -------------------------------------------------- |
+| `model`                | string | OCR provider (e.g. `"mistral/mistral-ocr-latest"`) |
+| `document`             | object | Document input (URL or base64)                     |
+| `pages`                | array  | Specific pages to process (1-indexed)              |
+| `include_image_base64` | bool   | Include extracted images                           |
 
 ### Document Input Formats
 
 **URL:**
 
 ```json
-{"type": "document_url", "url": "https://example.com/invoice.pdf"}
+{ "type": "document_url", "url": "https://example.com/invoice.pdf" }
 ```
 
 **Base64:**
 
 ```json
-{"type": "base64", "data": "...", "media_type": "application/pdf"}
+{ "type": "base64", "data": "...", "media_type": "application/pdf" }
 ```

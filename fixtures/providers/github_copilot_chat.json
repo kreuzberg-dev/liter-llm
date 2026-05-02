@@ -1,72 +1,72 @@
 {
-	"id": "github_copilot_chat",
-	"description": "Basic chat completion via the GitHub Copilot provider (gpt-4o) with a single user message",
-	"category": "smoke",
-	"tags": ["smoke", "github_copilot"],
-	"call": "chat",
-	"input": {
-		"model": "github_copilot/gpt-4o",
-		"messages": [
-			{
-				"role": "user",
-				"content": "Say hello in one word."
-			}
-		],
-		"temperature": 0,
-		"max_tokens": 16
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "chatcmpl-copilot-001",
-			"object": "chat.completion",
-			"created": 1711000200,
-			"model": "gpt-4o",
-			"choices": [
-				{
-					"index": 0,
-					"message": {
-						"role": "assistant",
-						"content": "Hello!"
-					},
-					"finish_reason": "stop"
-				}
-			],
-			"usage": {
-				"prompt_tokens": 12,
-				"completion_tokens": 2,
-				"total_tokens": 14
-			}
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "count_equals",
-			"field": "choices",
-			"value": 1
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].message.content",
-			"value": "Hello!"
-		},
-		{
-			"type": "equals",
-			"field": "choices[0].finish_reason",
-			"value": "stop"
-		},
-		{
-			"type": "equals",
-			"field": "model",
-			"value": "gpt-4o"
-		},
-		{
-			"type": "equals",
-			"field": "usage.total_tokens",
-			"value": 14
-		}
-	]
+  "id": "github_copilot_chat",
+  "description": "Basic chat completion via the GitHub Copilot provider (gpt-4o) with a single user message",
+  "category": "smoke",
+  "tags": ["smoke", "github_copilot"],
+  "call": "chat",
+  "input": {
+    "model": "github_copilot/gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hello in one word."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 16
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "chatcmpl-copilot-001",
+      "object": "chat.completion",
+      "created": 1711000200,
+      "model": "gpt-4o",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello!"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 2,
+        "total_tokens": 14
+      }
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "count_equals",
+      "field": "choices",
+      "value": 1
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].message.content",
+      "value": "Hello!"
+    },
+    {
+      "type": "equals",
+      "field": "choices[0].finish_reason",
+      "value": "stop"
+    },
+    {
+      "type": "equals",
+      "field": "model",
+      "value": "gpt-4o"
+    },
+    {
+      "type": "equals",
+      "field": "usage.total_tokens",
+      "value": 14
+    }
+  ]
 }

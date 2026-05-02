@@ -44,3 +44,32 @@ tasks:
       - uv sync --all-packages --all-extras --upgrade --no-install-workspace --no-install-project
       - echo "Checking remaining outdated dependencies..."
       - uv pip list --outdated || true
+
+  e2e:generate:
+    desc: Generate Python E2E tests from fixtures
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+    cmds:
+      - alef e2e generate --lang python
+
+  e2e:lint:
+    desc: Lint Python E2E code
+    dir: e2e/python
+    cmds:
+      - uv run --no-sync ruff check tests/
+
+  e2e:test:
+    desc: Run Python E2E tests
+    dir: e2e/python
+    env:
+      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+    cmds:
+      - uv sync
+      - uv run pytest tests/ -q
+
+  e2e:verify:
+    desc: Regenerate and validate Python E2E suite (generate + lint + test)
+    cmds:
+      - task: e2e:generate
+      - task: e2e:lint
+      - task: e2e:test

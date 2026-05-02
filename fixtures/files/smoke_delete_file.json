@@ -1,32 +1,32 @@
 {
-	"id": "smoke_delete_file",
-	"description": "Delete an uploaded file",
-	"category": "files",
-	"tags": ["smoke", "files"],
-	"call": "delete_file",
-	"input": {
-		"file_id": "file-abc123"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"id": "file-abc123",
-			"object": "file",
-			"deleted": true
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "not_empty",
-			"field": "id"
-		},
-		{
-			"type": "equals",
-			"field": "deleted",
-			"value": true
-		}
-	]
+  "id": "smoke_delete_file",
+  "description": "Delete an uploaded file",
+  "category": "files",
+  "tags": ["smoke", "files"],
+  "call": "delete_file",
+  "input": {
+    "file_id": "file-abc123"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "id": "file-abc123",
+      "object": "file",
+      "deleted": true
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "not_empty",
+      "field": "id"
+    },
+    {
+      "type": "equals",
+      "field": "deleted",
+      "value": true
+    }
+  ]
 }

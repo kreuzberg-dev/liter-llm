@@ -1,27 +1,27 @@
 {
-	"id": "smoke_transcribe_basic",
-	"description": "Basic audio transcription",
-	"category": "transcribe",
-	"tags": ["smoke", "transcribe"],
-	"call": "transcribe",
-	"input": {
-		"model": "whisper-1",
-		"file": "audio.mp3"
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"text": "Hello, this is a test transcription."
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		},
-		{
-			"type": "contains",
-			"field": "text",
-			"value": "Hello, this is a test transcription."
-		}
-	]
+  "id": "smoke_transcribe_basic",
+  "description": "Basic audio transcription",
+  "category": "transcribe",
+  "tags": ["smoke", "transcribe"],
+  "call": "transcribe",
+  "input": {
+    "model": "whisper-1",
+    "file": "audio.mp3"
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "text": "Hello, this is a test transcription."
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    },
+    {
+      "type": "contains",
+      "field": "text",
+      "value": "Hello, this is a test transcription."
+    }
+  ]
 }

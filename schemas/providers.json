@@ -1,1854 +1,1787 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$comment": "Generated from litellm data. Source: https://github.com/BerriAI/litellm (MIT License, Copyright 2023 Berri AI)",
-	"providers": [
-		{
-			"name": "a2a",
-			"display_name": "A2A",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "abliteration",
-			"display_name": "Abliteration",
-			"base_url": "https://api.abliteration.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "ABLITERATION_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "ai21",
-			"display_name": "AI21",
-			"base_url": "https://api.ai21.com/studio/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "AI21_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["j2-", "jamba-"],
-			"model_count": 12
-		},
-		{
-			"name": "ai21_chat",
-			"display_name": "AI21 Chat",
-			"base_url": "https://api.ai21.com/studio/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "AI21_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "aiml",
-			"display_name": "AI/ML API",
-			"base_url": "https://api.aimlapi.com",
-			"auth": {
-				"type": "bearer",
-				"env_var": "AIML_API_KEY"
-			},
-			"endpoints": ["chat", "embedding", "image"],
-			"model_prefixes": [
-				"aiml/",
-				"aiml/dall-",
-				"aiml/flux-",
-				"aiml/flux/kontext-"
-			],
-			"model_count": 12
-		},
-		{
-			"name": "amazon_nova",
-			"display_name": "Amazon Nova",
-			"base_url": "https://api.nova.amazon.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "AMAZON_NOVA_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["amazon-", "amazon-nova/"],
-			"model_count": 4
-		},
-		{
-			"name": "anthropic",
-			"display_name": "Anthropic",
-			"base_url": "https://api.anthropic.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "ANTHROPIC_API_KEY"
-			},
-			"endpoints": ["batch", "chat"],
-			"model_prefixes": ["claude-"],
-			"model_count": 18
-		},
-		{
-			"name": "anthropic_text",
-			"display_name": "Anthropic Text",
-			"base_url": "https://api.anthropic.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "ANTHROPIC_API_KEY"
-			},
-			"endpoints": ["batch", "chat"]
-		},
-		{
-			"name": "apertis",
-			"display_name": "Apertis",
-			"base_url": "https://api.stima.tech/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "STIMA_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat", "embedding"]
-		},
-		{
-			"name": "assemblyai",
-			"display_name": "AssemblyAI",
-			"base_url": "https://llm-gateway.assemblyai.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "ASSEMBLYAI_API_KEY"
-			},
-			"endpoints": ["audio", "chat"],
-			"model_prefixes": ["assemblyai/"],
-			"model_count": 2
-		},
-		{
-			"name": "auto_router",
-			"display_name": "Auto Router",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "aws_polly",
-			"display_name": "AWS - Polly",
-			"endpoints": ["audio"],
-			"model_prefixes": ["aws_polly/"],
-			"model_count": 4
-		},
-		{
-			"name": "azure",
-			"display_name": "Azure",
-			"endpoints": [
-				"audio",
-				"batch",
-				"chat",
-				"completion",
-				"embedding",
-				"image",
-				"moderation"
-			],
-			"model_prefixes": [
-				"azure/",
-				"azure/eu/gpt-",
-				"azure/eu/o1-",
-				"azure/global-",
-				"azure/global/gpt-",
-				"azure/gpt-",
-				"azure/hd/1024-",
-				"azure/high/1024-",
-				"azure/high/1536-",
-				"azure/low/1024-",
-				"azure/low/1536-",
-				"azure/medium/1024-",
-				"azure/medium/1536-",
-				"azure/mistral-",
-				"azure/o1-",
-				"azure/o3-",
-				"azure/o4-",
-				"azure/sora-",
-				"azure/speech/azure-",
-				"azure/standard/1024-",
-				"azure/text-",
-				"azure/tts-",
-				"azure/us/gpt-",
-				"azure/us/o1-",
-				"azure/us/o3-"
-			],
-			"model_count": 189
-		},
-		{
-			"name": "azure_ai",
-			"display_name": "Azure AI",
-			"endpoints": [
-				"audio",
-				"batch",
-				"chat",
-				"embedding",
-				"image",
-				"moderation",
-				"ocr"
-			],
-			"model_prefixes": [
-				"azure_ai/",
-				"azure_ai/Cohere-",
-				"azure_ai/Llama-",
-				"azure_ai/Meta-",
-				"azure_ai/Phi-",
-				"azure_ai/claude-",
-				"azure_ai/cohere-",
-				"azure_ai/deepseek-",
-				"azure_ai/doc-",
-				"azure_ai/global/grok-",
-				"azure_ai/grok-",
-				"azure_ai/mistral-"
-			],
-			"model_count": 75
-		},
-		{
-			"name": "azure_ai/agents",
-			"display_name": "Azure AI Foundry Agents",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "azure_ai/doc-intelligence",
-			"display_name": "Azure AI Document Intelligence",
-			"endpoints": ["ocr"]
-		},
-		{
-			"name": "azure_text",
-			"display_name": "Azure Text",
-			"endpoints": ["audio", "batch", "chat", "moderation"],
-			"model_prefixes": ["azure/", "azure/gpt-"],
-			"model_count": 3
-		},
-		{
-			"name": "baseten",
-			"display_name": "Baseten",
-			"base_url": "https://inference.baseten.co/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "BASETEN_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "bedrock",
-			"display_name": "AWS - Bedrock",
-			"endpoints": ["chat", "embedding", "rerank"],
-			"model_prefixes": [
-				"1024-",
-				"1024-x-1024/",
-				"512-",
-				"512-x-512/",
-				"ai21.j2-",
-				"ai21.jamba-",
-				"amazon.nova-",
-				"amazon.titan-",
-				"anthropic.claude-",
-				"apac.anthropic.claude-",
-				"bedrock/",
-				"bedrock/*/1-",
-				"bedrock/*/6-",
-				"bedrock/ap-",
-				"bedrock/ca-",
-				"bedrock/eu-",
-				"bedrock/moonshotai.kimi-",
-				"bedrock/sa-",
-				"bedrock/us-",
-				"cohere.command-",
-				"cohere.embed-",
-				"eu.anthropic.claude-",
-				"eu.meta.llama3-",
-				"max-",
-				"max-x-max/",
-				"meta.llama2-",
-				"meta.llama3-",
-				"mistral.mistral-",
-				"stability.sd3-",
-				"stability.stable-",
-				"us.anthropic.claude-",
-				"us.meta.llama3-"
-			],
-			"model_count": 245
-		},
-		{
-			"name": "brave",
-			"display_name": "Brave Search",
-			"base_url": "https://api.search.brave.com/res/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "BRAVE_API_KEY"
-			},
-			"endpoints": ["search"]
-		},
-		{
-			"name": "bytez",
-			"display_name": "Bytez",
-			"base_url": "https://api.bytez.com/models/v2",
-			"auth": {
-				"type": "bearer",
-				"env_var": "BYTEZ_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "cerebras",
-			"display_name": "Cerebras",
-			"base_url": "https://api.cerebras.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "CEREBRAS_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["cerebras/", "cerebras/llama3.1-", "cerebras/zai-"],
-			"model_count": 7
-		},
-		{
-			"name": "chatgpt",
-			"display_name": "ChatGPT Subscription",
-			"endpoints": ["chat"],
-			"model_prefixes": ["chatgpt/", "chatgpt/gpt-"],
-			"model_count": 10
-		},
-		{
-			"name": "chutes",
-			"display_name": "Chutes",
-			"base_url": "https://llm.chutes.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "CHUTES_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat", "embedding"]
-		},
-		{
-			"name": "clarifai",
-			"display_name": "Clarifai",
-			"base_url": "https://api.clarifai.com/v2/ext/openai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "CLARIFAI_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "cloudflare",
-			"display_name": "Cloudflare AI Workers",
-			"endpoints": ["chat"],
-			"model_prefixes": ["cloudflare/", "cloudflare/@cf/meta/llama-"],
-			"model_count": 4
-		},
-		{
-			"name": "codestral",
-			"display_name": "Codestral",
-			"base_url": "https://codestral.mistral.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "CODESTRAL_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["codestral/", "codestral/codestral-"],
-			"model_count": 2
-		},
-		{
-			"name": "cohere",
-			"display_name": "Cohere",
-			"base_url": "https://api.cohere.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "COHERE_API_KEY"
-			},
-			"endpoints": ["chat", "embedding", "rerank"],
-			"model_prefixes": ["embed-", "rerank-"],
-			"model_count": 15
-		},
-		{
-			"name": "cohere_chat",
-			"display_name": "Cohere Chat",
-			"base_url": "https://api.cohere.ai/v2",
-			"auth": {
-				"type": "bearer",
-				"env_var": "COHERE_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["command-"],
-			"model_count": 7
-		},
-		{
-			"name": "cometapi",
-			"display_name": "CometAPI",
-			"base_url": "https://api.cometapi.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "COMETAPI_KEY"
-			},
-			"endpoints": ["chat", "embedding", "image"]
-		},
-		{
-			"name": "compactifai",
-			"display_name": "CompactifAI",
-			"base_url": "https://api.compactif.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "COMPACTIFAI_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "cursor",
-			"display_name": "Cursor BYOK",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "custom",
-			"display_name": "Custom",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "custom_openai",
-			"display_name": "Custom OpenAI",
-			"endpoints": ["audio", "batch", "chat", "moderation"]
-		},
-		{
-			"name": "dashscope",
-			"display_name": "Dashscope",
-			"base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "DASHSCOPE_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["dashscope/", "dashscope/qwen-", "dashscope/qwen3-"],
-			"model_count": 32
-		},
-		{
-			"name": "databricks",
-			"display_name": "Databricks",
-			"endpoints": ["chat"],
-			"model_prefixes": ["databricks/", "databricks/databricks-"],
-			"model_count": 28
-		},
-		{
-			"name": "dataforseo",
-			"display_name": "DataForSEO",
-			"base_url": "https://api.dataforseo.com/v3/serp/google/organic/live/advanced",
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "datarobot",
-			"display_name": "DataRobot",
-			"base_url": "https://app.datarobot.com",
-			"auth": {
-				"type": "bearer",
-				"env_var": "DATAROBOT_API_TOKEN"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "deepgram",
-			"display_name": "Deepgram",
-			"base_url": "https://api.deepgram.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "DEEPGRAM_API_KEY"
-			},
-			"endpoints": ["audio", "chat"],
-			"model_prefixes": [
-				"deepgram/",
-				"deepgram/base-",
-				"deepgram/enhanced-",
-				"deepgram/nova-",
-				"deepgram/whisper-"
-			],
-			"model_count": 36
-		},
-		{
-			"name": "deepinfra",
-			"display_name": "DeepInfra",
-			"base_url": "https://api.deepinfra.com/v1/openai",
-			"auth": {
-				"type": "bearer",
-				"env_var": "DEEPINFRA_API_KEY"
-			},
-			"endpoints": ["chat", "rerank"],
-			"model_prefixes": [
-				"deepinfra/",
-				"deepinfra/NousResearch/Hermes-",
-				"deepinfra/Qwen/Qwen2.5-",
-				"deepinfra/Qwen/Qwen3-",
-				"deepinfra/anthropic/claude-",
-				"deepinfra/deepseek-",
-				"deepinfra/google/gemini-",
-				"deepinfra/google/gemma-",
-				"deepinfra/meta-",
-				"deepinfra/mistralai/Mistral-",
-				"deepinfra/moonshotai/Kimi-",
-				"deepinfra/nvidia/Llama-",
-				"deepinfra/openai/gpt-"
-			],
-			"model_count": 67
-		},
-		{
-			"name": "deepseek",
-			"display_name": "Deepseek",
-			"base_url": "https://api.deepseek.com/beta",
-			"auth": {
-				"type": "bearer",
-				"env_var": "DEEPSEEK_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["deepseek-", "deepseek/", "deepseek/deepseek-"],
-			"model_count": 8
-		},
-		{
-			"name": "docker_model_runner",
-			"display_name": "Docker Model Runner",
-			"base_url": "http://localhost:22088/engines/llama.cpp",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "duckduckgo",
-			"display_name": "DuckDuckGo",
-			"base_url": "https://api.duckduckgo.com",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "elevenlabs",
-			"display_name": "ElevenLabs",
-			"base_url": "https://api.elevenlabs.io",
-			"auth": {
-				"type": "bearer",
-				"env_var": "ELEVENLABS_API_KEY"
-			},
-			"endpoints": ["audio"],
-			"model_prefixes": ["elevenlabs/"],
-			"model_count": 4
-		},
-		{
-			"name": "empower",
-			"display_name": "Empower",
-			"base_url": "https://app.empower.dev/api/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "EMPOWER_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "exa_ai",
-			"display_name": "Exa AI",
-			"base_url": "https://api.exa.ai",
-			"auth": {
-				"type": "bearer",
-				"env_var": "EXA_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "fal_ai",
-			"display_name": "Fal AI",
-			"base_url": "https://fal.run",
-			"auth": {
-				"type": "bearer",
-				"env_var": "FAL_AI_API_KEY"
-			},
-			"endpoints": ["chat", "image"],
-			"model_prefixes": ["fal_ai/", "fal_ai/fal-"],
-			"model_count": 12
-		},
-		{
-			"name": "featherless_ai",
-			"display_name": "Featherless AI",
-			"base_url": "https://api.featherless.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "FEATHERLESS_AI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["featherless_ai/", "featherless_ai/featherless-"],
-			"model_count": 2
-		},
-		{
-			"name": "firecrawl",
-			"display_name": "Firecrawl",
-			"base_url": "https://api.firecrawl.dev/v2",
-			"auth": {
-				"type": "bearer",
-				"env_var": "FIRECRAWL_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "fireworks_ai",
-			"display_name": "Fireworks AI",
-			"base_url": "https://api.fireworks.ai/inference/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "FIREWORKS_AI_API_KEY"
-			},
-			"endpoints": ["chat", "rerank"],
-			"model_prefixes": [
-				"fireworks-",
-				"fireworks_ai/",
-				"fireworks_ai/accounts/fireworks/models/code-",
-				"fireworks_ai/accounts/fireworks/models/codegemma-",
-				"fireworks_ai/accounts/fireworks/models/cogito-",
-				"fireworks_ai/accounts/fireworks/models/deepseek-",
-				"fireworks_ai/accounts/fireworks/models/dobby-",
-				"fireworks_ai/accounts/fireworks/models/dolphin-",
-				"fireworks_ai/accounts/fireworks/models/ernie-",
-				"fireworks_ai/accounts/fireworks/models/firefunction-",
-				"fireworks_ai/accounts/fireworks/models/fireworks-",
-				"fireworks_ai/accounts/fireworks/models/flux-",
-				"fireworks_ai/accounts/fireworks/models/gemma-",
-				"fireworks_ai/accounts/fireworks/models/glm-",
-				"fireworks_ai/accounts/fireworks/models/gpt-",
-				"fireworks_ai/accounts/fireworks/models/internvl3-",
-				"fireworks_ai/accounts/fireworks/models/kat-",
-				"fireworks_ai/accounts/fireworks/models/kimi-",
-				"fireworks_ai/accounts/fireworks/models/llama-",
-				"fireworks_ai/accounts/fireworks/models/llama4-",
-				"fireworks_ai/accounts/fireworks/models/minimax-",
-				"fireworks_ai/accounts/fireworks/models/ministral-",
-				"fireworks_ai/accounts/fireworks/models/mistral-",
-				"fireworks_ai/accounts/fireworks/models/mixtral-",
-				"fireworks_ai/accounts/fireworks/models/nous-",
-				"fireworks_ai/accounts/fireworks/models/nvidia-",
-				"fireworks_ai/accounts/fireworks/models/openhermes-",
-				"fireworks_ai/accounts/fireworks/models/phi-",
-				"fireworks_ai/accounts/fireworks/models/phind-",
-				"fireworks_ai/accounts/fireworks/models/playground-",
-				"fireworks_ai/accounts/fireworks/models/qwen-",
-				"fireworks_ai/accounts/fireworks/models/qwen2-",
-				"fireworks_ai/accounts/fireworks/models/qwen2p5-",
-				"fireworks_ai/accounts/fireworks/models/qwen3-",
-				"fireworks_ai/accounts/fireworks/models/starcoder-",
-				"fireworks_ai/accounts/fireworks/models/starcoder2-",
-				"fireworks_ai/accounts/fireworks/models/whisper-",
-				"fireworks_ai/accounts/fireworks/models/yi-"
-			],
-			"model_count": 269
-		},
-		{
-			"name": "friendliai",
-			"display_name": "FriendliAI",
-			"base_url": "https://api.friendli.ai/serverless/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "FRIENDLI_TOKEN"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["friendliai/", "friendliai/meta-"],
-			"model_count": 2
-		},
-		{
-			"name": "galadriel",
-			"display_name": "Galadriel",
-			"base_url": "https://api.galadriel.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GALADRIEL_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "gemini",
-			"display_name": "Google AI Studio - Gemini",
-			"base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GEMINI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"gemini-",
-				"gemini/",
-				"gemini/gemini-",
-				"gemini/imagen-",
-				"gemini/veo-"
-			],
-			"model_count": 60
-		},
-		{
-			"name": "gigachat",
-			"display_name": "GigaChat",
-			"base_url": "https://gigachat.devices.sberbank.ru/api/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GIGACHAT_API_KEY"
-			},
-			"endpoints": ["chat", "embedding"],
-			"model_prefixes": ["gigachat/", "gigachat/GigaChat-"],
-			"model_count": 6
-		},
-		{
-			"name": "github",
-			"display_name": "GitHub Models",
-			"base_url": "https://models.inference.ai.azure.com",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GITHUB_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "github_copilot",
-			"display_name": "GitHub Copilot",
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"github_copilot/",
-				"github_copilot/claude-",
-				"github_copilot/gemini-",
-				"github_copilot/gpt-",
-				"github_copilot/text-"
-			],
-			"model_count": 31
-		},
-		{
-			"name": "gmi",
-			"display_name": "GMI Cloud",
-			"base_url": "https://api.gmi-serving.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GMI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"gmi/",
-				"gmi/anthropic/claude-",
-				"gmi/deepseek-",
-				"gmi/google/gemini-",
-				"gmi/openai/gpt-"
-			],
-			"model_count": 17
-		},
-		{
-			"name": "google_pse",
-			"display_name": "Google PSE",
-			"base_url": "https://customsearch.googleapis.com/customsearch/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GOOGLE_PSE_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "gradient_ai",
-			"display_name": "GradientAI",
-			"base_url": "https://inference.do-ai.run",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GRADIENT_AI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"gradient_ai/",
-				"gradient_ai/anthropic-",
-				"gradient_ai/openai-"
-			],
-			"model_count": 13
-		},
-		{
-			"name": "groq",
-			"display_name": "Groq AI",
-			"base_url": "https://api.groq.com/openai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "GROQ_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"groq/",
-				"groq/llama-",
-				"groq/meta-",
-				"groq/openai/gpt-",
-				"groq/whisper-"
-			],
-			"model_count": 14
-		},
-		{
-			"name": "helicone",
-			"display_name": "Helicone",
-			"base_url": "https://ai-gateway.helicone.ai/",
-			"auth": {
-				"type": "bearer",
-				"env_var": "HELICONE_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "heroku",
-			"display_name": "Heroku",
-			"endpoints": ["chat"],
-			"model_prefixes": ["heroku/", "heroku/claude-"],
-			"model_count": 4
-		},
-		{
-			"name": "hosted_vllm",
-			"display_name": "Hosted VLLM",
-			"endpoints": ["batch", "chat", "embedding", "files", "rerank"]
-		},
-		{
-			"name": "huggingface",
-			"display_name": "Huggingface",
-			"base_url": "https://api-inference.huggingface.co/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "HUGGINGFACE_API_KEY"
-			},
-			"endpoints": ["chat", "embedding", "rerank"]
-		},
-		{
-			"name": "hyperbolic",
-			"display_name": "Hyperbolic",
-			"base_url": "https://api.hyperbolic.xyz/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "HYPERBOLIC_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"hyperbolic/",
-				"hyperbolic/Qwen/Qwen2.5-",
-				"hyperbolic/deepseek-",
-				"hyperbolic/meta-"
-			],
-			"model_count": 16
-		},
-		{
-			"name": "infinity",
-			"display_name": "Infinity",
-			"endpoints": ["embedding"]
-		},
-		{
-			"name": "jina_ai",
-			"display_name": "Jina AI",
-			"base_url": "https://api.jina.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "JINA_AI_API_KEY"
-			},
-			"endpoints": ["embedding", "rerank"],
-			"model_count": 1
-		},
-		{
-			"name": "lambda_ai",
-			"display_name": "Lambda AI",
-			"base_url": "https://api.lambda.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "LAMBDA_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"lambda_ai/",
-				"lambda_ai/deepseek-",
-				"lambda_ai/hermes3-",
-				"lambda_ai/lfm-",
-				"lambda_ai/llama-",
-				"lambda_ai/llama3.1-",
-				"lambda_ai/llama3.2-"
-			],
-			"model_count": 20
-		},
-		{
-			"name": "langgraph",
-			"display_name": "LangGraph",
-			"base_url": "http://localhost:2024",
-			"auth": {
-				"type": "bearer",
-				"env_var": "LANGGRAPH_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "lemonade",
-			"display_name": "Lemonade",
-			"base_url": "http://localhost:8000/api/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["lemonade/", "lemonade/Qwen3-", "lemonade/gpt-"],
-			"model_count": 5
-		},
-		{
-			"name": "linkup",
-			"display_name": "Linkup",
-			"base_url": "https://api.linkup.so/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "LINKUP_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_prefixes": ["linkup/"],
-			"model_count": 2
-		},
-		{
-			"name": "litellm_proxy",
-			"display_name": "LiteLLM Proxy",
-			"endpoints": ["chat", "embedding", "image"]
-		},
-		{
-			"name": "llamafile",
-			"display_name": "llamafile",
-			"base_url": "http://localhost:8080/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat", "completion", "embedding", "rerank"],
-			"model_prefixes": ["llamafile/"]
-		},
-		{
-			"name": "llamacpp",
-			"display_name": "llama.cpp",
-			"base_url": "http://localhost:8080/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat", "completion", "embedding", "rerank"],
-			"model_prefixes": ["llamacpp/"]
-		},
-		{
-			"name": "llamagate",
-			"display_name": "LlamaGate",
-			"base_url": "https://api.llamagate.dev/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "LLAMAGATE_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"llamagate/",
-				"llamagate/deepseek-",
-				"llamagate/llama-",
-				"llamagate/qwen3-"
-			],
-			"model_count": 16
-		},
-		{
-			"name": "lmstudio",
-			"display_name": "LM Studio",
-			"base_url": "http://localhost:1234/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat", "completion", "embedding"],
-			"model_prefixes": ["lmstudio/"]
-		},
-		{
-			"name": "localai",
-			"display_name": "LocalAI",
-			"base_url": "http://localhost:8080/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": [
-				"audio",
-				"chat",
-				"completion",
-				"embedding",
-				"image",
-				"rerank"
-			],
-			"model_prefixes": ["localai/"]
-		},
-		{
-			"name": "manus",
-			"display_name": "Manus",
-			"endpoints": ["chat", "files"]
-		},
-		{
-			"name": "maritalk",
-			"display_name": "Maritalk",
-			"base_url": "https://chat.maritaca.ai/api",
-			"auth": {
-				"type": "bearer",
-				"env_var": "MARITALK_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "meta_llama",
-			"display_name": "Meta - Llama API",
-			"base_url": "https://api.llama.com/compat/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "LLAMA_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["meta_llama/", "meta_llama/Llama-"],
-			"model_count": 4
-		},
-		{
-			"name": "milvus",
-			"display_name": "Milvus"
-		},
-		{
-			"name": "minimax",
-			"display_name": "Minimax",
-			"base_url": "https://api.minimax.io/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "MINIMAX_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["minimax/", "minimax/MiniMax-", "minimax/speech-"],
-			"model_count": 9
-		},
-		{
-			"name": "mistral",
-			"display_name": "Mistral AI API",
-			"base_url": "https://api.mistral.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "MISTRAL_API_KEY"
-			},
-			"endpoints": ["chat", "embedding", "ocr", "audio"],
-			"model_prefixes": [
-				"mistral/",
-				"mistral/codestral-",
-				"mistral/devstral-",
-				"mistral/magistral-",
-				"mistral/ministral-",
-				"mistral/mistral-",
-				"mistral/open-",
-				"mistral/pixtral-"
-			],
-			"model_count": 51
-		},
-		{
-			"name": "moonshot",
-			"display_name": "Moonshot",
-			"base_url": "https://api.moonshot.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "MOONSHOT_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["moonshot/", "moonshot/kimi-", "moonshot/moonshot-"],
-			"model_count": 21
-		},
-		{
-			"name": "morph",
-			"display_name": "Morph",
-			"base_url": "https://api.morphllm.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "MORPH_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["morph/", "morph/morph-"],
-			"model_count": 2
-		},
-		{
-			"name": "nanogpt",
-			"display_name": "NanoGPT",
-			"base_url": "https://nano-gpt.com/api/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "NANOGPT_API_KEY"
-			},
-			"endpoints": ["chat", "embedding"],
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			}
-		},
-		{
-			"name": "nebius",
-			"display_name": "Nebius AI Studio",
-			"base_url": "https://api.studio.nebius.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "NEBIUS_API_KEY"
-			},
-			"endpoints": ["chat", "embedding"],
-			"model_prefixes": [
-				"nebius/",
-				"nebius/BAAI/bge-",
-				"nebius/Qwen/Qwen2-",
-				"nebius/Qwen/Qwen2.5-",
-				"nebius/Qwen/Qwen3-",
-				"nebius/deepseek-",
-				"nebius/meta-",
-				"nebius/nvidia/Llama-"
-			],
-			"model_count": 30
-		},
-		{
-			"name": "nlp_cloud",
-			"display_name": "NLP Cloud",
-			"base_url": "https://api.nlpcloud.io/v1/gpu/",
-			"auth": {
-				"type": "bearer",
-				"env_var": "NLP_CLOUD_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_count": 2
-		},
-		{
-			"name": "novita",
-			"display_name": "Novita AI",
-			"base_url": "https://api.novita.ai/v3/openai",
-			"auth": {
-				"type": "bearer",
-				"env_var": "NOVITA_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"novita/",
-				"novita/baai/bge-",
-				"novita/baidu/ernie-",
-				"novita/deepseek/deepseek-",
-				"novita/google/gemma-",
-				"novita/meta-",
-				"novita/minimax/minimax-",
-				"novita/moonshotai/kimi-",
-				"novita/openai/gpt-",
-				"novita/qwen/qwen-",
-				"novita/qwen/qwen2.5-",
-				"novita/qwen/qwen3-",
-				"novita/sao10k/l3-",
-				"novita/zai-"
-			],
-			"model_count": 85
-		},
-		{
-			"name": "nscale",
-			"display_name": "Nscale",
-			"base_url": "https://inference.api.nscale.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "NSCALE_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"nscale/",
-				"nscale/Qwen/Qwen2.5-",
-				"nscale/deepseek-",
-				"nscale/meta-"
-			],
-			"model_count": 16
-		},
-		{
-			"name": "nvidia_nim",
-			"display_name": "Nvidia NIM",
-			"base_url": "https://integrate.api.nvidia.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "NVIDIA_NIM_API_KEY"
-			},
-			"endpoints": ["chat", "embedding", "rerank"],
-			"model_prefixes": ["nvidia_nim/"],
-			"model_count": 3
-		},
-		{
-			"name": "oci",
-			"display_name": "OCI",
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"oci/",
-				"oci/cohere.command-",
-				"oci/meta.llama-",
-				"oci/xai.grok-"
-			],
-			"model_count": 13
-		},
-		{
-			"name": "ollama",
-			"display_name": "Ollama",
-			"base_url": "http://localhost:11434",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat", "completion", "embedding"],
-			"model_prefixes": ["ollama/"]
-		},
-		{
-			"name": "oobabooga",
-			"display_name": "Oobabooga",
-			"base_url": "http://localhost:5000/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["audio", "batch", "chat", "moderation"]
-		},
-		{
-			"name": "openai",
-			"display_name": "OpenAI",
-			"base_url": "https://api.openai.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "OPENAI_API_KEY"
-			},
-			"endpoints": [
-				"audio",
-				"batch",
-				"chat",
-				"completion",
-				"embedding",
-				"image",
-				"moderation"
-			],
-			"model_prefixes": [
-				"1024-",
-				"1024-x-1024/",
-				"1024-x-1536/",
-				"1536-",
-				"1536-x-1024/",
-				"chatgpt-",
-				"dall-",
-				"ft:gpt-",
-				"gpt-",
-				"hd/",
-				"hd/1024-",
-				"high/",
-				"high/1024-",
-				"high/1536-",
-				"low/",
-				"low/1024-",
-				"low/1536-",
-				"medium/",
-				"medium/1024-",
-				"medium/1536-",
-				"o1-",
-				"o3-",
-				"o4-",
-				"omni-",
-				"openai/",
-				"openai/sora-",
-				"sora-",
-				"standard/",
-				"standard/1024-",
-				"standard/1536-",
-				"text-",
-				"tts-"
-			],
-			"model_count": 203
-		},
-		{
-			"name": "openai_like",
-			"display_name": "OpenAI-like",
-			"endpoints": ["embedding"]
-		},
-		{
-			"name": "openrouter",
-			"display_name": "OpenRouter",
-			"base_url": "https://openrouter.ai/api/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "OPENROUTER_API_KEY"
-			},
-			"endpoints": ["chat", "embedding"],
-			"model_prefixes": [
-				"openrouter/",
-				"openrouter/anthropic/claude-",
-				"openrouter/deepseek/deepseek-",
-				"openrouter/google/gemini-",
-				"openrouter/minimax/minimax-",
-				"openrouter/mistralai/ministral-",
-				"openrouter/mistralai/mistral-",
-				"openrouter/openai/gpt-",
-				"openrouter/openai/o3-",
-				"openrouter/qwen/qwen-",
-				"openrouter/qwen/qwen3-",
-				"openrouter/qwen/qwen3.5-",
-				"openrouter/z-"
-			],
-			"model_count": 89
-		},
-		{
-			"name": "ovhcloud",
-			"display_name": "OVHCloud AI Endpoints",
-			"base_url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "OVH_API_KEY"
-			},
-			"endpoints": ["audio", "chat"],
-			"model_prefixes": [
-				"ovhcloud/",
-				"ovhcloud/Meta-",
-				"ovhcloud/Mistral-",
-				"ovhcloud/Qwen2.5-",
-				"ovhcloud/gpt-"
-			],
-			"model_count": 15
-		},
-		{
-			"name": "parallel_ai",
-			"display_name": "Parallel AI",
-			"base_url": "https://api.parallel.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "PARALLEL_AI_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_prefixes": ["parallel_ai/"],
-			"model_count": 2
-		},
-		{
-			"name": "perplexity",
-			"display_name": "Perplexity AI",
-			"base_url": "https://api.perplexity.ai",
-			"auth": {
-				"type": "bearer",
-				"env_var": "PERPLEXITYAI_API_KEY"
-			},
-			"endpoints": ["chat", "search"],
-			"model_prefixes": [
-				"perplexity/",
-				"perplexity/anthropic/claude-",
-				"perplexity/codellama-",
-				"perplexity/google/gemini-",
-				"perplexity/llama-",
-				"perplexity/openai/gpt-",
-				"perplexity/pplx-",
-				"perplexity/sonar-"
-			],
-			"model_count": 40
-		},
-		{
-			"name": "petals",
-			"display_name": "Petals",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "pg_vector",
-			"display_name": "PG Vector"
-		},
-		{
-			"name": "poe",
-			"display_name": "Poe",
-			"base_url": "https://api.poe.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "POE_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat", "embedding"]
-		},
-		{
-			"name": "predibase",
-			"display_name": "Predibase",
-			"base_url": "https://serving.app.predibase.com",
-			"auth": {
-				"type": "bearer",
-				"env_var": "PREDIBASE_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "publicai",
-			"display_name": "PublicAI",
-			"base_url": "https://api.publicai.co/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "PUBLICAI_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"publicai/",
-				"publicai/BSC-",
-				"publicai/allenai/Olmo-",
-				"publicai/swiss-"
-			],
-			"model_count": 9
-		},
-		{
-			"name": "pydantic_ai_agents",
-			"display_name": "Pydantic AI Agents"
-		},
-		{
-			"name": "ragflow",
-			"display_name": "RAGFlow",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "recraft",
-			"display_name": "Recraft",
-			"base_url": "https://external.api.recraft.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "RECRAFT_API_KEY"
-			},
-			"endpoints": ["image"],
-			"model_prefixes": ["recraft/"],
-			"model_count": 2
-		},
-		{
-			"name": "replicate",
-			"display_name": "Replicate",
-			"base_url": "https://api.replicate.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "REPLICATE_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"replicate/",
-				"replicate/anthropic/claude-",
-				"replicate/deepseek-",
-				"replicate/google/gemini-",
-				"replicate/meta/llama-",
-				"replicate/mistralai/mistral-",
-				"replicate/openai/gpt-"
-			],
-			"model_count": 40
-		},
-		{
-			"name": "runwayml",
-			"display_name": "RunwayML",
-			"base_url": "https://api.dev.runwayml.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "RUNWAYML_API_KEY"
-			},
-			"endpoints": ["audio", "image"],
-			"model_prefixes": ["runwayml/"],
-			"model_count": 6
-		},
-		{
-			"name": "s3_vectors",
-			"display_name": "AWS S3 Vectors"
-		},
-		{
-			"name": "sagemaker",
-			"display_name": "AWS - Sagemaker",
-			"endpoints": ["chat", "embedding"],
-			"model_prefixes": ["sagemaker/", "sagemaker/meta-"],
-			"model_count": 6
-		},
-		{
-			"name": "sagemaker_chat",
-			"display_name": "Sagemaker Chat",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "sambanova",
-			"display_name": "Sambanova",
-			"base_url": "https://api.sambanova.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "SAMBANOVA_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"sambanova/",
-				"sambanova/DeepSeek-",
-				"sambanova/Llama-",
-				"sambanova/Meta-"
-			],
-			"model_count": 16
-		},
-		{
-			"name": "sap",
-			"display_name": "SAP Generative AI Hub",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "sarvam",
-			"display_name": "Sarvam",
-			"base_url": "https://api.sarvam.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "SARVAM_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat"],
-			"model_count": 1
-		},
-		{
-			"name": "scaleway",
-			"display_name": "Scaleway",
-			"base_url": "https://api.scaleway.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "SCW_SECRET_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "searxng",
-			"display_name": "SearXNG",
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "serper",
-			"display_name": "Serper",
-			"base_url": "https://google.serper.dev",
-			"auth": {
-				"type": "bearer",
-				"env_var": "SERPER_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_count": 1
-		},
-		{
-			"name": "snowflake",
-			"display_name": "Snowflake",
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"snowflake/",
-				"snowflake/jamba-",
-				"snowflake/llama3-",
-				"snowflake/llama3.1-",
-				"snowflake/llama3.2-",
-				"snowflake/mistral-",
-				"snowflake/reka-",
-				"snowflake/snowflake-"
-			],
-			"model_count": 24
-		},
-		{
-			"name": "stability",
-			"display_name": "Stability AI",
-			"base_url": "https://api.stability.ai",
-			"auth": {
-				"type": "bearer",
-				"env_var": "STABILITY_API_KEY"
-			},
-			"endpoints": ["image"],
-			"model_prefixes": [
-				"stability/",
-				"stability/sd3-",
-				"stability/sd3.5-",
-				"stability/search-",
-				"stability/stable-"
-			],
-			"model_count": 23
-		},
-		{
-			"name": "synthetic",
-			"display_name": "Synthetic",
-			"base_url": "https://api.synthetic.new/openai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "SYNTHETIC_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat", "embedding"]
-		},
-		{
-			"name": "tavily",
-			"display_name": "Tavily",
-			"base_url": "https://api.tavily.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "TAVILY_API_KEY"
-			},
-			"endpoints": ["search"],
-			"model_prefixes": ["tavily/"],
-			"model_count": 2
-		},
-		{
-			"name": "text-completion-codestral",
-			"display_name": "Text Completion Codestral",
-			"base_url": "https://codestral.mistral.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "CODESTRAL_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["text-", "text-completion-codestral/"],
-			"model_count": 2
-		},
-		{
-			"name": "text-completion-openai",
-			"display_name": "Text Completion OpenAI",
-			"base_url": "https://api.openai.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "OPENAI_API_KEY"
-			},
-			"endpoints": ["audio", "batch", "chat", "moderation"],
-			"model_prefixes": ["gpt-"],
-			"model_count": 6
-		},
-		{
-			"name": "together_ai",
-			"display_name": "Together AI",
-			"base_url": "https://api.together.xyz/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "TOGETHER_AI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"together-",
-				"together_ai/",
-				"together_ai/Qwen/Qwen2.5-",
-				"together_ai/Qwen/Qwen3-",
-				"together_ai/deepseek-",
-				"together_ai/meta-",
-				"together_ai/mistralai/Mistral-",
-				"together_ai/moonshotai/Kimi-",
-				"together_ai/openai/gpt-",
-				"together_ai/zai-"
-			],
-			"model_count": 43
-		},
-		{
-			"name": "topaz",
-			"display_name": "Topaz",
-			"base_url": "https://api.topazlabs.com/image/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "TOPAZ_API_KEY"
-			}
-		},
-		{
-			"name": "triton",
-			"display_name": "Triton",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "v0",
-			"display_name": "V0",
-			"base_url": "https://api.v0.dev/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "V0_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["v0/", "v0/v0-"],
-			"model_count": 3
-		},
-		{
-			"name": "venice",
-			"display_name": "Venice.ai",
-			"base_url": "https://api.venice.ai/api/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "VENICE_AI_API_KEY"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "vercel_ai_gateway",
-			"display_name": "Vercel AI Gateway",
-			"base_url": "https://ai-gateway.vercel.sh/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "VERCEL_AI_GATEWAY_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"vercel_ai_gateway/",
-				"vercel_ai_gateway/alibaba/qwen-",
-				"vercel_ai_gateway/amazon/nova-",
-				"vercel_ai_gateway/anthropic/claude-",
-				"vercel_ai_gateway/cohere/command-",
-				"vercel_ai_gateway/deepseek/deepseek-",
-				"vercel_ai_gateway/google/gemini-",
-				"vercel_ai_gateway/google/text-",
-				"vercel_ai_gateway/meta/llama-",
-				"vercel_ai_gateway/mistral/magistral-",
-				"vercel_ai_gateway/mistral/ministral-",
-				"vercel_ai_gateway/mistral/mistral-",
-				"vercel_ai_gateway/mistral/pixtral-",
-				"vercel_ai_gateway/morph/morph-",
-				"vercel_ai_gateway/openai/gpt-",
-				"vercel_ai_gateway/openai/text-",
-				"vercel_ai_gateway/perplexity/sonar-",
-				"vercel_ai_gateway/vercel/v0-",
-				"vercel_ai_gateway/xai/grok-",
-				"vercel_ai_gateway/zai/glm-"
-			],
-			"model_count": 101
-		},
-		{
-			"name": "vertex_ai",
-			"display_name": "Google - Vertex AI",
-			"endpoints": ["audio", "chat", "embedding", "image", "ocr"],
-			"model_prefixes": ["vertex_ai/", "vertex_ai/gemini-"],
-			"model_count": 9
-		},
-		{
-			"name": "vertex_ai/agent_engine",
-			"display_name": "Vertex AI Agent Engine",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "vllm",
-			"display_name": "vLLM",
-			"base_url": "http://localhost:8000/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["chat", "completion", "embedding", "rerank"],
-			"model_prefixes": ["vllm/"]
-		},
-		{
-			"name": "volcengine",
-			"display_name": "Volcengine",
-			"base_url": "https://ark.cn-beijing.volces.com/api/v3",
-			"auth": {
-				"type": "bearer",
-				"env_var": "VOLCENGINE_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["doubao-", "volcengine/", "volcengine/doubao-"],
-			"model_count": 12
-		},
-		{
-			"name": "voyage",
-			"display_name": "Voyage AI",
-			"base_url": "https://api.voyageai.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "VOYAGE_API_KEY"
-			},
-			"endpoints": ["embedding", "rerank"],
-			"model_prefixes": ["voyage/", "voyage/rerank-", "voyage/voyage-"],
-			"model_count": 19
-		},
-		{
-			"name": "wandb",
-			"display_name": "WandB Inference",
-			"base_url": "https://api.inference.wandb.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "WANDB_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": [
-				"wandb/",
-				"wandb/Qwen/Qwen3-",
-				"wandb/deepseek-",
-				"wandb/meta-",
-				"wandb/openai/gpt-"
-			],
-			"model_count": 14
-		},
-		{
-			"name": "watsonx",
-			"display_name": "IBM - Watsonx.ai",
-			"endpoints": ["audio", "chat", "embedding"],
-			"model_prefixes": [
-				"watsonx/",
-				"watsonx/ibm/granite-",
-				"watsonx/meta-",
-				"watsonx/mistralai/mistral-"
-			],
-			"model_count": 29
-		},
-		{
-			"name": "watsonx_text",
-			"display_name": "Watsonx Text",
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "xai",
-			"display_name": "xAI",
-			"base_url": "https://api.x.ai/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "XAI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["xai/", "xai/grok-"],
-			"model_count": 35
-		},
-		{
-			"name": "xiaomi_mimo",
-			"display_name": "Xiaomi Mimo",
-			"base_url": "https://api.xiaomimimo.com/v1",
-			"auth": {
-				"type": "bearer",
-				"env_var": "XIAOMI_MIMO_API_KEY"
-			},
-			"param_mappings": {
-				"max_completion_tokens": "max_tokens"
-			},
-			"endpoints": ["chat"]
-		},
-		{
-			"name": "xinference",
-			"display_name": "Xinference",
-			"base_url": "http://localhost:9997/v1",
-			"auth": {
-				"type": "none"
-			},
-			"endpoints": ["embedding"]
-		},
-		{
-			"name": "zai",
-			"display_name": "Z.AI",
-			"base_url": "https://api.z.ai/api/paas/v4",
-			"auth": {
-				"type": "bearer",
-				"env_var": "ZAI_API_KEY"
-			},
-			"endpoints": ["chat"],
-			"model_prefixes": ["zai/", "zai/glm-"],
-			"model_count": 11
-		}
-	],
-	"complex_providers": [
-		"a2a",
-		"amazon_nova",
-		"anthropic",
-		"anthropic_text",
-		"auto_router",
-		"aws_polly",
-		"azure",
-		"azure_ai",
-		"azure_ai/agents",
-		"azure_ai/doc-intelligence",
-		"azure_text",
-		"baseten",
-		"bedrock",
-		"chatgpt",
-		"cloudflare",
-		"cursor",
-		"custom",
-		"custom_openai",
-		"databricks",
-		"dataforseo",
-		"datarobot",
-		"gigachat",
-		"github_copilot",
-		"heroku",
-		"hosted_vllm",
-		"infinity",
-		"litellm_proxy",
-		"manus",
-		"milvus",
-		"oci",
-		"openai_like",
-		"petals",
-		"pg_vector",
-		"pydantic_ai_agents",
-		"ragflow",
-		"s3_vectors",
-		"sagemaker",
-		"sagemaker_chat",
-		"sap",
-		"searxng",
-		"snowflake",
-		"triton",
-		"vertex_ai",
-		"vertex_ai/agent_engine",
-		"watsonx",
-		"watsonx_text"
-	]
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Generated from litellm data. Source: https://github.com/BerriAI/litellm (MIT License, Copyright 2023 Berri AI)",
+  "providers": [
+    {
+      "name": "a2a",
+      "display_name": "A2A",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "abliteration",
+      "display_name": "Abliteration",
+      "base_url": "https://api.abliteration.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "ABLITERATION_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "ai21",
+      "display_name": "AI21",
+      "base_url": "https://api.ai21.com/studio/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "AI21_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["j2-", "jamba-"],
+      "model_count": 12
+    },
+    {
+      "name": "ai21_chat",
+      "display_name": "AI21 Chat",
+      "base_url": "https://api.ai21.com/studio/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "AI21_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "aiml",
+      "display_name": "AI/ML API",
+      "base_url": "https://api.aimlapi.com",
+      "auth": {
+        "type": "bearer",
+        "env_var": "AIML_API_KEY"
+      },
+      "endpoints": ["chat", "embedding", "image"],
+      "model_prefixes": ["aiml/", "aiml/dall-", "aiml/flux-", "aiml/flux/kontext-"],
+      "model_count": 12
+    },
+    {
+      "name": "amazon_nova",
+      "display_name": "Amazon Nova",
+      "base_url": "https://api.nova.amazon.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "AMAZON_NOVA_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["amazon-", "amazon-nova/"],
+      "model_count": 4
+    },
+    {
+      "name": "anthropic",
+      "display_name": "Anthropic",
+      "base_url": "https://api.anthropic.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "ANTHROPIC_API_KEY"
+      },
+      "endpoints": ["batch", "chat"],
+      "model_prefixes": ["claude-"],
+      "model_count": 18
+    },
+    {
+      "name": "anthropic_text",
+      "display_name": "Anthropic Text",
+      "base_url": "https://api.anthropic.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "ANTHROPIC_API_KEY"
+      },
+      "endpoints": ["batch", "chat"]
+    },
+    {
+      "name": "apertis",
+      "display_name": "Apertis",
+      "base_url": "https://api.stima.tech/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "STIMA_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat", "embedding"]
+    },
+    {
+      "name": "assemblyai",
+      "display_name": "AssemblyAI",
+      "base_url": "https://llm-gateway.assemblyai.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "ASSEMBLYAI_API_KEY"
+      },
+      "endpoints": ["audio", "chat"],
+      "model_prefixes": ["assemblyai/"],
+      "model_count": 2
+    },
+    {
+      "name": "auto_router",
+      "display_name": "Auto Router",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "aws_polly",
+      "display_name": "AWS - Polly",
+      "endpoints": ["audio"],
+      "model_prefixes": ["aws_polly/"],
+      "model_count": 4
+    },
+    {
+      "name": "azure",
+      "display_name": "Azure",
+      "endpoints": ["audio", "batch", "chat", "completion", "embedding", "image", "moderation"],
+      "model_prefixes": [
+        "azure/",
+        "azure/eu/gpt-",
+        "azure/eu/o1-",
+        "azure/global-",
+        "azure/global/gpt-",
+        "azure/gpt-",
+        "azure/hd/1024-",
+        "azure/high/1024-",
+        "azure/high/1536-",
+        "azure/low/1024-",
+        "azure/low/1536-",
+        "azure/medium/1024-",
+        "azure/medium/1536-",
+        "azure/mistral-",
+        "azure/o1-",
+        "azure/o3-",
+        "azure/o4-",
+        "azure/sora-",
+        "azure/speech/azure-",
+        "azure/standard/1024-",
+        "azure/text-",
+        "azure/tts-",
+        "azure/us/gpt-",
+        "azure/us/o1-",
+        "azure/us/o3-"
+      ],
+      "model_count": 189
+    },
+    {
+      "name": "azure_ai",
+      "display_name": "Azure AI",
+      "endpoints": ["audio", "batch", "chat", "embedding", "image", "moderation", "ocr"],
+      "model_prefixes": [
+        "azure_ai/",
+        "azure_ai/Cohere-",
+        "azure_ai/Llama-",
+        "azure_ai/Meta-",
+        "azure_ai/Phi-",
+        "azure_ai/claude-",
+        "azure_ai/cohere-",
+        "azure_ai/deepseek-",
+        "azure_ai/doc-",
+        "azure_ai/global/grok-",
+        "azure_ai/grok-",
+        "azure_ai/mistral-"
+      ],
+      "model_count": 75
+    },
+    {
+      "name": "azure_ai/agents",
+      "display_name": "Azure AI Foundry Agents",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "azure_ai/doc-intelligence",
+      "display_name": "Azure AI Document Intelligence",
+      "endpoints": ["ocr"]
+    },
+    {
+      "name": "azure_text",
+      "display_name": "Azure Text",
+      "endpoints": ["audio", "batch", "chat", "moderation"],
+      "model_prefixes": ["azure/", "azure/gpt-"],
+      "model_count": 3
+    },
+    {
+      "name": "baseten",
+      "display_name": "Baseten",
+      "base_url": "https://inference.baseten.co/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "BASETEN_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "bedrock",
+      "display_name": "AWS - Bedrock",
+      "endpoints": ["chat", "embedding", "rerank"],
+      "model_prefixes": [
+        "1024-",
+        "1024-x-1024/",
+        "512-",
+        "512-x-512/",
+        "ai21.j2-",
+        "ai21.jamba-",
+        "amazon.nova-",
+        "amazon.titan-",
+        "anthropic.claude-",
+        "apac.anthropic.claude-",
+        "bedrock/",
+        "bedrock/*/1-",
+        "bedrock/*/6-",
+        "bedrock/ap-",
+        "bedrock/ca-",
+        "bedrock/eu-",
+        "bedrock/moonshotai.kimi-",
+        "bedrock/sa-",
+        "bedrock/us-",
+        "cohere.command-",
+        "cohere.embed-",
+        "eu.anthropic.claude-",
+        "eu.meta.llama3-",
+        "max-",
+        "max-x-max/",
+        "meta.llama2-",
+        "meta.llama3-",
+        "mistral.mistral-",
+        "stability.sd3-",
+        "stability.stable-",
+        "us.anthropic.claude-",
+        "us.meta.llama3-"
+      ],
+      "model_count": 245
+    },
+    {
+      "name": "brave",
+      "display_name": "Brave Search",
+      "base_url": "https://api.search.brave.com/res/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "BRAVE_API_KEY"
+      },
+      "endpoints": ["search"]
+    },
+    {
+      "name": "bytez",
+      "display_name": "Bytez",
+      "base_url": "https://api.bytez.com/models/v2",
+      "auth": {
+        "type": "bearer",
+        "env_var": "BYTEZ_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "cerebras",
+      "display_name": "Cerebras",
+      "base_url": "https://api.cerebras.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "CEREBRAS_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["cerebras/", "cerebras/llama3.1-", "cerebras/zai-"],
+      "model_count": 7
+    },
+    {
+      "name": "chatgpt",
+      "display_name": "ChatGPT Subscription",
+      "endpoints": ["chat"],
+      "model_prefixes": ["chatgpt/", "chatgpt/gpt-"],
+      "model_count": 10
+    },
+    {
+      "name": "chutes",
+      "display_name": "Chutes",
+      "base_url": "https://llm.chutes.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "CHUTES_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat", "embedding"]
+    },
+    {
+      "name": "clarifai",
+      "display_name": "Clarifai",
+      "base_url": "https://api.clarifai.com/v2/ext/openai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "CLARIFAI_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "cloudflare",
+      "display_name": "Cloudflare AI Workers",
+      "endpoints": ["chat"],
+      "model_prefixes": ["cloudflare/", "cloudflare/@cf/meta/llama-"],
+      "model_count": 4
+    },
+    {
+      "name": "codestral",
+      "display_name": "Codestral",
+      "base_url": "https://codestral.mistral.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "CODESTRAL_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["codestral/", "codestral/codestral-"],
+      "model_count": 2
+    },
+    {
+      "name": "cohere",
+      "display_name": "Cohere",
+      "base_url": "https://api.cohere.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "COHERE_API_KEY"
+      },
+      "endpoints": ["chat", "embedding", "rerank"],
+      "model_prefixes": ["embed-", "rerank-"],
+      "model_count": 15
+    },
+    {
+      "name": "cohere_chat",
+      "display_name": "Cohere Chat",
+      "base_url": "https://api.cohere.ai/v2",
+      "auth": {
+        "type": "bearer",
+        "env_var": "COHERE_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["command-"],
+      "model_count": 7
+    },
+    {
+      "name": "cometapi",
+      "display_name": "CometAPI",
+      "base_url": "https://api.cometapi.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "COMETAPI_KEY"
+      },
+      "endpoints": ["chat", "embedding", "image"]
+    },
+    {
+      "name": "compactifai",
+      "display_name": "CompactifAI",
+      "base_url": "https://api.compactif.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "COMPACTIFAI_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "cursor",
+      "display_name": "Cursor BYOK",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "custom",
+      "display_name": "Custom",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "custom_openai",
+      "display_name": "Custom OpenAI",
+      "endpoints": ["audio", "batch", "chat", "moderation"]
+    },
+    {
+      "name": "dashscope",
+      "display_name": "Dashscope",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "DASHSCOPE_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["dashscope/", "dashscope/qwen-", "dashscope/qwen3-"],
+      "model_count": 32
+    },
+    {
+      "name": "databricks",
+      "display_name": "Databricks",
+      "endpoints": ["chat"],
+      "model_prefixes": ["databricks/", "databricks/databricks-"],
+      "model_count": 28
+    },
+    {
+      "name": "dataforseo",
+      "display_name": "DataForSEO",
+      "base_url": "https://api.dataforseo.com/v3/serp/google/organic/live/advanced",
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "datarobot",
+      "display_name": "DataRobot",
+      "base_url": "https://app.datarobot.com",
+      "auth": {
+        "type": "bearer",
+        "env_var": "DATAROBOT_API_TOKEN"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "deepgram",
+      "display_name": "Deepgram",
+      "base_url": "https://api.deepgram.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "DEEPGRAM_API_KEY"
+      },
+      "endpoints": ["audio", "chat"],
+      "model_prefixes": [
+        "deepgram/",
+        "deepgram/base-",
+        "deepgram/enhanced-",
+        "deepgram/nova-",
+        "deepgram/whisper-"
+      ],
+      "model_count": 36
+    },
+    {
+      "name": "deepinfra",
+      "display_name": "DeepInfra",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "auth": {
+        "type": "bearer",
+        "env_var": "DEEPINFRA_API_KEY"
+      },
+      "endpoints": ["chat", "rerank"],
+      "model_prefixes": [
+        "deepinfra/",
+        "deepinfra/NousResearch/Hermes-",
+        "deepinfra/Qwen/Qwen2.5-",
+        "deepinfra/Qwen/Qwen3-",
+        "deepinfra/anthropic/claude-",
+        "deepinfra/deepseek-",
+        "deepinfra/google/gemini-",
+        "deepinfra/google/gemma-",
+        "deepinfra/meta-",
+        "deepinfra/mistralai/Mistral-",
+        "deepinfra/moonshotai/Kimi-",
+        "deepinfra/nvidia/Llama-",
+        "deepinfra/openai/gpt-"
+      ],
+      "model_count": 67
+    },
+    {
+      "name": "deepseek",
+      "display_name": "Deepseek",
+      "base_url": "https://api.deepseek.com/beta",
+      "auth": {
+        "type": "bearer",
+        "env_var": "DEEPSEEK_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["deepseek-", "deepseek/", "deepseek/deepseek-"],
+      "model_count": 8
+    },
+    {
+      "name": "docker_model_runner",
+      "display_name": "Docker Model Runner",
+      "base_url": "http://localhost:22088/engines/llama.cpp",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "duckduckgo",
+      "display_name": "DuckDuckGo",
+      "base_url": "https://api.duckduckgo.com",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "elevenlabs",
+      "display_name": "ElevenLabs",
+      "base_url": "https://api.elevenlabs.io",
+      "auth": {
+        "type": "bearer",
+        "env_var": "ELEVENLABS_API_KEY"
+      },
+      "endpoints": ["audio"],
+      "model_prefixes": ["elevenlabs/"],
+      "model_count": 4
+    },
+    {
+      "name": "empower",
+      "display_name": "Empower",
+      "base_url": "https://app.empower.dev/api/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "EMPOWER_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "exa_ai",
+      "display_name": "Exa AI",
+      "base_url": "https://api.exa.ai",
+      "auth": {
+        "type": "bearer",
+        "env_var": "EXA_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "fal_ai",
+      "display_name": "Fal AI",
+      "base_url": "https://fal.run",
+      "auth": {
+        "type": "bearer",
+        "env_var": "FAL_AI_API_KEY"
+      },
+      "endpoints": ["chat", "image"],
+      "model_prefixes": ["fal_ai/", "fal_ai/fal-"],
+      "model_count": 12
+    },
+    {
+      "name": "featherless_ai",
+      "display_name": "Featherless AI",
+      "base_url": "https://api.featherless.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "FEATHERLESS_AI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["featherless_ai/", "featherless_ai/featherless-"],
+      "model_count": 2
+    },
+    {
+      "name": "firecrawl",
+      "display_name": "Firecrawl",
+      "base_url": "https://api.firecrawl.dev/v2",
+      "auth": {
+        "type": "bearer",
+        "env_var": "FIRECRAWL_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "fireworks_ai",
+      "display_name": "Fireworks AI",
+      "base_url": "https://api.fireworks.ai/inference/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "FIREWORKS_AI_API_KEY"
+      },
+      "endpoints": ["chat", "rerank"],
+      "model_prefixes": [
+        "fireworks-",
+        "fireworks_ai/",
+        "fireworks_ai/accounts/fireworks/models/code-",
+        "fireworks_ai/accounts/fireworks/models/codegemma-",
+        "fireworks_ai/accounts/fireworks/models/cogito-",
+        "fireworks_ai/accounts/fireworks/models/deepseek-",
+        "fireworks_ai/accounts/fireworks/models/dobby-",
+        "fireworks_ai/accounts/fireworks/models/dolphin-",
+        "fireworks_ai/accounts/fireworks/models/ernie-",
+        "fireworks_ai/accounts/fireworks/models/firefunction-",
+        "fireworks_ai/accounts/fireworks/models/fireworks-",
+        "fireworks_ai/accounts/fireworks/models/flux-",
+        "fireworks_ai/accounts/fireworks/models/gemma-",
+        "fireworks_ai/accounts/fireworks/models/glm-",
+        "fireworks_ai/accounts/fireworks/models/gpt-",
+        "fireworks_ai/accounts/fireworks/models/internvl3-",
+        "fireworks_ai/accounts/fireworks/models/kat-",
+        "fireworks_ai/accounts/fireworks/models/kimi-",
+        "fireworks_ai/accounts/fireworks/models/llama-",
+        "fireworks_ai/accounts/fireworks/models/llama4-",
+        "fireworks_ai/accounts/fireworks/models/minimax-",
+        "fireworks_ai/accounts/fireworks/models/ministral-",
+        "fireworks_ai/accounts/fireworks/models/mistral-",
+        "fireworks_ai/accounts/fireworks/models/mixtral-",
+        "fireworks_ai/accounts/fireworks/models/nous-",
+        "fireworks_ai/accounts/fireworks/models/nvidia-",
+        "fireworks_ai/accounts/fireworks/models/openhermes-",
+        "fireworks_ai/accounts/fireworks/models/phi-",
+        "fireworks_ai/accounts/fireworks/models/phind-",
+        "fireworks_ai/accounts/fireworks/models/playground-",
+        "fireworks_ai/accounts/fireworks/models/qwen-",
+        "fireworks_ai/accounts/fireworks/models/qwen2-",
+        "fireworks_ai/accounts/fireworks/models/qwen2p5-",
+        "fireworks_ai/accounts/fireworks/models/qwen3-",
+        "fireworks_ai/accounts/fireworks/models/starcoder-",
+        "fireworks_ai/accounts/fireworks/models/starcoder2-",
+        "fireworks_ai/accounts/fireworks/models/whisper-",
+        "fireworks_ai/accounts/fireworks/models/yi-"
+      ],
+      "model_count": 269
+    },
+    {
+      "name": "friendliai",
+      "display_name": "FriendliAI",
+      "base_url": "https://api.friendli.ai/serverless/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "FRIENDLI_TOKEN"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["friendliai/", "friendliai/meta-"],
+      "model_count": 2
+    },
+    {
+      "name": "galadriel",
+      "display_name": "Galadriel",
+      "base_url": "https://api.galadriel.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GALADRIEL_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "gemini",
+      "display_name": "Google AI Studio - Gemini",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GEMINI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["gemini-", "gemini/", "gemini/gemini-", "gemini/imagen-", "gemini/veo-"],
+      "model_count": 60
+    },
+    {
+      "name": "gigachat",
+      "display_name": "GigaChat",
+      "base_url": "https://gigachat.devices.sberbank.ru/api/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GIGACHAT_API_KEY"
+      },
+      "endpoints": ["chat", "embedding"],
+      "model_prefixes": ["gigachat/", "gigachat/GigaChat-"],
+      "model_count": 6
+    },
+    {
+      "name": "github",
+      "display_name": "GitHub Models",
+      "base_url": "https://models.inference.ai.azure.com",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GITHUB_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "github_copilot",
+      "display_name": "GitHub Copilot",
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "github_copilot/",
+        "github_copilot/claude-",
+        "github_copilot/gemini-",
+        "github_copilot/gpt-",
+        "github_copilot/text-"
+      ],
+      "model_count": 31
+    },
+    {
+      "name": "gmi",
+      "display_name": "GMI Cloud",
+      "base_url": "https://api.gmi-serving.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GMI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "gmi/",
+        "gmi/anthropic/claude-",
+        "gmi/deepseek-",
+        "gmi/google/gemini-",
+        "gmi/openai/gpt-"
+      ],
+      "model_count": 17
+    },
+    {
+      "name": "google_pse",
+      "display_name": "Google PSE",
+      "base_url": "https://customsearch.googleapis.com/customsearch/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GOOGLE_PSE_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "gradient_ai",
+      "display_name": "GradientAI",
+      "base_url": "https://inference.do-ai.run",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GRADIENT_AI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["gradient_ai/", "gradient_ai/anthropic-", "gradient_ai/openai-"],
+      "model_count": 13
+    },
+    {
+      "name": "groq",
+      "display_name": "Groq AI",
+      "base_url": "https://api.groq.com/openai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "GROQ_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["groq/", "groq/llama-", "groq/meta-", "groq/openai/gpt-", "groq/whisper-"],
+      "model_count": 14
+    },
+    {
+      "name": "helicone",
+      "display_name": "Helicone",
+      "base_url": "https://ai-gateway.helicone.ai/",
+      "auth": {
+        "type": "bearer",
+        "env_var": "HELICONE_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "heroku",
+      "display_name": "Heroku",
+      "endpoints": ["chat"],
+      "model_prefixes": ["heroku/", "heroku/claude-"],
+      "model_count": 4
+    },
+    {
+      "name": "hosted_vllm",
+      "display_name": "Hosted VLLM",
+      "endpoints": ["batch", "chat", "embedding", "files", "rerank"]
+    },
+    {
+      "name": "huggingface",
+      "display_name": "Huggingface",
+      "base_url": "https://api-inference.huggingface.co/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "HUGGINGFACE_API_KEY"
+      },
+      "endpoints": ["chat", "embedding", "rerank"]
+    },
+    {
+      "name": "hyperbolic",
+      "display_name": "Hyperbolic",
+      "base_url": "https://api.hyperbolic.xyz/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "HYPERBOLIC_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "hyperbolic/",
+        "hyperbolic/Qwen/Qwen2.5-",
+        "hyperbolic/deepseek-",
+        "hyperbolic/meta-"
+      ],
+      "model_count": 16
+    },
+    {
+      "name": "infinity",
+      "display_name": "Infinity",
+      "endpoints": ["embedding"]
+    },
+    {
+      "name": "jina_ai",
+      "display_name": "Jina AI",
+      "base_url": "https://api.jina.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "JINA_AI_API_KEY"
+      },
+      "endpoints": ["embedding", "rerank"],
+      "model_count": 1
+    },
+    {
+      "name": "lambda_ai",
+      "display_name": "Lambda AI",
+      "base_url": "https://api.lambda.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "LAMBDA_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "lambda_ai/",
+        "lambda_ai/deepseek-",
+        "lambda_ai/hermes3-",
+        "lambda_ai/lfm-",
+        "lambda_ai/llama-",
+        "lambda_ai/llama3.1-",
+        "lambda_ai/llama3.2-"
+      ],
+      "model_count": 20
+    },
+    {
+      "name": "langgraph",
+      "display_name": "LangGraph",
+      "base_url": "http://localhost:2024",
+      "auth": {
+        "type": "bearer",
+        "env_var": "LANGGRAPH_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "lemonade",
+      "display_name": "Lemonade",
+      "base_url": "http://localhost:8000/api/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["lemonade/", "lemonade/Qwen3-", "lemonade/gpt-"],
+      "model_count": 5
+    },
+    {
+      "name": "linkup",
+      "display_name": "Linkup",
+      "base_url": "https://api.linkup.so/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "LINKUP_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_prefixes": ["linkup/"],
+      "model_count": 2
+    },
+    {
+      "name": "litellm_proxy",
+      "display_name": "LiteLLM Proxy",
+      "endpoints": ["chat", "embedding", "image"]
+    },
+    {
+      "name": "llamafile",
+      "display_name": "llamafile",
+      "base_url": "http://localhost:8080/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat", "completion", "embedding", "rerank"],
+      "model_prefixes": ["llamafile/"]
+    },
+    {
+      "name": "llamacpp",
+      "display_name": "llama.cpp",
+      "base_url": "http://localhost:8080/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat", "completion", "embedding", "rerank"],
+      "model_prefixes": ["llamacpp/"]
+    },
+    {
+      "name": "llamagate",
+      "display_name": "LlamaGate",
+      "base_url": "https://api.llamagate.dev/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "LLAMAGATE_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "llamagate/",
+        "llamagate/deepseek-",
+        "llamagate/llama-",
+        "llamagate/qwen3-"
+      ],
+      "model_count": 16
+    },
+    {
+      "name": "lmstudio",
+      "display_name": "LM Studio",
+      "base_url": "http://localhost:1234/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat", "completion", "embedding"],
+      "model_prefixes": ["lmstudio/"]
+    },
+    {
+      "name": "localai",
+      "display_name": "LocalAI",
+      "base_url": "http://localhost:8080/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["audio", "chat", "completion", "embedding", "image", "rerank"],
+      "model_prefixes": ["localai/"]
+    },
+    {
+      "name": "manus",
+      "display_name": "Manus",
+      "endpoints": ["chat", "files"]
+    },
+    {
+      "name": "maritalk",
+      "display_name": "Maritalk",
+      "base_url": "https://chat.maritaca.ai/api",
+      "auth": {
+        "type": "bearer",
+        "env_var": "MARITALK_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "meta_llama",
+      "display_name": "Meta - Llama API",
+      "base_url": "https://api.llama.com/compat/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "LLAMA_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["meta_llama/", "meta_llama/Llama-"],
+      "model_count": 4
+    },
+    {
+      "name": "milvus",
+      "display_name": "Milvus"
+    },
+    {
+      "name": "minimax",
+      "display_name": "Minimax",
+      "base_url": "https://api.minimax.io/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "MINIMAX_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["minimax/", "minimax/MiniMax-", "minimax/speech-"],
+      "model_count": 9
+    },
+    {
+      "name": "mistral",
+      "display_name": "Mistral AI API",
+      "base_url": "https://api.mistral.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "MISTRAL_API_KEY"
+      },
+      "endpoints": ["chat", "embedding", "ocr", "audio"],
+      "model_prefixes": [
+        "mistral/",
+        "mistral/codestral-",
+        "mistral/devstral-",
+        "mistral/magistral-",
+        "mistral/ministral-",
+        "mistral/mistral-",
+        "mistral/open-",
+        "mistral/pixtral-"
+      ],
+      "model_count": 51
+    },
+    {
+      "name": "moonshot",
+      "display_name": "Moonshot",
+      "base_url": "https://api.moonshot.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "MOONSHOT_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["moonshot/", "moonshot/kimi-", "moonshot/moonshot-"],
+      "model_count": 21
+    },
+    {
+      "name": "morph",
+      "display_name": "Morph",
+      "base_url": "https://api.morphllm.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "MORPH_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["morph/", "morph/morph-"],
+      "model_count": 2
+    },
+    {
+      "name": "nanogpt",
+      "display_name": "NanoGPT",
+      "base_url": "https://nano-gpt.com/api/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "NANOGPT_API_KEY"
+      },
+      "endpoints": ["chat", "embedding"],
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      }
+    },
+    {
+      "name": "nebius",
+      "display_name": "Nebius AI Studio",
+      "base_url": "https://api.studio.nebius.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "NEBIUS_API_KEY"
+      },
+      "endpoints": ["chat", "embedding"],
+      "model_prefixes": [
+        "nebius/",
+        "nebius/BAAI/bge-",
+        "nebius/Qwen/Qwen2-",
+        "nebius/Qwen/Qwen2.5-",
+        "nebius/Qwen/Qwen3-",
+        "nebius/deepseek-",
+        "nebius/meta-",
+        "nebius/nvidia/Llama-"
+      ],
+      "model_count": 30
+    },
+    {
+      "name": "nlp_cloud",
+      "display_name": "NLP Cloud",
+      "base_url": "https://api.nlpcloud.io/v1/gpu/",
+      "auth": {
+        "type": "bearer",
+        "env_var": "NLP_CLOUD_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_count": 2
+    },
+    {
+      "name": "novita",
+      "display_name": "Novita AI",
+      "base_url": "https://api.novita.ai/v3/openai",
+      "auth": {
+        "type": "bearer",
+        "env_var": "NOVITA_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "novita/",
+        "novita/baai/bge-",
+        "novita/baidu/ernie-",
+        "novita/deepseek/deepseek-",
+        "novita/google/gemma-",
+        "novita/meta-",
+        "novita/minimax/minimax-",
+        "novita/moonshotai/kimi-",
+        "novita/openai/gpt-",
+        "novita/qwen/qwen-",
+        "novita/qwen/qwen2.5-",
+        "novita/qwen/qwen3-",
+        "novita/sao10k/l3-",
+        "novita/zai-"
+      ],
+      "model_count": 85
+    },
+    {
+      "name": "nscale",
+      "display_name": "Nscale",
+      "base_url": "https://inference.api.nscale.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "NSCALE_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["nscale/", "nscale/Qwen/Qwen2.5-", "nscale/deepseek-", "nscale/meta-"],
+      "model_count": 16
+    },
+    {
+      "name": "nvidia_nim",
+      "display_name": "Nvidia NIM",
+      "base_url": "https://integrate.api.nvidia.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "NVIDIA_NIM_API_KEY"
+      },
+      "endpoints": ["chat", "embedding", "rerank"],
+      "model_prefixes": ["nvidia_nim/"],
+      "model_count": 3
+    },
+    {
+      "name": "oci",
+      "display_name": "OCI",
+      "endpoints": ["chat"],
+      "model_prefixes": ["oci/", "oci/cohere.command-", "oci/meta.llama-", "oci/xai.grok-"],
+      "model_count": 13
+    },
+    {
+      "name": "ollama",
+      "display_name": "Ollama",
+      "base_url": "http://localhost:11434",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat", "completion", "embedding"],
+      "model_prefixes": ["ollama/"]
+    },
+    {
+      "name": "oobabooga",
+      "display_name": "Oobabooga",
+      "base_url": "http://localhost:5000/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["audio", "batch", "chat", "moderation"]
+    },
+    {
+      "name": "openai",
+      "display_name": "OpenAI",
+      "base_url": "https://api.openai.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "OPENAI_API_KEY"
+      },
+      "endpoints": ["audio", "batch", "chat", "completion", "embedding", "image", "moderation"],
+      "model_prefixes": [
+        "1024-",
+        "1024-x-1024/",
+        "1024-x-1536/",
+        "1536-",
+        "1536-x-1024/",
+        "chatgpt-",
+        "dall-",
+        "ft:gpt-",
+        "gpt-",
+        "hd/",
+        "hd/1024-",
+        "high/",
+        "high/1024-",
+        "high/1536-",
+        "low/",
+        "low/1024-",
+        "low/1536-",
+        "medium/",
+        "medium/1024-",
+        "medium/1536-",
+        "o1-",
+        "o3-",
+        "o4-",
+        "omni-",
+        "openai/",
+        "openai/sora-",
+        "sora-",
+        "standard/",
+        "standard/1024-",
+        "standard/1536-",
+        "text-",
+        "tts-"
+      ],
+      "model_count": 203
+    },
+    {
+      "name": "openai_like",
+      "display_name": "OpenAI-like",
+      "endpoints": ["embedding"]
+    },
+    {
+      "name": "openrouter",
+      "display_name": "OpenRouter",
+      "base_url": "https://openrouter.ai/api/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "OPENROUTER_API_KEY"
+      },
+      "endpoints": ["chat", "embedding"],
+      "model_prefixes": [
+        "openrouter/",
+        "openrouter/anthropic/claude-",
+        "openrouter/deepseek/deepseek-",
+        "openrouter/google/gemini-",
+        "openrouter/minimax/minimax-",
+        "openrouter/mistralai/ministral-",
+        "openrouter/mistralai/mistral-",
+        "openrouter/openai/gpt-",
+        "openrouter/openai/o3-",
+        "openrouter/qwen/qwen-",
+        "openrouter/qwen/qwen3-",
+        "openrouter/qwen/qwen3.5-",
+        "openrouter/z-"
+      ],
+      "model_count": 89
+    },
+    {
+      "name": "ovhcloud",
+      "display_name": "OVHCloud AI Endpoints",
+      "base_url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "OVH_API_KEY"
+      },
+      "endpoints": ["audio", "chat"],
+      "model_prefixes": [
+        "ovhcloud/",
+        "ovhcloud/Meta-",
+        "ovhcloud/Mistral-",
+        "ovhcloud/Qwen2.5-",
+        "ovhcloud/gpt-"
+      ],
+      "model_count": 15
+    },
+    {
+      "name": "parallel_ai",
+      "display_name": "Parallel AI",
+      "base_url": "https://api.parallel.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "PARALLEL_AI_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_prefixes": ["parallel_ai/"],
+      "model_count": 2
+    },
+    {
+      "name": "perplexity",
+      "display_name": "Perplexity AI",
+      "base_url": "https://api.perplexity.ai",
+      "auth": {
+        "type": "bearer",
+        "env_var": "PERPLEXITYAI_API_KEY"
+      },
+      "endpoints": ["chat", "search"],
+      "model_prefixes": [
+        "perplexity/",
+        "perplexity/anthropic/claude-",
+        "perplexity/codellama-",
+        "perplexity/google/gemini-",
+        "perplexity/llama-",
+        "perplexity/openai/gpt-",
+        "perplexity/pplx-",
+        "perplexity/sonar-"
+      ],
+      "model_count": 40
+    },
+    {
+      "name": "petals",
+      "display_name": "Petals",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "pg_vector",
+      "display_name": "PG Vector"
+    },
+    {
+      "name": "poe",
+      "display_name": "Poe",
+      "base_url": "https://api.poe.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "POE_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat", "embedding"]
+    },
+    {
+      "name": "predibase",
+      "display_name": "Predibase",
+      "base_url": "https://serving.app.predibase.com",
+      "auth": {
+        "type": "bearer",
+        "env_var": "PREDIBASE_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "publicai",
+      "display_name": "PublicAI",
+      "base_url": "https://api.publicai.co/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "PUBLICAI_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["publicai/", "publicai/BSC-", "publicai/allenai/Olmo-", "publicai/swiss-"],
+      "model_count": 9
+    },
+    {
+      "name": "pydantic_ai_agents",
+      "display_name": "Pydantic AI Agents"
+    },
+    {
+      "name": "ragflow",
+      "display_name": "RAGFlow",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "recraft",
+      "display_name": "Recraft",
+      "base_url": "https://external.api.recraft.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "RECRAFT_API_KEY"
+      },
+      "endpoints": ["image"],
+      "model_prefixes": ["recraft/"],
+      "model_count": 2
+    },
+    {
+      "name": "replicate",
+      "display_name": "Replicate",
+      "base_url": "https://api.replicate.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "REPLICATE_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "replicate/",
+        "replicate/anthropic/claude-",
+        "replicate/deepseek-",
+        "replicate/google/gemini-",
+        "replicate/meta/llama-",
+        "replicate/mistralai/mistral-",
+        "replicate/openai/gpt-"
+      ],
+      "model_count": 40
+    },
+    {
+      "name": "runwayml",
+      "display_name": "RunwayML",
+      "base_url": "https://api.dev.runwayml.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "RUNWAYML_API_KEY"
+      },
+      "endpoints": ["audio", "image"],
+      "model_prefixes": ["runwayml/"],
+      "model_count": 6
+    },
+    {
+      "name": "s3_vectors",
+      "display_name": "AWS S3 Vectors"
+    },
+    {
+      "name": "sagemaker",
+      "display_name": "AWS - Sagemaker",
+      "endpoints": ["chat", "embedding"],
+      "model_prefixes": ["sagemaker/", "sagemaker/meta-"],
+      "model_count": 6
+    },
+    {
+      "name": "sagemaker_chat",
+      "display_name": "Sagemaker Chat",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "sambanova",
+      "display_name": "Sambanova",
+      "base_url": "https://api.sambanova.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "SAMBANOVA_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "sambanova/",
+        "sambanova/DeepSeek-",
+        "sambanova/Llama-",
+        "sambanova/Meta-"
+      ],
+      "model_count": 16
+    },
+    {
+      "name": "sap",
+      "display_name": "SAP Generative AI Hub",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "sarvam",
+      "display_name": "Sarvam",
+      "base_url": "https://api.sarvam.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "SARVAM_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat"],
+      "model_count": 1
+    },
+    {
+      "name": "scaleway",
+      "display_name": "Scaleway",
+      "base_url": "https://api.scaleway.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "SCW_SECRET_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "searxng",
+      "display_name": "SearXNG",
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "serper",
+      "display_name": "Serper",
+      "base_url": "https://google.serper.dev",
+      "auth": {
+        "type": "bearer",
+        "env_var": "SERPER_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_count": 1
+    },
+    {
+      "name": "snowflake",
+      "display_name": "Snowflake",
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "snowflake/",
+        "snowflake/jamba-",
+        "snowflake/llama3-",
+        "snowflake/llama3.1-",
+        "snowflake/llama3.2-",
+        "snowflake/mistral-",
+        "snowflake/reka-",
+        "snowflake/snowflake-"
+      ],
+      "model_count": 24
+    },
+    {
+      "name": "stability",
+      "display_name": "Stability AI",
+      "base_url": "https://api.stability.ai",
+      "auth": {
+        "type": "bearer",
+        "env_var": "STABILITY_API_KEY"
+      },
+      "endpoints": ["image"],
+      "model_prefixes": [
+        "stability/",
+        "stability/sd3-",
+        "stability/sd3.5-",
+        "stability/search-",
+        "stability/stable-"
+      ],
+      "model_count": 23
+    },
+    {
+      "name": "synthetic",
+      "display_name": "Synthetic",
+      "base_url": "https://api.synthetic.new/openai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "SYNTHETIC_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat", "embedding"]
+    },
+    {
+      "name": "tavily",
+      "display_name": "Tavily",
+      "base_url": "https://api.tavily.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "TAVILY_API_KEY"
+      },
+      "endpoints": ["search"],
+      "model_prefixes": ["tavily/"],
+      "model_count": 2
+    },
+    {
+      "name": "text-completion-codestral",
+      "display_name": "Text Completion Codestral",
+      "base_url": "https://codestral.mistral.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "CODESTRAL_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["text-", "text-completion-codestral/"],
+      "model_count": 2
+    },
+    {
+      "name": "text-completion-openai",
+      "display_name": "Text Completion OpenAI",
+      "base_url": "https://api.openai.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "OPENAI_API_KEY"
+      },
+      "endpoints": ["audio", "batch", "chat", "moderation"],
+      "model_prefixes": ["gpt-"],
+      "model_count": 6
+    },
+    {
+      "name": "together_ai",
+      "display_name": "Together AI",
+      "base_url": "https://api.together.xyz/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "TOGETHER_AI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "together-",
+        "together_ai/",
+        "together_ai/Qwen/Qwen2.5-",
+        "together_ai/Qwen/Qwen3-",
+        "together_ai/deepseek-",
+        "together_ai/meta-",
+        "together_ai/mistralai/Mistral-",
+        "together_ai/moonshotai/Kimi-",
+        "together_ai/openai/gpt-",
+        "together_ai/zai-"
+      ],
+      "model_count": 43
+    },
+    {
+      "name": "topaz",
+      "display_name": "Topaz",
+      "base_url": "https://api.topazlabs.com/image/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "TOPAZ_API_KEY"
+      }
+    },
+    {
+      "name": "triton",
+      "display_name": "Triton",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "v0",
+      "display_name": "V0",
+      "base_url": "https://api.v0.dev/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "V0_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["v0/", "v0/v0-"],
+      "model_count": 3
+    },
+    {
+      "name": "venice",
+      "display_name": "Venice.ai",
+      "base_url": "https://api.venice.ai/api/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "VENICE_AI_API_KEY"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "vercel_ai_gateway",
+      "display_name": "Vercel AI Gateway",
+      "base_url": "https://ai-gateway.vercel.sh/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "VERCEL_AI_GATEWAY_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "vercel_ai_gateway/",
+        "vercel_ai_gateway/alibaba/qwen-",
+        "vercel_ai_gateway/amazon/nova-",
+        "vercel_ai_gateway/anthropic/claude-",
+        "vercel_ai_gateway/cohere/command-",
+        "vercel_ai_gateway/deepseek/deepseek-",
+        "vercel_ai_gateway/google/gemini-",
+        "vercel_ai_gateway/google/text-",
+        "vercel_ai_gateway/meta/llama-",
+        "vercel_ai_gateway/mistral/magistral-",
+        "vercel_ai_gateway/mistral/ministral-",
+        "vercel_ai_gateway/mistral/mistral-",
+        "vercel_ai_gateway/mistral/pixtral-",
+        "vercel_ai_gateway/morph/morph-",
+        "vercel_ai_gateway/openai/gpt-",
+        "vercel_ai_gateway/openai/text-",
+        "vercel_ai_gateway/perplexity/sonar-",
+        "vercel_ai_gateway/vercel/v0-",
+        "vercel_ai_gateway/xai/grok-",
+        "vercel_ai_gateway/zai/glm-"
+      ],
+      "model_count": 101
+    },
+    {
+      "name": "vertex_ai",
+      "display_name": "Google - Vertex AI",
+      "endpoints": ["audio", "chat", "embedding", "image", "ocr"],
+      "model_prefixes": ["vertex_ai/", "vertex_ai/gemini-"],
+      "model_count": 9
+    },
+    {
+      "name": "vertex_ai/agent_engine",
+      "display_name": "Vertex AI Agent Engine",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "vllm",
+      "display_name": "vLLM",
+      "base_url": "http://localhost:8000/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["chat", "completion", "embedding", "rerank"],
+      "model_prefixes": ["vllm/"]
+    },
+    {
+      "name": "volcengine",
+      "display_name": "Volcengine",
+      "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+      "auth": {
+        "type": "bearer",
+        "env_var": "VOLCENGINE_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["doubao-", "volcengine/", "volcengine/doubao-"],
+      "model_count": 12
+    },
+    {
+      "name": "voyage",
+      "display_name": "Voyage AI",
+      "base_url": "https://api.voyageai.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "VOYAGE_API_KEY"
+      },
+      "endpoints": ["embedding", "rerank"],
+      "model_prefixes": ["voyage/", "voyage/rerank-", "voyage/voyage-"],
+      "model_count": 19
+    },
+    {
+      "name": "wandb",
+      "display_name": "WandB Inference",
+      "base_url": "https://api.inference.wandb.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "WANDB_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": [
+        "wandb/",
+        "wandb/Qwen/Qwen3-",
+        "wandb/deepseek-",
+        "wandb/meta-",
+        "wandb/openai/gpt-"
+      ],
+      "model_count": 14
+    },
+    {
+      "name": "watsonx",
+      "display_name": "IBM - Watsonx.ai",
+      "endpoints": ["audio", "chat", "embedding"],
+      "model_prefixes": [
+        "watsonx/",
+        "watsonx/ibm/granite-",
+        "watsonx/meta-",
+        "watsonx/mistralai/mistral-"
+      ],
+      "model_count": 29
+    },
+    {
+      "name": "watsonx_text",
+      "display_name": "Watsonx Text",
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "xai",
+      "display_name": "xAI",
+      "base_url": "https://api.x.ai/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "XAI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["xai/", "xai/grok-"],
+      "model_count": 35
+    },
+    {
+      "name": "xiaomi_mimo",
+      "display_name": "Xiaomi Mimo",
+      "base_url": "https://api.xiaomimimo.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env_var": "XIAOMI_MIMO_API_KEY"
+      },
+      "param_mappings": {
+        "max_completion_tokens": "max_tokens"
+      },
+      "endpoints": ["chat"]
+    },
+    {
+      "name": "xinference",
+      "display_name": "Xinference",
+      "base_url": "http://localhost:9997/v1",
+      "auth": {
+        "type": "none"
+      },
+      "endpoints": ["embedding"]
+    },
+    {
+      "name": "zai",
+      "display_name": "Z.AI",
+      "base_url": "https://api.z.ai/api/paas/v4",
+      "auth": {
+        "type": "bearer",
+        "env_var": "ZAI_API_KEY"
+      },
+      "endpoints": ["chat"],
+      "model_prefixes": ["zai/", "zai/glm-"],
+      "model_count": 11
+    }
+  ],
+  "complex_providers": [
+    "a2a",
+    "amazon_nova",
+    "anthropic",
+    "anthropic_text",
+    "auto_router",
+    "aws_polly",
+    "azure",
+    "azure_ai",
+    "azure_ai/agents",
+    "azure_ai/doc-intelligence",
+    "azure_text",
+    "baseten",
+    "bedrock",
+    "chatgpt",
+    "cloudflare",
+    "cursor",
+    "custom",
+    "custom_openai",
+    "databricks",
+    "dataforseo",
+    "datarobot",
+    "gigachat",
+    "github_copilot",
+    "heroku",
+    "hosted_vllm",
+    "infinity",
+    "litellm_proxy",
+    "manus",
+    "milvus",
+    "oci",
+    "openai_like",
+    "petals",
+    "pg_vector",
+    "pydantic_ai_agents",
+    "ragflow",
+    "s3_vectors",
+    "sagemaker",
+    "sagemaker_chat",
+    "sap",
+    "searxng",
+    "snowflake",
+    "triton",
+    "vertex_ai",
+    "vertex_ai/agent_engine",
+    "watsonx",
+    "watsonx_text"
+  ]
 }

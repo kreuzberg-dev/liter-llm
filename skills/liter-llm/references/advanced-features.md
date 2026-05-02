@@ -167,18 +167,18 @@ The `tower` feature provides 10 composable middleware layers. Each is a standard
 
 ### All Layers
 
-| Layer | Service | Purpose |
-|-------|---------|---------|
-| `TracingLayer` | `TracingService` | OpenTelemetry GenAI semantic convention spans |
-| `CostTrackingLayer` | `CostTrackingService` | Record `gen_ai.usage.cost` from embedded pricing |
-| `CacheLayer` | `CacheService` | Response caching (in-memory or OpenDAL) |
-| `BudgetLayer` | `BudgetService` | Global and per-model spending enforcement |
-| `HooksLayer` | `HooksService` | User-defined pre/post request callbacks |
-| `ModelRateLimitLayer` | `ModelRateLimitService` | Per-model RPM/TPM rate limiting |
-| `CooldownLayer` | `CooldownService` | Circuit breaker after transient errors |
-| `HealthCheckLayer` | `HealthCheckService` | Periodic provider probes, reject on unhealthy |
-| `FallbackLayer` | `FallbackService` | Route to backup service on transient errors |
-| `Router` | -- | Route requests to different services by `RoutingStrategy` |
+| Layer                 | Service                 | Purpose                                                   |
+| --------------------- | ----------------------- | --------------------------------------------------------- |
+| `TracingLayer`        | `TracingService`        | OpenTelemetry GenAI semantic convention spans             |
+| `CostTrackingLayer`   | `CostTrackingService`   | Record `gen_ai.usage.cost` from embedded pricing          |
+| `CacheLayer`          | `CacheService`          | Response caching (in-memory or OpenDAL)                   |
+| `BudgetLayer`         | `BudgetService`         | Global and per-model spending enforcement                 |
+| `HooksLayer`          | `HooksService`          | User-defined pre/post request callbacks                   |
+| `ModelRateLimitLayer` | `ModelRateLimitService` | Per-model RPM/TPM rate limiting                           |
+| `CooldownLayer`       | `CooldownService`       | Circuit breaker after transient errors                    |
+| `HealthCheckLayer`    | `HealthCheckService`    | Periodic provider probes, reject on unhealthy             |
+| `FallbackLayer`       | `FallbackService`       | Route to backup service on transient errors               |
+| `Router`              | --                      | Route requests to different services by `RoutingStrategy` |
 
 ### Composition Order
 
@@ -211,18 +211,18 @@ let service = ServiceBuilder::new()
 
 `TracingLayer` creates `tracing::info_span` named `"gen_ai"` with semantic convention attributes:
 
-| Attribute | Source | Example |
-|-----------|--------|---------|
-| `gen_ai.operation.name` | Request variant | `"chat"`, `"embeddings"`, `"list_models"` |
-| `gen_ai.request.model` | Request model field | `"openai/gpt-4o"` |
-| `gen_ai.system` | Provider prefix from model | `"openai"` |
-| `gen_ai.usage.input_tokens` | Response usage | `150` |
-| `gen_ai.usage.output_tokens` | Response usage | `42` |
-| `gen_ai.usage.cost` | CostTrackingLayer | `0.0023` |
-| `gen_ai.response.id` | Response ID | `"chatcmpl-abc123"` |
-| `gen_ai.response.model` | Actual model used | `"gpt-4o-2024-05-13"` |
-| `gen_ai.response.finish_reasons` | Choices | `"stop"` |
-| `error.type` | Error variant name | `"RateLimited"` |
+| Attribute                        | Source                     | Example                                   |
+| -------------------------------- | -------------------------- | ----------------------------------------- |
+| `gen_ai.operation.name`          | Request variant            | `"chat"`, `"embeddings"`, `"list_models"` |
+| `gen_ai.request.model`           | Request model field        | `"openai/gpt-4o"`                         |
+| `gen_ai.system`                  | Provider prefix from model | `"openai"`                                |
+| `gen_ai.usage.input_tokens`      | Response usage             | `150`                                     |
+| `gen_ai.usage.output_tokens`     | Response usage             | `42`                                      |
+| `gen_ai.usage.cost`              | CostTrackingLayer          | `0.0023`                                  |
+| `gen_ai.response.id`             | Response ID                | `"chatcmpl-abc123"`                       |
+| `gen_ai.response.model`          | Actual model used          | `"gpt-4o-2024-05-13"`                     |
+| `gen_ai.response.finish_reasons` | Choices                    | `"stop"`                                  |
+| `error.type`                     | Error variant name         | `"RateLimited"`                           |
 
 Enable in bindings:
 

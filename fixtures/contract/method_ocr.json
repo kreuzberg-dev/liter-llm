@@ -1,31 +1,31 @@
 {
-	"id": "contract_ocr",
-	"description": "Verify ocr() method exists in all bindings",
-	"category": "contract",
-	"tags": ["contract", "parity"],
-	"call": "ocr",
-	"input": {
-		"model": "mistral/mistral-ocr-latest",
-		"document": {
-			"type": "document_url",
-			"url": "https://example.com/contract-test.pdf"
-		}
-	},
-	"mock_response": {
-		"status": 200,
-		"body": {
-			"pages": [
-				{
-					"index": 0,
-					"markdown": "# Contract Test\n\nThis verifies OCR method exists."
-				}
-			],
-			"model": "mistral/mistral-ocr-latest"
-		}
-	},
-	"assertions": [
-		{
-			"type": "not_error"
-		}
-	]
+  "id": "contract_ocr",
+  "description": "Verify ocr() method exists in all bindings",
+  "category": "contract",
+  "tags": ["contract", "parity"],
+  "call": "ocr",
+  "input": {
+    "model": "mistral/mistral-ocr-latest",
+    "document": {
+      "type": "document_url",
+      "url": "https://example.com/contract-test.pdf"
+    }
+  },
+  "mock_response": {
+    "status": 200,
+    "body": {
+      "pages": [
+        {
+          "index": 0,
+          "markdown": "# Contract Test\n\nThis verifies OCR method exists."
+        }
+      ],
+      "model": "mistral/mistral-ocr-latest"
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

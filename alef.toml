@@ -1,24 +1,24 @@
-version = "0.13.6"
+version = "0.13.11"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [crate]
 name = "liter-llm"
 core_import = "liter_llm"
 sources = [
-    "crates/liter-llm/src/error.rs",
-    "crates/liter-llm/src/bindings.rs",
-    "crates/liter-llm/src/types/common.rs",
-    "crates/liter-llm/src/types/chat.rs",
-    "crates/liter-llm/src/types/embedding.rs",
-    "crates/liter-llm/src/types/image.rs",
-    "crates/liter-llm/src/types/audio.rs",
-    "crates/liter-llm/src/types/moderation.rs",
-    "crates/liter-llm/src/types/rerank.rs",
-    "crates/liter-llm/src/types/search.rs",
-    "crates/liter-llm/src/types/ocr.rs",
-    "crates/liter-llm/src/types/models.rs",
-    "crates/liter-llm/src/client/mod.rs",
-    "crates/liter-llm/src/provider/custom.rs",
+  "crates/liter-llm/src/error.rs",
+  "crates/liter-llm/src/bindings.rs",
+  "crates/liter-llm/src/types/common.rs",
+  "crates/liter-llm/src/types/chat.rs",
+  "crates/liter-llm/src/types/embedding.rs",
+  "crates/liter-llm/src/types/image.rs",
+  "crates/liter-llm/src/types/audio.rs",
+  "crates/liter-llm/src/types/moderation.rs",
+  "crates/liter-llm/src/types/rerank.rs",
+  "crates/liter-llm/src/types/search.rs",
+  "crates/liter-llm/src/types/ocr.rs",
+  "crates/liter-llm/src/types/models.rs",
+  "crates/liter-llm/src/client/mod.rs",
+  "crates/liter-llm/src/provider/custom.rs",
 ]
 version_from = "Cargo.toml"
 workspace_root = "."
@@ -26,91 +26,91 @@ features = ["native-http", "full"]
 
 [exclude]
 types = [
-    # Traits (can't cross FFI)
-    "LlmClient",
-    "LlmClientRaw",
-    "BatchClient",
-    "FileClient",
-    "ResponseClient",
-    # Opaque async types
-    "BoxFuture",
-    "BoxStream",
-    # Types with Arc<dyn Trait> / generics
-    "ClientConfig",
-    "ClientConfigBuilder",
-    "PreparedRequest",
-    "RawExchange",
-    "RawStreamExchange",
-    # Internal error types
-    "ErrorResponse",
-    "ApiError",
-    # Tower middleware (feature-gated, generic Service types)
-    "BudgetConfig",
-    "BudgetState",
-    "BudgetLayer",
-    "CacheConfig",
-    "CacheStore",
-    "InMemoryStore",
-    "CacheLayer",
-    "OpenDalCacheStore",
-    "CooldownLayer",
-    "CostTrackingLayer",
-    "HealthCheckLayer",
-    "HealthCheckService",
-    "LlmHook",
-    "HooksLayer",
-    "RateLimitConfig",
-    "ModelRateLimitLayer",
-    "RouterState",
-    "Router",
-    "LlmService",
-    "TracingLayer",
-    # Auth credential providers (Arc<dyn>, async trait methods)
-    "AzureAdCredentialProvider",
-    "WebIdentityCredentialProvider",
-    "GithubCopilotCredentialProvider",
-    "VertexOAuthCredentialProvider",
-    "CredentialProvider",
-    "StaticTokenProvider",
-    # File config (has provider Vec, enum fields)
-    "FileConfig",
-    "FileCacheConfig",
-    "FileBudgetConfig",
-    "FileRateLimitConfig",
-    "FileProviderConfig",
-    # Managed client (Tower-dependent)
-    "ManagedClient",
-    # Internal provider
-    "ModelPricing",
+  # Traits (can't cross FFI)
+  "LlmClient",
+  "LlmClientRaw",
+  "BatchClient",
+  "FileClient",
+  "ResponseClient",
+  # Opaque async types
+  "BoxFuture",
+  "BoxStream",
+  # Types with Arc<dyn Trait> / generics
+  "ClientConfig",
+  "ClientConfigBuilder",
+  "PreparedRequest",
+  "RawExchange",
+  "RawStreamExchange",
+  # Internal error types
+  "ErrorResponse",
+  "ApiError",
+  # Tower middleware (feature-gated, generic Service types)
+  "BudgetConfig",
+  "BudgetState",
+  "BudgetLayer",
+  "CacheConfig",
+  "CacheStore",
+  "InMemoryStore",
+  "CacheLayer",
+  "OpenDalCacheStore",
+  "CooldownLayer",
+  "CostTrackingLayer",
+  "HealthCheckLayer",
+  "HealthCheckService",
+  "LlmHook",
+  "HooksLayer",
+  "RateLimitConfig",
+  "ModelRateLimitLayer",
+  "RouterState",
+  "Router",
+  "LlmService",
+  "TracingLayer",
+  # Auth credential providers (Arc<dyn>, async trait methods)
+  "AzureAdCredentialProvider",
+  "WebIdentityCredentialProvider",
+  "GithubCopilotCredentialProvider",
+  "VertexOAuthCredentialProvider",
+  "CredentialProvider",
+  "StaticTokenProvider",
+  # File config (has provider Vec, enum fields)
+  "FileConfig",
+  "FileCacheConfig",
+  "FileBudgetConfig",
+  "FileRateLimitConfig",
+  "FileProviderConfig",
+  # Managed client (Tower-dependent)
+  "ManagedClient",
+  # Internal provider
+  "ModelPricing",
 ]
 methods = [
-    # Raw methods on DefaultClient
-    "DefaultClient.chat_raw",
-    "DefaultClient.chat_stream_raw",
-    "DefaultClient.embed_raw",
-    "DefaultClient.image_generate_raw",
-    "DefaultClient.transcribe_raw",
-    "DefaultClient.moderate_raw",
-    "DefaultClient.rerank_raw",
-    "DefaultClient.search_raw",
-    "DefaultClient.ocr_raw",
-    # Constructor takes ClientConfig (excluded type) — use create_client() instead
-    "DefaultClient.new",
-    # Internal provider methods
-    "DefaultClient.resolve_provider_for_model",
-    "DefaultClient.resolve_auth_header",
-    "DefaultClient.resolve_auth_header_for_provider",
-    "DefaultClient.all_headers",
-    "DefaultClient.all_headers_for_provider",
-    "DefaultClient.prepare_request",
-    # Error internal methods
-    "LiterLlmError.from_status",
-    # Methods that require binding→core From on output types (not yet supported)
-    "ChatCompletionResponse.estimated_cost",
-    "EmbeddingResponse.estimated_cost",
-    # Internal error methods
-    "LiterLlmError.is_transient",
-    "LiterLlmError.error_type",
+  # Raw methods on DefaultClient
+  "DefaultClient.chat_raw",
+  "DefaultClient.chat_stream_raw",
+  "DefaultClient.embed_raw",
+  "DefaultClient.image_generate_raw",
+  "DefaultClient.transcribe_raw",
+  "DefaultClient.moderate_raw",
+  "DefaultClient.rerank_raw",
+  "DefaultClient.search_raw",
+  "DefaultClient.ocr_raw",
+  # Constructor takes ClientConfig (excluded type) — use create_client() instead
+  "DefaultClient.new",
+  # Internal provider methods
+  "DefaultClient.resolve_provider_for_model",
+  "DefaultClient.resolve_auth_header",
+  "DefaultClient.resolve_auth_header_for_provider",
+  "DefaultClient.all_headers",
+  "DefaultClient.all_headers_for_provider",
+  "DefaultClient.prepare_request",
+  # Error internal methods
+  "LiterLlmError.from_status",
+  # Methods that require binding→core From on output types (not yet supported)
+  "ChatCompletionResponse.estimated_cost",
+  "EmbeddingResponse.estimated_cost",
+  # Internal error methods
+  "LiterLlmError.is_transient",
+  "LiterLlmError.error_type",
 ]
 functions = ["str_pair", "build_provider"]
 
@@ -152,7 +152,7 @@ project_file = "packages/java/pom.xml"
 
 [csharp]
 namespace = "LiterLlm"
-project_file = "packages/csharp/LiterLlm.csproj"
+project_file = "packages/csharp/LiterLlm/LiterLlm.csproj"
 
 [wasm]
 # liter-llm's "native-http"/"full" features pull tokio with the net feature
@@ -280,7 +280,7 @@ name = "req"
 type = "SearchRequest"
 
 [scaffold]
-description = "Universal LLM API client — 142+ providers, streaming, tool calling. Rust-powered with polyglot bindings."
+description = "Universal LLM API client with Rust-powered polyglot bindings."
 license = "MIT"
 repository = "https://github.com/kreuzberg-dev/liter-llm"
 authors = ["Na'aman Hirschfeld"]
@@ -552,7 +552,7 @@ format = "npx oxfmt packages/wasm"
 check = "npx oxlint packages/wasm"
 
 [lint.php]
-precondition = "command -v php >/dev/null 2>&1"
+precondition = "command -v php >/dev/null 2>&1 && test -x packages/php/vendor/bin/php-cs-fixer"
 format = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php src"
 check = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php --dry-run src"
 
