@@ -4,20 +4,16 @@ use serde::{Deserialize, Serialize};
 
 /// Error response from an OpenAI-compatible API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ErrorResponse {
-    pub error: ApiError,
+pub(crate) struct ErrorResponse {
+    error: ApiError,
 }
 
 /// Inner error object.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ApiError {
-    pub message: String,
-    #[serde(rename = "type")]
-    pub error_type: String,
+pub(crate) struct ApiError {
+    message: String,
     #[serde(default)]
-    pub param: Option<String>,
-    #[serde(default)]
-    pub code: Option<String>,
+    code: Option<String>,
 }
 
 /// All errors that can occur when using `liter-llm`.
@@ -143,7 +139,7 @@ impl LiterLlmError {
     /// The `retry_after` value is forwarded into [`LiterLlmError::RateLimited`]
     /// so callers can honour the server-requested delay without re-parsing the
     /// header.
-    pub fn from_status(status: u16, body: &str, retry_after: Option<Duration>) -> Self {
+    pub(crate) fn from_status(status: u16, body: &str, retry_after: Option<Duration>) -> Self {
         let parsed = serde_json::from_str::<ErrorResponse>(body).ok();
         let code = parsed.as_ref().and_then(|r| r.error.code.clone());
         let message = parsed.map(|r| r.error.message).unwrap_or_else(|| body.to_string());

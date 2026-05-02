@@ -4,7 +4,26 @@ use std::time::Duration;
 use axum::Json;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use liter_llm::error::{ApiError, ErrorResponse, LiterLlmError};
+use liter_llm::error::LiterLlmError;
+use serde::{Deserialize, Serialize};
+
+/// Error response from an OpenAI-compatible API.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ErrorResponse {
+    error: ApiError,
+}
+
+/// Inner error object.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ApiError {
+    message: String,
+    #[serde(rename = "type")]
+    error_type: String,
+    #[serde(default)]
+    param: Option<String>,
+    #[serde(default)]
+    code: Option<String>,
+}
 
 /// An HTTP-aware error that serialises to an OpenAI-compatible JSON body.
 ///
@@ -151,9 +170,9 @@ mod tests {
     use axum::http::StatusCode;
     use axum::response::IntoResponse;
     use http_body_util::BodyExt;
-    use liter_llm::error::{ErrorResponse, LiterLlmError};
+    use liter_llm::error::LiterLlmError;
 
-    use super::ProxyError;
+    use super::{ErrorResponse, ProxyError};
 
     /// Helper: convert a `ProxyError` into a response and extract status + JSON
     /// body.

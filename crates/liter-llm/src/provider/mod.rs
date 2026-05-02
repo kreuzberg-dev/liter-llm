@@ -24,7 +24,7 @@ pub(crate) fn unix_timestamp_secs() -> u64 {
 /// Most providers use standard Server-Sent Events (SSE).  AWS Bedrock uses
 /// a proprietary binary EventStream framing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum StreamFormat {
+pub(crate) enum StreamFormat {
     /// Standard Server-Sent Events (text/event-stream).
     Sse,
     /// AWS EventStream binary framing (application/vnd.amazon.eventstream).
@@ -74,7 +74,7 @@ pub struct ProviderConfig {
     pub name: String,
     pub display_name: Option<String>,
     pub base_url: Option<String>,
-    pub auth: Option<AuthConfig>,
+    pub(crate) auth: Option<AuthConfig>,
     pub endpoints: Option<Vec<String>>,
     pub model_prefixes: Option<Vec<String>>,
     /// Parameter key renaming for this provider.
@@ -88,7 +88,7 @@ pub struct ProviderConfig {
 /// Auth scheme used by a provider.
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum AuthType {
+pub(crate) enum AuthType {
     /// Standard `Authorization: Bearer <key>` header.
     Bearer,
     /// `x-api-key: <key>` header (also handles `"header"` and `"x-api-key"` aliases).
@@ -103,16 +103,16 @@ pub enum AuthType {
 
 /// Auth configuration block.
 #[derive(Debug, Clone, Deserialize)]
-pub struct AuthConfig {
+pub(crate) struct AuthConfig {
     #[serde(rename = "type")]
-    pub auth_type: AuthType,
-    pub env_var: Option<String>,
+    pub(crate) auth_type: AuthType,
+    pub(crate) env_var: Option<String>,
 }
 
 // ── Provider trait ───────────────────────────────────────────────────────────
 
 /// A provider defines how to reach an LLM API endpoint.
-pub trait Provider: Send + Sync {
+pub(crate) trait Provider: Send + Sync {
     /// Validate provider configuration at construction time.
     ///
     /// Called by [`DefaultClient::new`] immediately after the provider is
@@ -534,7 +534,7 @@ impl Provider for ConfigDrivenProvider {
 /// Complex providers (those listed in `complex_providers` in providers.json)
 /// are excluded from config-driven routing because they require custom
 /// auth/request logic beyond simple bearer tokens.
-pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
+pub(crate) fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
     // 0. Custom (runtime-registered) providers take highest priority.
     if let Some(provider) = custom::detect_custom_provider(model) {
         return Some(provider);
@@ -626,23 +626,6 @@ pub fn detect_provider(model: &str) -> Option<Box<dyn Provider>> {
     }
 
     None
-}
-
-/// Return the environment variable name for the API key of a named provider.
-///
-/// Looks up `provider_name` in the embedded registry and returns the
-/// `auth.env_var` field, when present.  Returns `None` when the provider is
-/// not found or has no configured env var.
-///
-/// This is a registry-level helper; for a resolved [`Provider`] instance use
-/// [`Provider::env_var`] directly.
-pub fn provider_env_var(provider_name: &str) -> Option<&'static str> {
-    let reg = REGISTRY.as_ref().ok()?;
-    reg.providers
-        .iter()
-        .find(|p| p.name == provider_name)
-        .and_then(|p| p.auth.as_ref())
-        .and_then(|a| a.env_var.as_deref())
 }
 
 /// Return all provider configs from the registry.
