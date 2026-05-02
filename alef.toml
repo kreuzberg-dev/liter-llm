@@ -1,4 +1,4 @@
-version = "0.12.15"
+version = "0.13.6"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [crate]
@@ -285,6 +285,10 @@ license = "MIT"
 repository = "https://github.com/kreuzberg-dev/liter-llm"
 authors = ["Na'aman Hirschfeld"]
 keywords = ["llm", "api-client", "openai", "anthropic"]
+
+# Opt in to alef-managed workspace .cargo/config.toml. Empty section uses
+# canonical defaults (6-target template + macOS dynamic_lookup rustflag).
+[scaffold.cargo]
 
 [readme]
 template_dir = "templates/readme"
