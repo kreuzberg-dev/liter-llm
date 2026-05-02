@@ -277,19 +277,21 @@ tasks:
     cmds:
       - uv run python scripts/generate_pricing.py --validate
 
-  e2e:generate:all:
+  test:e2e:
+    desc: Generate and run e2e tests across all bindings
+    cmds:
+      - alef e2e generate
+      - alef test --e2e
+
+  e2e:generate:
     desc: Generate E2E tests for all languages from fixtures
     cmds:
       - alef e2e generate
 
-  e2e:test:all:
-    desc: Run E2E tests for all languages
+  e2e:test:
+    desc: Run E2E tests for all languages (alias for test:e2e)
     cmds:
-      - task: rust:e2e:test
-      - task: go:test
-      - task: java:test
-      - task: csharp:test
-      - task: elixir:test
+      - task: test:e2e
 
   publish:validate:
     desc: "Validate publish manifests are consistent"
