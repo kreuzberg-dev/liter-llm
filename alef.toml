@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.14.3"
+alef_version = "0.14.6"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [workspace.sync]
@@ -214,7 +214,7 @@ e2e = ["cd e2e/python && uv sync", "cd e2e/python && uv run pytest tests/ -q"]
 [crates.test.node]
 precondition = "command -v pnpm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1"
 e2e = [
-  "pnpm -r --filter=\"./packages/typescript/**\" run build",
+  "pnpm -r --filter=\"./packages/node\" run build",
   "cd e2e/node && pnpm install && npx vitest run",
 ]
 
@@ -254,12 +254,9 @@ precondition = "command -v pnpm >/dev/null 2>&1"
 e2e = ["cd e2e/wasm && pnpm install", "cd e2e/wasm && pnpm vitest run"]
 
 [crates.test.ffi]
-precondition = "command -v cmake >/dev/null 2>&1 && command -v ctest >/dev/null 2>&1"
+precondition = "command -v make >/dev/null 2>&1"
 before = "cargo build -p liter-llm-ffi --release"
-e2e = [
-  "cd e2e/c && cmake -B build . && cmake --build build",
-  "cd e2e/c/build && ctest --output-on-failure",
-]
+e2e = "cd e2e/c && make test"
 
 [crates.publish]
 core_crate = "crates/liter-llm"
@@ -615,7 +612,10 @@ type = "string"
 result_type = "ResponseResponse"
 
 [crates.e2e.packages.node]
-name = "@kreuzberg/liter-llm"
+name = "@kreuzberg/liter-llm-node"
+
+[crates.e2e.packages.python]
+name = "liter-llm"
 
 [crates.e2e.registry]
 output = "test_apps"
