@@ -9,7 +9,7 @@ This page documents all configuration types and their defaults across all langua
 ### SystemMessage
 
 | Field     | Type  | Default | Description                |
-| --------- | ----- | ------- | -------------------------- | -------- |
+| --------- | ----- | ------- | -------------------------- |
 | `content` | `str` | —       | The extracted text content |
 | `name`    | `str  | None`   | `None`                     | The name |
 
@@ -18,7 +18,7 @@ This page documents all configuration types and their defaults across all langua
 ### UserMessage
 
 | Field     | Type          | Default            | Description                |
-| --------- | ------------- | ------------------ | -------------------------- | -------- |
+| --------- | ------------- | ------------------ | -------------------------- |
 | `content` | `UserContent` | `UserContent.TEXT` | The extracted text content |
 | `name`    | `str          | None`              | `None`                     | The name |
 
@@ -27,7 +27,7 @@ This page documents all configuration types and their defaults across all langua
 ### ImageUrl
 
 | Field    | Type         | Default | Description |
-| -------- | ------------ | ------- | ----------- | --------------------- |
+| -------- | ------------ | ------- | ----------- |
 | `url`    | `str`        | —       | Url         |
 | `detail` | `ImageDetail | None`   | `None`      | Detail (image detail) |
 
@@ -54,7 +54,7 @@ This page documents all configuration types and their defaults across all langua
 ### AssistantMessage
 
 | Field           | Type            | Default | Description |
-| --------------- | --------------- | ------- | ----------- | ---------------------------------------------------------------------- |
+| --------------- | --------------- | ------- | ----------- |
 | `content`       | `str            | None`   | `None`      | The extracted text content                                             |
 | `name`          | `str            | None`   | `None`      | The name                                                               |
 | `tool_calls`    | `list[ToolCall] | None`   | `[]`        | Tool calls                                                             |
@@ -66,7 +66,7 @@ This page documents all configuration types and their defaults across all langua
 ### ToolMessage
 
 | Field          | Type  | Default | Description                |
-| -------------- | ----- | ------- | -------------------------- | -------- |
+| -------------- | ----- | ------- | -------------------------- |
 | `content`      | `str` | —       | The extracted text content |
 | `tool_call_id` | `str` | —       | Tool call id               |
 | `name`         | `str  | None`   | `None`                     | The name |
@@ -76,7 +76,7 @@ This page documents all configuration types and their defaults across all langua
 ### DeveloperMessage
 
 | Field     | Type  | Default | Description                |
-| --------- | ----- | ------- | -------------------------- | -------- |
+| --------- | ----- | ------- | -------------------------- |
 | `content` | `str` | —       | The extracted text content |
 | `name`    | `str  | None`   | `None`                     | The name |
 
@@ -113,7 +113,7 @@ Deprecated legacy function-role message body.
 ### JsonSchemaFormat
 
 | Field         | Type             | Default | Description |
-| ------------- | ---------------- | ------- | ----------- | -------------------------- |
+| ------------- | ---------------- | ------- | ----------- |
 | `name`        | `str`            | —       | The name    |
 | `description` | `str             | None`   | `None`      | Human-readable description |
 | `schema`      | `dict[str, Any]` | —       | Schema      |
@@ -124,7 +124,7 @@ Deprecated legacy function-role message body.
 ### Usage
 
 | Field                   | Type                 | Default | Description                                                                   |
-| ----------------------- | -------------------- | ------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------------- | -------------------- | ------- | ----------------------------------------------------------------------------- |
 | `prompt_tokens`         | `int`                | —       | Prompt tokens used. Defaults to 0 when absent (some providers omit this).     |
 | `completion_tokens`     | `int`                | —       | Completion tokens used. Defaults to 0 when absent (e.g. embedding responses). |
 | `total_tokens`          | `int`                | —       | Total tokens used. Defaults to 0 when absent (some providers omit this).      |
@@ -151,7 +151,7 @@ discounted rate and the remainder at the regular input rate.
 ### ChatCompletionRequest
 
 | Field                 | Type                      | Default | Description |
-| --------------------- | ------------------------- | ------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| --------------------- | ------------------------- | ------- | ----------- |
 | `model`               | `str`                     | —       | Model       |
 | `messages`            | `list[Message]`           | `[]`    | Messages    |
 | `temperature`         | `float                    | None`   | `None`      | Temperature                                                                                                                       |
@@ -178,7 +178,7 @@ discounted rate and the remainder at the regular input rate.
 ### StreamOptions
 
 | Field           | Type  | Default | Description |
-| --------------- | ----- | ------- | ----------- | ------------- |
+| --------------- | ----- | ------- | ----------- |
 | `include_usage` | `bool | None`   | `None`      | Include usage |
 
 ---
@@ -186,7 +186,7 @@ discounted rate and the remainder at the regular input rate.
 ### ChatCompletionResponse
 
 | Field                | Type           | Default | Description                                                                                                                                      |
-| -------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| -------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `id`                 | `str`          | —       | Unique identifier                                                                                                                                |
 | `object`             | `str`          | —       | Always `"chat.completion"` from OpenAI-compatible APIs. Stored as a plain `String` so non-standard provider values do not break deserialization. |
 | `created`            | `int`          | —       | Created                                                                                                                                          |
@@ -201,7 +201,7 @@ discounted rate and the remainder at the regular input rate.
 ### Choice
 
 | Field           | Type               | Default | Description                 |
-| --------------- | ------------------ | ------- | --------------------------- | ----------------------------- |
+| --------------- | ------------------ | ------- | --------------------------- |
 | `index`         | `int`              | —       | Index                       |
 | `message`       | `AssistantMessage` | —       | Message (assistant message) |
 | `finish_reason` | `FinishReason      | None`   | `None`                      | Finish reason (finish reason) |
@@ -211,7 +211,7 @@ discounted rate and the remainder at the regular input rate.
 ### ChatCompletionChunk
 
 | Field                | Type                 | Default | Description                                                                                                                                   |
-| -------------------- | -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| -------------------- | -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                 | `str`                | —       | Unique identifier                                                                                                                             |
 | `object`             | `str`                | —       | Always `"chat.completion.chunk"` from OpenAI-compatible APIs. Stored as a plain `String` so non-standard provider values do not fail parsing. |
 | `created`            | `int`                | —       | Created                                                                                                                                       |
@@ -226,7 +226,7 @@ discounted rate and the remainder at the regular input rate.
 ### StreamChoice
 
 | Field           | Type          | Default | Description          |
-| --------------- | ------------- | ------- | -------------------- | ----------------------------- |
+| --------------- | ------------- | ------- | -------------------- |
 | `index`         | `int`         | —       | Index                |
 | `delta`         | `StreamDelta` | —       | Delta (stream delta) |
 | `finish_reason` | `FinishReason | None`   | `None`               | Finish reason (finish reason) |
@@ -236,7 +236,7 @@ discounted rate and the remainder at the regular input rate.
 ### StreamDelta
 
 | Field           | Type                  | Default | Description |
-| --------------- | --------------------- | ------- | ----------- | ---------------------------------------------------------------------- |
+| --------------- | --------------------- | ------- | ----------- |
 | `role`          | `str                  | None`   | `None`      | Role                                                                   |
 | `content`       | `str                  | None`   | `None`      | The extracted text content                                             |
 | `tool_calls`    | `list[StreamToolCall] | None`   | `[]`        | Tool calls                                                             |
@@ -248,7 +248,7 @@ discounted rate and the remainder at the regular input rate.
 ### StreamToolCall
 
 | Field       | Type                | Default | Description |
-| ----------- | ------------------- | ------- | ----------- | ------------------------------- |
+| ----------- | ------------------- | ------- | ----------- |
 | `index`     | `int`               | —       | Index       |
 | `id`        | `str                | None`   | `None`      | Unique identifier               |
 | `call_type` | `ToolType           | None`   | `None`      | Call type (tool type)           |
@@ -259,7 +259,7 @@ discounted rate and the remainder at the regular input rate.
 ### StreamFunctionCall
 
 | Field       | Type | Default | Description |
-| ----------- | ---- | ------- | ----------- | --------- |
+| ----------- | ---- | ------- | ----------- |
 | `name`      | `str | None`   | `None`      | The name  |
 | `arguments` | `str | None`   | `None`      | Arguments |
 
@@ -270,7 +270,7 @@ discounted rate and the remainder at the regular input rate.
 Request to create images from a text prompt.
 
 | Field             | Type  | Default | Description |
-| ----------------- | ----- | ------- | ----------- | --------------- |
+| ----------------- | ----- | ------- | ----------- |
 | `prompt`          | `str` | —       | Prompt      |
 | `model`           | `str  | None`   | `None`      | Model           |
 | `n`               | `int  | None`   | `None`      | N               |
@@ -298,7 +298,7 @@ Response containing generated images.
 A single generated image, returned as either a URL or base64 data.
 
 | Field            | Type | Default | Description |
-| ---------------- | ---- | ------- | ----------- | -------------- |
+| ---------------- | ---- | ------- | ----------- |
 | `url`            | `str | None`   | `None`      | Url            |
 | `b64_json`       | `str | None`   | `None`      | B64 json       |
 | `revised_prompt` | `str | None`   | `None`      | Revised prompt |
@@ -310,7 +310,7 @@ A single generated image, returned as either a URL or base64 data.
 Request to generate speech audio from text.
 
 | Field             | Type   | Default | Description |
-| ----------------- | ------ | ------- | ----------- | --------------- |
+| ----------------- | ------ | ------- | ----------- |
 | `model`           | `str`  | —       | Model       |
 | `input`           | `str`  | —       | Input       |
 | `voice`           | `str`  | —       | Voice       |
@@ -324,7 +324,7 @@ Request to generate speech audio from text.
 Request to transcribe audio into text.
 
 | Field             | Type   | Default | Description                     |
-| ----------------- | ------ | ------- | ------------------------------- | --------------- |
+| ----------------- | ------ | ------- | ------------------------------- |
 | `model`           | `str`  | —       | Model                           |
 | `file`            | `str`  | —       | Base64-encoded audio file data. |
 | `language`        | `str   | None`   | `None`                          | Language        |
@@ -339,7 +339,7 @@ Request to transcribe audio into text.
 Response from a transcription request.
 
 | Field      | Type                        | Default | Description |
-| ---------- | --------------------------- | ------- | ----------- | -------- |
+| ---------- | --------------------------- | ------- | ----------- |
 | `text`     | `str`                       | —       | Text        |
 | `language` | `str                        | None`   | `None`      | Language |
 | `duration` | `float                      | None`   | `None`      | Duration |
@@ -365,7 +365,7 @@ A segment of transcribed audio with timing information.
 A search request.
 
 | Field                  | Type       | Default | Description                                                               |
-| ---------------------- | ---------- | ------- | ------------------------------------------------------------------------- | -------------------------------------------------------- |
+| ---------------------- | ---------- | ------- | ------------------------------------------------------------------------- |
 | `model`                | `str`      | —       | The model/provider to use (e.g. `"brave/web-search"`, `"tavily/search"`). |
 | `query`                | `str`      | —       | The search query.                                                         |
 | `max_results`          | `int       | None`   | `None`                                                                    | Maximum number of results to return.                     |

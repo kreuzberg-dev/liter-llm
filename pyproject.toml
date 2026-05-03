@@ -3,9 +3,9 @@ name = "liter-llm"
 version = "1.2.2"
 description = "A universal LM API client with polyglot bindings — fast, type-safe, compiled"
 readme = "README.md"
-keywords = ["ai", "api-client", "kreuzberg", "llm", "openai"]
+keywords = [ "ai", "api-client", "kreuzberg", "llm", "openai" ]
 license = "MIT"
-authors = [{ name = "Na'aman Hirschfeld", email = "naaman@kreuzberg.dev" }]
+authors = [ { name = "Na'aman Hirschfeld", email = "naaman@kreuzberg.dev" } ]
 requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -39,80 +39,80 @@ dev = [
   "typing-extensions>=4",
   "uv-bump",
 ]
-doc = ["zensical"]
+doc = [ "zensical" ]
 
 [tool.uv]
 sources.uv-bump = { git = "https://github.com/Goldziher/uv-bump" }
-workspace.exclude = ["tests/test_apps/*"]
+workspace.exclude = [ "tests/test_apps/*" ]
 
 [tool.ruff]
 target-version = "py310"
 line-length = 120
-src = ["scripts", "tools/schema-bootstrap"]
-exclude = ["tests/test_apps"]
+src = [ "scripts", "tools/schema-bootstrap" ]
+exclude = [ "tests/test_apps" ]
 format.docstring-code-line-length = 120
 format.docstring-code-format = true
-lint.select = ["ALL"]
+lint.select = [ "ALL" ]
 lint.ignore = [
   "ANN401", # dynamically typed ANY
   "COM812", # Conflicts with formatter
-  "D100", # pydocstyle - missing docstring in public module
-  "D104", # pydocstyle - missing docstring in public package
-  "D107", # pydocstyle - missing docstring in __init__
-  "D205", # pydocstyle - 1 blank line required between summary line and description
-  "E501", # pycodestyle line too long, handled by ruff format
-  "EM", # Exception messages
-  "FBT", # Boolean values
-  "FIX", # we allow todo and fixme comments
+  "D100",   # pydocstyle - missing docstring in public module
+  "D104",   # pydocstyle - missing docstring in public package
+  "D107",   # pydocstyle - missing docstring in __init__
+  "D205",   # pydocstyle - 1 blank line required between summary line and description
+  "E501",   # pycodestyle line too long, handled by ruff format
+  "EM",     # Exception messages
+  "FBT",    # Boolean values
+  "FIX",    # we allow todo and fixme comments
   "ISC001", # Conflicts with formatter
-  "TD", # we allow todo and fixme comments
-  "TRY", # Try except block, rules are too strict
+  "TD",     # we allow todo and fixme comments
+  "TRY",    # Try except block, rules are too strict
 ]
 lint.per-file-ignores."**/*.pyi" = [
   "A002", # builtin shadowing in type stubs (id, format, object)
-  "D", # docstrings not required in type stubs
+  "D",    # docstrings not required in type stubs
 ]
 lint.per-file-ignores."e2e/python/**/*.*" = [
-  "A001", # builtin shadowing in generated test fixtures (id, type, format)
-  "B017", # blind pytest.raises(Exception) in generated error-handling tests
-  "D", # docstrings not required in generated tests
+  "A001",    # builtin shadowing in generated test fixtures (id, type, format)
+  "B017",    # blind pytest.raises(Exception) in generated error-handling tests
+  "D",       # docstrings not required in generated tests
   "PLR2004", # magic values in assertions (generated test expectations)
-  "PT011", # broad pytest.raises in generated error-handling tests
-  "RUF100", # unused noqa in generated code
-  "S101", # assert usage in tests
+  "PT011",   # broad pytest.raises in generated error-handling tests
+  "RUF100",  # unused noqa in generated code
+  "S101",    # assert usage in tests
 ]
 lint.per-file-ignores."packages/python/liter_llm/_internal_bindings.pyi" = [
-  "F401", # unused import in alef-generated stub
+  "F401",   # unused import in alef-generated stub
   "PYI026", # TypeAlias annotation not added by alef codegen
   "RUF100", # noqa directives added by alef codegen may be redundant
 ]
 lint.per-file-ignores."scripts/**/*.*" = [
-  "B904", # raise without from
-  "BLE001", # broad exception catch
-  "C901", # complexity
-  "D", # docstrings
-  "G004", # f-string in logging
-  "G201", # logging .exception vs .error
+  "B904",    # raise without from
+  "BLE001",  # broad exception catch
+  "C901",    # complexity
+  "D",       # docstrings
+  "G004",    # f-string in logging
+  "G201",    # logging .exception vs .error
   "PERF203", # try in loop
   "PERF401", # list comprehension
   "PLC0415", # import not at top
   "PLR0912", # too many branches
   "PLR0915", # too many statements
   "PLW2901", # loop variable overwritten
-  "PTH123", # open() vs Path.open()
-  "S", # security (subprocess, etc.)
-  "SIM105", # contextlib.suppress
-  "T201", # print
+  "PTH123",  # open() vs Path.open()
+  "S",       # security (subprocess, etc.)
+  "SIM105",  # contextlib.suppress
+  "T201",    # print
 ]
 lint.per-file-ignores."test_apps/python/**/*.*" = [
-  "A001", # builtin shadowing in generated test fixtures
-  "D", # docstrings not required in generated tests
+  "A001",    # builtin shadowing in generated test fixtures
+  "D",       # docstrings not required in generated tests
   "PLR2004", # magic values in assertions
-  "PT011", # broad pytest.raises in generated error-handling tests
-  "RUF100", # unused noqa in generated code
-  "S101", # assert usage in tests
+  "PT011",   # broad pytest.raises in generated error-handling tests
+  "RUF100",  # unused noqa in generated code
+  "S101",    # assert usage in tests
 ]
-lint.isort.known-first-party = ["scripts"]
+lint.isort.known-first-party = [ "scripts" ]
 lint.pydocstyle.convention = "google"
 
 [tool.pyproject-fmt]
@@ -120,7 +120,7 @@ keep_full_version = true
 max_supported_python = "3.14"
 
 [tool.mypy]
-packages = ["scripts"]
+packages = [ "scripts" ]
 python_version = "3.10"
 disallow_untyped_decorators = true
 disallow_any_unimported = true
