@@ -81,10 +81,6 @@ tasks:
       - alef e2e generate --lang node
 
   e2e:test:
-    desc: Run TypeScript/Node E2E tests
+    desc: Run TypeScript/Node E2E tests using Alef-configured test commands
     cmds:
-      - pnpm -r --filter="./packages/typescript/**" run build
-      - cmd: |
-          cd e2e/node
-          pnpm install
-          npx vitest run
+      - alef test --lang node --e2e

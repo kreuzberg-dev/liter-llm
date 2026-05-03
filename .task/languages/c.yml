@@ -32,16 +32,11 @@ tasks:
       - alef e2e generate --lang c
 
   e2e:build:
-    desc: Build C E2E tests
-    deps: [build:ffi]
-    dir: e2e/c
+    desc: Build C E2E tests using Alef-configured test setup
     cmds:
-      - cmake -B build .
-      - cmake --build build
+      - alef test --lang ffi --e2e
 
   e2e:test:
-    desc: Run C E2E tests
-    deps: [e2e:build]
-    dir: e2e/c/build
+    desc: Run C E2E tests using Alef-configured test commands
     cmds:
-      - ctest --output-on-failure
+      - alef test --lang ffi --e2e

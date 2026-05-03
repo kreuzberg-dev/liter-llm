@@ -53,19 +53,14 @@ tasks:
       - alef e2e generate --lang python
 
   e2e:lint:
-    desc: Lint Python E2E code
-    dir: e2e/python
+    desc: Lint Python bindings using Alef-configured lint commands
     cmds:
-      - uv run --no-sync ruff check tests/
+      - alef lint --lang python
 
   e2e:test:
-    desc: Run Python E2E tests
-    dir: e2e/python
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+    desc: Run Python E2E tests using Alef-configured test commands
     cmds:
-      - uv sync
-      - uv run pytest tests/ -q
+      - alef test --lang python --e2e
 
   e2e:verify:
     desc: Regenerate and validate Python E2E suite (generate + lint + test)

@@ -158,31 +158,19 @@ tasks:
       - task: e2e:format
 
   e2e:format:
-    desc: Format Java E2E code
-    dir: e2e/java
+    desc: Format Java bindings using Alef-configured format commands
     cmds:
-      - cmd: bash -c 'if [ -f ~/.sdkman/bin/sdkman-init.sh ]; then source ~/.sdkman/bin/sdkman-init.sh && sdk use java 25.0.2-tem && sdk use maven 3.9.11; fi && if grep -q spotless-maven-plugin pom.xml; then mvn -q spotless:apply; fi'
-        platforms: [linux, darwin]
+      - alef fmt --lang java
 
   e2e:lint:
-    desc: Lint Java E2E code
-    dir: e2e/java
+    desc: Lint Java bindings using Alef-configured lint commands
     cmds:
-      - cmd: bash -c 'if [ -f ~/.sdkman/bin/sdkman-init.sh ]; then source ~/.sdkman/bin/sdkman-init.sh && sdk use java 25.0.2-tem && sdk use maven 3.9.11; fi && mvn checkstyle:check && mvn pmd:check pmd:cpd-check'
-        platforms: [linux, darwin]
-      - cmd: |
-          mvn checkstyle:check
-          mvn pmd:check pmd:cpd-check
-        platforms: [windows]
+      - alef lint --lang java
 
   e2e:test:
-    desc: Run Java E2E tests
-    dir: e2e/java
+    desc: Run Java E2E tests using Alef-configured test commands
     cmds:
-      - cmd: bash -c 'if [ -f ~/.sdkman/bin/sdkman-init.sh ]; then source ~/.sdkman/bin/sdkman-init.sh && sdk use java 25.0.2-tem && sdk use maven 3.9.11; fi && mvn -B -DtrimStackTrace=false -Dsurefire.useFile=false test'
-        platforms: [linux, darwin]
-      - cmd: mvn -B -DtrimStackTrace=false -Dsurefire.useFile=false test
-        platforms: [windows]
+      - alef test --lang java --e2e
 
   e2e:verify:
     desc: Regenerate and validate Java E2E suite (build + generate + lint + test)

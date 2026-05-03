@@ -24,30 +24,17 @@ tasks:
   test:all:
     desc: Run all E2E tests across all supported languages
     cmds:
-      - task: :rust:e2e:test
-      - task: :python:e2e:test
-      - task: :node:e2e:test
-      - task: :go:e2e:test
-      - task: :java:e2e:test
-      - task: :csharp:e2e:test
-      - task: :ruby:e2e:test
-      - task: :php:e2e:test
-      - task: :elixir:e2e:test
-      - task: :wasm:e2e:test
-      - task: :c:e2e:test
+      - alef test --e2e
 
   test:quick:
     desc: Quick E2E test (Rust only — fastest feedback)
     cmds:
-      - task: :rust:e2e:test
+      - alef test --lang rust --e2e
 
   lint:all:
-    desc: Lint all generated E2E test code
+    desc: Lint generated bindings using Alef-configured lint commands
     cmds:
-      - task: :python:e2e:lint
-      - task: :go:e2e:lint
-      - task: :java:e2e:lint
-      - task: :csharp:e2e:lint
+      - alef lint
 
   verify:all:
     desc: Full E2E pipeline — generate, lint, and test all suites

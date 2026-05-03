@@ -124,30 +124,19 @@ tasks:
       - task: e2e:format
 
   e2e:format:
-    desc: Format C# E2E code
+    desc: Format C# bindings using Alef-configured format commands
     cmds:
-      - cmd: bash -c "cd e2e/csharp && dotnet format LiterLlm.E2E.csproj"
-        platforms: [linux, darwin]
-      - cmd: cd e2e/csharp && dotnet format LiterLlm.E2E.csproj
-        platforms: [windows]
+      - alef fmt --lang csharp
 
   e2e:lint:
-    desc: Lint C# E2E code
+    desc: Lint C# bindings using Alef-configured lint commands
     cmds:
-      - cmd: bash -c "cd e2e/csharp && dotnet format --verify-no-changes"
-        platforms: [linux, darwin]
-      - cmd: cd e2e/csharp && dotnet format --verify-no-changes
-        platforms: [windows]
+      - alef lint --lang csharp
 
   e2e:test:
-    desc: Run C# E2E tests
-    deps: [build:ffi]
-    dir: e2e/csharp
-    env:
-      LD_LIBRARY_PATH: "{{.PROJECT_ROOT}}/target/release:${LD_LIBRARY_PATH:-}"
-      DYLD_LIBRARY_PATH: "{{.PROJECT_ROOT}}/target/release:${DYLD_LIBRARY_PATH:-}"
+    desc: Run C# E2E tests using Alef-configured test commands
     cmds:
-      - dotnet test -c Release
+      - alef test --lang csharp --e2e
 
   e2e:verify:
     desc: Regenerate and validate C# E2E suite (generate + lint + test)

@@ -81,16 +81,14 @@ tasks:
       - task: e2e:format
 
   e2e:format:
-    desc: Format generated Rust E2E sources
+    desc: Format Rust bindings using Alef-configured format commands
     cmds:
-      - cargo fmt --manifest-path e2e/rust/Cargo.toml
+      - alef fmt --lang rust
 
   e2e:test:
-    desc: Run Rust E2E tests
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+    desc: Run Rust E2E tests using Alef-configured test commands
     cmds:
-      - cargo test --manifest-path e2e/rust/Cargo.toml
+      - alef test --lang rust --e2e
 
   e2e:verify:
     desc: Regenerate and validate Rust E2E suite (generate + format + test)

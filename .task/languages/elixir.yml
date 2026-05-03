@@ -79,11 +79,6 @@ tasks:
       - alef e2e generate --lang elixir
 
   e2e:test:
-    desc: Run Elixir E2E tests
-    dir: e2e/elixir
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
-      MIX_ENV: test
+    desc: Run Elixir E2E tests using Alef-configured test commands
     cmds:
-      - mix deps.get
-      - mix test
+      - alef test --lang elixir --e2e

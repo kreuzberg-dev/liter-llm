@@ -203,6 +203,76 @@ before = "cargo build --release -p liter-llm-ffi"
 [crates.lint.ffi]
 precondition = "test -d crates/liter-llm-ffi/src"
 
+[crates.test.rust]
+precondition = "command -v cargo >/dev/null 2>&1"
+e2e = "cargo test --manifest-path e2e/rust/Cargo.toml"
+
+[crates.test.python]
+precondition = "command -v uv >/dev/null 2>&1"
+e2e = [
+  "cd e2e/python && uv sync",
+  "cd e2e/python && uv run pytest tests/ -q",
+]
+
+[crates.test.node]
+precondition = "command -v pnpm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1"
+e2e = [
+  "pnpm -r --filter=\"./packages/typescript/**\" run build",
+  "cd e2e/node && pnpm install && npx vitest run",
+]
+
+[crates.test.go]
+precondition = "command -v go >/dev/null 2>&1"
+before = "cargo build -p liter-llm-ffi --release"
+e2e = "cd e2e/go && go test -v ./..."
+
+[crates.test.java]
+precondition = "command -v mvn >/dev/null 2>&1"
+before = "mvn -f packages/java/pom.xml package -DskipTests"
+e2e = "cd e2e/java && mvn -B -DtrimStackTrace=false -Dsurefire.useFile=false test"
+
+[crates.test.csharp]
+precondition = "command -v dotnet >/dev/null 2>&1"
+before = "cargo build -p liter-llm-ffi --release"
+e2e = "cd e2e/csharp && DYLD_LIBRARY_PATH=\"$PWD/../../target/release:${DYLD_LIBRARY_PATH:-}\" LD_LIBRARY_PATH=\"$PWD/../../target/release:${LD_LIBRARY_PATH:-}\" dotnet test -c Release"
+
+[crates.test.ruby]
+precondition = "command -v bundle >/dev/null 2>&1"
+e2e = [
+  "cd e2e/ruby && bundle install",
+  "cd e2e/ruby && bundle exec rspec",
+]
+
+[crates.test.php]
+precondition = "command -v php >/dev/null 2>&1 && command -v composer >/dev/null 2>&1"
+e2e = [
+  "cd e2e/php && bash ../../scripts/ci/php/create-ci-php-ini.sh",
+  "cd e2e/php && composer install --no-progress --prefer-dist",
+  "cd e2e/php && php -c php-liter-llm.ini vendor/bin/phpunit",
+]
+
+[crates.test.elixir]
+precondition = "command -v mix >/dev/null 2>&1"
+e2e = [
+  "cd e2e/elixir && MIX_ENV=test mix deps.get",
+  "cd e2e/elixir && MIX_ENV=test mix test",
+]
+
+[crates.test.wasm]
+precondition = "command -v pnpm >/dev/null 2>&1"
+e2e = [
+  "cd e2e/wasm && pnpm install",
+  "cd e2e/wasm && pnpm vitest run",
+]
+
+[crates.test.ffi]
+precondition = "command -v cmake >/dev/null 2>&1 && command -v ctest >/dev/null 2>&1"
+before = "cargo build -p liter-llm-ffi --release"
+e2e = [
+  "cd e2e/c && cmake -B build . && cmake --build build",
+  "cd e2e/c/build && ctest --output-on-failure",
+]
+
 [crates.publish]
 core_crate = "crates/liter-llm"
 

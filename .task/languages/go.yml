@@ -165,22 +165,14 @@ tasks:
       - gofmt -w e2e/go/
 
   e2e:lint:
-    desc: Lint Go E2E code
-    dir: e2e/go
+    desc: Lint Go bindings using Alef-configured lint commands
     cmds:
-      - cmd: golangci-lint run ./...
-        platforms: [linux, darwin]
-      - cmd: golangci-lint run ./...
-        platforms: [windows]
+      - alef lint --lang go
 
   e2e:test:
-    desc: Run Go E2E tests
-    deps: [build:ffi]
-    dir: e2e/go
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+    desc: Run Go E2E tests using Alef-configured test commands
     cmds:
-      - go test -v ./...
+      - alef test --lang go --e2e
 
   e2e:verify:
     desc: Regenerate and validate Go E2E suite (generate + lint + test)

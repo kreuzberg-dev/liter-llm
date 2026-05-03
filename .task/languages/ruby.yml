@@ -95,10 +95,6 @@ tasks:
       - alef e2e generate --lang ruby
 
   e2e:test:
-    desc: Run Ruby E2E tests
-    dir: e2e/ruby
-    env:
-      PROJECT_ROOT: "{{.PROJECT_ROOT}}"
+    desc: Run Ruby E2E tests using Alef-configured test commands
     cmds:
-      - bundle install
-      - bundle exec rspec
+      - alef test --lang ruby --e2e
