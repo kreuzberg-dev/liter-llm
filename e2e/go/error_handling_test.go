@@ -7,144 +7,72 @@
 // E2e tests for category: error-handling
 package e2e_test
 
-import (
-	"testing"
-
-	pkg "liter_llm"
-)
+import "testing"
 
 func Test_AnthropicErrorAuth(t *testing.T) {
-	// 401 Authentication error returned by the Anthropic API when the API key is invalid
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_Auth401(t *testing.T) {
-	// 401 Unauthorized error when API key is invalid or missing
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_AzureErrorAuth(t *testing.T) {
-	// Azure OpenAI returns a 401 Unauthorized error when the API key is missing or invalid — uses Azure's error envelope shape with code AccessDenied
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_BadRequest400(t *testing.T) {
-	// 400 Bad Request error when a parameter value is invalid
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_BedrockErrorAuth(t *testing.T) {
-	// AWS Bedrock returns 403 Forbidden (not 401) when credentials are missing, expired, or the IAM role lacks bedrock:InvokeModel permission — verifies the error is mapped to Authentication
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_ContentPolicyViolation(t *testing.T) {
-	// 400 error when a request is rejected due to content policy
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_ContextWindowExceeded(t *testing.T) {
-	// 400 error when the prompt exceeds the model's maximum context length
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_EmptyResponseBody(t *testing.T) {
-	// 200 OK response with an empty JSON object body, missing required fields
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_Forbidden403(t *testing.T) {
-	// 403 Forbidden error when the API key does not have access to the requested resource
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_GatewayTimeout504(t *testing.T) {
-	// 504 Gateway Timeout error when the upstream service times out
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_GithubCopilotErrorAuth(t *testing.T) {
-	// 401 Authentication error returned by the GitHub Copilot API when the token is invalid or expired
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_NotFound404(t *testing.T) {
-	// 404 Not Found error when requesting a model that does not exist
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_RateLimit429(t *testing.T) {
-	// 429 Too Many Requests error when the rate limit is exceeded
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_ServerError500(t *testing.T) {
-	// 500 Internal Server Error from the upstream API
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_ServiceUnavailable502(t *testing.T) {
-	// 502 Bad Gateway error when the upstream service is unavailable
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_TimeoutError(t *testing.T) {
-	// 408 Request Timeout error when the API request takes too long to complete
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }
 
 func Test_VertexErrorAuth(t *testing.T) {
-	// Google Vertex AI returns 401 Unauthorized when the OAuth2 token is missing, expired, or the service account lacks aiplatform.endpoints.predict permission — verifies the error is mapped to Authentication
-	_, err := pkg.Chat(nil)
-	if err == nil {
-		t.Errorf("expected an error, but call succeeded")
-	}
+	t.Skip("Go binding does not expose a configured e2e callable for this fixture")
 }

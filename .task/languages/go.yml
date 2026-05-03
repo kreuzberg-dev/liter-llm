@@ -166,10 +166,11 @@ tasks:
 
   e2e:lint:
     desc: Lint Go E2E code
+    dir: e2e/go
     cmds:
       - cmd: golangci-lint run ./...
         platforms: [linux, darwin]
-      - cmd: pwsh -Command "cd e2e/go; golangci-lint run ./..."
+      - cmd: golangci-lint run ./...
         platforms: [windows]
 
   e2e:test:

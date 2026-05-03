@@ -1,7 +1,16 @@
-version = "0.13.11"
+[workspace]
+alef_version = "0.14.2"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
-[crate]
+[workspace.sync]
+extra_paths = [
+  "package.json",
+  "crates/liter-llm-node/package.json",
+  "crates/liter-llm-node/npm/*/package.json",
+  "packages/node/package.json",
+]
+
+[[crates]]
 name = "liter-llm"
 core_import = "liter_llm"
 sources = [
@@ -24,7 +33,62 @@ version_from = "Cargo.toml"
 workspace_root = "."
 features = ["native-http", "full"]
 
-[exclude]
+[crates.python]
+module_name = "_internal_bindings"
+pip_name = "liter-llm"
+run_wrapper = "uv run --no-sync"
+
+[crates.python.stubs]
+output = "packages/python/liter_llm/"
+
+[crates.node]
+package_name = "@kreuzberg/liter-llm-node"
+
+[crates.ruby]
+gem_name = "liter_llm"
+
+[crates.ruby.stubs]
+output = "packages/ruby/sig/"
+
+[crates.elixir]
+app_name = "liter_llm"
+
+[crates.elixir.extra_dependencies]
+futures-util = "0.3"
+
+[crates.wasm]
+features = ["wasm-http"]
+
+[crates.ffi]
+prefix = "literllm"
+header_name = "liter_llm.h"
+lib_name = "liter_llm_ffi"
+
+[crates.go]
+module = "github.com/kreuzberg-dev/liter-llm/packages/go"
+package_name = "literllm"
+
+[crates.java]
+package = "dev.kreuzberg.literllm"
+project_file = "packages/java/pom.xml"
+
+[crates.csharp]
+namespace = "LiterLlm"
+project_file = "packages/csharp/LiterLlm/LiterLlm.csproj"
+
+[crates.output]
+python = "crates/liter-llm-py/src/"
+node = "crates/liter-llm-node/src/"
+ruby = "packages/ruby/ext/liter_llm_rb/src/"
+php = "crates/liter-llm-php/src/"
+ffi = "crates/liter-llm-ffi/src/"
+go = "packages/go/"
+elixir = "packages/elixir/native/liter_llm_nif/src/"
+wasm = "crates/liter-llm-wasm/src/"
+java = "packages/java/"
+csharp = "packages/csharp/"
+
+[crates.exclude]
 types = [
   # Traits (can't cross FFI)
   "LlmClient",
@@ -114,189 +178,406 @@ methods = [
 ]
 functions = ["str_pair", "build_provider"]
 
-[output]
-python = "crates/liter-llm-py/src/"
-node = "crates/liter-llm-node/src/"
-ruby = "packages/ruby/ext/liter_llm_rb/src/"
-php = "crates/liter-llm-php/src/"
-ffi = "crates/liter-llm-ffi/src/"
-go = "packages/go/"
-elixir = "packages/elixir/native/liter_llm_nif/src/"
-wasm = "crates/liter-llm-wasm/src/"
-java = "packages/java/"
-csharp = "packages/csharp/"
+[crates.lint.python]
+before = "uv sync --no-install-project"
 
-[python]
-module_name = "_internal_bindings"
-pip_name = "liter-llm"
-run_wrapper = "uv run --no-sync"
+[crates.lint.node]
+precondition = "command -v npx >/dev/null 2>&1"
+format = "npx oxfmt packages/typescript"
+check = "npx oxlint packages/typescript"
 
-[python.stubs]
-output = "packages/python/liter_llm/"
+[crates.lint.wasm]
+precondition = "command -v npx >/dev/null 2>&1"
+format = "npx oxfmt packages/wasm"
+check = "npx oxlint packages/wasm"
 
-[node]
-package_name = "@kreuzberg/liter-llm-node"
+[crates.lint.php]
+precondition = "command -v php >/dev/null 2>&1 && test -x packages/php/vendor/bin/php-cs-fixer"
+format = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php src"
+check = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php --dry-run src"
 
-[ffi]
-prefix = "literllm"
-header_name = "liter_llm.h"
-lib_name = "liter_llm_ffi"
+[crates.lint.go]
+precondition = "command -v golangci-lint >/dev/null 2>&1"
+before = "cargo build --release -p liter-llm-ffi"
 
-[go]
-module = "github.com/kreuzberg-dev/liter-llm/packages/go"
-package_name = "literllm"
+[crates.lint.ffi]
+precondition = "test -d crates/liter-llm-ffi/src"
 
-[java]
-package = "dev.kreuzberg.literllm"
-project_file = "packages/java/pom.xml"
+[crates.publish]
+core_crate = "crates/liter-llm"
 
-[csharp]
-namespace = "LiterLlm"
-project_file = "packages/csharp/LiterLlm/LiterLlm.csproj"
+[crates.publish.languages.ruby]
+vendor_mode = "core-only"
 
-[wasm]
-# liter-llm's "native-http"/"full" features pull tokio with the net feature
-# (mio-backed sockets) which doesn't compile for wasm32-unknown-unknown. Use
-# the dedicated wasm-http feature instead — same reqwest API on top of the
-# browser/Node fetch.
-features = ["wasm-http"]
+[crates.publish.languages.elixir]
+vendor_mode = "core-only"
+nif_versions = ["2.16", "2.17"]
 
-[ruby]
-gem_name = "liter_llm"
+[crates.publish.languages.ffi]
+pkg_config = true
+cmake_config = true
 
-[ruby.stubs]
-output = "packages/ruby/sig/"
+[crates.e2e]
+fixtures = "fixtures"
+output = "e2e"
 
-[elixir]
-app_name = "liter_llm"
+[crates.e2e.call]
+function = "chat"
+path = "/v1/chat/completions"
+module = "liter_llm"
+result_var = "result"
+async = true
 
-[elixir.extra_dependencies]
-futures-util = "0.3"
+[[crates.e2e.call.args]]
+name = "request"
+field = "input"
+type = "json_object"
 
-# Async method adapters for DefaultClient
-[[adapters]]
-name = "chat"
-pattern = "async_method"
-core_path = "chat"
-owner_type = "DefaultClient"
-returns = "ChatCompletionResponse"
-error_type = "LiterLlmError"
+[crates.e2e.call.overrides.node]
+client_factory = "createClient"
 
-[[adapters.params]]
-name = "req"
-type = "ChatCompletionRequest"
+[crates.e2e.call.overrides.php]
+php_client_factory = "createClient"
+options_via = "json"
 
-# Streaming adapter for chat_stream
-[[adapters]]
-name = "chat_stream"
-pattern = "streaming"
-core_path = "chat_stream"
-owner_type = "DefaultClient"
-item_type = "ChatCompletionChunk"
-error_type = "LiterLlmError"
+[crates.e2e.call.overrides.wasm]
+client_factory = "createClient"
+options_type = "WasmChatCompletionRequest"
+bigint_fields = ["maxTokens", "seed", "promptTokens", "completionTokens", "totalTokens", "n"]
 
-[[adapters.params]]
-name = "req"
-type = "ChatCompletionRequest"
+[crates.e2e.call.overrides.c]
+result_type = "ChatCompletionResponse"
+client_factory = "create_client"
 
-[[adapters]]
-name = "embed"
-pattern = "async_method"
-core_path = "embed"
-owner_type = "DefaultClient"
-returns = "EmbeddingResponse"
-error_type = "LiterLlmError"
+[crates.e2e.calls.chat]
+function = "chat"
+path = "/v1/chat/completions"
+module = "liter_llm"
+async = true
 
-[[adapters.params]]
-name = "req"
-type = "EmbeddingRequest"
+[[crates.e2e.calls.chat.args]]
+name = "request"
+field = "input"
+type = "json_object"
 
-[[adapters]]
-name = "list_models"
-pattern = "async_method"
-core_path = "list_models"
-owner_type = "DefaultClient"
-returns = "ModelsListResponse"
-error_type = "LiterLlmError"
+[crates.e2e.calls.chat.overrides.c]
+result_type = "ChatCompletionResponse"
 
-[[adapters]]
-name = "image_generate"
-pattern = "async_method"
-core_path = "image_generate"
-owner_type = "DefaultClient"
-returns = "ImagesResponse"
-error_type = "LiterLlmError"
+[crates.e2e.calls.chat_stream]
+function = "chat_stream"
+path = "/v1/chat/completions"
+module = "liter_llm"
+async = true
 
-[[adapters.params]]
-name = "req"
-type = "CreateImageRequest"
+[[crates.e2e.calls.chat_stream.args]]
+name = "request"
+field = "input"
+type = "json_object"
 
-[[adapters]]
-name = "transcribe"
-pattern = "async_method"
-core_path = "transcribe"
-owner_type = "DefaultClient"
-returns = "TranscriptionResponse"
-error_type = "LiterLlmError"
+[crates.e2e.calls.chat_stream.overrides.c]
+result_type = "ChatCompletionChunk"
 
-[[adapters.params]]
-name = "req"
-type = "CreateTranscriptionRequest"
+[crates.e2e.calls.embed]
+function = "embed"
+path = "/v1/embeddings"
+module = "liter_llm"
+async = true
 
-[[adapters]]
-name = "moderate"
-pattern = "async_method"
-core_path = "moderate"
-owner_type = "DefaultClient"
-returns = "ModerationResponse"
-error_type = "LiterLlmError"
+[[crates.e2e.calls.embed.args]]
+name = "request"
+field = "input"
+type = "json_object"
 
-[[adapters.params]]
-name = "req"
-type = "ModerationRequest"
+[crates.e2e.calls.embed.overrides.c]
+result_type = "EmbeddingResponse"
 
-[[adapters]]
-name = "rerank"
-pattern = "async_method"
-core_path = "rerank"
-owner_type = "DefaultClient"
-returns = "RerankResponse"
-error_type = "LiterLlmError"
+[crates.e2e.calls.list_models]
+function = "list_models"
+path = "/v1/models"
+module = "liter_llm"
+async = true
 
-[[adapters.params]]
-name = "req"
-type = "RerankRequest"
+[crates.e2e.calls.list_models.overrides.c]
+result_type = "ListModelsResponse"
 
-[[adapters]]
-name = "search"
-pattern = "async_method"
-core_path = "search"
-owner_type = "DefaultClient"
-returns = "SearchResponse"
-error_type = "LiterLlmError"
+[crates.e2e.calls.image_generate]
+function = "image_generate"
+path = "/v1/images/generations"
+module = "liter_llm"
+async = true
 
-[[adapters.params]]
-name = "req"
-type = "SearchRequest"
+[[crates.e2e.calls.image_generate.args]]
+name = "request"
+field = "input"
+type = "json_object"
 
-[scaffold]
+[crates.e2e.calls.image_generate.overrides.c]
+result_type = "ImageResponse"
+
+[crates.e2e.calls.speech]
+function = "speech"
+path = "/v1/audio/speech"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.speech.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.speech.overrides.c]
+result_type = "SpeechResponse"
+
+[crates.e2e.calls.transcribe]
+function = "transcribe"
+path = "/v1/audio/transcriptions"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.transcribe.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.transcribe.overrides.c]
+result_type = "TranscriptionResponse"
+
+[crates.e2e.calls.moderate]
+function = "moderate"
+path = "/v1/moderations"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.moderate.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.moderate.overrides.c]
+result_type = "ModerationResponse"
+
+[crates.e2e.calls.rerank]
+function = "rerank"
+path = "/v1/rerank"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.rerank.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.rerank.overrides.c]
+result_type = "RerankResponse"
+
+[crates.e2e.calls.search]
+function = "search"
+path = "/v1/search"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.search.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.search.overrides.c]
+result_type = "SearchResponse"
+
+[crates.e2e.calls.ocr]
+function = "ocr"
+path = "/v1/ocr"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.ocr.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.ocr.overrides.c]
+result_type = "OcrResponse"
+
+[crates.e2e.calls.create_file]
+function = "create_file"
+path = "/v1/files"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.create_file.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.create_file.overrides.c]
+result_type = "FileResponse"
+
+[crates.e2e.calls.retrieve_file]
+function = "retrieve_file"
+path = "/v1/files"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.retrieve_file.args]]
+name = "file_id"
+field = "input.file_id"
+type = "string"
+
+[crates.e2e.calls.retrieve_file.overrides.c]
+result_type = "FileResponse"
+
+[crates.e2e.calls.delete_file]
+function = "delete_file"
+path = "/v1/files"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.delete_file.args]]
+name = "file_id"
+field = "input.file_id"
+type = "string"
+
+[crates.e2e.calls.delete_file.overrides.c]
+result_type = "DeleteFileResponse"
+
+[crates.e2e.calls.list_files]
+function = "list_files"
+path = "/v1/files"
+module = "liter_llm"
+async = true
+
+[crates.e2e.calls.list_files.overrides.c]
+result_type = "ListFilesResponse"
+
+[crates.e2e.calls.file_content]
+function = "file_content"
+path = "/v1/files"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.file_content.args]]
+name = "file_id"
+field = "input.file_id"
+type = "string"
+
+[crates.e2e.calls.file_content.overrides.c]
+result_type = "FileContentResponse"
+
+[crates.e2e.calls.create_batch]
+function = "create_batch"
+path = "/v1/batches"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.create_batch.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.create_batch.overrides.c]
+result_type = "BatchResponse"
+
+[crates.e2e.calls.retrieve_batch]
+function = "retrieve_batch"
+path = "/v1/batches"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.retrieve_batch.args]]
+name = "batch_id"
+field = "input.batch_id"
+type = "string"
+
+[crates.e2e.calls.retrieve_batch.overrides.c]
+result_type = "BatchResponse"
+
+[crates.e2e.calls.list_batches]
+function = "list_batches"
+path = "/v1/batches"
+module = "liter_llm"
+async = true
+
+[crates.e2e.calls.list_batches.overrides.c]
+result_type = "ListBatchesResponse"
+
+[crates.e2e.calls.cancel_batch]
+function = "cancel_batch"
+path = "/v1/batches"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.cancel_batch.args]]
+name = "batch_id"
+field = "input.batch_id"
+type = "string"
+
+[crates.e2e.calls.cancel_batch.overrides.c]
+result_type = "BatchResponse"
+
+[crates.e2e.calls.create_response]
+function = "create_response"
+path = "/v1/responses"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.create_response.args]]
+name = "request"
+field = "input"
+type = "json_object"
+
+[crates.e2e.calls.create_response.overrides.c]
+result_type = "ResponseResponse"
+
+[crates.e2e.calls.retrieve_response]
+function = "retrieve_response"
+path = "/v1/responses"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.retrieve_response.args]]
+name = "id"
+field = "input.id"
+type = "string"
+
+[crates.e2e.calls.retrieve_response.overrides.c]
+result_type = "ResponseResponse"
+
+[crates.e2e.calls.cancel_response]
+function = "cancel_response"
+path = "/v1/responses"
+module = "liter_llm"
+async = true
+
+[[crates.e2e.calls.cancel_response.args]]
+name = "id"
+field = "input.id"
+type = "string"
+
+[crates.e2e.calls.cancel_response.overrides.c]
+result_type = "ResponseResponse"
+
+[crates.e2e.packages.node]
+name = "@kreuzberg/liter-llm"
+
+[crates.e2e.registry]
+output = "test_apps"
+
+[crates.scaffold]
 description = "Universal LLM API client with Rust-powered polyglot bindings."
 license = "MIT"
 repository = "https://github.com/kreuzberg-dev/liter-llm"
 authors = ["Na'aman Hirschfeld"]
 keywords = ["llm", "api-client", "openai", "anthropic"]
 
-# Opt in to alef-managed workspace .cargo/config.toml. Empty section uses
-# canonical defaults (6-target template + macOS dynamic_lookup rustflag).
-[scaffold.cargo]
+[crates.scaffold.cargo]
 
-[readme]
+[crates.readme]
 template_dir = "templates/readme"
 snippets_dir = "docs/snippets"
 output_pattern = "packages/{language}/README.md"
 discord_url = "https://discord.gg/pXxagNK2zN"
 
-[readme.languages.rust]
+[crates.readme.languages.rust]
 template = "language_package.md"
 output_path = "crates/liter-llm/README.md"
 name = "Rust"
@@ -307,7 +588,7 @@ description = "Universal LLM API client for Rust. Access 143+ LLM providers thro
 package_manager = ["cargo"]
 optional_sections = ["async_support", "streaming_support", "tool_calling", "middleware_stack"]
 
-[readme.languages.rust.features]
+[crates.readme.languages.rust.features]
 streaming = true
 async = true
 tool_calling = true
@@ -317,11 +598,11 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.rust.snippets]
+[crates.readme.languages.rust.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[readme.languages.python]
+[crates.readme.languages.python]
 template = "language_package.md"
 name = "Python"
 package_name = "liter-llm"
@@ -331,7 +612,7 @@ description = "Universal LLM API client for Python. Access 143+ LLM providers th
 package_manager = ["pip"]
 optional_sections = ["async_support", "streaming_support", "tool_calling"]
 
-[readme.languages.python.features]
+[crates.readme.languages.python.features]
 streaming = true
 async = true
 tool_calling = true
@@ -341,12 +622,12 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.python.snippets]
+[crates.readme.languages.python.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 tool_calling = "getting-started/tool_calling.md"
 
-[readme.languages.typescript]
+[crates.readme.languages.typescript]
 template = "language_package.md"
 output_path = "crates/liter-llm-node/README.md"
 name = "TypeScript (Node.js)"
@@ -357,7 +638,7 @@ description = "Universal LLM API client for TypeScript and Node.js. Access 143+ 
 package_manager = ["npm", "pnpm", "yarn"]
 optional_sections = ["async_support", "streaming_support", "tool_calling"]
 
-[readme.languages.typescript.features]
+[crates.readme.languages.typescript.features]
 streaming = true
 async = true
 tool_calling = true
@@ -367,12 +648,12 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.typescript.snippets]
+[crates.readme.languages.typescript.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 tool_calling = "getting-started/tool_calling.md"
 
-[readme.languages.go]
+[crates.readme.languages.go]
 template = "go.md"
 output_path = "packages/go/README.md"
 name = "Go"
@@ -383,7 +664,7 @@ description = "Universal LLM API client for Go. Access 143+ LLM providers throug
 package_manager = ["go get"]
 optional_sections = ["ffi_build_instructions"]
 
-[readme.languages.go.features]
+[crates.readme.languages.go.features]
 streaming = true
 async = true
 tool_calling = true
@@ -393,11 +674,11 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.go.snippets]
+[crates.readme.languages.go.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[readme.languages.java]
+[crates.readme.languages.java]
 template = "language_package.md"
 name = "Java"
 package_name = "dev.kreuzberg:liter-llm"
@@ -407,7 +688,7 @@ description = "Universal LLM API client for Java. Access 143+ LLM providers thro
 package_manager = ["maven", "gradle"]
 optional_sections = ["maven_gradle_setup", "async_support"]
 
-[readme.languages.java.features]
+[crates.readme.languages.java.features]
 streaming = true
 async = true
 tool_calling = true
@@ -417,11 +698,11 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.java.snippets]
+[crates.readme.languages.java.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[readme.languages.php]
+[crates.readme.languages.php]
 template = "language_package.md"
 name = "PHP"
 package_name = "kreuzberg/liter-llm"
@@ -430,7 +711,7 @@ docs_url = "https://github.com/kreuzberg-dev/liter-llm"
 description = "Universal LLM API client for PHP. Access 143+ LLM providers through a single interface with modern PHP 8.2+ support and a type-safe API."
 package_manager = ["composer"]
 
-[readme.languages.php.features]
+[crates.readme.languages.php.features]
 tool_calling = true
 provider_routing = true
 cost_tracking = true
@@ -438,10 +719,10 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.php.snippets]
+[crates.readme.languages.php.snippets]
 basic_chat = "getting-started/basic_chat.md"
 
-[readme.languages.ruby]
+[crates.readme.languages.ruby]
 template = "language_package.md"
 name = "Ruby"
 package_name = "liter_llm"
@@ -451,7 +732,7 @@ description = "Universal LLM API client for Ruby. Access 143+ LLM providers thro
 package_manager = ["rubygems", "bundler"]
 optional_sections = ["async_support", "streaming_support"]
 
-[readme.languages.ruby.features]
+[crates.readme.languages.ruby.features]
 streaming = true
 async = true
 tool_calling = true
@@ -461,11 +742,11 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.ruby.snippets]
+[crates.readme.languages.ruby.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[readme.languages.csharp]
+[crates.readme.languages.csharp]
 template = "language_package.md"
 name = "C#"
 package_name = "LiterLlm"
@@ -475,7 +756,7 @@ description = "Universal LLM API client for .NET. Access 143+ LLM providers thro
 package_manager = ["nuget"]
 optional_sections = ["async_support", "streaming_support"]
 
-[readme.languages.csharp.features]
+[crates.readme.languages.csharp.features]
 streaming = true
 async = true
 tool_calling = true
@@ -485,11 +766,11 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.csharp.snippets]
+[crates.readme.languages.csharp.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[readme.languages.elixir]
+[crates.readme.languages.elixir]
 template = "language_package.md"
 name = "Elixir"
 package_name = "liter_llm"
@@ -499,7 +780,7 @@ description = "Universal LLM API client for Elixir. Access 143+ LLM providers th
 package_manager = ["mix"]
 optional_sections = ["async_support", "streaming_support"]
 
-[readme.languages.elixir.features]
+[crates.readme.languages.elixir.features]
 streaming = true
 async = true
 tool_calling = true
@@ -509,11 +790,11 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.elixir.snippets]
+[crates.readme.languages.elixir.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[readme.languages.wasm]
+[crates.readme.languages.wasm]
 template = "language_package.md"
 output_path = "crates/liter-llm-wasm/README.md"
 name = "WebAssembly"
@@ -524,7 +805,7 @@ description = "Universal LLM API client for browsers and WebAssembly runtimes. A
 package_manager = ["npm", "pnpm", "yarn"]
 optional_sections = ["async_support", "streaming_support"]
 
-[readme.languages.wasm.features]
+[crates.readme.languages.wasm.features]
 streaming = true
 async = true
 tool_calling = true
@@ -534,357 +815,110 @@ search = true
 ocr = true
 caching = true
 
-[readme.languages.wasm.snippets]
+[crates.readme.languages.wasm.snippets]
 basic_chat = "getting-started/basic_chat.md"
 streaming = "getting-started/streaming.md"
 
-[lint.python]
-before = "uv sync --no-install-project"
+[[crates.adapters]]
+name = "chat"
+pattern = "async_method"
+core_path = "chat"
+owner_type = "DefaultClient"
+returns = "ChatCompletionResponse"
+error_type = "LiterLlmError"
 
-[lint.node]
-precondition = "command -v npx >/dev/null 2>&1"
-format = "npx oxfmt packages/typescript"
-check = "npx oxlint packages/typescript"
+[[crates.adapters.params]]
+name = "req"
+type = "ChatCompletionRequest"
 
-[lint.wasm]
-precondition = "command -v npx >/dev/null 2>&1"
-format = "npx oxfmt packages/wasm"
-check = "npx oxlint packages/wasm"
+[[crates.adapters]]
+name = "chat_stream"
+pattern = "streaming"
+core_path = "chat_stream"
+owner_type = "DefaultClient"
+item_type = "ChatCompletionChunk"
+error_type = "LiterLlmError"
 
-[lint.php]
-precondition = "command -v php >/dev/null 2>&1 && test -x packages/php/vendor/bin/php-cs-fixer"
-format = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php src"
-check = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php --dry-run src"
+[[crates.adapters.params]]
+name = "req"
+type = "ChatCompletionRequest"
 
-[lint.go]
-precondition = "command -v golangci-lint >/dev/null 2>&1"
-before = "cargo build --release -p liter-llm-ffi"
+[[crates.adapters]]
+name = "embed"
+pattern = "async_method"
+core_path = "embed"
+owner_type = "DefaultClient"
+returns = "EmbeddingResponse"
+error_type = "LiterLlmError"
 
-[lint.ffi]
-precondition = "test -d crates/liter-llm-ffi/src"
+[[crates.adapters.params]]
+name = "req"
+type = "EmbeddingRequest"
 
-[e2e]
-fixtures = "fixtures"
-output = "e2e"
+[[crates.adapters]]
+name = "list_models"
+pattern = "async_method"
+core_path = "list_models"
+owner_type = "DefaultClient"
+returns = "ModelsListResponse"
+error_type = "LiterLlmError"
 
-# Default call config (used when fixture has no "call" field)
-[e2e.call]
-function = "chat"
-path = "/v1/chat/completions"
-module = "liter_llm"
-result_var = "result"
-async = true
+[[crates.adapters]]
+name = "image_generate"
+pattern = "async_method"
+core_path = "image_generate"
+owner_type = "DefaultClient"
+returns = "ImagesResponse"
+error_type = "LiterLlmError"
 
-[[e2e.call.args]]
-name = "request"
-field = "input"
-type = "json_object"
+[[crates.adapters.params]]
+name = "req"
+type = "CreateImageRequest"
 
-[e2e.call.overrides.node]
-client_factory = "createClient"
+[[crates.adapters]]
+name = "transcribe"
+pattern = "async_method"
+core_path = "transcribe"
+owner_type = "DefaultClient"
+returns = "TranscriptionResponse"
+error_type = "LiterLlmError"
 
-[e2e.call.overrides.php]
-php_client_factory = "createClient"
-options_via = "json"
+[[crates.adapters.params]]
+name = "req"
+type = "CreateTranscriptionRequest"
 
-[e2e.call.overrides.wasm]
-client_factory = "createClient"
-options_type = "WasmChatCompletionRequest"
-bigint_fields = ["maxTokens", "seed", "promptTokens", "completionTokens", "totalTokens", "n"]
+[[crates.adapters]]
+name = "moderate"
+pattern = "async_method"
+core_path = "moderate"
+owner_type = "DefaultClient"
+returns = "ModerationResponse"
+error_type = "LiterLlmError"
 
-[e2e.call.overrides.c]
-result_type = "ChatCompletionResponse"
-client_factory = "create_client"
+[[crates.adapters.params]]
+name = "req"
+type = "ModerationRequest"
 
-# Named call configs for each API method
-[e2e.calls.chat]
-function = "chat"
-path = "/v1/chat/completions"
-module = "liter_llm"
-async = true
-[[e2e.calls.chat.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.chat.overrides.c]
-result_type = "ChatCompletionResponse"
+[[crates.adapters]]
+name = "rerank"
+pattern = "async_method"
+core_path = "rerank"
+owner_type = "DefaultClient"
+returns = "RerankResponse"
+error_type = "LiterLlmError"
 
-[e2e.calls.chat_stream]
-function = "chat_stream"
-path = "/v1/chat/completions"
-module = "liter_llm"
-async = true
-[[e2e.calls.chat_stream.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.chat_stream.overrides.c]
-result_type = "ChatCompletionChunk"
+[[crates.adapters.params]]
+name = "req"
+type = "RerankRequest"
 
-[e2e.calls.embed]
-function = "embed"
-path = "/v1/embeddings"
-module = "liter_llm"
-async = true
-[[e2e.calls.embed.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.embed.overrides.c]
-result_type = "EmbeddingResponse"
+[[crates.adapters]]
+name = "search"
+pattern = "async_method"
+core_path = "search"
+owner_type = "DefaultClient"
+returns = "SearchResponse"
+error_type = "LiterLlmError"
 
-[e2e.calls.list_models]
-function = "list_models"
-path = "/v1/models"
-module = "liter_llm"
-async = true
-[e2e.calls.list_models.overrides.c]
-result_type = "ListModelsResponse"
-
-[e2e.calls.image_generate]
-function = "image_generate"
-path = "/v1/images/generations"
-module = "liter_llm"
-async = true
-[[e2e.calls.image_generate.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.image_generate.overrides.c]
-result_type = "ImageResponse"
-
-[e2e.calls.speech]
-function = "speech"
-path = "/v1/audio/speech"
-module = "liter_llm"
-async = true
-[[e2e.calls.speech.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.speech.overrides.c]
-result_type = "SpeechResponse"
-
-[e2e.calls.transcribe]
-function = "transcribe"
-path = "/v1/audio/transcriptions"
-module = "liter_llm"
-async = true
-[[e2e.calls.transcribe.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.transcribe.overrides.c]
-result_type = "TranscriptionResponse"
-
-[e2e.calls.moderate]
-function = "moderate"
-path = "/v1/moderations"
-module = "liter_llm"
-async = true
-[[e2e.calls.moderate.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.moderate.overrides.c]
-result_type = "ModerationResponse"
-
-[e2e.calls.rerank]
-function = "rerank"
-path = "/v1/rerank"
-module = "liter_llm"
-async = true
-[[e2e.calls.rerank.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.rerank.overrides.c]
-result_type = "RerankResponse"
-
-[e2e.calls.search]
-function = "search"
-path = "/v1/search"
-module = "liter_llm"
-async = true
-[[e2e.calls.search.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.search.overrides.c]
-result_type = "SearchResponse"
-
-[e2e.calls.ocr]
-function = "ocr"
-path = "/v1/ocr"
-module = "liter_llm"
-async = true
-[[e2e.calls.ocr.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.ocr.overrides.c]
-result_type = "OcrResponse"
-
-[e2e.calls.create_file]
-function = "create_file"
-path = "/v1/files"
-module = "liter_llm"
-async = true
-[[e2e.calls.create_file.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.create_file.overrides.c]
-result_type = "FileResponse"
-
-[e2e.calls.retrieve_file]
-function = "retrieve_file"
-path = "/v1/files"
-module = "liter_llm"
-async = true
-[[e2e.calls.retrieve_file.args]]
-name = "file_id"
-field = "input.file_id"
-type = "string"
-[e2e.calls.retrieve_file.overrides.c]
-result_type = "FileResponse"
-
-[e2e.calls.delete_file]
-function = "delete_file"
-path = "/v1/files"
-module = "liter_llm"
-async = true
-[[e2e.calls.delete_file.args]]
-name = "file_id"
-field = "input.file_id"
-type = "string"
-[e2e.calls.delete_file.overrides.c]
-result_type = "DeleteFileResponse"
-
-[e2e.calls.list_files]
-function = "list_files"
-path = "/v1/files"
-module = "liter_llm"
-async = true
-[e2e.calls.list_files.overrides.c]
-result_type = "ListFilesResponse"
-
-[e2e.calls.file_content]
-function = "file_content"
-path = "/v1/files"
-module = "liter_llm"
-async = true
-[[e2e.calls.file_content.args]]
-name = "file_id"
-field = "input.file_id"
-type = "string"
-[e2e.calls.file_content.overrides.c]
-result_type = "FileContentResponse"
-
-[e2e.calls.create_batch]
-function = "create_batch"
-path = "/v1/batches"
-module = "liter_llm"
-async = true
-[[e2e.calls.create_batch.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.create_batch.overrides.c]
-result_type = "BatchResponse"
-
-[e2e.calls.retrieve_batch]
-function = "retrieve_batch"
-path = "/v1/batches"
-module = "liter_llm"
-async = true
-[[e2e.calls.retrieve_batch.args]]
-name = "batch_id"
-field = "input.batch_id"
-type = "string"
-[e2e.calls.retrieve_batch.overrides.c]
-result_type = "BatchResponse"
-
-[e2e.calls.list_batches]
-function = "list_batches"
-path = "/v1/batches"
-module = "liter_llm"
-async = true
-[e2e.calls.list_batches.overrides.c]
-result_type = "ListBatchesResponse"
-
-[e2e.calls.cancel_batch]
-function = "cancel_batch"
-path = "/v1/batches"
-module = "liter_llm"
-async = true
-[[e2e.calls.cancel_batch.args]]
-name = "batch_id"
-field = "input.batch_id"
-type = "string"
-[e2e.calls.cancel_batch.overrides.c]
-result_type = "BatchResponse"
-
-[e2e.calls.create_response]
-function = "create_response"
-path = "/v1/responses"
-module = "liter_llm"
-async = true
-[[e2e.calls.create_response.args]]
-name = "request"
-field = "input"
-type = "json_object"
-[e2e.calls.create_response.overrides.c]
-result_type = "ResponseResponse"
-
-[e2e.calls.retrieve_response]
-function = "retrieve_response"
-path = "/v1/responses"
-module = "liter_llm"
-async = true
-[[e2e.calls.retrieve_response.args]]
-name = "id"
-field = "input.id"
-type = "string"
-[e2e.calls.retrieve_response.overrides.c]
-result_type = "ResponseResponse"
-
-[e2e.calls.cancel_response]
-function = "cancel_response"
-path = "/v1/responses"
-module = "liter_llm"
-async = true
-[[e2e.calls.cancel_response.args]]
-name = "id"
-field = "input.id"
-type = "string"
-[e2e.calls.cancel_response.overrides.c]
-result_type = "ResponseResponse"
-
-[e2e.packages.node]
-name = "@kreuzberg/liter-llm"
-
-[e2e.registry]
-output = "test_apps"
-
-[publish]
-core_crate = "crates/liter-llm"
-
-[publish.languages.ruby]
-vendor_mode = "core-only"
-
-[publish.languages.elixir]
-vendor_mode = "core-only"
-nif_versions = ["2.16", "2.17"]
-
-[publish.languages.ffi]
-pkg_config = true
-cmake_config = true
-
-[sync]
-extra_paths = [
-  "package.json",
-  "crates/liter-llm-node/package.json",
-  "crates/liter-llm-node/npm/*/package.json",
-  "packages/node/package.json",
-]
+[[crates.adapters.params]]
+name = "req"
+type = "SearchRequest"
