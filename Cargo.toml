@@ -1,19 +1,19 @@
 [workspace]
 members = [
-  "crates/liter-llm",
-  "crates/liter-llm-cli",
-  "crates/liter-llm-ffi",
-  "crates/liter-llm-node",
-  "crates/liter-llm-php",
-  "crates/liter-llm-proxy",
-  "crates/liter-llm-py",
-  "crates/liter-llm-wasm",
-  "tools/snippet-runner",
+    "crates/liter-llm",
+    "crates/liter-llm-cli",
+    "crates/liter-llm-ffi",
+    "crates/liter-llm-node",
+    "crates/liter-llm-php",
+    "crates/liter-llm-proxy",
+    "crates/liter-llm-py",
+    "crates/liter-llm-wasm",
+    "tools/snippet-runner",
 ]
 exclude = [
-  "e2e/rust",
-  "packages/elixir/native/liter_llm_nif",
-  "packages/ruby/ext/liter_llm_rb/native",
+    "e2e/rust",
+    "packages/elixir/native/liter_llm_nif",
+    "packages/ruby/ext/liter_llm_rb/native",
 ]
 resolver = "2"
 
@@ -53,10 +53,10 @@ napi = { version = "3", features = ["napi4", "serde-json", "async"] }
 napi-build = "2"
 napi-derive = "3"
 opendal = { version = "0.55", default-features = false, features = [
-  "services-memory",
-  "services-redis",
-  "services-fs",
-  "services-s3",
+    "services-memory",
+    "services-redis",
+    "services-fs",
+    "services-s3",
 ] }
 opentelemetry = "0.31"
 pin-project-lite = "0.2"
@@ -66,25 +66,25 @@ rayon = "1"
 rb-sys = "0.9"
 # Async / HTTP
 reqwest = { version = "0.13", default-features = false, features = [
-  "json",
-  "stream",
-  "rustls-no-provider",
-  "multipart",
-  "form",
+    "json",
+    "stream",
+    "rustls-no-provider",
+    "multipart",
+    "form",
 ] }
 rmcp = { version = "1.5", features = [
-  "server",
-  "macros",
-  "transport-io",
-  "transport-streamable-http-server",
-  "server-side-http",
+    "server",
+    "macros",
+    "transport-io",
+    "transport-streamable-http-server",
+    "server-side-http",
 ] }
 rustler = "0.37"
 rustls = { version = "0.23", default-features = false, features = [
-  "ring",
-  "logging",
-  "std",
-  "tls12",
+    "ring",
+    "logging",
+    "std",
+    "tls12",
 ] }
 
 # Serialization
@@ -103,24 +103,24 @@ tokenizers = { version = "0.22", default-features = false, features = ["http", "
 tokio = { version = "1", features = ["full"] }
 toml = "1.1"
 tower = { version = "0.5", features = [
-  "retry",
-  "limit",
-  "timeout",
-  "buffer",
-  "load-shed",
-  "steer",
-  "util",
+    "retry",
+    "limit",
+    "timeout",
+    "buffer",
+    "load-shed",
+    "steer",
+    "util",
 ] }
 tower-http = { version = "0.6", features = [
-  "follow-redirect",
-  "set-header",
-  "sensitive-headers",
-  "trace",
-  "request-id",
-  "cors",
-  "compression-gzip",
-  "catch-panic",
-  "limit",
+    "follow-redirect",
+    "set-header",
+    "sensitive-headers",
+    "trace",
+    "request-id",
+    "cors",
+    "compression-gzip",
+    "catch-panic",
+    "limit",
 ] }
 tower-layer = "0.3"
 tower-service = "0.3"

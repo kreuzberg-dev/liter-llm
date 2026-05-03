@@ -99,7 +99,9 @@ Universal LLM API client for TypeScript and Node.js. Access 143+ LLM providers t
 
 ### Package Installation
 
+
 Install via one of the supported package managers:
+
 
 **npm:**
 
@@ -107,11 +109,13 @@ Install via one of the supported package managers:
 npm install @kreuzberg/liter-llm
 ```
 
+
 **pnpm:**
 
 ```bash
 pnpm add @kreuzberg/liter-llm
 ```
+
 
 **yarn:**
 
@@ -119,7 +123,9 @@ pnpm add @kreuzberg/liter-llm
 yarn add @kreuzberg/liter-llm
 ```
 
+
 ### System Requirements
+
 
 - **Node.js 22+** required (NAPI-RS native bindings)
 - API keys via environment variables (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
@@ -131,6 +137,7 @@ Pre-built binaries available for:
 - macOS (arm64, x64)
 - Linux (x64)
 - Windows (x64)
+
 
 ## Quick Start
 
@@ -151,6 +158,7 @@ console.log(response.choices[0].message.content);
 
 ### Common Use Cases
 
+
 #### Streaming Responses
 
 Stream tokens in real time:
@@ -169,6 +177,7 @@ for (const chunk of chunks) {
 }
 console.log();
 ```
+
 
 #### Tool Calling
 
@@ -207,10 +216,12 @@ for (const call of response.choices[0]?.message?.toolCalls ?? []) {
 }
 ```
 
+
 ### Next Steps
 
 - **[Provider Registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json)** - Full list of supported providers
 - **[GitHub Repository](https://github.com/kreuzberg-dev/liter-llm)** - Source, issues, and discussions
+
 
 ## NAPI-RS Implementation Details
 
@@ -234,6 +245,7 @@ This binding uses NAPI-RS to provide native Node.js bindings with:
 - API keys are wrapped in `secrecy::SecretString` and never logged
 - Streaming buffers are released as soon as each chunk is consumed
 - Provider registry is compiled into the binary — no runtime disk access
+
 
 ## Features
 
@@ -263,6 +275,7 @@ Route to any provider using the `provider/model` prefix convention:
 
 - **Streaming** -- Real-time token streaming via `chat_stream`
 
+
 - **Tool Calling** -- Function calling and tool use across all supporting providers
 
 - **Type Safe** -- Schema-driven types compiled from JSON schemas
@@ -279,6 +292,7 @@ Built on a compiled Rust core for speed and safety:
 - **Zero-copy streaming** with SSE and AWS EventStream support
 - **API keys** wrapped in secure memory, zeroed on drop
 
+
 ## Provider Routing
 
 Route to 143+ providers using the `provider/model` prefix convention:
@@ -291,6 +305,7 @@ mistral/mistral-large-latest
 ```
 
 See the [provider registry](https://github.com/kreuzberg-dev/liter-llm/blob/main/schemas/providers.json) for the full list.
+
 
 ## Proxy Server
 

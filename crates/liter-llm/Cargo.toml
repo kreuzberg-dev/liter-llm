@@ -51,17 +51,17 @@ tokenizer = ["dep:tokenizers"]
 # Full feature set: native HTTP + tower + tracing + otel + bedrock + tokenizer + auth providers.
 opendal-cache = ["dep:opendal", "tower"]
 full = [
-  "native-http",
-  "tower",
-  "tracing",
-  "otel",
-  "bedrock",
-  "tokenizer",
-  "azure-auth",
-  "copilot-auth",
-  "vertex-auth",
-  "bedrock-auth",
-  "opendal-cache",
+    "native-http",
+    "tower",
+    "tracing",
+    "otel",
+    "bedrock",
+    "tokenizer",
+    "azure-auth",
+    "copilot-auth",
+    "vertex-auth",
+    "bedrock-auth",
+    "opendal-cache",
 ]
 default = ["native-http"]
 

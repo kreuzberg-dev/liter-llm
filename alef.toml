@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.14.2"
+alef_version = "0.14.3"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [workspace.sync]
@@ -209,10 +209,7 @@ e2e = "cargo test --manifest-path e2e/rust/Cargo.toml"
 
 [crates.test.python]
 precondition = "command -v uv >/dev/null 2>&1"
-e2e = [
-  "cd e2e/python && uv sync",
-  "cd e2e/python && uv run pytest tests/ -q",
-]
+e2e = ["cd e2e/python && uv sync", "cd e2e/python && uv run pytest tests/ -q"]
 
 [crates.test.node]
 precondition = "command -v pnpm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1"
@@ -238,10 +235,7 @@ e2e = "cd e2e/csharp && DYLD_LIBRARY_PATH=\"$PWD/../../target/release:${DYLD_LIB
 
 [crates.test.ruby]
 precondition = "command -v bundle >/dev/null 2>&1"
-e2e = [
-  "cd e2e/ruby && bundle install",
-  "cd e2e/ruby && bundle exec rspec",
-]
+e2e = ["cd e2e/ruby && bundle install", "cd e2e/ruby && bundle exec rspec"]
 
 [crates.test.php]
 precondition = "command -v php >/dev/null 2>&1 && command -v composer >/dev/null 2>&1"
@@ -253,17 +247,11 @@ e2e = [
 
 [crates.test.elixir]
 precondition = "command -v mix >/dev/null 2>&1"
-e2e = [
-  "cd e2e/elixir && MIX_ENV=test mix deps.get",
-  "cd e2e/elixir && MIX_ENV=test mix test",
-]
+e2e = ["cd e2e/elixir && MIX_ENV=test mix deps.get", "cd e2e/elixir && MIX_ENV=test mix test"]
 
 [crates.test.wasm]
 precondition = "command -v pnpm >/dev/null 2>&1"
-e2e = [
-  "cd e2e/wasm && pnpm install",
-  "cd e2e/wasm && pnpm vitest run",
-]
+e2e = ["cd e2e/wasm && pnpm install", "cd e2e/wasm && pnpm vitest run"]
 
 [crates.test.ffi]
 precondition = "command -v cmake >/dev/null 2>&1 && command -v ctest >/dev/null 2>&1"
