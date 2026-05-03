@@ -13,17 +13,26 @@
 typedef struct LITERLLMAssistantMessage LITERLLMAssistantMessage;
 typedef struct LITERLLMAudioContent LITERLLMAudioContent;
 typedef struct LITERLLMAuthHeaderFormat LITERLLMAuthHeaderFormat;
+typedef struct LITERLLMBatchListQuery LITERLLMBatchListQuery;
+typedef struct LITERLLMBatchListResponse LITERLLMBatchListResponse;
+typedef struct LITERLLMBatchObject LITERLLMBatchObject;
+typedef struct LITERLLMBatchRequestCounts LITERLLMBatchRequestCounts;
+typedef struct LITERLLMBatchStatus LITERLLMBatchStatus;
 typedef struct LITERLLMChatCompletionChunk LITERLLMChatCompletionChunk;
 typedef struct LITERLLMChatCompletionRequest LITERLLMChatCompletionRequest;
 typedef struct LITERLLMChatCompletionResponse LITERLLMChatCompletionResponse;
 typedef struct LITERLLMChatCompletionTool LITERLLMChatCompletionTool;
 typedef struct LITERLLMChoice LITERLLMChoice;
 typedef struct LITERLLMContentPart LITERLLMContentPart;
+typedef struct LITERLLMCreateBatchRequest LITERLLMCreateBatchRequest;
+typedef struct LITERLLMCreateFileRequest LITERLLMCreateFileRequest;
 typedef struct LITERLLMCreateImageRequest LITERLLMCreateImageRequest;
+typedef struct LITERLLMCreateResponseRequest LITERLLMCreateResponseRequest;
 typedef struct LITERLLMCreateSpeechRequest LITERLLMCreateSpeechRequest;
 typedef struct LITERLLMCreateTranscriptionRequest LITERLLMCreateTranscriptionRequest;
 typedef struct LITERLLMCustomProviderConfig LITERLLMCustomProviderConfig;
 typedef struct LITERLLMDefaultClient LITERLLMDefaultClient;
+typedef struct LITERLLMDeleteResponse LITERLLMDeleteResponse;
 typedef struct LITERLLMDeveloperMessage LITERLLMDeveloperMessage;
 typedef struct LITERLLMDocumentContent LITERLLMDocumentContent;
 typedef struct LITERLLMEmbeddingFormat LITERLLMEmbeddingFormat;
@@ -31,6 +40,10 @@ typedef struct LITERLLMEmbeddingInput LITERLLMEmbeddingInput;
 typedef struct LITERLLMEmbeddingObject LITERLLMEmbeddingObject;
 typedef struct LITERLLMEmbeddingRequest LITERLLMEmbeddingRequest;
 typedef struct LITERLLMEmbeddingResponse LITERLLMEmbeddingResponse;
+typedef struct LITERLLMFileListQuery LITERLLMFileListQuery;
+typedef struct LITERLLMFileListResponse LITERLLMFileListResponse;
+typedef struct LITERLLMFileObject LITERLLMFileObject;
+typedef struct LITERLLMFilePurpose LITERLLMFilePurpose;
 typedef struct LITERLLMFinishReason LITERLLMFinishReason;
 typedef struct LITERLLMFunctionCall LITERLLMFunctionCall;
 typedef struct LITERLLMFunctionDefinition LITERLLMFunctionDefinition;
@@ -63,6 +76,10 @@ typedef struct LITERLLMRerankResponse LITERLLMRerankResponse;
 typedef struct LITERLLMRerankResult LITERLLMRerankResult;
 typedef struct LITERLLMRerankResultDocument LITERLLMRerankResultDocument;
 typedef struct LITERLLMResponseFormat LITERLLMResponseFormat;
+typedef struct LITERLLMResponseObject LITERLLMResponseObject;
+typedef struct LITERLLMResponseOutputItem LITERLLMResponseOutputItem;
+typedef struct LITERLLMResponseTool LITERLLMResponseTool;
+typedef struct LITERLLMResponseUsage LITERLLMResponseUsage;
 typedef struct LITERLLMSearchRequest LITERLLMSearchRequest;
 typedef struct LITERLLMSearchResponse LITERLLMSearchResponse;
 typedef struct LITERLLMSearchResult LITERLLMSearchResult;
@@ -2940,6 +2957,834 @@ uint64_t literllm_model_object_created(const LITERLLMModelObject *ptr);
 char *literllm_model_object_owned_by(const LITERLLMModelObject *ptr);
 
 /**
+ * Create a `CreateFileRequest` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_create_file_request_free`.
+ */
+LITERLLMCreateFileRequest *literllm_create_file_request_from_json(const char *json);
+
+/**
+ * Serialize a `CreateFileRequest` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_create_file_request_to_json(const LITERLLMCreateFileRequest *ptr);
+
+/**
+ * Free a `CreateFileRequest` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_create_file_request_free(LITERLLMCreateFileRequest *ptr);
+
+/**
+ * Get the `file` field from a `CreateFileRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_file_request_file(const LITERLLMCreateFileRequest *ptr);
+
+/**
+ * Get the `purpose` field from a `CreateFileRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+LITERLLMFilePurpose *literllm_create_file_request_purpose(const LITERLLMCreateFileRequest *ptr);
+
+/**
+ * Get the `filename` field from a `CreateFileRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_file_request_filename(const LITERLLMCreateFileRequest *ptr);
+
+/**
+ * Create a `FileObject` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_file_object_free`.
+ */
+LITERLLMFileObject *literllm_file_object_from_json(const char *json);
+
+/**
+ * Serialize a `FileObject` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_file_object_to_json(const LITERLLMFileObject *ptr);
+
+/**
+ * Free a `FileObject` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_file_object_free(LITERLLMFileObject *ptr);
+
+/**
+ * Get the `id` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_object_id(const LITERLLMFileObject *ptr);
+
+/**
+ * Get the `object` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_object_object(const LITERLLMFileObject *ptr);
+
+/**
+ * Get the `bytes` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_file_object_bytes(const LITERLLMFileObject *ptr);
+
+/**
+ * Get the `created_at` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_file_object_created_at(const LITERLLMFileObject *ptr);
+
+/**
+ * Get the `filename` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_object_filename(const LITERLLMFileObject *ptr);
+
+/**
+ * Get the `purpose` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_object_purpose(const LITERLLMFileObject *ptr);
+
+/**
+ * Get the `status` field from a `FileObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_object_status(const LITERLLMFileObject *ptr);
+
+/**
+ * Create a `FileListResponse` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_file_list_response_free`.
+ */
+LITERLLMFileListResponse *literllm_file_list_response_from_json(const char *json);
+
+/**
+ * Serialize a `FileListResponse` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_file_list_response_to_json(const LITERLLMFileListResponse *ptr);
+
+/**
+ * Free a `FileListResponse` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_file_list_response_free(LITERLLMFileListResponse *ptr);
+
+/**
+ * Get the `object` field from a `FileListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_list_response_object(const LITERLLMFileListResponse *ptr);
+
+/**
+ * Get the `data` field from a `FileListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_list_response_data(const LITERLLMFileListResponse *ptr);
+
+/**
+ * Get the `has_more` field from a `FileListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_file_list_response_has_more(const LITERLLMFileListResponse *ptr);
+
+/**
+ * Create a `FileListQuery` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_file_list_query_free`.
+ */
+LITERLLMFileListQuery *literllm_file_list_query_from_json(const char *json);
+
+/**
+ * Serialize a `FileListQuery` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_file_list_query_to_json(const LITERLLMFileListQuery *ptr);
+
+/**
+ * Free a `FileListQuery` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_file_list_query_free(LITERLLMFileListQuery *ptr);
+
+/**
+ * Get the `purpose` field from a `FileListQuery`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_list_query_purpose(const LITERLLMFileListQuery *ptr);
+
+/**
+ * Get the `limit` field from a `FileListQuery`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint32_t literllm_file_list_query_limit(const LITERLLMFileListQuery *ptr);
+
+/**
+ * Get the `after` field from a `FileListQuery`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_file_list_query_after(const LITERLLMFileListQuery *ptr);
+
+/**
+ * Create a `DeleteResponse` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_delete_response_free`.
+ */
+LITERLLMDeleteResponse *literllm_delete_response_from_json(const char *json);
+
+/**
+ * Serialize a `DeleteResponse` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_delete_response_to_json(const LITERLLMDeleteResponse *ptr);
+
+/**
+ * Free a `DeleteResponse` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_delete_response_free(LITERLLMDeleteResponse *ptr);
+
+/**
+ * Get the `id` field from a `DeleteResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_delete_response_id(const LITERLLMDeleteResponse *ptr);
+
+/**
+ * Get the `object` field from a `DeleteResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_delete_response_object(const LITERLLMDeleteResponse *ptr);
+
+/**
+ * Get the `deleted` field from a `DeleteResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_delete_response_deleted(const LITERLLMDeleteResponse *ptr);
+
+/**
+ * Create a `CreateBatchRequest` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_create_batch_request_free`.
+ */
+LITERLLMCreateBatchRequest *literllm_create_batch_request_from_json(const char *json);
+
+/**
+ * Serialize a `CreateBatchRequest` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_create_batch_request_to_json(const LITERLLMCreateBatchRequest *ptr);
+
+/**
+ * Free a `CreateBatchRequest` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_create_batch_request_free(LITERLLMCreateBatchRequest *ptr);
+
+/**
+ * Get the `input_file_id` field from a `CreateBatchRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_batch_request_input_file_id(const LITERLLMCreateBatchRequest *ptr);
+
+/**
+ * Get the `endpoint` field from a `CreateBatchRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_batch_request_endpoint(const LITERLLMCreateBatchRequest *ptr);
+
+/**
+ * Get the `completion_window` field from a `CreateBatchRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_batch_request_completion_window(const LITERLLMCreateBatchRequest *ptr);
+
+/**
+ * Get the `metadata` field from a `CreateBatchRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_batch_request_metadata(const LITERLLMCreateBatchRequest *ptr);
+
+/**
+ * Create a `BatchObject` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_batch_object_free`.
+ */
+LITERLLMBatchObject *literllm_batch_object_from_json(const char *json);
+
+/**
+ * Serialize a `BatchObject` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_batch_object_to_json(const LITERLLMBatchObject *ptr);
+
+/**
+ * Free a `BatchObject` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_batch_object_free(LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `id` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_id(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `object` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_object(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `endpoint` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_endpoint(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `input_file_id` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_input_file_id(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `completion_window` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_completion_window(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `status` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+LITERLLMBatchStatus *literllm_batch_object_status(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `output_file_id` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_output_file_id(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `error_file_id` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_error_file_id(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `created_at` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_object_created_at(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `completed_at` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_object_completed_at(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `failed_at` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_object_failed_at(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `expired_at` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_object_expired_at(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `request_counts` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+LITERLLMBatchRequestCounts *literllm_batch_object_request_counts(const LITERLLMBatchObject *ptr);
+
+/**
+ * Get the `metadata` field from a `BatchObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_object_metadata(const LITERLLMBatchObject *ptr);
+
+/**
+ * Create a `BatchRequestCounts` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_batch_request_counts_free`.
+ */
+LITERLLMBatchRequestCounts *literllm_batch_request_counts_from_json(const char *json);
+
+/**
+ * Serialize a `BatchRequestCounts` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_batch_request_counts_to_json(const LITERLLMBatchRequestCounts *ptr);
+
+/**
+ * Free a `BatchRequestCounts` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_batch_request_counts_free(LITERLLMBatchRequestCounts *ptr);
+
+/**
+ * Get the `total` field from a `BatchRequestCounts`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_request_counts_total(const LITERLLMBatchRequestCounts *ptr);
+
+/**
+ * Get the `completed` field from a `BatchRequestCounts`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_request_counts_completed(const LITERLLMBatchRequestCounts *ptr);
+
+/**
+ * Get the `failed` field from a `BatchRequestCounts`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_batch_request_counts_failed(const LITERLLMBatchRequestCounts *ptr);
+
+/**
+ * Create a `BatchListResponse` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_batch_list_response_free`.
+ */
+LITERLLMBatchListResponse *literllm_batch_list_response_from_json(const char *json);
+
+/**
+ * Serialize a `BatchListResponse` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_batch_list_response_to_json(const LITERLLMBatchListResponse *ptr);
+
+/**
+ * Free a `BatchListResponse` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_batch_list_response_free(LITERLLMBatchListResponse *ptr);
+
+/**
+ * Get the `object` field from a `BatchListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_list_response_object(const LITERLLMBatchListResponse *ptr);
+
+/**
+ * Get the `data` field from a `BatchListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_list_response_data(const LITERLLMBatchListResponse *ptr);
+
+/**
+ * Get the `has_more` field from a `BatchListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_batch_list_response_has_more(const LITERLLMBatchListResponse *ptr);
+
+/**
+ * Get the `first_id` field from a `BatchListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_list_response_first_id(const LITERLLMBatchListResponse *ptr);
+
+/**
+ * Get the `last_id` field from a `BatchListResponse`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_list_response_last_id(const LITERLLMBatchListResponse *ptr);
+
+/**
+ * Create a `BatchListQuery` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_batch_list_query_free`.
+ */
+LITERLLMBatchListQuery *literllm_batch_list_query_from_json(const char *json);
+
+/**
+ * Serialize a `BatchListQuery` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_batch_list_query_to_json(const LITERLLMBatchListQuery *ptr);
+
+/**
+ * Free a `BatchListQuery` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_batch_list_query_free(LITERLLMBatchListQuery *ptr);
+
+/**
+ * Get the `limit` field from a `BatchListQuery`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint32_t literllm_batch_list_query_limit(const LITERLLMBatchListQuery *ptr);
+
+/**
+ * Get the `after` field from a `BatchListQuery`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_batch_list_query_after(const LITERLLMBatchListQuery *ptr);
+
+/**
+ * Create a `CreateResponseRequest` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_create_response_request_free`.
+ */
+LITERLLMCreateResponseRequest *literllm_create_response_request_from_json(const char *json);
+
+/**
+ * Serialize a `CreateResponseRequest` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_create_response_request_to_json(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Free a `CreateResponseRequest` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_create_response_request_free(LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `model` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_response_request_model(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `input` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_response_request_input(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `instructions` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_response_request_instructions(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `tools` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_response_request_tools(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `temperature` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+double literllm_create_response_request_temperature(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `max_output_tokens` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_create_response_request_max_output_tokens(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Get the `metadata` field from a `CreateResponseRequest`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_create_response_request_metadata(const LITERLLMCreateResponseRequest *ptr);
+
+/**
+ * Create a `ResponseTool` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_response_tool_free`.
+ */
+LITERLLMResponseTool *literllm_response_tool_from_json(const char *json);
+
+/**
+ * Serialize a `ResponseTool` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_response_tool_to_json(const LITERLLMResponseTool *ptr);
+
+/**
+ * Free a `ResponseTool` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_response_tool_free(LITERLLMResponseTool *ptr);
+
+/**
+ * Get the `tool_type` field from a `ResponseTool`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_tool_tool_type(const LITERLLMResponseTool *ptr);
+
+/**
+ * Get the `config` field from a `ResponseTool`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_tool_config(const LITERLLMResponseTool *ptr);
+
+/**
+ * Create a `ResponseObject` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_response_object_free`.
+ */
+LITERLLMResponseObject *literllm_response_object_from_json(const char *json);
+
+/**
+ * Serialize a `ResponseObject` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_response_object_to_json(const LITERLLMResponseObject *ptr);
+
+/**
+ * Free a `ResponseObject` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_response_object_free(LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `id` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_object_id(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `object` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_object_object(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `created_at` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_response_object_created_at(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `model` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_object_model(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `status` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_object_status(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `output` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_object_output(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `usage` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+LITERLLMResponseUsage *literllm_response_object_usage(const LITERLLMResponseObject *ptr);
+
+/**
+ * Get the `error` field from a `ResponseObject`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_object_error(const LITERLLMResponseObject *ptr);
+
+/**
+ * Create a `ResponseOutputItem` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_response_output_item_free`.
+ */
+LITERLLMResponseOutputItem *literllm_response_output_item_from_json(const char *json);
+
+/**
+ * Serialize a `ResponseOutputItem` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_response_output_item_to_json(const LITERLLMResponseOutputItem *ptr);
+
+/**
+ * Free a `ResponseOutputItem` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_response_output_item_free(LITERLLMResponseOutputItem *ptr);
+
+/**
+ * Get the `item_type` field from a `ResponseOutputItem`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_output_item_item_type(const LITERLLMResponseOutputItem *ptr);
+
+/**
+ * Get the `content` field from a `ResponseOutputItem`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+char *literllm_response_output_item_content(const LITERLLMResponseOutputItem *ptr);
+
+/**
+ * Create a `ResponseUsage` from a JSON string. Returns null on failure.
+ * # Safety
+ * JSON string must be valid UTF-8 and null-terminated.
+ * Returned handle must be freed with `literllm_response_usage_free`.
+ */
+LITERLLMResponseUsage *literllm_response_usage_from_json(const char *json);
+
+/**
+ * Serialize a `ResponseUsage` to a JSON string. Returns null on failure.
+ * # Safety
+ * `ptr` must be a valid, non-null pointer returned by a `literllm` function.
+ * The returned string must be freed with `literllm_free_string`.
+ */
+char *literllm_response_usage_to_json(const LITERLLMResponseUsage *ptr);
+
+/**
+ * Free a `ResponseUsage` handle.
+ * # Safety
+ * Pointer must have been returned by this library, or be null.
+ */
+void literllm_response_usage_free(LITERLLMResponseUsage *ptr);
+
+/**
+ * Get the `input_tokens` field from a `ResponseUsage`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_response_usage_input_tokens(const LITERLLMResponseUsage *ptr);
+
+/**
+ * Get the `output_tokens` field from a `ResponseUsage`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_response_usage_output_tokens(const LITERLLMResponseUsage *ptr);
+
+/**
+ * Get the `total_tokens` field from a `ResponseUsage`.
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+uint64_t literllm_response_usage_total_tokens(const LITERLLMResponseUsage *ptr);
+
+/**
  * Free a `DefaultClient` handle.
  * # Safety
  * Pointer must have been returned by this library, or be null.
@@ -3039,32 +3884,32 @@ LITERLLMOcrResponse *literllm_default_client_ocr(const LITERLLMDefaultClient *th
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_create_file(const LITERLLMDefaultClient *_this,
-                                          const char *_req);
+LITERLLMFileObject *literllm_default_client_create_file(const LITERLLMDefaultClient *this_,
+                                                        const LITERLLMCreateFileRequest *req);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_retrieve_file(const LITERLLMDefaultClient *_this,
-                                            const char *_file_id);
+LITERLLMFileObject *literllm_default_client_retrieve_file(const LITERLLMDefaultClient *this_,
+                                                          const char *file_id);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_delete_file(const LITERLLMDefaultClient *_this,
-                                          const char *_file_id);
+LITERLLMDeleteResponse *literllm_default_client_delete_file(const LITERLLMDefaultClient *this_,
+                                                            const char *file_id);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_list_files(const LITERLLMDefaultClient *_this,
-                                         const char *_query);
+LITERLLMFileListResponse *literllm_default_client_list_files(const LITERLLMDefaultClient *this_,
+                                                             const LITERLLMFileListQuery *query);
 
 /**
  * # Safety
@@ -3079,56 +3924,56 @@ uint8_t *literllm_default_client_file_content(const LITERLLMDefaultClient *this_
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_create_batch(const LITERLLMDefaultClient *_this,
-                                           const char *_req);
+LITERLLMBatchObject *literllm_default_client_create_batch(const LITERLLMDefaultClient *this_,
+                                                          const LITERLLMCreateBatchRequest *req);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_retrieve_batch(const LITERLLMDefaultClient *_this,
-                                             const char *_batch_id);
+LITERLLMBatchObject *literllm_default_client_retrieve_batch(const LITERLLMDefaultClient *this_,
+                                                            const char *batch_id);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_list_batches(const LITERLLMDefaultClient *_this,
-                                           const char *_query);
+LITERLLMBatchListResponse *literllm_default_client_list_batches(const LITERLLMDefaultClient *this_,
+                                                                const LITERLLMBatchListQuery *query);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_cancel_batch(const LITERLLMDefaultClient *_this,
-                                           const char *_batch_id);
+LITERLLMBatchObject *literllm_default_client_cancel_batch(const LITERLLMDefaultClient *this_,
+                                                          const char *batch_id);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_create_response(const LITERLLMDefaultClient *_this,
-                                              const char *_req);
+LITERLLMResponseObject *literllm_default_client_create_response(const LITERLLMDefaultClient *this_,
+                                                                const LITERLLMCreateResponseRequest *req);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_retrieve_response(const LITERLLMDefaultClient *_this,
-                                                const char *_id);
+LITERLLMResponseObject *literllm_default_client_retrieve_response(const LITERLLMDefaultClient *this_,
+                                                                  const char *id);
 
 /**
  * # Safety
  * Caller must ensure all pointer arguments are valid or null.
  * Returned pointers must be freed with the appropriate free function.
  */
-char *literllm_default_client_cancel_response(const LITERLLMDefaultClient *_this,
-                                              const char *_id);
+LITERLLMResponseObject *literllm_default_client_cancel_response(const LITERLLMDefaultClient *this_,
+                                                                const char *id);
 
 /**
  * Create a `CustomProviderConfig` from a JSON string. Returns null on failure.
@@ -3420,6 +4265,36 @@ int32_t literllm_ocr_document_from_i32(int32_t value);
  * Caller must ensure `ptr` is a valid pointer to a `c_char` or null.
  */
 int32_t literllm_ocr_document_from_str(const char *name);
+
+/**
+ * Convert an integer to a `FilePurpose` variant. Returns -1 on invalid input.
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+int32_t literllm_file_purpose_from_i32(int32_t value);
+
+/**
+ * Convert a `FilePurpose` variant name (C string) to its integer value. Returns -1 on invalid input.
+ * # Safety
+ * Caller must ensure `ptr` is a valid pointer to a `c_char` or null.
+ */
+int32_t literllm_file_purpose_from_str(const char *name);
+
+/**
+ * Convert an integer to a `BatchStatus` variant. Returns -1 on invalid input.
+ * # Safety
+ * Caller must ensure all pointer arguments are valid or null.
+ * Returned pointers must be freed with the appropriate free function.
+ */
+int32_t literllm_batch_status_from_i32(int32_t value);
+
+/**
+ * Convert a `BatchStatus` variant name (C string) to its integer value. Returns -1 on invalid input.
+ * # Safety
+ * Caller must ensure `ptr` is a valid pointer to a `c_char` or null.
+ */
+int32_t literllm_batch_status_from_str(const char *name);
 
 /**
  * Convert an integer to a `AuthHeaderFormat` variant. Returns -1 on invalid input.

@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.14.8"
+alef_version = "0.14.10"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [workspace.sync]
@@ -26,6 +26,9 @@ sources = [
   "crates/liter-llm/src/types/search.rs",
   "crates/liter-llm/src/types/ocr.rs",
   "crates/liter-llm/src/types/models.rs",
+  "crates/liter-llm/src/types/files.rs",
+  "crates/liter-llm/src/types/batch.rs",
+  "crates/liter-llm/src/types/responses.rs",
   "crates/liter-llm/src/client/mod.rs",
   "crates/liter-llm/src/provider/custom.rs",
 ]
@@ -182,17 +185,18 @@ functions = ["str_pair", "build_provider"]
 before = "uv sync --no-install-project"
 
 [crates.lint.node]
-precondition = "command -v npx >/dev/null 2>&1"
-format = "npx oxfmt packages/typescript"
-check = "npx oxlint packages/typescript"
+precondition = "command -v pnpm >/dev/null 2>&1"
+format = "pnpm dlx oxfmt packages/typescript"
+check = "pnpm dlx oxlint packages/typescript"
 
 [crates.lint.wasm]
-precondition = "command -v npx >/dev/null 2>&1"
-format = "npx oxfmt packages/wasm"
-check = "npx oxlint packages/wasm"
+precondition = "command -v pnpm >/dev/null 2>&1"
+format = "pnpm dlx oxfmt packages/wasm"
+check = "pnpm dlx oxlint packages/wasm"
 
 [crates.lint.php]
-precondition = "command -v php >/dev/null 2>&1 && test -x packages/php/vendor/bin/php-cs-fixer"
+precondition = "command -v php >/dev/null 2>&1 && command -v composer >/dev/null 2>&1"
+before = "cd packages/php && composer install --no-interaction --quiet"
 format = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php src"
 check = "cd packages/php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --config php-cs-fixer.php --dry-run src"
 
@@ -212,10 +216,10 @@ precondition = "command -v uv >/dev/null 2>&1"
 e2e = ["cd e2e/python && uv sync", "cd e2e/python && uv run pytest tests/ -q"]
 
 [crates.test.node]
-precondition = "command -v pnpm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1"
+precondition = "command -v pnpm >/dev/null 2>&1"
 e2e = [
   "pnpm -r --filter=\"./packages/node\" run build",
-  "cd e2e/node && pnpm install && npx vitest run",
+  "cd e2e/node && pnpm install && pnpm dlx vitest run",
 ]
 
 [crates.test.go]
@@ -302,6 +306,24 @@ bigint_fields = ["maxTokens", "seed", "promptTokens", "completionTokens", "total
 
 [crates.e2e.call.overrides.c]
 result_type = "ChatCompletionResponse"
+client_factory = "create_client"
+
+[crates.e2e.call.overrides.go]
+client_factory = "CreateClient"
+
+[crates.e2e.call.overrides.python]
+client_factory = "create_client"
+
+[crates.e2e.call.overrides.rust]
+client_factory = "create_client"
+
+[crates.e2e.call.overrides.csharp]
+client_factory = "CreateClient"
+
+[crates.e2e.call.overrides.ruby]
+client_factory = "create_client"
+
+[crates.e2e.call.overrides.elixir]
 client_factory = "create_client"
 
 [crates.e2e.calls.chat]
@@ -980,3 +1002,173 @@ error_type = "LiterLlmError"
 [[crates.adapters.params]]
 name = "req"
 type = "SearchRequest"
+
+[[crates.adapters]]
+name = "speech"
+pattern = "async_method"
+core_path = "speech"
+owner_type = "DefaultClient"
+returns = "bytes::Bytes"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "req"
+type = "CreateSpeechRequest"
+
+[[crates.adapters]]
+name = "ocr"
+pattern = "async_method"
+core_path = "ocr"
+owner_type = "DefaultClient"
+returns = "OcrResponse"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "req"
+type = "OcrRequest"
+
+[[crates.adapters]]
+name = "create_file"
+pattern = "async_method"
+core_path = "create_file"
+owner_type = "DefaultClient"
+returns = "FileObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "req"
+type = "CreateFileRequest"
+
+[[crates.adapters]]
+name = "retrieve_file"
+pattern = "async_method"
+core_path = "retrieve_file"
+owner_type = "DefaultClient"
+returns = "FileObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "file_id"
+type = "String"
+
+[[crates.adapters]]
+name = "delete_file"
+pattern = "async_method"
+core_path = "delete_file"
+owner_type = "DefaultClient"
+returns = "DeleteResponse"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "file_id"
+type = "String"
+
+[[crates.adapters]]
+name = "list_files"
+pattern = "async_method"
+core_path = "list_files"
+owner_type = "DefaultClient"
+returns = "FileListResponse"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "query"
+type = "FileListQuery"
+optional = true
+
+[[crates.adapters]]
+name = "file_content"
+pattern = "async_method"
+core_path = "file_content"
+owner_type = "DefaultClient"
+returns = "bytes::Bytes"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "file_id"
+type = "String"
+
+[[crates.adapters]]
+name = "create_batch"
+pattern = "async_method"
+core_path = "create_batch"
+owner_type = "DefaultClient"
+returns = "BatchObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "req"
+type = "CreateBatchRequest"
+
+[[crates.adapters]]
+name = "retrieve_batch"
+pattern = "async_method"
+core_path = "retrieve_batch"
+owner_type = "DefaultClient"
+returns = "BatchObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "batch_id"
+type = "String"
+
+[[crates.adapters]]
+name = "list_batches"
+pattern = "async_method"
+core_path = "list_batches"
+owner_type = "DefaultClient"
+returns = "BatchListResponse"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "query"
+type = "BatchListQuery"
+optional = true
+
+[[crates.adapters]]
+name = "cancel_batch"
+pattern = "async_method"
+core_path = "cancel_batch"
+owner_type = "DefaultClient"
+returns = "BatchObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "batch_id"
+type = "String"
+
+[[crates.adapters]]
+name = "create_response"
+pattern = "async_method"
+core_path = "create_response"
+owner_type = "DefaultClient"
+returns = "ResponseObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "req"
+type = "CreateResponseRequest"
+
+[[crates.adapters]]
+name = "retrieve_response"
+pattern = "async_method"
+core_path = "retrieve_response"
+owner_type = "DefaultClient"
+returns = "ResponseObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "id"
+type = "String"
+
+[[crates.adapters]]
+name = "cancel_response"
+pattern = "async_method"
+core_path = "cancel_response"
+owner_type = "DefaultClient"
+returns = "ResponseObject"
+error_type = "LiterLlmError"
+
+[[crates.adapters.params]]
+name = "id"
+type = "String"

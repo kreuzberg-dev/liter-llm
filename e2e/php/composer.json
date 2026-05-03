@@ -10,5 +10,8 @@
     "psr-4": {
       "Liter\\Llm\\E2e\\": "tests/"
     }
+  },
+  "scripts": {
+    "test": "php run_tests.php"
   }
 }

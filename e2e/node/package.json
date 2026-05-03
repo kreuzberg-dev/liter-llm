@@ -1,5 +1,5 @@
 {
-  "name": "@kreuzberg/liter-llm-e2e-typescript",
+  "name": "@kreuzberg/liter-llm-node-e2e",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@kreuzberg/liter-llm": "workspace:*",
+    "@kreuzberg/liter-llm-node": "workspace:*",
     "vitest": "^4.1.5"
   }
 }
