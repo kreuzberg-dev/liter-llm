@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.14.12"
+alef_version = "0.14.13"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [workspace.sync]
@@ -420,11 +420,16 @@ owned = true
 [crates.e2e.calls.chat.overrides.c]
 result_type = "ChatCompletionResponse"
 
+[crates.e2e.calls.chat.overrides.go]
+client_factory = "CreateClient"
+options_type = "ChatCompletionRequest"
+
 [crates.e2e.calls.chat_stream]
 function = "chat_stream"
 path = "/chat/completions"
 module = "liter_llm"
 async = true
+skip_languages = ["go"]
 
 [[crates.e2e.calls.chat_stream.args]]
 name = "request"
@@ -449,6 +454,10 @@ owned = true
 
 [crates.e2e.calls.embed.overrides.c]
 result_type = "EmbeddingResponse"
+
+[crates.e2e.calls.embed.overrides.go]
+client_factory = "CreateClient"
+options_type = "EmbeddingRequest"
 
 [crates.e2e.calls.list_models]
 function = "list_models"
@@ -475,6 +484,10 @@ owned = true
 [crates.e2e.calls.image_generate.overrides.c]
 result_type = "ImageResponse"
 
+[crates.e2e.calls.image_generate.overrides.go]
+client_factory = "CreateClient"
+options_type = "CreateImageRequest"
+
 [crates.e2e.calls.speech]
 function = "speech"
 path = "/audio/speech"
@@ -494,6 +507,12 @@ result_is_simple = true
 [crates.e2e.calls.speech.overrides.c]
 result_type = "SpeechResponse"
 
+[crates.e2e.calls.speech.overrides.go]
+client_factory = "CreateClient"
+options_type = "CreateSpeechRequest"
+result_is_simple = true
+result_is_array = true
+
 [crates.e2e.calls.transcribe]
 function = "transcribe"
 path = "/audio/transcriptions"
@@ -508,6 +527,10 @@ owned = true
 
 [crates.e2e.calls.transcribe.overrides.c]
 result_type = "TranscriptionResponse"
+
+[crates.e2e.calls.transcribe.overrides.go]
+client_factory = "CreateClient"
+options_type = "CreateTranscriptionRequest"
 
 [crates.e2e.calls.moderate]
 function = "moderate"
@@ -524,6 +547,10 @@ owned = true
 [crates.e2e.calls.moderate.overrides.c]
 result_type = "ModerationResponse"
 
+[crates.e2e.calls.moderate.overrides.go]
+client_factory = "CreateClient"
+options_type = "ModerationRequest"
+
 [crates.e2e.calls.rerank]
 function = "rerank"
 path = "/rerank"
@@ -538,6 +565,10 @@ owned = true
 
 [crates.e2e.calls.rerank.overrides.c]
 result_type = "RerankResponse"
+
+[crates.e2e.calls.rerank.overrides.go]
+client_factory = "CreateClient"
+options_type = "RerankRequest"
 
 [crates.e2e.calls.search]
 function = "search"
@@ -554,6 +585,10 @@ owned = true
 [crates.e2e.calls.search.overrides.c]
 result_type = "SearchResponse"
 
+[crates.e2e.calls.search.overrides.go]
+client_factory = "CreateClient"
+options_type = "SearchRequest"
+
 [crates.e2e.calls.ocr]
 function = "ocr"
 path = "/ocr"
@@ -569,6 +604,10 @@ owned = true
 [crates.e2e.calls.ocr.overrides.c]
 result_type = "OcrResponse"
 
+[crates.e2e.calls.ocr.overrides.go]
+client_factory = "CreateClient"
+options_type = "OcrRequest"
+
 [crates.e2e.calls.create_file]
 function = "create_file"
 path = "/files"
@@ -583,6 +622,10 @@ owned = true
 
 [crates.e2e.calls.create_file.overrides.c]
 result_type = "FileResponse"
+
+[crates.e2e.calls.create_file.overrides.go]
+client_factory = "CreateClient"
+options_type = "CreateFileRequest"
 
 [crates.e2e.calls.retrieve_file]
 function = "retrieve_file"
@@ -664,6 +707,10 @@ owned = true
 [crates.e2e.calls.create_batch.overrides.c]
 result_type = "BatchResponse"
 
+[crates.e2e.calls.create_batch.overrides.go]
+client_factory = "CreateClient"
+options_type = "CreateBatchRequest"
+
 [crates.e2e.calls.retrieve_batch]
 function = "retrieve_batch"
 path = "/batches"
@@ -723,6 +770,10 @@ owned = true
 
 [crates.e2e.calls.create_response.overrides.c]
 result_type = "ResponseResponse"
+
+[crates.e2e.calls.create_response.overrides.go]
+client_factory = "CreateClient"
+options_type = "CreateResponseRequest"
 
 [crates.e2e.calls.retrieve_response]
 function = "retrieve_response"
