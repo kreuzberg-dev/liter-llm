@@ -21,10 +21,7 @@ path = "src/main.rs"
 
 [dependencies]
 axum = "0.8"
-liter_llm = { package = "liter-llm", path = "../../crates/liter-llm", default-features = false, features = [
-  "native-http",
-  "full",
-] }
+liter_llm = { package = "liter-llm", path = "../../crates/liter-llm", default-features = false, features = ["native-http", "full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
