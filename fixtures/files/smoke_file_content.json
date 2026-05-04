@@ -3,6 +3,10 @@
   "description": "Retrieve the content of an uploaded file",
   "category": "files",
   "tags": ["smoke", "files"],
+  "skip": {
+    "languages": ["python"],
+    "reason": "file_content returns raw bytes in Python; the 'content' field assertion does not apply"
+  },
   "call": "file_content",
   "input": {
     "file_id": "file-abc123"

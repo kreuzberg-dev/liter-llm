@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.14.18"
+alef_version = "0.14.20"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [workspace.sync]
@@ -279,6 +279,8 @@ cmake_config = true
 [crates.e2e]
 fixtures = "fixtures"
 output = "e2e"
+# Fields whose values are enum types — assertions use _alef_e2e_text() instead of .strip().
+fields_enum = ["status", "purpose"]
 # Optional fields on result types — generator emits unwrap handling for these paths.
 fields_optional = [
   # ChatCompletionResponse
@@ -428,6 +430,11 @@ options_type = "ChatCompletionRequest"
 client_factory = "CreateClient"
 options_type = "ChatCompletionRequest"
 
+[crates.e2e.calls.chat.overrides.python]
+options_type = "ChatCompletionRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+
 [crates.e2e.calls.chat.overrides.ruby]
 options_type = "LiterLlm::ChatCompletionRequest"
 
@@ -449,6 +456,12 @@ result_type = "ChatCompletionChunk"
 
 [crates.e2e.calls.chat_stream.overrides.csharp]
 options_type = "ChatCompletionRequest"
+
+[crates.e2e.calls.chat_stream.overrides.python]
+options_type = "ChatCompletionRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+async = false
 
 [crates.e2e.calls.chat_stream.overrides.ruby]
 options_type = "LiterLlm::ChatCompletionRequest"
@@ -474,6 +487,11 @@ options_type = "EmbeddingRequest"
 [crates.e2e.calls.embed.overrides.go]
 client_factory = "CreateClient"
 options_type = "EmbeddingRequest"
+
+[crates.e2e.calls.embed.overrides.python]
+options_type = "EmbeddingRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
 
 [crates.e2e.calls.embed.overrides.ruby]
 options_type = "LiterLlm::EmbeddingRequest"
@@ -510,6 +528,11 @@ options_type = "CreateImageRequest"
 client_factory = "CreateClient"
 options_type = "CreateImageRequest"
 
+[crates.e2e.calls.image_generate.overrides.python]
+options_type = "CreateImageRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+
 [crates.e2e.calls.image_generate.overrides.ruby]
 options_type = "LiterLlm::CreateImageRequest"
 
@@ -541,6 +564,12 @@ options_type = "CreateSpeechRequest"
 result_is_simple = true
 result_is_array = true
 
+[crates.e2e.calls.speech.overrides.python]
+options_type = "CreateSpeechRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+result_is_simple = true
+
 [crates.e2e.calls.speech.overrides.ruby]
 options_type = "LiterLlm::CreateSpeechRequest"
 
@@ -565,6 +594,11 @@ options_type = "CreateTranscriptionRequest"
 [crates.e2e.calls.transcribe.overrides.go]
 client_factory = "CreateClient"
 options_type = "CreateTranscriptionRequest"
+
+[crates.e2e.calls.transcribe.overrides.python]
+options_type = "CreateTranscriptionRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
 
 [crates.e2e.calls.transcribe.overrides.ruby]
 options_type = "LiterLlm::CreateTranscriptionRequest"
@@ -591,6 +625,11 @@ options_type = "ModerationRequest"
 client_factory = "CreateClient"
 options_type = "ModerationRequest"
 
+[crates.e2e.calls.moderate.overrides.python]
+options_type = "ModerationRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+
 [crates.e2e.calls.moderate.overrides.ruby]
 options_type = "LiterLlm::ModerationRequest"
 
@@ -615,6 +654,11 @@ options_type = "RerankRequest"
 [crates.e2e.calls.rerank.overrides.go]
 client_factory = "CreateClient"
 options_type = "RerankRequest"
+
+[crates.e2e.calls.rerank.overrides.python]
+options_type = "RerankRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
 
 [crates.e2e.calls.rerank.overrides.ruby]
 options_type = "LiterLlm::RerankRequest"
@@ -641,6 +685,11 @@ options_type = "SearchRequest"
 client_factory = "CreateClient"
 options_type = "SearchRequest"
 
+[crates.e2e.calls.search.overrides.python]
+options_type = "SearchRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+
 [crates.e2e.calls.search.overrides.ruby]
 options_type = "LiterLlm::SearchRequest"
 
@@ -666,6 +715,11 @@ options_type = "OcrRequest"
 client_factory = "CreateClient"
 options_type = "OcrRequest"
 
+[crates.e2e.calls.ocr.overrides.python]
+options_type = "OcrRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+
 [crates.e2e.calls.ocr.overrides.ruby]
 options_type = "LiterLlm::OcrRequest"
 
@@ -690,6 +744,11 @@ options_type = "CreateFileRequest"
 [crates.e2e.calls.create_file.overrides.go]
 client_factory = "CreateClient"
 options_type = "CreateFileRequest"
+
+[crates.e2e.calls.create_file.overrides.python]
+options_type = "CreateFileRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
 
 [crates.e2e.calls.create_file.overrides.ruby]
 options_type = "LiterLlm::CreateFileRequest"
@@ -781,6 +840,11 @@ options_type = "CreateBatchRequest"
 client_factory = "CreateClient"
 options_type = "CreateBatchRequest"
 
+[crates.e2e.calls.create_batch.overrides.python]
+options_type = "CreateBatchRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
+
 [crates.e2e.calls.create_batch.overrides.ruby]
 options_type = "LiterLlm::CreateBatchRequest"
 
@@ -850,6 +914,11 @@ options_type = "CreateResponseRequest"
 [crates.e2e.calls.create_response.overrides.go]
 client_factory = "CreateClient"
 options_type = "CreateResponseRequest"
+
+[crates.e2e.calls.create_response.overrides.python]
+options_type = "CreateResponseRequest"
+options_via = "from_json"
+from_json_module = "liter_llm._internal_bindings"
 
 [crates.e2e.calls.create_response.overrides.ruby]
 options_type = "LiterLlm::CreateResponseRequest"

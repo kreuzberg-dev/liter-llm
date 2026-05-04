@@ -356,6 +356,10 @@ def main() -> None:
             r'path = "\.\./\.\./\.\./\.\./\.\./crates/liter-llm-ffi"', 'path = "../../../vendor/liter-llm-ffi"', content
         )
 
+        # Remove workspace lints inheritance — native crate is excluded from the
+        # vendor workspace, so `workspace = true` would fail to resolve.
+        content = re.sub(r"\n\[lints\]\nworkspace = true\n?", "\n", content)
+
         with open(native_toml, "w") as f:
             f.write(content)
 
