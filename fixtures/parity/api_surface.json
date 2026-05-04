@@ -3,9 +3,37 @@
   "description": "Canonical API surface definition for cross-binding parity verification",
   "category": "parity",
   "call": "chat",
-  "input": {},
+  "input": {
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  },
   "mock_response": {
     "status": 200,
-    "body": {}
-  }
+    "body": {
+      "id": "chatcmpl-parity001",
+      "object": "chat.completion",
+      "created": 1711000000,
+      "model": "gpt-4o",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hi there!"
+          },
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "type": "not_error"
+    }
+  ]
 }

@@ -24,12 +24,23 @@ pub enum BatchStatus {
     Cancelled,
 }
 
+impl std::fmt::Display for BatchStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = serde_json::to_value(self)
+            .ok()
+            .and_then(|v| v.as_str().map(str::to_owned))
+            .unwrap_or_default();
+        f.write_str(&s)
+    }
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct BatchObject {
     pub id: String,
     pub object: String,
     pub endpoint: String,
     pub input_file_id: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub completion_window: String,
     pub status: BatchStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -5,7 +5,8 @@
   "tags": ["edge-case", "files"],
   "call": "create_file",
   "input": {
-    "file": "large_training_data.jsonl",
+    "file": "eyJwcm9tcHQiOiAibGFyZ2UgdHJhaW5pbmcgZGF0YSJ9Cg==",
+    "filename": "large_training_data.jsonl",
     "purpose": "fine-tune"
   },
   "mock_response": {

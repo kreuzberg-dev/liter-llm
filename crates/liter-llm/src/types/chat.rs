@@ -32,6 +32,16 @@ pub enum FinishReason {
     Other,
 }
 
+impl std::fmt::Display for FinishReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = serde_json::to_value(self)
+            .ok()
+            .and_then(|v| v.as_str().map(str::to_owned))
+            .unwrap_or_default();
+        f.write_str(&s)
+    }
+}
+
 // ─── Reasoning Effort ────────────────────────────────────────────────────────
 
 /// Controls how much reasoning effort the model should use.

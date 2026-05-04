@@ -3,6 +3,10 @@
   "description": "400 Bad Request when uploading a file with invalid purpose",
   "category": "files",
   "tags": ["error-handling", "files"],
+  "skip": {
+    "languages": ["rust"],
+    "reason": "Rust's FilePurpose enum rejects invalid values at deserialization before reaching the HTTP layer; this scenario is enforced at compile-time in typed languages"
+  },
   "call": "create_file",
   "input": {
     "file": "data.jsonl",
@@ -22,7 +26,7 @@
   "assertions": [
     {
       "type": "error",
-      "value": "InvalidRequest"
+      "value": "BadRequest"
     },
     {
       "type": "equals",

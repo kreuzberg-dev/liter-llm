@@ -1604,7 +1604,7 @@ dependencies = [
 
 [[package]]
 name = "liter_llm-e2e-rust"
-version = "1.4.0-rc.27"
+version = "0.1.0"
 dependencies = [
  "axum",
  "liter-llm",

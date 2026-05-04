@@ -30,6 +30,9 @@ pub use client::{
 // DefaultClient requires the native HTTP stack (reqwest on native or WASM fetch API).
 #[cfg(any(feature = "native-http", feature = "wasm-http"))]
 pub use client::DefaultClient;
+// Binding-friendly constructors require the native HTTP stack.
+#[cfg(any(feature = "native-http", feature = "wasm-http"))]
+pub use bindings::{create_client, create_client_from_json};
 // ManagedClient requires both the native HTTP stack and Tower middleware.
 #[cfg(all(feature = "native-http", feature = "tower"))]
 pub use client::managed::ManagedClient;

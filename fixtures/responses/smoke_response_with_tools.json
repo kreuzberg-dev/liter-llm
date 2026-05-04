@@ -79,7 +79,7 @@
     },
     {
       "type": "not_empty",
-      "field": "choices[0].message.tool_calls"
+      "field": "output"
     }
   ]
 }

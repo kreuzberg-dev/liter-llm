@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.14.10"
+alef_version = "0.14.12"
 languages = ["python", "node", "ruby", "php", "ffi", "go", "java", "csharp", "elixir", "wasm"]
 
 [workspace.sync]
@@ -218,7 +218,7 @@ e2e = ["cd e2e/python && uv sync", "cd e2e/python && uv run pytest tests/ -q"]
 [crates.test.node]
 precondition = "command -v pnpm >/dev/null 2>&1"
 e2e = [
-  "pnpm -r --filter=\"./packages/node\" run build",
+  "pnpm -r --filter=\"./crates/liter-llm-node\" run build",
   "cd e2e/node && pnpm install && pnpm dlx vitest run",
 ]
 
@@ -279,10 +279,87 @@ cmake_config = true
 [crates.e2e]
 fixtures = "fixtures"
 output = "e2e"
+# Optional fields on result types — generator emits unwrap handling for these paths.
+fields_optional = [
+  # ChatCompletionResponse
+  "usage",
+  "choices[0].message.content",
+  "choices[0].finish_reason",
+  "system_fingerprint",
+  # AssistantMessage.tool_calls is Option<Vec<ToolCall>>
+  "choices[0].message.tool_calls",
+  # ImageData optional fields
+  "data[0].url",
+  "data[0].b64_json",
+  # RerankResult.document is Option<RerankResultDocument>
+  "results[0].document",
+  # TranscriptionResponse.segments is Option<Vec<TranscriptionSegment>>
+  "segments",
+]
+# Fields that are Vec/array types — used with fields_optional to emit is_some_and checks.
+fields_array = ["choices[0].message.tool_calls", "segments"]
+# Top-level result fields present on at least one result type.
+# Assertions on fields NOT in this list are emitted as comments (skipped).
+# Excludes streaming-specific fields (stream_content, chunks, stream_complete),
+# middleware-only fields (cache_hit, cache_bypassed), and error pseudo-fields.
+result_fields = [
+  # Chat/embedding/moderation/rerank shared
+  "id",
+  "model",
+  "usage",
+  "object",
+  "created",
+  # Chat
+  "choices",
+  "system_fingerprint",
+  # Embedding
+  "data",
+  # Models
+  "models",
+  # Transcription
+  "text",
+  "language",
+  "duration",
+  "words",
+  "segments",
+  "task",
+  "audio",
+  # Image generation
+  "images",
+  # Moderation
+  "results",
+  "flagged",
+  # Rerank
+  "results_count",
+  # Search
+  "query",
+  # OCR
+  "pages",
+  # Files
+  "bytes",
+  "filename",
+  "purpose",
+  "status",
+  "has_more",
+  # Files/Batches delete
+  "deleted",
+  # Batch
+  "endpoint",
+  "errors",
+  "input_file_id",
+  "completion_window",
+  "request_counts",
+  # Responses API
+  "output",
+  "instructions",
+  "tools",
+  # Content
+  "content",
+]
 
 [crates.e2e.call]
 function = "chat"
-path = "/v1/chat/completions"
+path = "/chat/completions"
 module = "liter_llm"
 result_var = "result"
 async = true
@@ -291,6 +368,7 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.call.overrides.node]
 client_factory = "createClient"
@@ -316,6 +394,7 @@ client_factory = "create_client"
 
 [crates.e2e.call.overrides.rust]
 client_factory = "create_client"
+trait_imports = ["LlmClient", "FileClient", "BatchClient", "ResponseClient"]
 
 [crates.e2e.call.overrides.csharp]
 client_factory = "CreateClient"
@@ -328,7 +407,7 @@ client_factory = "create_client"
 
 [crates.e2e.calls.chat]
 function = "chat"
-path = "/v1/chat/completions"
+path = "/chat/completions"
 module = "liter_llm"
 async = true
 
@@ -336,13 +415,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.chat.overrides.c]
 result_type = "ChatCompletionResponse"
 
 [crates.e2e.calls.chat_stream]
 function = "chat_stream"
-path = "/v1/chat/completions"
+path = "/chat/completions"
 module = "liter_llm"
 async = true
 
@@ -350,13 +430,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.chat_stream.overrides.c]
 result_type = "ChatCompletionChunk"
 
 [crates.e2e.calls.embed]
 function = "embed"
-path = "/v1/embeddings"
+path = "/embeddings"
 module = "liter_llm"
 async = true
 
@@ -364,13 +445,15 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.embed.overrides.c]
 result_type = "EmbeddingResponse"
 
 [crates.e2e.calls.list_models]
 function = "list_models"
-path = "/v1/models"
+path = "/models"
+method = "GET"
 module = "liter_llm"
 async = true
 
@@ -379,7 +462,7 @@ result_type = "ListModelsResponse"
 
 [crates.e2e.calls.image_generate]
 function = "image_generate"
-path = "/v1/images/generations"
+path = "/images/generations"
 module = "liter_llm"
 async = true
 
@@ -387,13 +470,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.image_generate.overrides.c]
 result_type = "ImageResponse"
 
 [crates.e2e.calls.speech]
 function = "speech"
-path = "/v1/audio/speech"
+path = "/audio/speech"
 module = "liter_llm"
 async = true
 
@@ -401,13 +485,18 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
+
+[crates.e2e.calls.speech.overrides.rust]
+# speech() returns bytes::Bytes in Rust — not a struct with fields.
+result_is_simple = true
 
 [crates.e2e.calls.speech.overrides.c]
 result_type = "SpeechResponse"
 
 [crates.e2e.calls.transcribe]
 function = "transcribe"
-path = "/v1/audio/transcriptions"
+path = "/audio/transcriptions"
 module = "liter_llm"
 async = true
 
@@ -415,13 +504,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.transcribe.overrides.c]
 result_type = "TranscriptionResponse"
 
 [crates.e2e.calls.moderate]
 function = "moderate"
-path = "/v1/moderations"
+path = "/moderations"
 module = "liter_llm"
 async = true
 
@@ -429,13 +519,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.moderate.overrides.c]
 result_type = "ModerationResponse"
 
 [crates.e2e.calls.rerank]
 function = "rerank"
-path = "/v1/rerank"
+path = "/rerank"
 module = "liter_llm"
 async = true
 
@@ -443,13 +534,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.rerank.overrides.c]
 result_type = "RerankResponse"
 
 [crates.e2e.calls.search]
 function = "search"
-path = "/v1/search"
+path = "/search"
 module = "liter_llm"
 async = true
 
@@ -457,13 +549,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.search.overrides.c]
 result_type = "SearchResponse"
 
 [crates.e2e.calls.ocr]
 function = "ocr"
-path = "/v1/ocr"
+path = "/ocr"
 module = "liter_llm"
 async = true
 
@@ -471,13 +564,14 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.ocr.overrides.c]
 result_type = "OcrResponse"
 
 [crates.e2e.calls.create_file]
 function = "create_file"
-path = "/v1/files"
+path = "/files"
 module = "liter_llm"
 async = true
 
@@ -485,13 +579,15 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.create_file.overrides.c]
 result_type = "FileResponse"
 
 [crates.e2e.calls.retrieve_file]
 function = "retrieve_file"
-path = "/v1/files"
+path = "/files"
+method = "GET"
 module = "liter_llm"
 async = true
 
@@ -505,7 +601,8 @@ result_type = "FileResponse"
 
 [crates.e2e.calls.delete_file]
 function = "delete_file"
-path = "/v1/files"
+path = "/files"
+method = "DELETE"
 module = "liter_llm"
 async = true
 
@@ -519,16 +616,24 @@ result_type = "DeleteFileResponse"
 
 [crates.e2e.calls.list_files]
 function = "list_files"
-path = "/v1/files"
+path = "/files"
+method = "GET"
 module = "liter_llm"
 async = true
+
+[crates.e2e.calls.list_files.overrides.rust]
+extra_args = ["None"]
+
+[crates.e2e.calls.list_files.overrides.go]
+extra_args = ["nil"]
 
 [crates.e2e.calls.list_files.overrides.c]
 result_type = "ListFilesResponse"
 
 [crates.e2e.calls.file_content]
 function = "file_content"
-path = "/v1/files"
+path = "/files"
+method = "GET"
 module = "liter_llm"
 async = true
 
@@ -537,12 +642,16 @@ name = "file_id"
 field = "input.file_id"
 type = "string"
 
+[crates.e2e.calls.file_content.overrides.rust]
+# file_content() returns bytes::Bytes in Rust — not a struct with fields.
+result_is_simple = true
+
 [crates.e2e.calls.file_content.overrides.c]
 result_type = "FileContentResponse"
 
 [crates.e2e.calls.create_batch]
 function = "create_batch"
-path = "/v1/batches"
+path = "/batches"
 module = "liter_llm"
 async = true
 
@@ -550,13 +659,15 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.create_batch.overrides.c]
 result_type = "BatchResponse"
 
 [crates.e2e.calls.retrieve_batch]
 function = "retrieve_batch"
-path = "/v1/batches"
+path = "/batches"
+method = "GET"
 module = "liter_llm"
 async = true
 
@@ -570,16 +681,23 @@ result_type = "BatchResponse"
 
 [crates.e2e.calls.list_batches]
 function = "list_batches"
-path = "/v1/batches"
+path = "/batches"
+method = "GET"
 module = "liter_llm"
 async = true
+
+[crates.e2e.calls.list_batches.overrides.rust]
+extra_args = ["None"]
+
+[crates.e2e.calls.list_batches.overrides.go]
+extra_args = ["nil"]
 
 [crates.e2e.calls.list_batches.overrides.c]
 result_type = "ListBatchesResponse"
 
 [crates.e2e.calls.cancel_batch]
 function = "cancel_batch"
-path = "/v1/batches"
+path = "/batches"
 module = "liter_llm"
 async = true
 
@@ -593,7 +711,7 @@ result_type = "BatchResponse"
 
 [crates.e2e.calls.create_response]
 function = "create_response"
-path = "/v1/responses"
+path = "/responses"
 module = "liter_llm"
 async = true
 
@@ -601,13 +719,15 @@ async = true
 name = "request"
 field = "input"
 type = "json_object"
+owned = true
 
 [crates.e2e.calls.create_response.overrides.c]
 result_type = "ResponseResponse"
 
 [crates.e2e.calls.retrieve_response]
 function = "retrieve_response"
-path = "/v1/responses"
+path = "/responses"
+method = "GET"
 module = "liter_llm"
 async = true
 
@@ -621,7 +741,7 @@ result_type = "ResponseResponse"
 
 [crates.e2e.calls.cancel_response]
 function = "cancel_response"
-path = "/v1/responses"
+path = "/responses"
 module = "liter_llm"
 async = true
 

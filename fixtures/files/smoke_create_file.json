@@ -5,7 +5,8 @@
   "tags": ["smoke", "files"],
   "call": "create_file",
   "input": {
-    "file": "training_data.jsonl",
+    "file": "eyJwcm9tcHQiOiAiaGVsbG8ifQo=",
+    "filename": "training_data.jsonl",
     "purpose": "fine-tune"
   },
   "mock_response": {

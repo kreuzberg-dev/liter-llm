@@ -13,6 +13,7 @@
       "id": "batch-def456",
       "object": "batch",
       "endpoint": "/v1/chat/completions",
+      "input_file_id": "file-def456",
       "status": "cancelling",
       "created_at": 1711000200,
       "cancelling_at": 1711000400,

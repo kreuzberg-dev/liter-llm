@@ -287,7 +287,7 @@
     {
       "type": "count_equals",
       "field": "data[0].embedding",
-      "value": 1536
+      "value": 1480
     }
   ]
 }

@@ -40,47 +40,55 @@ pub struct ModerationResult {
 }
 
 /// Boolean flags for each moderation category.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ModerationCategories {
+    #[serde(default)]
     pub sexual: bool,
+    #[serde(default)]
     pub hate: bool,
+    #[serde(default)]
     pub harassment: bool,
-    #[serde(rename = "self-harm")]
+    #[serde(default, rename = "self-harm")]
     pub self_harm: bool,
-    #[serde(rename = "sexual/minors")]
+    #[serde(default, rename = "sexual/minors")]
     pub sexual_minors: bool,
-    #[serde(rename = "hate/threatening")]
+    #[serde(default, rename = "hate/threatening")]
     pub hate_threatening: bool,
-    #[serde(rename = "violence/graphic")]
+    #[serde(default, rename = "violence/graphic")]
     pub violence_graphic: bool,
-    #[serde(rename = "self-harm/intent")]
+    #[serde(default, rename = "self-harm/intent")]
     pub self_harm_intent: bool,
-    #[serde(rename = "self-harm/instructions")]
+    #[serde(default, rename = "self-harm/instructions")]
     pub self_harm_instructions: bool,
-    #[serde(rename = "harassment/threatening")]
+    #[serde(default, rename = "harassment/threatening")]
     pub harassment_threatening: bool,
+    #[serde(default)]
     pub violence: bool,
 }
 
 /// Confidence scores for each moderation category.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ModerationCategoryScores {
+    #[serde(default)]
     pub sexual: f64,
+    #[serde(default)]
     pub hate: f64,
+    #[serde(default)]
     pub harassment: f64,
-    #[serde(rename = "self-harm")]
+    #[serde(default, rename = "self-harm")]
     pub self_harm: f64,
-    #[serde(rename = "sexual/minors")]
+    #[serde(default, rename = "sexual/minors")]
     pub sexual_minors: f64,
-    #[serde(rename = "hate/threatening")]
+    #[serde(default, rename = "hate/threatening")]
     pub hate_threatening: f64,
-    #[serde(rename = "violence/graphic")]
+    #[serde(default, rename = "violence/graphic")]
     pub violence_graphic: f64,
-    #[serde(rename = "self-harm/intent")]
+    #[serde(default, rename = "self-harm/intent")]
     pub self_harm_intent: f64,
-    #[serde(rename = "self-harm/instructions")]
+    #[serde(default, rename = "self-harm/instructions")]
     pub self_harm_instructions: f64,
-    #[serde(rename = "harassment/threatening")]
+    #[serde(default, rename = "harassment/threatening")]
     pub harassment_threatening: f64,
+    #[serde(default)]
     pub violence: f64,
 }

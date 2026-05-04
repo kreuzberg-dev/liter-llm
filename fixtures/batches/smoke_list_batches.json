@@ -14,6 +14,7 @@
           "id": "batch-abc123",
           "object": "batch",
           "endpoint": "/v1/chat/completions",
+          "input_file_id": "file-abc123",
           "status": "completed",
           "created_at": 1711000000
         },
@@ -21,6 +22,7 @@
           "id": "batch-def456",
           "object": "batch",
           "endpoint": "/v1/embeddings",
+          "input_file_id": "file-def456",
           "status": "in_progress",
           "created_at": 1711000200
         }

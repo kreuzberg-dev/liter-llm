@@ -4,6 +4,10 @@
   "category": "streaming",
   "tags": ["streaming"],
   "call": "chat_stream",
+  "skip": {
+    "languages": ["rust"],
+    "reason": "Rust returns BoxStream — collecting usage from the final chunk requires consuming the stream, which is not supported by the generator"
+  },
   "input": {
     "model": "gpt-4",
     "messages": [

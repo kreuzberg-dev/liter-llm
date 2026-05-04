@@ -23,7 +23,7 @@
   "assertions": [
     {
       "type": "error",
-      "value": "InvalidRequest"
+      "value": "BadRequest"
     },
     {
       "type": "equals",

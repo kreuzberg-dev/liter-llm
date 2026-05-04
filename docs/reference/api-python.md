@@ -28,7 +28,7 @@ def create_client(api_key: str, base_url: str = None, timeout_secs: int = None, 
 **Parameters:**
 
 | Name           | Type  | Required | Description |
-| -------------- | ----- | -------- | ----------- |
+| -------------- | ----- | -------- | ----------- | ---------------- |
 | `api_key`      | `str` | Yes      | The api key |
 | `base_url`     | `str  | None`    | No          | The base url     |
 | `timeout_secs` | `int  | None`    | No          | The timeout secs |
@@ -134,7 +134,7 @@ def unregister_custom_provider(name: str) -> bool
 #### AssistantMessage
 
 | Field           | Type            | Default | Description |
-| --------------- | --------------- | ------- | ----------- |
+| --------------- | --------------- | ------- | ----------- | ---------------------------------------------------------------------- |
 | `content`       | `str            | None`   | `None`      | The extracted text content                                             |
 | `name`          | `str            | None`   | `None`      | The name                                                               |
 | `tool_calls`    | `list[ToolCall] | None`   | `[]`        | Tool calls                                                             |
@@ -155,7 +155,7 @@ def unregister_custom_provider(name: str) -> bool
 #### ChatCompletionChunk
 
 | Field                | Type                 | Default | Description                                                                                                                                   |
-| -------------------- | -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------------- | -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
 | `id`                 | `str`                | —       | Unique identifier                                                                                                                             |
 | `object`             | `str`                | —       | Always `"chat.completion.chunk"` from OpenAI-compatible APIs. Stored as a plain `String` so non-standard provider values do not fail parsing. |
 | `created`            | `int`                | —       | Created                                                                                                                                       |
@@ -170,7 +170,7 @@ def unregister_custom_provider(name: str) -> bool
 #### ChatCompletionRequest
 
 | Field                 | Type                      | Default | Description |
-| --------------------- | ------------------------- | ------- | ----------- |
+| --------------------- | ------------------------- | ------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `model`               | `str`                     | —       | Model       |
 | `messages`            | `list[Message]`           | `[]`    | Messages    |
 | `temperature`         | `float                    | None`   | `None`      | Temperature                                                                                                                       |
@@ -197,7 +197,7 @@ def unregister_custom_provider(name: str) -> bool
 #### ChatCompletionResponse
 
 | Field                | Type           | Default | Description                                                                                                                                      |
-| -------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| -------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
 | `id`                 | `str`          | —       | Unique identifier                                                                                                                                |
 | `object`             | `str`          | —       | Always `"chat.completion"` from OpenAI-compatible APIs. Stored as a plain `String` so non-standard provider values do not break deserialization. |
 | `created`            | `int`          | —       | Created                                                                                                                                          |
@@ -221,7 +221,7 @@ def unregister_custom_provider(name: str) -> bool
 #### Choice
 
 | Field           | Type               | Default | Description                 |
-| --------------- | ------------------ | ------- | --------------------------- |
+| --------------- | ------------------ | ------- | --------------------------- | ----------------------------- |
 | `index`         | `int`              | —       | Index                       |
 | `message`       | `AssistantMessage` | —       | Message (assistant message) |
 | `finish_reason` | `FinishReason      | None`   | `None`                      | Finish reason (finish reason) |
@@ -233,7 +233,7 @@ def unregister_custom_provider(name: str) -> bool
 Request to create images from a text prompt.
 
 | Field             | Type  | Default | Description |
-| ----------------- | ----- | ------- | ----------- |
+| ----------------- | ----- | ------- | ----------- | --------------- |
 | `prompt`          | `str` | —       | Prompt      |
 | `model`           | `str  | None`   | `None`      | Model           |
 | `n`               | `int  | None`   | `None`      | N               |
@@ -250,7 +250,7 @@ Request to create images from a text prompt.
 Request to generate speech audio from text.
 
 | Field             | Type   | Default | Description |
-| ----------------- | ------ | ------- | ----------- |
+| ----------------- | ------ | ------- | ----------- | --------------- |
 | `model`           | `str`  | —       | Model       |
 | `input`           | `str`  | —       | Input       |
 | `voice`           | `str`  | —       | Voice       |
@@ -264,7 +264,7 @@ Request to generate speech audio from text.
 Request to transcribe audio into text.
 
 | Field             | Type   | Default | Description                     |
-| ----------------- | ------ | ------- | ------------------------------- |
+| ----------------- | ------ | ------- | ------------------------------- | --------------- |
 | `model`           | `str`  | —       | Model                           |
 | `file`            | `str`  | —       | Base64-encoded audio file data. |
 | `language`        | `str   | None`   | `None`                          | Language        |
@@ -494,7 +494,7 @@ def cancel_response(self, id: str) -> str
 #### DeveloperMessage
 
 | Field     | Type  | Default | Description                |
-| --------- | ----- | ------- | -------------------------- |
+| --------- | ----- | ------- | -------------------------- | -------- |
 | `content` | `str` | —       | The extracted text content |
 | `name`    | `str  | None`   | `None`                     | The name |
 
@@ -522,7 +522,7 @@ def cancel_response(self, id: str) -> str
 #### EmbeddingRequest
 
 | Field             | Type             | Default | Description             |
-| ----------------- | ---------------- | ------- | ----------------------- |
+| ----------------- | ---------------- | ------- | ----------------------- | ---------------------------------- |
 | `model`           | `str`            | —       | Model                   |
 | `input`           | `EmbeddingInput` | —       | Input (embedding input) |
 | `encoding_format` | `EmbeddingFormat | None`   | `None`                  | Encoding format (embedding format) |
@@ -534,7 +534,7 @@ def cancel_response(self, id: str) -> str
 #### EmbeddingResponse
 
 | Field    | Type                    | Default | Description                                                                                                                           |
-| -------- | ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| -------- | ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | `object` | `str`                   | —       | Always `"list"` from OpenAI-compatible APIs. Stored as a plain `String` so non-standard provider values do not break deserialization. |
 | `data`   | `list[EmbeddingObject]` | —       | Data                                                                                                                                  |
 | `model`  | `str`                   | —       | Model                                                                                                                                 |
@@ -554,7 +554,7 @@ def cancel_response(self, id: str) -> str
 #### FunctionDefinition
 
 | Field         | Type            | Default | Description |
-| ------------- | --------------- | ------- | ----------- |
+| ------------- | --------------- | ------- | ----------- | -------------------------- |
 | `name`        | `str`           | —       | The name    |
 | `description` | `str            | None`   | `None`      | Human-readable description |
 | `parameters`  | `dict[str, Any] | None`   | `None`      | Parameters                 |
@@ -578,7 +578,7 @@ Deprecated legacy function-role message body.
 A single generated image, returned as either a URL or base64 data.
 
 | Field            | Type | Default | Description |
-| ---------------- | ---- | ------- | ----------- |
+| ---------------- | ---- | ------- | ----------- | -------------- |
 | `url`            | `str | None`   | `None`      | Url            |
 | `b64_json`       | `str | None`   | `None`      | B64 json       |
 | `revised_prompt` | `str | None`   | `None`      | Revised prompt |
@@ -588,7 +588,7 @@ A single generated image, returned as either a URL or base64 data.
 #### ImageUrl
 
 | Field    | Type         | Default | Description |
-| -------- | ------------ | ------- | ----------- |
+| -------- | ------------ | ------- | ----------- | --------------------- |
 | `url`    | `str`        | —       | Url         |
 | `detail` | `ImageDetail | None`   | `None`      | Detail (image detail) |
 
@@ -608,7 +608,7 @@ Response containing generated images.
 #### JsonSchemaFormat
 
 | Field         | Type             | Default | Description |
-| ------------- | ---------------- | ------- | ----------- |
+| ------------- | ---------------- | ------- | ----------- | -------------------------- |
 | `name`        | `str`            | —       | The name    |
 | `description` | `str             | None`   | `None`      | Human-readable description |
 | `schema`      | `dict[str, Any]` | —       | Schema      |
@@ -681,7 +681,7 @@ Confidence scores for each moderation category.
 Request to classify content for policy violations.
 
 | Field   | Type              | Default | Description              |
-| ------- | ----------------- | ------- | ------------------------ |
+| ------- | ----------------- | ------- | ------------------------ | ----- |
 | `input` | `ModerationInput` | —       | Input (moderation input) |
 | `model` | `str              | None`   | `None`                   | Model |
 
@@ -716,7 +716,7 @@ A single moderation classification result.
 An image extracted from an OCR page.
 
 | Field          | Type  | Default | Description              |
-| -------------- | ----- | ------- | ------------------------ |
+| -------------- | ----- | ------- | ------------------------ | -------------------------- |
 | `id`           | `str` | —       | Unique image identifier. |
 | `image_base64` | `str  | None`   | `None`                   | Base64-encoded image data. |
 
@@ -727,7 +727,7 @@ An image extracted from an OCR page.
 A single page of OCR output.
 
 | Field        | Type            | Default | Description                    |
-| ------------ | --------------- | ------- | ------------------------------ |
+| ------------ | --------------- | ------- | ------------------------------ | ---------------------------------------------------- |
 | `index`      | `int`           | —       | Page index (0-based).          |
 | `markdown`   | `str`           | —       | Extracted content as Markdown. |
 | `images`     | `list[OcrImage] | None`   | `None`                         | Extracted images, if `include_image_base64` was set. |
@@ -740,7 +740,7 @@ A single page of OCR output.
 An OCR request.
 
 | Field                  | Type          | Default | Description                                                      |
-| ---------------------- | ------------- | ------- | ---------------------------------------------------------------- |
+| ---------------------- | ------------- | ------- | ---------------------------------------------------------------- | -------------------------------------------------------------- |
 | `model`                | `str`         | —       | The model/provider to use (e.g. `"mistral/mistral-ocr-latest"`). |
 | `document`             | `OcrDocument` | —       | The document to process.                                         |
 | `pages`                | `list[int]    | None`   | `None`                                                           | Specific pages to process (1-indexed). `None` means all pages. |
@@ -753,7 +753,7 @@ An OCR request.
 An OCR response.
 
 | Field   | Type            | Default | Description      |
-| ------- | --------------- | ------- | ---------------- |
+| ------- | --------------- | ------- | ---------------- | ----------------------------------------- |
 | `pages` | `list[OcrPage]` | —       | Extracted pages. |
 | `model` | `str`           | —       | The model used.  |
 | `usage` | `Usage          | None`   | `None`           | Token usage, if reported by the provider. |
@@ -792,7 +792,7 @@ discounted rate and the remainder at the regular input rate.
 Request to rerank documents by relevance to a query.
 
 | Field              | Type                   | Default | Description |
-| ------------------ | ---------------------- | ------- | ----------- |
+| ------------------ | ---------------------- | ------- | ----------- | ---------------- |
 | `model`            | `str`                  | —       | Model       |
 | `query`            | `str`                  | —       | Query       |
 | `documents`        | `list[RerankDocument]` | —       | Documents   |
@@ -806,7 +806,7 @@ Request to rerank documents by relevance to a query.
 Response from the rerank endpoint.
 
 | Field     | Type                 | Default | Description |
-| --------- | -------------------- | ------- | ----------- |
+| --------- | -------------------- | ------- | ----------- | ----------------- |
 | `id`      | `str                 | None`   | `None`      | Unique identifier |
 | `results` | `list[RerankResult]` | —       | Results     |
 | `meta`    | `dict[str, Any]      | None`   | `None`      | Meta              |
@@ -818,7 +818,7 @@ Response from the rerank endpoint.
 A single reranked document with its relevance score.
 
 | Field             | Type                  | Default | Description     |
-| ----------------- | --------------------- | ------- | --------------- |
+| ----------------- | --------------------- | ------- | --------------- | --------------------------------- |
 | `index`           | `int`                 | —       | Index           |
 | `relevance_score` | `float`               | —       | Relevance score |
 | `document`        | `RerankResultDocument | None`   | `None`          | Document (rerank result document) |
@@ -840,7 +840,7 @@ The text content of a reranked document, returned when `return_documents` is tru
 A search request.
 
 | Field                  | Type       | Default | Description                                                               |
-| ---------------------- | ---------- | ------- | ------------------------------------------------------------------------- |
+| ---------------------- | ---------- | ------- | ------------------------------------------------------------------------- | -------------------------------------------------------- |
 | `model`                | `str`      | —       | The model/provider to use (e.g. `"brave/web-search"`, `"tavily/search"`). |
 | `query`                | `str`      | —       | The search query.                                                         |
 | `max_results`          | `int       | None`   | `None`                                                                    | Maximum number of results to return.                     |
@@ -865,7 +865,7 @@ A search response.
 An individual search result.
 
 | Field     | Type  | Default | Description             |
-| --------- | ----- | ------- | ----------------------- |
+| --------- | ----- | ------- | ----------------------- | ----------------------------------------------- |
 | `title`   | `str` | —       | Title of the result.    |
 | `url`     | `str` | —       | URL of the result.      |
 | `snippet` | `str` | —       | Text snippet / excerpt. |
@@ -893,7 +893,7 @@ An individual search result.
 #### StreamChoice
 
 | Field           | Type          | Default | Description          |
-| --------------- | ------------- | ------- | -------------------- |
+| --------------- | ------------- | ------- | -------------------- | ----------------------------- |
 | `index`         | `int`         | —       | Index                |
 | `delta`         | `StreamDelta` | —       | Delta (stream delta) |
 | `finish_reason` | `FinishReason | None`   | `None`               | Finish reason (finish reason) |
@@ -903,7 +903,7 @@ An individual search result.
 #### StreamDelta
 
 | Field           | Type                  | Default | Description |
-| --------------- | --------------------- | ------- | ----------- |
+| --------------- | --------------------- | ------- | ----------- | ---------------------------------------------------------------------- |
 | `role`          | `str                  | None`   | `None`      | Role                                                                   |
 | `content`       | `str                  | None`   | `None`      | The extracted text content                                             |
 | `tool_calls`    | `list[StreamToolCall] | None`   | `[]`        | Tool calls                                                             |
@@ -915,7 +915,7 @@ An individual search result.
 #### StreamFunctionCall
 
 | Field       | Type | Default | Description |
-| ----------- | ---- | ------- | ----------- |
+| ----------- | ---- | ------- | ----------- | --------- |
 | `name`      | `str | None`   | `None`      | The name  |
 | `arguments` | `str | None`   | `None`      | Arguments |
 
@@ -924,7 +924,7 @@ An individual search result.
 #### StreamOptions
 
 | Field           | Type  | Default | Description |
-| --------------- | ----- | ------- | ----------- |
+| --------------- | ----- | ------- | ----------- | ------------- |
 | `include_usage` | `bool | None`   | `None`      | Include usage |
 
 ---
@@ -932,7 +932,7 @@ An individual search result.
 #### StreamToolCall
 
 | Field       | Type                | Default | Description |
-| ----------- | ------------------- | ------- | ----------- |
+| ----------- | ------------------- | ------- | ----------- | ------------------------------- |
 | `index`     | `int`               | —       | Index       |
 | `id`        | `str                | None`   | `None`      | Unique identifier               |
 | `call_type` | `ToolType           | None`   | `None`      | Call type (tool type)           |
@@ -943,7 +943,7 @@ An individual search result.
 #### SystemMessage
 
 | Field     | Type  | Default | Description                |
-| --------- | ----- | ------- | -------------------------- |
+| --------- | ----- | ------- | -------------------------- | -------- |
 | `content` | `str` | —       | The extracted text content |
 | `name`    | `str  | None`   | `None`                     | The name |
 
@@ -962,7 +962,7 @@ An individual search result.
 #### ToolMessage
 
 | Field          | Type  | Default | Description                |
-| -------------- | ----- | ------- | -------------------------- |
+| -------------- | ----- | ------- | -------------------------- | -------- |
 | `content`      | `str` | —       | The extracted text content |
 | `tool_call_id` | `str` | —       | Tool call id               |
 | `name`         | `str  | None`   | `None`                     | The name |
@@ -974,7 +974,7 @@ An individual search result.
 Response from a transcription request.
 
 | Field      | Type                        | Default | Description |
-| ---------- | --------------------------- | ------- | ----------- |
+| ---------- | --------------------------- | ------- | ----------- | -------- |
 | `text`     | `str`                       | —       | Text        |
 | `language` | `str                        | None`   | `None`      | Language |
 | `duration` | `float                      | None`   | `None`      | Duration |
@@ -998,7 +998,7 @@ A segment of transcribed audio with timing information.
 #### Usage
 
 | Field                   | Type                 | Default | Description                                                                   |
-| ----------------------- | -------------------- | ------- | ----------------------------------------------------------------------------- |
+| ----------------------- | -------------------- | ------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prompt_tokens`         | `int`                | —       | Prompt tokens used. Defaults to 0 when absent (some providers omit this).     |
 | `completion_tokens`     | `int`                | —       | Completion tokens used. Defaults to 0 when absent (e.g. embedding responses). |
 | `total_tokens`          | `int`                | —       | Total tokens used. Defaults to 0 when absent (some providers omit this).      |
@@ -1009,7 +1009,7 @@ A segment of transcribed audio with timing information.
 #### UserMessage
 
 | Field     | Type          | Default            | Description                |
-| --------- | ------------- | ------------------ | -------------------------- |
+| --------- | ------------- | ------------------ | -------------------------- | -------- |
 | `content` | `UserContent` | `UserContent.TEXT` | The extracted text content |
 | `name`    | `str          | None`              | `None`                     | The name |
 

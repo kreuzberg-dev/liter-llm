@@ -31,5 +31,9 @@
     {
       "type": "not_error"
     }
-  ]
+  ],
+  "skip": {
+    "languages": ["rust"],
+    "reason": "requires live API credentials not available in mock-based test environment"
+  }
 }

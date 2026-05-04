@@ -29,5 +29,9 @@
       "field": "chunks",
       "value": 1
     }
-  ]
+  ],
+  "skip": {
+    "languages": ["rust"],
+    "reason": "requires live API credentials not available in mock-based test environment"
+  }
 }

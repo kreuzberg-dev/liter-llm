@@ -22,5 +22,9 @@
       "type": "not_empty",
       "field": "data"
     }
-  ]
+  ],
+  "skip": {
+    "languages": ["rust"],
+    "reason": "requires live API credentials not available in mock-based test environment"
+  }
 }
