@@ -99,7 +99,7 @@ tempfile = "3"
 
 # Error handling
 thiserror = "2"
-tokenizers = { version = "0.22", default-features = false, features = ["http", "fancy-regex"] }
+tokenizers = { version = "0.23", default-features = false, features = ["http", "fancy-regex"] }
 tokio = { version = "1", features = ["full"] }
 toml = "1.1"
 tower = { version = "0.5", features = [
