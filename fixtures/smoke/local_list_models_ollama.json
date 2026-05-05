@@ -21,7 +21,7 @@
     }
   ],
   "skip": {
-    "languages": ["rust"],
-    "reason": "requires live API credentials not available in mock-based test environment"
+    "languages": ["rust", "python"],
+    "reason": "requires local Ollama service; skipped in standard CI environments"
   }
 }
