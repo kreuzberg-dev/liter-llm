@@ -112,17 +112,24 @@ impl BedrockProvider {
     #[must_use]
     pub fn new(region: impl Into<String>) -> Self {
         let region = region.into();
-        let base_url = std::env::var("BEDROCK_BASE_URL")
+        let custom_base_url = std::env::var("BEDROCK_BASE_URL")
             .ok()
             .filter(|v| !v.is_empty())
-            .unwrap_or_else(|| {
-                let dns_suffix = dns_suffix_for_region(&region);
-                format!("https://bedrock-runtime.{region}.{dns_suffix}")
-            });
-        let cross_region_prefix = std::env::var("BEDROCK_CROSS_REGION")
-            .ok()
-            .filter(|v| !v.is_empty())
-            .map(|v| format!("{v}."));
+            .map(|v| v.trim_end_matches('/').to_string());
+        let base_url = custom_base_url.clone().unwrap_or_else(|| {
+            let dns_suffix = dns_suffix_for_region(&region);
+            format!("https://bedrock-runtime.{region}.{dns_suffix}")
+        });
+        // Cross-region prefix is ignored when a custom base URL is set,
+        // since the caller controls the full endpoint.
+        let cross_region_prefix = if custom_base_url.is_some() {
+            None
+        } else {
+            std::env::var("BEDROCK_CROSS_REGION")
+                .ok()
+                .filter(|v| !v.is_empty())
+                .map(|v| format!("{v}."))
+        };
         Self {
             region,
             base_url,
@@ -1019,6 +1026,36 @@ mod tests {
         unsafe { std::env::remove_var("BEDROCK_BASE_URL") };
     }
 
+    #[test]
+    #[serial]
+    fn build_url_base_url_trailing_slash_trimmed() {
+        unsafe { std::env::set_var("BEDROCK_BASE_URL", "https://custom.endpoint.example.com/") };
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
+        let p = BedrockProvider::new("us-east-1");
+        let url = p.build_url("/chat/completions", "anthropic.claude-3-sonnet-20240229-v1:0");
+        assert_eq!(
+            url,
+            "https://custom.endpoint.example.com/model/anthropic.claude-3-sonnet-20240229-v1%3A0/converse"
+        );
+        unsafe { std::env::remove_var("BEDROCK_BASE_URL") };
+    }
+
+    #[test]
+    #[serial]
+    fn build_url_base_url_override_ignores_cross_region() {
+        unsafe { std::env::set_var("BEDROCK_BASE_URL", "https://custom.endpoint.example.com") };
+        unsafe { std::env::set_var("BEDROCK_CROSS_REGION", "eu") };
+        let p = BedrockProvider::new("us-east-1");
+        let url = p.build_url("/chat/completions", "anthropic.claude-3-sonnet-20240229-v1:0");
+        // Cross-region prefix should NOT be applied when base URL is overridden.
+        assert_eq!(
+            url,
+            "https://custom.endpoint.example.com/model/anthropic.claude-3-sonnet-20240229-v1%3A0/converse"
+        );
+        unsafe { std::env::remove_var("BEDROCK_BASE_URL") };
+        unsafe { std::env::remove_var("BEDROCK_CROSS_REGION") };
+    }
+
     // ── dns_suffix_for_region ────────────────────────────────────────────────
 
     #[test]
@@ -1062,6 +1099,7 @@ mod tests {
     // ── transform_request ─────────────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn transform_request_basic_chat() {
         let p = provider();
         let mut body = json!({
@@ -1089,6 +1127,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_with_tool_calls() {
         let p = provider();
         let mut body = json!({
@@ -1133,6 +1172,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_tools_schema() {
         let p = provider();
         let mut body = json!({
@@ -1160,6 +1200,7 @@ mod tests {
     // ── transform_response ────────────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn transform_response_basic() {
         let p = provider();
         let mut body = json!({
@@ -1189,6 +1230,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_response_tool_calls() {
         let p = provider();
         let mut body = json!({
@@ -1221,6 +1263,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_response_finish_reason_mapping() {
         let p = provider();
 
@@ -1249,6 +1292,7 @@ mod tests {
     // ── model prefix / matching ───────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn strip_model_prefix() {
         let p = provider();
         assert_eq!(p.strip_model_prefix("bedrock/anthropic.claude-3"), "anthropic.claude-3");
@@ -1256,6 +1300,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn matches_model() {
         let p = provider();
         assert!(p.matches_model("bedrock/anthropic.claude-3"));
@@ -1266,6 +1311,7 @@ mod tests {
     // ── stream_format ─────────────────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn stream_format_is_eventstream() {
         let p = provider();
         assert_eq!(p.stream_format(), StreamFormat::AwsEventStream);
@@ -1287,6 +1333,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn build_stream_url_non_chat_falls_back() {
         let p = provider();
         let url = p.build_stream_url("/embeddings", "amazon.titan-embed-text-v1");
@@ -1378,6 +1425,7 @@ mod tests {
     // ── Extended thinking / reasoning effort ─────────────────────────────────
 
     #[test]
+    #[serial]
     fn transform_request_reasoning_effort_low() {
         let p = provider();
         let mut body = json!({
@@ -1393,6 +1441,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_reasoning_effort_medium() {
         let p = provider();
         let mut body = json!({
@@ -1405,6 +1454,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_reasoning_effort_high() {
         let p = provider();
         let mut body = json!({
@@ -1417,6 +1467,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_no_reasoning_effort_omits_amf() {
         let p = provider();
         let mut body = json!({
@@ -1430,6 +1481,7 @@ mod tests {
     // ── Document handling ────────────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn transform_request_document_content_part() {
         let p = provider();
         let mut body = json!({
@@ -1463,6 +1515,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_document_csv_format() {
         let p = provider();
         let mut body = json!({
@@ -1488,6 +1541,7 @@ mod tests {
     // ── Guardrails ───────────────────────────────────────────────────────────
 
     #[test]
+    #[serial]
     fn transform_request_guardrails() {
         let p = provider();
         let mut body = json!({
@@ -1509,6 +1563,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_no_guardrails_omits_config() {
         let p = provider();
         let mut body = json!({
@@ -1522,6 +1577,7 @@ mod tests {
     // ── Response format / structured output ──────────────────────────────────
 
     #[test]
+    #[serial]
     fn transform_request_json_object_response_format() {
         let p = provider();
         let mut body = json!({
@@ -1539,6 +1595,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_json_schema_response_format() {
         let p = provider();
         let mut body = json!({
@@ -1572,6 +1629,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn transform_request_text_response_format_no_injection() {
         let p = provider();
         let mut body = json!({
