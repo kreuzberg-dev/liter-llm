@@ -3,7 +3,7 @@
     "source": "models.dev/api.json",
     "source_sha256": "ee9717714365449d9deec7ff808d494a8d724031389320de232c9150973f2de1",
     "fetched": "2026-07-27",
-    "library_version": "1.11.2"
+    "library_version": "1.11.3"
   },
   "$schema_version": 1,
   "providers": {
