@@ -1,8 +1,8 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "ee9717714365449d9deec7ff808d494a8d724031389320de232c9150973f2de1",
-    "fetched": "2026-07-27",
+    "source_sha256": "0fca63fb15eda26bb3232b7eea98131ec4da5151d9db499e0a4ad404d261ca61",
+    "fetched": "2026-07-28",
     "library_version": "1.11.3"
   },
   "$schema_version": 1,
@@ -6196,7 +6196,7 @@
           "capabilities": {
             "vision": true,
             "function_calling": true,
-            "reasoning": false,
+            "reasoning": true,
             "structured_output": false,
             "audio_input": false,
             "audio_output": false,
@@ -6205,7 +6205,38 @@
             "open_weights": true
           },
           "release_date": "2026-01-06",
-          "last_updated": "2026-01-06"
+          "last_updated": "2026-07-28"
+        },
+        "abliterated-model-large": {
+          "id": "abliterated-model-large",
+          "name": "Abliterated Model Large",
+          "pricing": {
+            "input_cost_per_token": 0.000005,
+            "output_cost_per_token": 0.000005
+          },
+          "limit": {
+            "context": 1000000,
+            "input": 1000000,
+            "output": 999990
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "release_date": "2026-07-25",
+          "last_updated": "2026-07-28"
         }
       }
     },
@@ -6556,6 +6587,38 @@
           "knowledge": "2025-01",
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
+        },
+        "moonshotai/kimi-k3": {
+          "id": "moonshotai/kimi-k3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.0000125,
+            "cache_read_input_token_cost": 0.0000005
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
         },
         "openai/gpt-oss-120b": {
           "id": "openai/gpt-oss-120b",
@@ -8699,6 +8762,38 @@
           "knowledge": "2025-01",
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
+        },
+        "kimi-k3": {
+          "id": "kimi-k3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-27"
         },
         "minimax-m2.7": {
           "id": "minimax-m2.7",
@@ -19809,9 +19904,9 @@
           "id": "ambient/large",
           "name": "Ambient Large",
           "pricing": {
-            "input_cost_per_token": 0.00000076,
-            "output_cost_per_token": 0.00000242,
-            "cache_read_input_token_cost": 0.00000014,
+            "input_cost_per_token": 0.00000105,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.0000002,
             "cache_creation_input_token_cost": 0.0
           },
           "limit": {
@@ -20011,9 +20106,9 @@
           "id": "z-ai/glm-5.2",
           "name": "GLM-5.2",
           "pricing": {
-            "input_cost_per_token": 0.00000076,
-            "output_cost_per_token": 0.00000242,
-            "cache_read_input_token_cost": 0.00000014,
+            "input_cost_per_token": 0.00000105,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.0000002,
             "cache_creation_input_token_cost": 0.0
           },
           "limit": {
@@ -27489,6 +27584,37 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "moonshotai/Kimi-K3": {
+          "id": "moonshotai/Kimi-K3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
+        },
         "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B": {
           "id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
           "name": "Nemotron Ultra",
@@ -27725,7 +27851,7 @@
           },
           "limit": {
             "context": 524288,
-            "output": 524288
+            "output": 262144
           },
           "modalities": {
             "input": ["text"],
@@ -27757,7 +27883,7 @@
           },
           "limit": {
             "context": 524288,
-            "output": 524288
+            "output": 262144
           },
           "modalities": {
             "input": ["text"],
@@ -36005,6 +36131,38 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "kimi-k3": {
+          "id": "kimi-k3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000008,
+            "cache_read_input_token_cost": 0.00000025
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
+        },
         "mimo-v2.5-pro": {
           "id": "mimo-v2.5-pro",
           "name": "MiMo-V2.5-Pro",
@@ -40280,6 +40438,38 @@
           "knowledge": "2025-01",
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
+        },
+        "moonshotai/Kimi-K3": {
+          "id": "moonshotai/Kimi-K3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.0000027,
+            "output_cost_per_token": 0.0000135,
+            "cache_read_input_token_cost": 0.00000027
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
         },
         "nvidia/Llama-3.3-Nemotron-Super-49B-v1.5": {
           "id": "nvidia/Llama-3.3-Nemotron-Super-49B-v1.5",
@@ -47294,6 +47484,38 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-16"
         },
+        "accounts/fireworks/models/kimi-k3": {
+          "id": "accounts/fireworks/models/kimi-k3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-27",
+          "last_updated": "2026-07-27"
+        },
         "accounts/fireworks/models/minimax-m2p7": {
           "id": "accounts/fireworks/models/minimax-m2p7",
           "name": "MiniMax-M2.7",
@@ -47517,6 +47739,38 @@
           "family": "kimi-k2",
           "release_date": "2026-06-12",
           "last_updated": "2026-06-16"
+        },
+        "accounts/fireworks/routers/kimi-k3-fast": {
+          "id": "accounts/fireworks/routers/kimi-k3-fast",
+          "name": "Kimi K3 Fast",
+          "pricing": {
+            "input_cost_per_token": 0.0000045,
+            "output_cost_per_token": 0.0000225,
+            "cache_read_input_token_cost": 0.00000045
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-27",
+          "last_updated": "2026-07-27"
         }
       }
     },
@@ -52408,6 +52662,40 @@
           "knowledge": "2026-01-31",
           "release_date": "2026-05-28",
           "last_updated": "2026-05-28"
+        },
+        "duo-chat-opus-5": {
+          "id": "duo-chat-opus-5",
+          "name": "Agentic Chat (Claude Opus 5)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0,
+            "cache_read_input_token_cost": 0.0,
+            "cache_creation_input_token_cost": 0.0
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "claude-opus",
+          "knowledge": "2026-05",
+          "release_date": "2026-07-24",
+          "last_updated": "2026-07-24"
         },
         "duo-chat-sonnet-4-5": {
           "id": "duo-chat-sonnet-4-5",
@@ -61210,6 +61498,37 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "moonshotai/Kimi-K3": {
+          "id": "moonshotai/Kimi-K3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
+        },
         "openai/gpt-oss-120b": {
           "id": "openai/gpt-oss-120b",
           "name": "GPT OSS 120B",
@@ -61621,6 +61940,670 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        }
+      }
+    },
+    "hyper": {
+      "name": "Charm Hyper",
+      "env": ["HYPER_API_KEY"],
+      "doc": "https://hyper.charm.land",
+      "api": "https://hyper.charm.land/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "deepseek-v4-flash": {
+          "id": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.0000002,
+            "output_cost_per_token": 0.0000004,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-flash",
+          "knowledge": "2025-05",
+          "release_date": "2026-07-06",
+          "last_updated": "2026-07-22"
+        },
+        "deepseek-v4-pro": {
+          "id": "deepseek-v4-pro",
+          "name": "DeepSeek V4 Pro",
+          "pricing": {
+            "input_cost_per_token": 0.0000024,
+            "output_cost_per_token": 0.0000048,
+            "cache_read_input_token_cost": 0.0000002
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-thinking",
+          "knowledge": "2025-05",
+          "release_date": "2026-07-06",
+          "last_updated": "2026-07-22"
+        },
+        "gemma-4-26b-a4b-it": {
+          "id": "gemma-4-26b-a4b-it",
+          "name": "Gemma 4 26B A4B IT",
+          "pricing": {
+            "input_cost_per_token": 0.000000114,
+            "output_cost_per_token": 0.000000398,
+            "cache_creation_input_token_cost": 0.000000057
+          },
+          "limit": {
+            "context": 256000,
+            "output": 25600
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-04-30",
+          "last_updated": "2026-07-22"
+        },
+        "glm-5": {
+          "id": "glm-5",
+          "name": "GLM-5",
+          "pricing": {
+            "input_cost_per_token": 0.00000091,
+            "output_cost_per_token": 0.000002814,
+            "cache_creation_input_token_cost": 0.000000455
+          },
+          "limit": {
+            "context": 202752,
+            "output": 20275
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-04-13",
+          "last_updated": "2026-07-22"
+        },
+        "glm-5.1": {
+          "id": "glm-5.1",
+          "name": "GLM-5.1",
+          "pricing": {
+            "input_cost_per_token": 0.00000152425,
+            "output_cost_per_token": 0.0000047905,
+            "cache_read_input_token_cost": 0.000000283075
+          },
+          "limit": {
+            "context": 202800,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-06-04",
+          "last_updated": "2026-07-22"
+        },
+        "glm-5.2": {
+          "id": "glm-5.2",
+          "name": "GLM-5.2",
+          "pricing": {
+            "input_cost_per_token": 0.0000014,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.00000028
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-06-30",
+          "last_updated": "2026-07-22"
+        },
+        "gpt-oss-120b": {
+          "id": "gpt-oss-120b",
+          "name": "GPT OSS 120B",
+          "pricing": {
+            "input_cost_per_token": 0.000000178,
+            "output_cost_per_token": 0.00000068,
+            "cache_creation_input_token_cost": 0.000000089
+          },
+          "limit": {
+            "context": 131072,
+            "output": 13107
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "gpt-oss",
+          "release_date": "2026-04-13",
+          "last_updated": "2026-07-22"
+        },
+        "kimi-k2.5": {
+          "id": "kimi-k2.5",
+          "name": "Kimi K2.5",
+          "pricing": {
+            "input_cost_per_token": 0.00000053,
+            "output_cost_per_token": 0.00000266,
+            "cache_creation_input_token_cost": 0.000000265
+          },
+          "limit": {
+            "context": 262144,
+            "output": 26214
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k2",
+          "knowledge": "2025-01",
+          "release_date": "2026-04-13",
+          "last_updated": "2026-07-22"
+        },
+        "kimi-k2.6": {
+          "id": "kimi-k2.6",
+          "name": "Kimi K2.6",
+          "pricing": {
+            "input_cost_per_token": 0.00000095,
+            "output_cost_per_token": 0.000004,
+            "cache_creation_input_token_cost": 0.00000016
+          },
+          "limit": {
+            "context": 262000,
+            "output": 262000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k2",
+          "knowledge": "2025-01",
+          "release_date": "2026-07-03",
+          "last_updated": "2026-07-22"
+        },
+        "kimi-k2.7-code": {
+          "id": "kimi-k2.7-code",
+          "name": "Kimi K2.7 Code",
+          "pricing": {
+            "input_cost_per_token": 0.00000095,
+            "output_cost_per_token": 0.000004,
+            "cache_read_input_token_cost": 0.00000019
+          },
+          "limit": {
+            "context": 262000,
+            "output": 262000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k2",
+          "knowledge": "2025-01",
+          "release_date": "2026-07-03",
+          "last_updated": "2026-07-22"
+        },
+        "llama-3.3-70b-instruct": {
+          "id": "llama-3.3-70b-instruct",
+          "name": "Llama-3.3-70B-Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.0000006066,
+            "output_cost_per_token": 0.0000010386,
+            "cache_creation_input_token_cost": 0.0000003033
+          },
+          "limit": {
+            "context": 128000,
+            "output": 12800
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "llama",
+          "knowledge": "2023-12",
+          "release_date": "2026-04-30",
+          "last_updated": "2026-07-22"
+        },
+        "llama-4-maverick-17b-128e-instruct-fp8": {
+          "id": "llama-4-maverick-17b-128e-instruct-fp8",
+          "name": "Llama 4 Maverick 17B Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.0000002675,
+            "output_cost_per_token": 0.0000009175,
+            "cache_creation_input_token_cost": 0.00000013375
+          },
+          "limit": {
+            "context": 430000,
+            "output": 43000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "llama",
+          "knowledge": "2024-08",
+          "release_date": "2026-04-30",
+          "last_updated": "2026-07-22"
+        },
+        "minimax-m2.7": {
+          "id": "minimax-m2.7",
+          "name": "MiniMax-M2.7",
+          "pricing": {
+            "input_cost_per_token": 0.00000042,
+            "output_cost_per_token": 0.00000162,
+            "cache_creation_input_token_cost": 0.00000021
+          },
+          "limit": {
+            "context": 204800,
+            "output": 20480
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "minimax",
+          "release_date": "2026-06-05",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3-coder-480b-a35b-instruct-int4-mixed-ar": {
+          "id": "qwen3-coder-480b-a35b-instruct-int4-mixed-ar",
+          "name": "Qwen3-Coder 480B-A35B Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.000000601,
+            "output_cost_per_token": 0.000002085,
+            "cache_creation_input_token_cost": 0.0000003005
+          },
+          "limit": {
+            "context": 106000,
+            "output": 10600
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2026-04-30",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3-next-80b-a3b-instruct": {
+          "id": "qwen3-next-80b-a3b-instruct",
+          "name": "Qwen3-Next 80B-A3B Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.00000012188,
+            "output_cost_per_token": 0.000001145,
+            "cache_creation_input_token_cost": 0.00000006094
+          },
+          "limit": {
+            "context": 262144,
+            "output": 26214
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2026-04-30",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3.6-flash": {
+          "id": "qwen3.6-flash",
+          "name": "Qwen3.6 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.000004,
+            "cache_read_input_token_cost": 0.0000001,
+            "cache_creation_input_token_cost": 0.00000125
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "qwen3.6",
+          "release_date": "2026-05-20",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3.6-max": {
+          "id": "qwen3.6-max",
+          "name": "Qwen3.6 Max Preview",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000012,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025
+          },
+          "limit": {
+            "context": 256000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2026-05-20",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3.6-plus": {
+          "id": "qwen3.6-plus",
+          "name": "Qwen3.6 Plus",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000006,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2026-05-20",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3.7-max": {
+          "id": "qwen3.7-max",
+          "name": "Qwen3.7 Max",
+          "pricing": {
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.0000075,
+            "cache_read_input_token_cost": 0.0000005
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "release_date": "2026-05-28",
+          "last_updated": "2026-07-22"
+        },
+        "qwen3.7-plus": {
+          "id": "qwen3.7-plus",
+          "name": "Qwen3.7 Plus",
+          "pricing": {
+            "input_cost_per_token": 0.0000012,
+            "output_cost_per_token": 0.0000048,
+            "cache_read_input_token_cost": 0.00000024
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2026-06-15",
+          "last_updated": "2026-07-22"
         }
       }
     },
@@ -78407,9 +79390,9 @@
           "id": "deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.00000014,
-            "output_cost_per_token": 0.00000028,
-            "cache_read_input_token_cost": 0.0000000028
+            "input_cost_per_token": 0.000000076,
+            "output_cost_per_token": 0.000000153,
+            "cache_read_input_token_cost": 0.000000014
           },
           "limit": {
             "context": 1050000,
@@ -78947,8 +79930,9 @@
           "id": "gemma-4-31b-it",
           "name": "Gemma 4 31B IT",
           "pricing": {
-            "input_cost_per_token": 0.00000013,
-            "output_cost_per_token": 0.00000038
+            "input_cost_per_token": 0.000000102,
+            "output_cost_per_token": 0.000000297,
+            "cache_read_input_token_cost": 0.000000012
           },
           "limit": {
             "context": 262144,
@@ -78966,7 +79950,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -79441,9 +80425,9 @@
           "id": "glm-5.2",
           "name": "GLM-5.2",
           "pricing": {
-            "input_cost_per_token": 0.00000126,
-            "output_cost_per_token": 0.00000396,
-            "cache_read_input_token_cost": 0.000000234,
+            "input_cost_per_token": 0.0000008,
+            "output_cost_per_token": 0.00000255,
+            "cache_read_input_token_cost": 0.00000016,
             "cache_creation_input_token_cost": 0.0
           },
           "limit": {
@@ -79763,6 +80747,37 @@
           "release_date": "2024-10-01",
           "last_updated": "2024-10-01"
         },
+        "gpt-4o-mini-transcribe": {
+          "id": "gpt-4o-mini-transcribe",
+          "name": "GPT-4o Mini Transcribe",
+          "pricing": {
+            "input_cost_per_token": 0.00000125,
+            "output_cost_per_token": 0.000005
+          },
+          "limit": {
+            "context": 16000,
+            "output": 16000
+          },
+          "modalities": {
+            "input": ["text", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2025-03-20",
+          "last_updated": "2025-03-20"
+        },
         "gpt-4o-search-preview": {
           "id": "gpt-4o-search-preview",
           "name": "GPT-4o Search Preview",
@@ -79793,6 +80808,37 @@
           "family": "gpt",
           "release_date": "2024-10-01",
           "last_updated": "2024-10-01"
+        },
+        "gpt-4o-transcribe": {
+          "id": "gpt-4o-transcribe",
+          "name": "GPT-4o Transcribe",
+          "pricing": {
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.00001
+          },
+          "limit": {
+            "context": 16000,
+            "output": 16000
+          },
+          "modalities": {
+            "input": ["text", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2025-03-20",
+          "last_updated": "2025-03-20"
         },
         "gpt-5": {
           "id": "gpt-5",
@@ -80592,8 +81638,9 @@
           "id": "gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.00000025
+            "input_cost_per_token": 0.000000032,
+            "output_cost_per_token": 0.00000014,
+            "cache_read_input_token_cost": 0.000000032
           },
           "limit": {
             "context": 131072,
@@ -80611,7 +81658,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": false,
             "open_weights": false
           },
@@ -113195,6 +114242,37 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "moonshotai/Kimi-K3": {
+          "id": "moonshotai/Kimi-K3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 8000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
+        },
         "nvidia/Llama-3_1-Nemotron-Ultra-253B-v1": {
           "id": "nvidia/Llama-3_1-Nemotron-Ultra-253B-v1",
           "name": "Llama-3.1-Nemotron-Ultra-253B-v1",
@@ -118759,8 +119837,8 @@
       "api": "https://integrate.api.nvidia.com/v1",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
-        "abacusai/dracarys-llama-3_1-70b-instruct": {
-          "id": "abacusai/dracarys-llama-3_1-70b-instruct",
+        "abacusai/dracarys-llama-3.1-70b-instruct": {
+          "id": "abacusai/dracarys-llama-3.1-70b-instruct",
           "name": "dracarys-llama-3.1-70b-instruct",
           "pricing": {
             "input_cost_per_token": 0.0,
@@ -119072,6 +120150,68 @@
           },
           "release_date": "2024-07-16",
           "last_updated": "2024-07-16"
+        },
+        "google/gemma-3-12b-it": {
+          "id": "google/gemma-3-12b-it",
+          "name": "Gemma 3 12B IT",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2025-03-12",
+          "last_updated": "2025-03-12"
+        },
+        "google/gemma-3-4b-it": {
+          "id": "google/gemma-3-4b-it",
+          "name": "Gemma 3 4B IT",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2025-03-12",
+          "last_updated": "2025-03-12"
         },
         "google/gemma-3n-e2b-it": {
           "id": "google/gemma-3n-e2b-it",
@@ -119692,8 +120832,39 @@
           "release_date": "2025-09-25",
           "last_updated": "2025-09-25"
         },
-        "mistralai/mistral-7b-instruct-v03": {
-          "id": "mistralai/mistral-7b-instruct-v03",
+        "mistralai/ministral-14b-instruct-2512": {
+          "id": "mistralai/ministral-14b-instruct-2512",
+          "name": "Ministral 3 14B Instruct 2512",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ministral",
+          "release_date": "2025-12-02",
+          "last_updated": "2025-12-02"
+        },
+        "mistralai/mistral-7b-instruct-v0.3": {
+          "id": "mistralai/mistral-7b-instruct-v0.3",
           "name": "Mistral-7B-Instruct-v0.3",
           "pricing": {
             "input_cost_per_token": 0.0,
@@ -119785,6 +120956,37 @@
           "family": "mistral-medium",
           "release_date": "2025-09-25",
           "last_updated": "2025-09-25"
+        },
+        "mistralai/mistral-medium-3.5-128b": {
+          "id": "mistralai/mistral-medium-3.5-128b",
+          "name": "Mistral Medium 3.5",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "mistral-medium",
+          "release_date": "2026-04-29",
+          "last_updated": "2026-04-29"
         },
         "mistralai/mistral-nemotron": {
           "id": "mistralai/mistral-nemotron",
@@ -120060,6 +121262,36 @@
           "release_date": "2025-03-18",
           "last_updated": "2025-03-18"
         },
+        "nvidia/cosmos-reason2-8b": {
+          "id": "nvidia/cosmos-reason2-8b",
+          "name": "Cosmos Reason2 8B",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "release_date": "2025-12-01",
+          "last_updated": "2025-12-01"
+        },
         "nvidia/cosmos-transfer1-7b": {
           "id": "nvidia/cosmos-transfer1-7b",
           "name": "cosmos-transfer1-7b",
@@ -120148,8 +121380,101 @@
           "release_date": "2026-03-03",
           "last_updated": "2026-03-03"
         },
-        "nvidia/llama-3_1-nemotron-safety-guard-8b-v3": {
-          "id": "nvidia/llama-3_1-nemotron-safety-guard-8b-v3",
+        "nvidia/llama-3.1-nemotron-70b-instruct": {
+          "id": "nvidia/llama-3.1-nemotron-70b-instruct",
+          "name": "Llama 3.1 Nemotron 70B Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 128000,
+            "output": 8192
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-04-15",
+          "last_updated": "2025-04-15"
+        },
+        "nvidia/llama-3.1-nemotron-nano-8b-v1": {
+          "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+          "name": "Llama 3.1 Nemotron Nano 8B v1",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-03-18",
+          "last_updated": "2025-03-18"
+        },
+        "nvidia/llama-3.1-nemotron-nano-vl-8b-v1": {
+          "id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+          "name": "Llama 3.1 Nemotron Nano VL 8B v1",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 32768,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-04-10",
+          "last_updated": "2025-04-10"
+        },
+        "nvidia/llama-3.1-nemotron-safety-guard-8b-v3": {
+          "id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
           "name": "llama-3.1-nemotron-safety-guard-8b-v3",
           "pricing": {
             "input_cost_per_token": 0.0,
@@ -120178,6 +121503,99 @@
           "family": "nemotron",
           "release_date": "2025-10-28",
           "last_updated": "2025-10-28"
+        },
+        "nvidia/llama-3.1-nemotron-ultra-253b-v1": {
+          "id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+          "name": "Llama 3.1 Nemotron Ultra 253B",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 128000,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-04-07",
+          "last_updated": "2025-04-07"
+        },
+        "nvidia/llama-3.3-nemotron-super-49b-v1": {
+          "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
+          "name": "Llama 3.3 Nemotron Super 49B v1",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-04-07",
+          "last_updated": "2025-04-07"
+        },
+        "nvidia/llama-3.3-nemotron-super-49b-v1.5": {
+          "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+          "name": "Llama 3.3 Nemotron Super 49B v1.5",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-07-25",
+          "last_updated": "2025-07-25"
         },
         "nvidia/llama-3_2-nemoretriever-300m-embed-v1": {
           "id": "nvidia/llama-3_2-nemoretriever-300m-embed-v1",
@@ -120521,6 +121939,37 @@
           "release_date": "2024-08-21",
           "last_updated": "2024-08-26"
         },
+        "nvidia/nemotron-nano-12b-v2-vl": {
+          "id": "nvidia/nemotron-nano-12b-v2-vl",
+          "name": "Nemotron Nano 12B v2 VL",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 128000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-10-28",
+          "last_updated": "2025-10-28"
+        },
         "nvidia/nemotron-voicechat": {
           "id": "nvidia/nemotron-voicechat",
           "name": "nemotron-voicechat",
@@ -120674,8 +122123,8 @@
           "release_date": "2024-03-17",
           "last_updated": "2025-01-17"
         },
-        "nvidia/riva-translate-4b-instruct-v1_1": {
-          "id": "nvidia/riva-translate-4b-instruct-v1_1",
+        "nvidia/riva-translate-4b-instruct-v1.1": {
+          "id": "nvidia/riva-translate-4b-instruct-v1.1",
           "name": "riva-translate-4b-instruct-v1_1",
           "pricing": {
             "input_cost_per_token": 0.0,
@@ -120978,6 +122427,37 @@
           "knowledge": "2023-09",
           "release_date": "2023-09-01",
           "last_updated": "2025-09-05"
+        },
+        "poolside/laguna-xs-2.1": {
+          "id": "poolside/laguna-xs-2.1",
+          "name": "Laguna XS 2.1",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "laguna",
+          "release_date": "2026-07-02",
+          "last_updated": "2026-07-02"
         },
         "qwen/qwen-image": {
           "id": "qwen/qwen-image",
@@ -121288,8 +122768,39 @@
           "release_date": "2026-05-28",
           "last_updated": "2026-05-28"
         },
-        "upstage/solar-10_7b-instruct": {
-          "id": "upstage/solar-10_7b-instruct",
+        "thinkingmachines/inkling": {
+          "id": "thinkingmachines/inkling",
+          "name": "Inkling",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-15",
+          "last_updated": "2026-07-15"
+        },
+        "upstage/solar-10.7b-instruct": {
+          "id": "upstage/solar-10.7b-instruct",
           "name": "solar-10.7b-instruct",
           "pricing": {
             "input_cost_per_token": 0.0,
@@ -122075,6 +123586,33 @@
           "knowledge": "2025-01",
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
+        },
+        "kimi-k3": {
+          "id": "kimi-k3",
+          "name": "kimi-k3",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-27"
         },
         "minimax-m2.5": {
           "id": "minimax-m2.5",
@@ -126056,6 +127594,38 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "kimi-k3": {
+          "id": "kimi-k3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
+        },
         "laguna-s-2.1-free": {
           "id": "laguna-s-2.1-free",
           "name": "Laguna S 2.1 Free",
@@ -129780,7 +131350,7 @@
             "output_cost_per_token": 0.000003
           },
           "limit": {
-            "context": 131072,
+            "context": 65536,
             "output": 65536
           },
           "modalities": {
@@ -130262,8 +131832,8 @@
           "id": "google/gemma-4-26b-a4b-it",
           "name": "Gemma 4 26B A4B IT",
           "pricing": {
-            "input_cost_per_token": 0.00000012,
-            "output_cost_per_token": 0.00000035,
+            "input_cost_per_token": 0.00000014,
+            "output_cost_per_token": 0.00000042,
             "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
@@ -133396,38 +134966,6 @@
           "release_date": "2024-07-18",
           "last_updated": "2024-07-18"
         },
-        "openai/gpt-4o-search-preview": {
-          "id": "openai/gpt-4o-search-preview",
-          "name": "GPT-4o Search Preview",
-          "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.00001
-          },
-          "limit": {
-            "context": 128000,
-            "output": 16384
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "gpt",
-          "knowledge": "2023-10-31",
-          "release_date": "2025-03-12",
-          "last_updated": "2025-03-12"
-        },
         "openai/gpt-5": {
           "id": "openai/gpt-5",
           "name": "GPT-5",
@@ -133458,39 +134996,6 @@
             "open_weights": false
           },
           "family": "gpt",
-          "knowledge": "2024-09-30",
-          "release_date": "2025-08-07",
-          "last_updated": "2025-08-07"
-        },
-        "openai/gpt-5-chat": {
-          "id": "openai/gpt-5-chat",
-          "name": "GPT-5 Chat",
-          "pricing": {
-            "input_cost_per_token": 0.00000125,
-            "output_cost_per_token": 0.00001,
-            "cache_read_input_token_cost": 0.000000125
-          },
-          "limit": {
-            "context": 128000,
-            "output": 16384
-          },
-          "modalities": {
-            "input": ["pdf", "image", "text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": false
-          },
-          "family": "gpt-codex",
           "knowledge": "2024-09-30",
           "release_date": "2025-08-07",
           "last_updated": "2025-08-07"
@@ -133735,11 +135240,11 @@
           "pricing": {
             "input_cost_per_token": 0.00000125,
             "output_cost_per_token": 0.00001,
-            "cache_read_input_token_cost": 0.000000125
+            "cache_read_input_token_cost": 0.00000013
           },
           "limit": {
             "context": 128000,
-            "output": 16384
+            "output": 32000
           },
           "modalities": {
             "input": ["pdf", "image", "text"],
@@ -134302,10 +135807,10 @@
           "id": "openai/gpt-5.6-luna",
           "name": "GPT-5.6 Luna",
           "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.000006,
-            "cache_read_input_token_cost": 0.0000001,
-            "cache_creation_input_token_cost": 0.00000125
+            "input_cost_per_token": 0.0000005,
+            "output_cost_per_token": 0.000003,
+            "cache_read_input_token_cost": 0.00000005,
+            "cache_creation_input_token_cost": 0.000000625
           },
           "limit": {
             "context": 1050000,
@@ -134337,10 +135842,10 @@
           "id": "openai/gpt-5.6-luna-pro",
           "name": "GPT-5.6 Luna Pro",
           "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.000006,
-            "cache_read_input_token_cost": 0.0000001,
-            "cache_creation_input_token_cost": 0.00000125
+            "input_cost_per_token": 0.0000005,
+            "output_cost_per_token": 0.000003,
+            "cache_read_input_token_cost": 0.00000005,
+            "cache_creation_input_token_cost": 0.000000625
           },
           "limit": {
             "context": 1050000,
@@ -134442,10 +135947,10 @@
           "id": "openai/gpt-5.6-terra",
           "name": "GPT-5.6 Terra",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125
+            "input_cost_per_token": 0.00000125,
+            "output_cost_per_token": 0.0000075,
+            "cache_read_input_token_cost": 0.000000125,
+            "cache_creation_input_token_cost": 0.0000015625
           },
           "limit": {
             "context": 1050000,
@@ -134477,10 +135982,10 @@
           "id": "openai/gpt-5.6-terra-pro",
           "name": "GPT-5.6 Terra Pro",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125
+            "input_cost_per_token": 0.00000125,
+            "output_cost_per_token": 0.0000075,
+            "cache_read_input_token_cost": 0.000000125,
+            "cache_creation_input_token_cost": 0.0000015625
           },
           "limit": {
             "context": 1050000,
@@ -136665,8 +138170,9 @@
           "id": "qwen/qwen3.5-35b-a3b",
           "name": "Qwen3.5 35B-A3B",
           "pricing": {
-            "input_cost_per_token": 0.00000014,
-            "output_cost_per_token": 0.000001
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.000001,
+            "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
             "context": 262144,
@@ -136684,7 +138190,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -137009,6 +138515,39 @@
           "knowledge": "2025-04",
           "release_date": "2026-04-02",
           "last_updated": "2026-04-02"
+        },
+        "qwen/qwen3.7-flash": {
+          "id": "qwen/qwen3.7-flash",
+          "name": "Qwen3.7 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000003,
+            "output_cost_per_token": 0.00000013,
+            "cache_read_input_token_cost": 0.000000006,
+            "cache_creation_input_token_cost": 0.000000038
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "release_date": "2026-07-27",
+          "last_updated": "2026-07-27"
         },
         "qwen/qwen3.7-max": {
           "id": "qwen/qwen3.7-max",
@@ -138315,9 +139854,9 @@
           "id": "z-ai/glm-5.2",
           "name": "GLM-5.2",
           "pricing": {
-            "input_cost_per_token": 0.0000006692,
-            "output_cost_per_token": 0.0000021032,
-            "cache_read_input_token_cost": 0.00000012428
+            "input_cost_per_token": 0.0000007378,
+            "output_cost_per_token": 0.0000023188,
+            "cache_read_input_token_cost": 0.00000013702
           },
           "limit": {
             "context": 1048576,
@@ -138596,7 +140135,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 262144
+            "output": 1048576
           },
           "modalities": {
             "input": ["text", "image"],
@@ -161719,6 +163258,38 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "hf:moonshotai/Kimi-K3": {
+          "id": "hf:moonshotai/Kimi-K3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.00000045
+          },
+          "limit": {
+            "context": 524288,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-27"
+        },
         "hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4": {
           "id": "hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4",
           "name": "Nemotron 3 Super 120B A12B",
@@ -163592,6 +165163,38 @@
           "family": "kimi-k2",
           "release_date": "2026-06-14",
           "last_updated": "2026-06-14"
+        },
+        "moonshotai/Kimi-K3": {
+          "id": "moonshotai/Kimi-K3",
+          "name": "Kimi K3",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
         },
         "nvidia/nemotron-3-ultra-550b-a55b": {
           "id": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -166576,9 +168179,9 @@
           "id": "kimi-k3",
           "name": "Kimi K3",
           "pricing": {
-            "input_cost_per_token": 0.00000375,
-            "output_cost_per_token": 0.00001875,
-            "cache_read_input_token_cost": 0.000000375
+            "input_cost_per_token": 0.0000046875,
+            "output_cost_per_token": 0.0000234375,
+            "cache_read_input_token_cost": 0.00000046875
           },
           "limit": {
             "context": 1000000,
@@ -166598,7 +168201,7 @@
             "audio_output": false,
             "prompt_caching": true,
             "attachment": true,
-            "open_weights": false
+            "open_weights": true
           },
           "family": "kimi-k3",
           "release_date": "2026-07-16",
@@ -167878,7 +169481,7 @@
           "id": "qwen3-6-35b-a3b",
           "name": "Qwen 3.6 35B A3B",
           "pricing": {
-            "input_cost_per_token": 0.00000015,
+            "input_cost_per_token": 0.0000001,
             "output_cost_per_token": 0.000001,
             "cache_read_input_token_cost": 0.00000005
           },
@@ -173759,6 +175362,38 @@
           },
           "family": "kimi-k3",
           "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
+        },
+        "moonshotai/kimi-k3-fast": {
+          "id": "moonshotai/kimi-k3-fast",
+          "name": "Kimi K3 Fast",
+          "pricing": {
+            "input_cost_per_token": 0.0000045,
+            "output_cost_per_token": 0.0000225,
+            "cache_read_input_token_cost": 0.00000045
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-27",
           "last_updated": "2026-07-16"
         },
         "morph/morph-v3-fast": {
