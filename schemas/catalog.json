@@ -1,9 +1,9 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "d5aa8fd06062f49ea07da04fe1c3cc10363a80c8543a3c779ea0167973371bf7",
-    "fetched": "2026-07-28",
-    "library_version": "1.11.3"
+    "source_sha256": "4a3b7f5958f1d7ced48fe2834a258c6bf63723f1944031fc397897f0f61465ea",
+    "fetched": "2026-07-29",
+    "library_version": "1.11.4"
   },
   "$schema_version": 1,
   "providers": {
@@ -91257,6 +91257,47 @@
           "family": "minimax",
           "release_date": "2025-12-23",
           "last_updated": "2025-12-23"
+        }
+      }
+    },
+    "modal": {
+      "name": "Modal",
+      "env": ["MODAL_PROXY_TOKEN"],
+      "doc": "https://modal.com/docs/guide/endpoints",
+      "api": "https://inference.us-west.modal.direct/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "thinkingmachines/Inkling-NVFP4": {
+          "id": "thinkingmachines/Inkling-NVFP4",
+          "name": "Inkling",
+          "pricing": {
+            "input_cost_per_token": 0.0000012,
+            "output_cost_per_token": 0.000005,
+            "cache_read_input_token_cost": 0.00000027
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-15",
+          "last_updated": "2026-07-15"
         }
       }
     },
