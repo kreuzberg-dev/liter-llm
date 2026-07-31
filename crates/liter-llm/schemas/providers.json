@@ -2383,6 +2383,20 @@
       "name": "minimax",
       "display_name": "Minimax",
       "base_url": "https://api.minimax.io/v1",
+      "regional_endpoints": [
+        {
+          "region": "global_en",
+          "openai_base_url": "https://api.minimax.io/v1",
+          "anthropic_base_url": "https://api.minimax.io/anthropic",
+          "docs_root": "https://platform.minimax.io/docs"
+        },
+        {
+          "region": "cn_zh",
+          "openai_base_url": "https://api.minimaxi.com/v1",
+          "anthropic_base_url": "https://api.minimaxi.com/anthropic",
+          "docs_root": "https://platform.minimaxi.com/docs"
+        }
+      ],
       "auth": {
         "type": "bearer",
         "env_var": "MINIMAX_API_KEY"
@@ -2398,7 +2412,7 @@
       "model_count": 9,
       "capabilities": {
         "vision": true,
-        "reasoning": false,
+        "reasoning": true,
         "structured_output": true,
         "function_calling": true,
         "audio_in": true,

@@ -126,6 +126,15 @@ fn registry() -> Result<&'static ProviderRegistry> {
     })
 }
 
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+struct RegionalEndpointConfig {
+    region: String,
+    openai_base_url: String,
+    anthropic_base_url: String,
+    docs_root: String,
+}
+
 /// Internal JSON shape: each provider entry with capability flags and streaming
 /// format, stored separately from the public [`ProviderConfig`] schema.
 #[derive(Debug, Deserialize)]
@@ -134,6 +143,10 @@ struct ProviderEntry {
     config: ProviderConfig,
     #[serde(default)]
     capabilities: ProviderCapabilities,
+    /// Protocol-specific base URLs available in each supported region.
+    #[allow(dead_code)]
+    #[serde(default)]
+    regional_endpoints: Vec<RegionalEndpointConfig>,
     /// Streaming wire format for this provider.
     ///
     /// Deserialized from `providers.json` and available to future workstreams
@@ -825,6 +838,35 @@ pub fn complex_provider_names() -> Result<&'static HashSet<String>> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn minimax_regional_endpoints_are_registered() {
+        let registry = registry().expect("registry should load");
+        let provider = registry
+            .providers
+            .iter()
+            .find(|entry| entry.config.name == "minimax")
+            .expect("MiniMax provider should be registered");
+
+        assert!(provider.capabilities.reasoning);
+        assert_eq!(
+            provider.regional_endpoints,
+            vec![
+                RegionalEndpointConfig {
+                    region: "global_en".into(),
+                    openai_base_url: "https://api.minimax.io/v1".into(),
+                    anthropic_base_url: "https://api.minimax.io/anthropic".into(),
+                    docs_root: "https://platform.minimax.io/docs".into(),
+                },
+                RegionalEndpointConfig {
+                    region: "cn_zh".into(),
+                    openai_base_url: "https://api.minimaxi.com/v1".into(),
+                    anthropic_base_url: "https://api.minimaxi.com/anthropic".into(),
+                    docs_root: "https://platform.minimaxi.com/docs".into(),
+                },
+            ]
+        );
+    }
 
     #[test]
     fn transform_response_audio_message_hoisted() {
