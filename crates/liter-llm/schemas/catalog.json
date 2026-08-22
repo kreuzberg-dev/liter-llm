@@ -1,9 +1,9 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "2267dee6837ec7c439eada350e10359fe807d8e8b800458c8cd3e3b0911cc705",
-    "fetched": "2026-08-21",
-    "library_version": "1.17.1"
+    "source_sha256": "be62dd32eb5f1ad03c849f071d87f10dce43c6b045a06e976802b1a3bcc72647",
+    "fetched": "2026-08-22",
+    "library_version": "1.18.0"
   },
   "$schema_version": 1,
   "providers": {
@@ -39718,6 +39718,39 @@
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
         },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.000000405,
+            "output_cost_per_token": 0.000001215,
+            "cache_read_input_token_cost": 0.0000000135,
+            "cache_creation_input_token_cost": 0.000000405
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek/deepseek-v4-pro": {
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
@@ -45148,6 +45181,39 @@
           "release_date": "2026-07-31",
           "last_updated": "2026-07-31"
         },
+        "deepseek-v4-flash-vision-exp": {
+          "id": "deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000014,
+            "output_cost_per_token": 0.00000028,
+            "cache_read_input_token_cost": 0.0000000028,
+            "output_cost_per_reasoning_token": 0.00000028
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek-v4-pro": {
           "id": "deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
@@ -48131,7 +48197,7 @@
             "cache_read_input_token_cost": 0.0000002
           },
           "limit": {
-            "context": 262144,
+            "context": 1000000,
             "output": 262144
           },
           "modalities": {
@@ -50676,12 +50742,12 @@
           "id": "deepseek/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.00000022,
-            "output_cost_per_token": 0.00000066,
-            "cache_read_input_token_cost": 0.000000007
+            "input_cost_per_token": 0.00000044,
+            "output_cost_per_token": 0.00000132,
+            "cache_read_input_token_cost": 0.000000014
           },
           "limit": {
-            "context": 1048576,
+            "context": 1000000,
             "output": 384000
           },
           "modalities": {
@@ -50705,16 +50771,48 @@
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
         },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
+            "cache_read_input_token_cost": 0.000000007
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek/deepseek-v4-pro": {
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
           "pricing": {
-            "input_cost_per_token": 0.00000066,
-            "output_cost_per_token": 0.00000198,
-            "cache_read_input_token_cost": 0.000000022
+            "input_cost_per_token": 0.00000132,
+            "output_cost_per_token": 0.00000396,
+            "cache_read_input_token_cost": 0.000000044
           },
           "limit": {
-            "context": 1048576,
+            "context": 1000000,
             "output": 384000
           },
           "modalities": {
@@ -51876,8 +51974,8 @@
           "id": "ionos/meta-llama/Llama-3.3-70B-Instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.000000759265,
-            "output_cost_per_token": 0.000000759265
+            "input_cost_per_token": 0.000000760435,
+            "output_cost_per_token": 0.000000760435
           },
           "limit": {
             "context": 128000,
@@ -51908,8 +52006,8 @@
           "id": "ionos/openai/gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.000000175215,
-            "output_cost_per_token": 0.000000759265
+            "input_cost_per_token": 0.000000175485,
+            "output_cost_per_token": 0.000000760435
           },
           "limit": {
             "context": 131072,
@@ -52545,6 +52643,39 @@
           "release_date": "2026-07-16",
           "last_updated": "2026-07-16"
         },
+        "nebius/deepseek-ai/DeepSeek-V4-Flash-0731": {
+          "id": "nebius/deepseek-ai/DeepSeek-V4-Flash-0731",
+          "name": "DeepSeek V4 Flash 0731",
+          "pricing": {
+            "input_cost_per_token": 0.00000014,
+            "output_cost_per_token": 0.00000028,
+            "cache_read_input_token_cost": 0.00000014
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-flash",
+          "knowledge": "2025-05",
+          "release_date": "2026-07-31",
+          "last_updated": "2026-07-31"
+        },
         "nebius/meta-llama/Llama-3.3-70B-Instruct": {
           "id": "nebius/meta-llama/Llama-3.3-70B-Instruct",
           "name": "Llama-3.3-70B-Instruct",
@@ -52619,7 +52750,7 @@
             "cache_read_input_token_cost": 0.0000003
           },
           "limit": {
-            "context": 8000,
+            "context": 262144,
             "output": 262144
           },
           "modalities": {
@@ -53555,17 +53686,17 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.00000625,
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.000005,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.00001,
-                "output_cost_per_token": 0.000045,
-                "cache_read_input_token_cost": 0.000001,
-                "cache_creation_input_token_cost": 0.0000125
+                "input_cost_per_token": 0.000008,
+                "output_cost_per_token": 0.00003,
+                "cache_read_input_token_cost": 0.0000008,
+                "cache_creation_input_token_cost": 0.00001
               }
             ]
           },
@@ -53643,17 +53774,17 @@
           "id": "openai/gpt-latest",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.00000625,
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.000005,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.00001,
-                "output_cost_per_token": 0.000045,
-                "cache_read_input_token_cost": 0.000001,
-                "cache_creation_input_token_cost": 0.0000125
+                "input_cost_per_token": 0.000008,
+                "output_cost_per_token": 0.00003,
+                "cache_read_input_token_cost": 0.0000008,
+                "cache_creation_input_token_cost": 0.00001
               }
             ]
           },
@@ -54150,8 +54281,8 @@
           "id": "qwen/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000040172,
-            "output_cost_per_token": 0.00000120516
+            "input_cost_per_token": 0.000000352,
+            "output_cost_per_token": 0.000001056
           },
           "limit": {
             "context": 1000000,
@@ -54182,8 +54313,8 @@
           "id": "qwen/deepseek-v4-pro-0813",
           "name": "DeepSeek V4 Pro 0813",
           "pricing": {
-            "input_cost_per_token": 0.00000120516,
-            "output_cost_per_token": 0.00000361548
+            "input_cost_per_token": 0.0000011616,
+            "output_cost_per_token": 0.0000034848
           },
           "limit": {
             "context": 1000000,
@@ -54800,8 +54931,8 @@
           "id": "scaleway/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000046724,
-            "output_cost_per_token": 0.00000093448
+            "input_cost_per_token": 0.00000046796,
+            "output_cost_per_token": 0.00000093592
           },
           "limit": {
             "context": 256000,
@@ -54832,8 +54963,8 @@
           "id": "scaleway/gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.000000175215,
-            "output_cost_per_token": 0.00000070086
+            "input_cost_per_token": 0.000000175485,
+            "output_cost_per_token": 0.00000070194
           },
           "limit": {
             "context": 128000,
@@ -54863,8 +54994,8 @@
           "id": "scaleway/llama-3.3-70b-instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.00000105129,
-            "output_cost_per_token": 0.00000105129
+            "input_cost_per_token": 0.00000105291,
+            "output_cost_per_token": 0.00000105291
           },
           "limit": {
             "context": 128000,
@@ -63446,17 +63577,17 @@
           "id": "gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.00000625,
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.00000025,
+            "cache_creation_input_token_cost": 0.000003125,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.00001,
-                "output_cost_per_token": 0.000045,
-                "cache_read_input_token_cost": 0.000001,
-                "cache_creation_input_token_cost": 0.0000125
+                "input_cost_per_token": 0.000005,
+                "output_cost_per_token": 0.0000225,
+                "cache_read_input_token_cost": 0.0000005,
+                "cache_creation_input_token_cost": 0.00000625
               }
             ]
           },
@@ -65813,10 +65944,10 @@
           "id": "gemini-3.6-flash",
           "name": "Gemini 3.6 Flash",
           "pricing": {
-            "input_cost_per_token": 0.0000015,
-            "output_cost_per_token": 0.0000075,
-            "cache_read_input_token_cost": 0.00000015,
-            "input_cost_per_audio_token": 0.0000015
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.00000375,
+            "cache_read_input_token_cost": 0.000000075,
+            "input_cost_per_audio_token": 0.00000075
           },
           "limit": {
             "context": 1048576,
@@ -65946,10 +66077,10 @@
           "id": "gemini-flash-latest",
           "name": "Gemini Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000015,
-            "output_cost_per_token": 0.000009,
-            "cache_read_input_token_cost": 0.00000015,
-            "input_cost_per_audio_token": 0.0000015
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.00000375,
+            "cache_read_input_token_cost": 0.000000075,
+            "input_cost_per_audio_token": 0.00000075
           },
           "limit": {
             "context": 1048576,
@@ -65972,18 +66103,17 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-19",
-          "last_updated": "2026-05-19"
+          "knowledge": "2026-03",
+          "release_date": "2026-08-13",
+          "last_updated": "2026-08-13"
         },
         "gemini-flash-lite-latest": {
           "id": "gemini-flash-lite-latest",
           "name": "Gemini Flash-Lite Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000025,
-            "output_cost_per_token": 0.0000015,
-            "cache_read_input_token_cost": 0.000000025,
-            "input_cost_per_audio_token": 0.0000005
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000025,
+            "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
             "context": 1048576,
@@ -66006,9 +66136,9 @@
             "open_weights": false
           },
           "family": "gemini-flash-lite",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-07",
-          "last_updated": "2026-05-07"
+          "knowledge": "2026-03",
+          "release_date": "2026-07-21",
+          "last_updated": "2026-07-21"
         },
         "gemini-omni-flash-preview": {
           "id": "gemini-omni-flash-preview",
@@ -66275,6 +66405,40 @@
       "doc": "https://cloud.google.com/vertex-ai/generative-ai/docs/models",
       "npm": "@ai-sdk/google-vertex",
       "models": {
+        "claude-fable-5@default": {
+          "id": "claude-fable-5@default",
+          "name": "Claude Fable 5",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "claude-fable",
+          "knowledge": "2026-01-31",
+          "release_date": "2026-06-09",
+          "last_updated": "2026-06-09"
+        },
         "claude-haiku-4-5@20251001": {
           "id": "claude-haiku-4-5@20251001",
           "name": "Claude Haiku 4.5",
@@ -67435,9 +67599,9 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-19",
-          "last_updated": "2026-05-19"
+          "knowledge": "2026-03",
+          "release_date": "2026-08-13",
+          "last_updated": "2026-08-13"
         },
         "gemini-flash-lite-latest": {
           "id": "gemini-flash-lite-latest",
@@ -67469,9 +67633,9 @@
             "open_weights": false
           },
           "family": "gemini-flash-lite",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-07",
-          "last_updated": "2026-05-07"
+          "knowledge": "2026-03",
+          "release_date": "2026-07-21",
+          "last_updated": "2026-07-21"
         },
         "meta/llama-3.3-70b-instruct-maas": {
           "id": "meta/llama-3.3-70b-instruct-maas",
@@ -67737,6 +67901,40 @@
       "doc": "https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/claude",
       "npm": "@ai-sdk/google-vertex/anthropic",
       "models": {
+        "claude-fable-5@default": {
+          "id": "claude-fable-5@default",
+          "name": "Claude Fable 5",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "claude-fable",
+          "knowledge": "2026-01-31",
+          "release_date": "2026-06-09",
+          "last_updated": "2026-06-09"
+        },
         "claude-haiku-4-5@20251001": {
           "id": "claude-haiku-4-5@20251001",
           "name": "Claude Haiku 4.5",
@@ -75494,9 +75692,9 @@
           "id": "gemma-4-26b-a4b-it",
           "name": "Gemma 4 26B A4B IT",
           "pricing": {
-            "input_cost_per_token": 0.00000012,
-            "output_cost_per_token": 0.00000042,
-            "cache_creation_input_token_cost": 0.00000006
+            "input_cost_per_token": 0.00000011,
+            "output_cost_per_token": 0.000000408,
+            "cache_creation_input_token_cost": 0.000000055
           },
           "limit": {
             "context": 256000,
@@ -75526,9 +75724,9 @@
           "id": "glm-5",
           "name": "GLM-5",
           "pricing": {
-            "input_cost_per_token": 0.00000083,
-            "output_cost_per_token": 0.000002558,
-            "cache_creation_input_token_cost": 0.000000415
+            "input_cost_per_token": 0.00000091,
+            "output_cost_per_token": 0.000002934,
+            "cache_creation_input_token_cost": 0.000000455
           },
           "limit": {
             "context": 202752,
@@ -75654,9 +75852,9 @@
           "id": "kimi-k2.5",
           "name": "Kimi K2.5",
           "pricing": {
-            "input_cost_per_token": 0.0000005504,
-            "output_cost_per_token": 0.000002885,
-            "cache_creation_input_token_cost": 0.0000002752
+            "input_cost_per_token": 0.0000005444,
+            "output_cost_per_token": 0.000002855,
+            "cache_creation_input_token_cost": 0.0000002722
           },
           "limit": {
             "context": 262144,
@@ -75759,7 +75957,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 131072
+            "output": 16000
           },
           "modalities": {
             "input": ["text", "image"],
@@ -86177,37 +86375,6 @@
           "release_date": "2026-06-17",
           "last_updated": "2026-06-17"
         },
-        "deepcogito/cogito-v2.1-671b": {
-          "id": "deepcogito/cogito-v2.1-671b",
-          "name": "Deep Cogito: Cogito v2.1 671B",
-          "pricing": {
-            "input_cost_per_token": 0.00000125,
-            "output_cost_per_token": 0.00000125
-          },
-          "limit": {
-            "context": 128000,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "cogito",
-          "release_date": "2025-11-13",
-          "last_updated": "2025-11-13"
-        },
         "deepseek/deepseek-chat": {
           "id": "deepseek/deepseek-chat",
           "name": "DeepSeek Chat",
@@ -86281,8 +86448,8 @@
             "cache_read_input_token_cost": 0.000000135
           },
           "limit": {
-            "context": 163840,
-            "output": 32768
+            "context": 161000,
+            "output": 161000
           },
           "modalities": {
             "input": ["text"],
@@ -86441,7 +86608,7 @@
           },
           "limit": {
             "context": 163840,
-            "output": 65536
+            "output": 163840
           },
           "modalities": {
             "input": ["text"],
@@ -86538,7 +86705,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 393216
+            "output": 384000
           },
           "modalities": {
             "input": ["text"],
@@ -86561,6 +86728,38 @@
           "release_date": "2026-07-31",
           "last_updated": "2026-07-31"
         },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
+            "cache_read_input_token_cost": 0.000000007
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek/deepseek-v4-pro": {
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
@@ -86570,8 +86769,8 @@
             "cache_read_input_token_cost": 0.000000135
           },
           "limit": {
-            "context": 1048576,
-            "output": 393216
+            "context": 1024000,
+            "output": 384000
           },
           "modalities": {
             "input": ["text"],
@@ -88236,6 +88435,39 @@
           "release_date": "2026-07-20",
           "last_updated": "2026-07-20"
         },
+        "meituan/longcat-2.0-free": {
+          "id": "meituan/longcat-2.0-free",
+          "name": "Meituan: LongCat 2.0 (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0,
+            "cache_read_input_token_cost": 0.0,
+            "output_cost_per_reasoning_token": 0.0
+          },
+          "limit": {
+            "context": 1048756,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "longcat",
+          "release_date": "2025-08-26",
+          "last_updated": "2025-08-26"
+        },
         "meta-llama/llama-3.1-70b-instruct": {
           "id": "meta-llama/llama-3.1-70b-instruct",
           "name": "Meta: Llama 3.1 70B Instruct",
@@ -88583,6 +88815,38 @@
           "release_date": "2026-08-05",
           "last_updated": "2026-08-05"
         },
+        "meta/muse-spark-1.2-contributor": {
+          "id": "meta/muse-spark-1.2-contributor",
+          "name": "Meta: Muse Spark 1.2 Contributor",
+          "pricing": {
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.0000002,
+            "cache_read_input_token_cost": 0.000000002
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "muse",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "microsoft/phi-4": {
           "id": "microsoft/phi-4",
           "name": "Microsoft: Phi 4",
@@ -88810,8 +89074,8 @@
             "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
-            "context": 198000,
-            "output": 32768
+            "context": 200000,
+            "output": 128000
           },
           "modalities": {
             "input": ["text"],
@@ -89411,11 +89675,11 @@
           "id": "mistralai/mistral-small-3.2-24b-instruct",
           "name": "Mistral: Mistral Small 3.2 24B",
           "pricing": {
-            "input_cost_per_token": 0.00000009375,
-            "output_cost_per_token": 0.00000025
+            "input_cost_per_token": 0.000000075,
+            "output_cost_per_token": 0.0000002
           },
           "limit": {
-            "context": 256000,
+            "context": 128000,
             "output": 16384
           },
           "modalities": {
@@ -91585,10 +91849,10 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.00000625
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.000005
           },
           "limit": {
             "context": 1050000,
@@ -91654,10 +91918,10 @@
           "id": "openai/gpt-5.6-sol-pro",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.00000625
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.000005
           },
           "limit": {
             "context": 1050000,
@@ -92866,8 +93130,8 @@
             "output_cost_per_token": 0.00000091
           },
           "limit": {
-            "context": 131072,
-            "output": 8192
+            "context": 40960,
+            "output": 16384
           },
           "modalities": {
             "input": ["text"],
@@ -93376,7 +93640,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 16384
+            "output": 262144
           },
           "modalities": {
             "input": ["text"],
@@ -94171,8 +94435,8 @@
             "cache_creation_input_token_cost": 0.0000025
           },
           "limit": {
-            "context": 1000000,
-            "output": 262144
+            "context": 1048576,
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -94934,9 +95198,9 @@
           "id": "tencent/hy3",
           "name": "Hy3",
           "pricing": {
-            "input_cost_per_token": 0.00000014,
-            "output_cost_per_token": 0.00000058,
-            "cache_read_input_token_cost": 0.000000035
+            "input_cost_per_token": 0.000000132,
+            "output_cost_per_token": 0.000000528,
+            "cache_read_input_token_cost": 0.000000033
           },
           "limit": {
             "context": 262144,
@@ -95212,6 +95476,68 @@
           "family": "ling",
           "release_date": "2026-07-30",
           "last_updated": "2026-07-30"
+        },
+        "thinkingmachines/inkling-small:free": {
+          "id": "thinkingmachines/inkling-small:free",
+          "name": "Thinking Machines: Inkling Small (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-30",
+          "last_updated": "2026-07-30"
+        },
+        "thinkingmachines/inkling:free": {
+          "id": "thinkingmachines/inkling:free",
+          "name": "Thinking Machines: Inkling (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-15",
+          "last_updated": "2026-07-15"
         },
         "undi95/remm-slerp-l2-13b": {
           "id": "undi95/remm-slerp-l2-13b",
@@ -96174,12 +96500,12 @@
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
             "input_cost_per_token": 0.000000065,
-            "output_cost_per_token": 0.00000014,
-            "cache_read_input_token_cost": 0.000000014
+            "output_cost_per_token": 0.00000018,
+            "cache_read_input_token_cost": 0.00000002
           },
           "limit": {
-            "context": 262144,
-            "output": 262144
+            "context": 1048576,
+            "output": 1048576
           },
           "modalities": {
             "input": ["text"],
@@ -96305,10 +96631,10 @@
           "id": "~openai/gpt-latest",
           "name": "OpenAI GPT Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025
           },
           "limit": {
             "context": 1050000,
@@ -113233,6 +113559,39 @@
           "release_date": "2026-02-19",
           "last_updated": "2026-02-19"
         },
+        "ranoai/deepseek-v4-flash": {
+          "id": "ranoai/deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash (RanoAI)",
+          "pricing": {
+            "input_cost_per_token": 0.00000014,
+            "output_cost_per_token": 0.00000028,
+            "cache_read_input_token_cost": 0.000000028
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 393216
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-flash",
+          "knowledge": "2025-05",
+          "release_date": "2026-04-24",
+          "last_updated": "2026-04-24"
+        },
         "runware/deepseek-v4-flash": {
           "id": "runware/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash (Runware)",
@@ -114411,6 +114770,39 @@
           "family": "grok",
           "release_date": "2026-03-09",
           "last_updated": "2026-03-09"
+        },
+        "vertex-openai/grok-4-6": {
+          "id": "vertex-openai/grok-4-6",
+          "name": "Grok 4.6 (Vertex AI (OpenAI-compatible))",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000006,
+            "cache_read_input_token_cost": 0.0000005
+          },
+          "limit": {
+            "context": 500000,
+            "output": 500000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "grok",
+          "knowledge": "2026-02-01",
+          "release_date": "2026-08-12",
+          "last_updated": "2026-08-12"
         },
         "vertex-openai/kimi-k2-thinking": {
           "id": "vertex-openai/kimi-k2-thinking",
@@ -118341,6 +118733,38 @@
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
         },
+        "deepseek/deepseek-v4-pro-0423": {
+          "id": "deepseek/deepseek-v4-pro-0423",
+          "name": "DeepSeek V4 Pro 0423",
+          "pricing": {
+            "input_cost_per_token": 0.00000165,
+            "output_cost_per_token": 0.0000033
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 393216
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-thinking",
+          "knowledge": "2025-05",
+          "release_date": "2026-04-23",
+          "last_updated": "2026-04-23"
+        },
         "deepseek/deepseek-v4-pro-0813": {
           "id": "deepseek/deepseek-v4-pro-0813",
           "name": "DeepSeek V4 Pro 0813",
@@ -119030,9 +119454,9 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-19",
-          "last_updated": "2026-05-19"
+          "knowledge": "2026-03",
+          "release_date": "2026-08-13",
+          "last_updated": "2026-08-13"
         },
         "google/gemini-flash-lite-latest": {
           "id": "google/gemini-flash-lite-latest",
@@ -119064,9 +119488,9 @@
             "open_weights": false
           },
           "family": "gemini-flash-lite",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-07",
-          "last_updated": "2026-05-07"
+          "knowledge": "2026-03",
+          "release_date": "2026-07-21",
+          "last_updated": "2026-07-21"
         },
         "google/gemma-4-26b-a4b-it": {
           "id": "google/gemma-4-26b-a4b-it",
@@ -121016,8 +121440,8 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.000024,
             "cache_read_input_token_cost": 0.0000005
           },
           "limit": {
@@ -121838,23 +122262,23 @@
             "cache_read_input_token_cost": 0.000000023
           },
           "limit": {
-            "context": 256000,
-            "output": 64000
+            "context": 131072,
+            "output": 32768
           },
           "modalities": {
-            "input": ["text", "image"],
+            "input": ["text"],
             "output": ["text"]
           },
           "mode": "chat",
           "capabilities": {
-            "vision": true,
+            "vision": false,
             "function_calling": true,
             "reasoning": true,
             "structured_output": false,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": true,
+            "attachment": false,
             "open_weights": true
           },
           "family": "qwen",
@@ -121902,23 +122326,23 @@
             "cache_read_input_token_cost": 0.000000020357
           },
           "limit": {
-            "context": 131072,
-            "output": 32768
+            "context": 256000,
+            "output": 64000
           },
           "modalities": {
-            "input": ["text"],
+            "input": ["text", "image"],
             "output": ["text"]
           },
           "mode": "chat",
           "capabilities": {
-            "vision": false,
+            "vision": true,
             "function_calling": true,
             "reasoning": true,
             "structured_output": false,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": false,
+            "attachment": true,
             "open_weights": true
           },
           "family": "qwen",
@@ -133859,6 +134283,39 @@
           "release_date": "2026-08-02",
           "last_updated": "2026-08-02"
         },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
+            "cache_read_input_token_cost": 0.000000007
+          },
+          "limit": {
+            "context": 1048576,
+            "input": 1048576,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek/deepseek-v4-flash:thinking": {
           "id": "deepseek/deepseek-v4-flash:thinking",
           "name": "DeepSeek V4 Flash (Thinking)",
@@ -136319,9 +136776,9 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-19",
-          "last_updated": "2026-05-19"
+          "knowledge": "2026-03",
+          "release_date": "2026-08-13",
+          "last_updated": "2026-08-13"
         },
         "google/gemini-flash-lite-latest": {
           "id": "google/gemini-flash-lite-latest",
@@ -136354,9 +136811,9 @@
             "open_weights": false
           },
           "family": "gemini-flash-lite",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-07",
-          "last_updated": "2026-05-07"
+          "knowledge": "2026-03",
+          "release_date": "2026-07-21",
+          "last_updated": "2026-07-21"
         },
         "google/gemini-pro-latest": {
           "id": "google/gemini-pro-latest",
@@ -136396,9 +136853,9 @@
           "id": "google/gemma-4-26b-a4b-it",
           "name": "Gemma 4 26B A4B",
           "pricing": {
-            "input_cost_per_token": 0.00000013,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.000000065
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
             "context": 262144,
@@ -136462,9 +136919,9 @@
           "id": "google/gemma-4-31b-it",
           "name": "Gemma 4 31B",
           "pricing": {
-            "input_cost_per_token": 0.0000001,
-            "output_cost_per_token": 0.00000035,
-            "cache_read_input_token_cost": 0.00000005
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
             "context": 262144,
@@ -143278,6 +143735,72 @@
           "release_date": "2026-02-16",
           "last_updated": "2026-02-16"
         },
+        "qwen/qwen3.6-35b-a3b-uncensored": {
+          "id": "qwen/qwen3.6-35b-a3b-uncensored",
+          "name": "Qwen 3.6 35B A3B Uncensored",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.000000075
+          },
+          "limit": {
+            "context": 65536,
+            "input": 65536,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen3.6",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
+        "qwen/qwen3.8-27b-uncensored": {
+          "id": "qwen/qwen3.8-27b-uncensored",
+          "name": "Qwen 3.8 27B Uncensored",
+          "pricing": {
+            "input_cost_per_token": 0.00000018,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.000000075
+          },
+          "limit": {
+            "context": 131072,
+            "input": 131072,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "qwen25-vl-72b-instruct": {
           "id": "qwen25-vl-72b-instruct",
           "name": "Qwen25 VL 72b",
@@ -144707,6 +145230,39 @@
           "family": "gemma",
           "release_date": "2025-05-23",
           "last_updated": "2025-05-23"
+        },
+        "stealth/ox-alpha": {
+          "id": "stealth/ox-alpha",
+          "name": "Ox Alpha",
+          "pricing": {
+            "input_cost_per_token": 0.00000005,
+            "output_cost_per_token": 0.00000005,
+            "cache_read_input_token_cost": 0.000000025
+          },
+          "limit": {
+            "context": 1000000,
+            "input": 1000000,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "alpha",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
         },
         "step-r1-v-mini": {
           "id": "step-r1-v-mini",
@@ -159252,6 +159808,39 @@
           "release_date": "2026-06-02",
           "last_updated": "2026-06-02"
         },
+        "bailian/qwen3.8-27b": {
+          "id": "bailian/qwen3.8-27b",
+          "name": "Qwen3.8 27B",
+          "pricing": {
+            "input_cost_per_token": 0.00000045,
+            "output_cost_per_token": 0.0000032,
+            "cache_read_input_token_cost": 0.00000005,
+            "cache_creation_input_token_cost": 0.0000005625
+          },
+          "limit": {
+            "context": 1131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "bailian/qwen3.8-max": {
           "id": "bailian/qwen3.8-max",
           "name": "Qwen3.8 Max",
@@ -159351,6 +159940,38 @@
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
         },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000044,
+            "output_cost_per_token": 0.00000132,
+            "cache_read_input_token_cost": 0.000000014
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek/deepseek-v4-pro": {
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
@@ -159383,6 +160004,39 @@
           "knowledge": "2025-05",
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
+        },
+        "deepseek/deepseek-v4-pro-0423": {
+          "id": "deepseek/deepseek-v4-pro-0423",
+          "name": "DeepSeek V4 Pro 0423",
+          "pricing": {
+            "input_cost_per_token": 0.00000132,
+            "output_cost_per_token": 0.00000396,
+            "cache_read_input_token_cost": 0.000000044
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-thinking",
+          "knowledge": "2025-05",
+          "release_date": "2026-04-23",
+          "last_updated": "2026-04-23"
         },
         "deepseek/deepseek-v4-pro-0813": {
           "id": "deepseek/deepseek-v4-pro-0813",
@@ -159696,10 +160350,10 @@
           "id": "google/gemini-3.6-flash",
           "name": "Gemini 3.6 Flash",
           "pricing": {
-            "input_cost_per_token": 0.0000015,
-            "output_cost_per_token": 0.0000075,
-            "cache_read_input_token_cost": 0.00000015,
-            "cache_creation_input_token_cost": 0.000000083,
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.00000375,
+            "cache_read_input_token_cost": 0.000000075,
+            "cache_creation_input_token_cost": 0.0000000415,
             "input_cost_per_audio_token": 0.0000015
           },
           "limit": {
@@ -159731,10 +160385,10 @@
           "id": "google/gemini-3.7-flash",
           "name": "Gemini 3.7 Flash",
           "pricing": {
-            "input_cost_per_token": 0.0000015,
-            "output_cost_per_token": 0.0000075,
-            "cache_read_input_token_cost": 0.00000015,
-            "cache_creation_input_token_cost": 0.000000083,
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.00000375,
+            "cache_read_input_token_cost": 0.000000075,
+            "cache_creation_input_token_cost": 0.0000000415,
             "input_cost_per_audio_token": 0.0000015
           },
           "limit": {
@@ -165671,17 +166325,17 @@
           "id": "gpt-5.6-sol",
           "name": "GPT-5.6 Sol (50% Off)",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125,
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.000005,
-                "output_cost_per_token": 0.0000225,
-                "cache_read_input_token_cost": 0.0000005,
-                "cache_creation_input_token_cost": 0.00000625
+                "input_cost_per_token": 0.000004,
+                "output_cost_per_token": 0.000015,
+                "cache_read_input_token_cost": 0.0000004,
+                "cache_creation_input_token_cost": 0.000005
               }
             ]
           },
@@ -167110,7 +167764,7 @@
         },
         "x-preview-f-free": {
           "id": "x-preview-f-free",
-          "name": "Ox Alpha Free",
+          "name": "Ox Alpha Free (Unlimited)",
           "pricing": {
             "input_cost_per_token": 0.0,
             "output_cost_per_token": 0.0,
@@ -167180,6 +167834,38 @@
           "knowledge": "2025-05",
           "release_date": "2026-07-31",
           "last_updated": "2026-07-31"
+        },
+        "deepseek-v4-flash-vision-exp": {
+          "id": "deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
+            "cache_read_input_token_cost": 0.000000007
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
         },
         "deepseek-v4-pro": {
           "id": "deepseek-v4-pro",
@@ -167869,6 +168555,37 @@
           "family": "muse",
           "release_date": "2026-08-05",
           "last_updated": "2026-08-05"
+        },
+        "ox-alpha-free": {
+          "id": "ox-alpha-free",
+          "name": "Ox Alpha Free (Unlimited)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0,
+            "cache_read_input_token_cost": 0.0
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
         },
         "qwen3.5-plus": {
           "id": "qwen3.5-plus",
@@ -169572,37 +170289,6 @@
           "release_date": "2026-06-17",
           "last_updated": "2026-06-17"
         },
-        "deepcogito/cogito-v2.1-671b": {
-          "id": "deepcogito/cogito-v2.1-671b",
-          "name": "Cogito v2.1 671B",
-          "pricing": {
-            "input_cost_per_token": 0.00000125,
-            "output_cost_per_token": 0.00000125
-          },
-          "limit": {
-            "context": 128000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "cogito",
-          "release_date": "2025-11-13",
-          "last_updated": "2025-11-13"
-        },
         "deepseek/deepseek-chat": {
           "id": "deepseek/deepseek-chat",
           "name": "DeepSeek Chat",
@@ -169671,13 +170357,13 @@
           "id": "deepseek/deepseek-chat-v3.1",
           "name": "DeepSeek V3.1",
           "pricing": {
-            "input_cost_per_token": 0.00000025,
-            "output_cost_per_token": 0.00000095,
-            "cache_read_input_token_cost": 0.00000013
+            "input_cost_per_token": 0.00000055,
+            "output_cost_per_token": 0.00000165,
+            "cache_read_input_token_cost": 0.00000055
           },
           "limit": {
             "context": 163840,
-            "output": 32768
+            "output": 161000
           },
           "modalities": {
             "input": ["text"],
@@ -169834,13 +170520,13 @@
           "id": "deepseek/deepseek-v3.2",
           "name": "DeepSeek V3.2",
           "pricing": {
-            "input_cost_per_token": 0.000000269,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.0000001345
+            "input_cost_per_token": 0.00000026,
+            "output_cost_per_token": 0.00000038,
+            "cache_read_input_token_cost": 0.00000013
           },
           "limit": {
             "context": 163840,
-            "output": 65536
+            "output": 163840
           },
           "modalities": {
             "input": ["text"],
@@ -169899,9 +170585,9 @@
           "id": "deepseek/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.0000000826,
-            "output_cost_per_token": 0.0000001652,
-            "cache_read_input_token_cost": 0.00000001652
+            "input_cost_per_token": 0.00000007406,
+            "output_cost_per_token": 0.00000014812,
+            "cache_read_input_token_cost": 0.000000014812
           },
           "limit": {
             "context": 1048576,
@@ -169932,13 +170618,13 @@
           "id": "deepseek/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000014,
-            "output_cost_per_token": 0.00000028,
-            "cache_read_input_token_cost": 0.000000028
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000018,
+            "cache_read_input_token_cost": 0.000000016
           },
           "limit": {
             "context": 1310720,
-            "output": 393216
+            "output": 384000
           },
           "modalities": {
             "input": ["text"],
@@ -169961,17 +170647,49 @@
           "release_date": "2026-07-31",
           "last_updated": "2026-07-31"
         },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
+            "cache_read_input_token_cost": 0.000000007
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek/deepseek-v4-pro": {
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
           "pricing": {
-            "input_cost_per_token": 0.0000016,
-            "output_cost_per_token": 0.0000032,
-            "cache_read_input_token_cost": 0.000000135
+            "input_cost_per_token": 0.000000481458,
+            "output_cost_per_token": 0.000000962916,
+            "cache_read_input_token_cost": 0.000000040122
           },
           "limit": {
             "context": 1048576,
-            "output": 393216
+            "output": 384000
           },
           "modalities": {
             "input": ["text"],
@@ -171933,6 +172651,38 @@
           "release_date": "2026-08-05",
           "last_updated": "2026-08-05"
         },
+        "meta/muse-spark-1.2-contributor": {
+          "id": "meta/muse-spark-1.2-contributor",
+          "name": "Muse Spark 1.2 Contributor",
+          "pricing": {
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.0000002,
+            "cache_read_input_token_cost": 0.000000002
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "muse",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "microsoft/phi-4": {
           "id": "microsoft/phi-4",
           "name": "Phi 4",
@@ -172160,12 +172910,12 @@
           "name": "MiniMax-M2.5",
           "pricing": {
             "input_cost_per_token": 0.00000027,
-            "output_cost_per_token": 0.00000095,
-            "cache_read_input_token_cost": 0.00000003
+            "output_cost_per_token": 0.00000108,
+            "cache_read_input_token_cost": 0.000000027
           },
           "limit": {
             "context": 204800,
-            "output": 32768
+            "output": 128000
           },
           "modalities": {
             "input": ["text"],
@@ -172774,11 +173524,11 @@
           "id": "mistralai/mistral-small-3.2-24b-instruct",
           "name": "Mistral Small 3.2 24B",
           "pricing": {
-            "input_cost_per_token": 0.00000009375,
-            "output_cost_per_token": 0.00000025
+            "input_cost_per_token": 0.000000075,
+            "output_cost_per_token": 0.0000002
           },
           "limit": {
-            "context": 256000,
+            "context": 131072,
             "output": 16384
           },
           "modalities": {
@@ -173001,9 +173751,9 @@
           "id": "moonshotai/kimi-k2.6",
           "name": "Kimi K2.6",
           "pricing": {
-            "input_cost_per_token": 0.00000095,
-            "output_cost_per_token": 0.000004,
-            "cache_read_input_token_cost": 0.00000016
+            "input_cost_per_token": 0.0000005415,
+            "output_cost_per_token": 0.00000228,
+            "cache_read_input_token_cost": 0.0000000912
           },
           "limit": {
             "context": 262144,
@@ -175104,17 +175854,17 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125,
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.000005,
-                "output_cost_per_token": 0.0000225,
-                "cache_read_input_token_cost": 0.0000005,
-                "cache_creation_input_token_cost": 0.00000625
+                "input_cost_per_token": 0.000004,
+                "output_cost_per_token": 0.000015,
+                "cache_read_input_token_cost": 0.0000004,
+                "cache_creation_input_token_cost": 0.000005
               }
             ]
           },
@@ -175148,17 +175898,17 @@
           "id": "openai/gpt-5.6-sol-pro",
           "name": "GPT-5.6 Sol Pro",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125,
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.000005,
-                "output_cost_per_token": 0.0000225,
-                "cache_read_input_token_cost": 0.0000005,
-                "cache_creation_input_token_cost": 0.00000625
+                "input_cost_per_token": 0.000004,
+                "output_cost_per_token": 0.000015,
+                "cache_read_input_token_cost": 0.0000004,
+                "cache_creation_input_token_cost": 0.000005
               }
             ]
           },
@@ -175427,37 +176177,6 @@
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "gpt-oss",
-          "release_date": "2025-08-05",
-          "last_updated": "2025-08-05"
-        },
-        "openai/gpt-oss-20b:free": {
-          "id": "openai/gpt-oss-20b:free",
-          "name": "gpt-oss-20b (free)",
-          "pricing": {
-            "input_cost_per_token": 0.0,
-            "output_cost_per_token": 0.0
-          },
-          "limit": {
-            "context": 131072,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
             "attachment": false,
             "open_weights": true
           },
@@ -176461,12 +177180,12 @@
           "id": "qwen/qwen3-14b",
           "name": "Qwen3 14B",
           "pricing": {
-            "input_cost_per_token": 0.0000002275,
-            "output_cost_per_token": 0.00000091
+            "input_cost_per_token": 0.00000012,
+            "output_cost_per_token": 0.00000024
           },
           "limit": {
             "context": 131072,
-            "output": 8192
+            "output": 16384
           },
           "modalities": {
             "input": ["text"],
@@ -177039,12 +177758,13 @@
           "id": "qwen/qwen3-next-80b-a3b-instruct",
           "name": "Qwen3-Next 80B-A3B Instruct",
           "pricing": {
-            "input_cost_per_token": 0.00000009,
-            "output_cost_per_token": 0.0000011
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.0000011,
+            "cache_read_input_token_cost": 0.00000007
           },
           "limit": {
             "context": 262144,
-            "output": 16384
+            "output": 262144
           },
           "modalities": {
             "input": ["text"],
@@ -177058,7 +177778,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": false,
             "open_weights": true
           },
@@ -177909,7 +178629,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 262144
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -178729,6 +179449,68 @@
           "family": "ling",
           "release_date": "2026-07-30",
           "last_updated": "2026-07-30"
+        },
+        "thinkingmachines/inkling-small:free": {
+          "id": "thinkingmachines/inkling-small:free",
+          "name": "Inkling Small (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-30",
+          "last_updated": "2026-07-30"
+        },
+        "thinkingmachines/inkling:free": {
+          "id": "thinkingmachines/inkling:free",
+          "name": "Inkling (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-15",
+          "last_updated": "2026-07-15"
         },
         "undi95/remm-slerp-l2-13b": {
           "id": "undi95/remm-slerp-l2-13b",
@@ -179757,12 +180539,12 @@
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
             "input_cost_per_token": 0.000000065,
-            "output_cost_per_token": 0.00000014,
-            "cache_read_input_token_cost": 0.000000014
+            "output_cost_per_token": 0.00000018,
+            "cache_read_input_token_cost": 0.00000002
           },
           "limit": {
             "context": 1310720,
-            "output": 262144
+            "output": 1048576
           },
           "modalities": {
             "input": ["text"],
@@ -179898,17 +180680,17 @@
           "id": "~openai/gpt-latest",
           "name": "OpenAI GPT Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125,
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.000005,
-                "output_cost_per_token": 0.0000225,
-                "cache_read_input_token_cost": 0.0000005,
-                "cache_creation_input_token_cost": 0.00000625
+                "input_cost_per_token": 0.000004,
+                "output_cost_per_token": 0.000015,
+                "cache_read_input_token_cost": 0.0000004,
+                "cache_creation_input_token_cost": 0.000005
               }
             ]
           },
@@ -180819,9 +181601,9 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-19",
-          "last_updated": "2026-05-19"
+          "knowledge": "2026-03",
+          "release_date": "2026-08-13",
+          "last_updated": "2026-08-13"
         },
         "google/gemini-flash-lite-latest": {
           "id": "google/gemini-flash-lite-latest",
@@ -180853,9 +181635,9 @@
             "open_weights": false
           },
           "family": "gemini-flash-lite",
-          "knowledge": "2025-01",
-          "release_date": "2026-05-07",
-          "last_updated": "2026-05-07"
+          "knowledge": "2026-03",
+          "release_date": "2026-07-21",
+          "last_updated": "2026-07-21"
         },
         "google/gemma-4-26b-a4b-it": {
           "id": "google/gemma-4-26b-a4b-it",
@@ -202877,6 +203659,40 @@
           "release_date": "2024-07-26",
           "last_updated": "2025-06-15"
         },
+        "deepseek-v4-flash-0731": {
+          "id": "deepseek-v4-flash-0731",
+          "name": "DeepSeek V4 Flash 0731",
+          "pricing": {
+            "input_cost_per_token": 0.000000468,
+            "output_cost_per_token": 0.000000936,
+            "cache_read_input_token_cost": 0.0000000936,
+            "output_cost_per_reasoning_token": 0.000000936
+          },
+          "limit": {
+            "context": 256000,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-flash",
+          "knowledge": "2025-05",
+          "release_date": "2026-07-31",
+          "last_updated": "2026-07-31"
+        },
         "gemma-4-26b-a4b-it": {
           "id": "gemma-4-26b-a4b-it",
           "name": "Gemma 4 26B A4B IT",
@@ -216931,6 +217747,38 @@
           "release_date": "2026-06-28",
           "last_updated": "2026-07-24"
         },
+        "stealth-ox-alpha": {
+          "id": "stealth-ox-alpha",
+          "name": "Ox Alpha",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0,
+            "cache_read_input_token_cost": 0.0
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "alpha",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "venice-uncensored-1-2": {
           "id": "venice-uncensored-1-2",
           "name": "Venice Uncensored 1.2",
@@ -220263,9 +221111,9 @@
           "id": "deepseek/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000013,
-            "output_cost_per_token": 0.00000026,
-            "cache_read_input_token_cost": 0.000000028
+            "input_cost_per_token": 0.000000076,
+            "output_cost_per_token": 0.000000153,
+            "cache_read_input_token_cost": 0.000000014
           },
           "limit": {
             "context": 1000000,
@@ -220291,6 +221139,38 @@
           "knowledge": "2025-05",
           "release_date": "2026-07-31",
           "last_updated": "2026-07-31"
+        },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
+            "cache_read_input_token_cost": 0.000000007
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
         },
         "deepseek/deepseek-v4-pro": {
           "id": "deepseek/deepseek-v4-pro",
@@ -224946,10 +225826,10 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT 5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000015,
-            "cache_read_input_token_cost": 0.00000025,
-            "cache_creation_input_token_cost": 0.000003125
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002,
+            "cache_creation_input_token_cost": 0.0000025
           },
           "limit": {
             "context": 1050000,
@@ -224981,10 +225861,10 @@
           "id": "openai/gpt-5.6-sol-fast",
           "name": "GPT 5.6 Sol (Fast)",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.000003125
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.0000025
           },
           "limit": {
             "context": 1050000,
