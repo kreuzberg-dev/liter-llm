@@ -331,6 +331,13 @@ pub struct ChatCompletionChunk {
     #[serde(default)]
     pub model: String,
     /// Streaming choices (delta updates).
+    ///
+    // ~keep `#[serde(default)]` for the same reason as the header fields above,
+    // plus one of its own: a provider that aborts mid-stream sends an
+    // error-object event with no `choices` at all (see `parse_stream_event`).
+    // That guard runs before deserialization and returns the provider's real
+    // error, so this default never silently absorbs one.
+    #[serde(default)]
     pub choices: Vec<StreamChoice>,
     /// Token usage (typically only in the final chunk).
     #[serde(default, skip_serializing_if = "Option::is_none")]

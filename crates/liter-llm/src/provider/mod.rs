@@ -481,6 +481,35 @@ pub(crate) trait Provider: Send + Sync {
     /// Returns `Ok(None)` to skip this event (continue reading the stream).
     /// Returns `Err` when the event cannot be parsed.
     fn parse_stream_event(&self, event_data: &str) -> Result<Option<crate::types::ChatCompletionChunk>> {
+        // ~keep An OpenAI-compatible provider may accept a stream (HTTP 200,
+        // `text/event-stream`) and then abort mid-stream by sending a `data:`
+        // line carrying an error object — `{"error": {"message": ..., "code":
+        // ..., "status_code": ...}}` — before closing the connection. Groq does
+        // this when a model emits a malformed tool call. The status lives in the
+        // payload, not the response code, so it must be recovered here.
+        //
+        // This check must run BEFORE deserialization: `ChatCompletionChunk`
+        // defaults every field (so providers may omit `id`/`choices`/etc. on
+        // legitimate events — see #155), which means an error object would
+        // otherwise decode into a valid-looking, content-free chunk and the
+        // failure would vanish, leaving callers awaiting content that is never
+        // sent.
+        if let Ok(value) = serde_json::from_str::<serde_json::Value>(event_data)
+            && let Some(error) = value.get("error")
+        {
+            let message = error
+                .get("message")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("provider returned an error mid-stream")
+                .to_string();
+            let status = error
+                .get("status_code")
+                .and_then(serde_json::Value::as_u64)
+                .and_then(|s| u16::try_from(s).ok())
+                .unwrap_or(400);
+            return Err(LiterLlmError::BadRequest { message, status });
+        }
+
         serde_json::from_str::<crate::types::ChatCompletionChunk>(event_data)
             .map(Some)
             .map_err(|e| LiterLlmError::Streaming {
@@ -1084,6 +1113,57 @@ mod tests {
             .expect("trailing metadata event must not error")
             .expect("event should decode to a chunk, not be skipped");
         assert!(chunk.id.is_empty());
+        assert!(chunk.choices.is_empty());
+    }
+
+    /// Revert line: delete the `if let Ok(value) = ... && let Some(error) = ...`
+    /// block in `parse_stream_event` to make this test fail.
+    #[test]
+    fn parse_stream_event_surfaces_mid_stream_error_object() {
+        // ~keep Groq answers HTTP 200 + `text/event-stream`, then aborts the
+        // stream with an error object when a model emits a malformed tool call.
+        // The real status lives in the payload, so it must be recovered from
+        // there rather than from the (successful) response code.
+        let payload = r#"{"error":{"message":"tool call validation failed","type":"invalid_request_error","code":"tool_use_failed","status_code":400}}"#;
+        let err = OpenAiProvider
+            .parse_stream_event(payload)
+            .expect_err("a mid-stream error object must not decode as a chunk");
+        assert_eq!(err.status_code(), 400);
+        assert!(
+            err.to_string().contains("tool call validation failed"),
+            "the provider's own message must reach the caller, got: {err}"
+        );
+    }
+
+    /// Revert line: change the `status_code` fallback in `parse_stream_event`
+    /// from `unwrap_or(400)` to `unwrap_or(200)` to make this test fail.
+    #[test]
+    fn parse_stream_event_defaults_status_when_error_object_omits_it() {
+        // ~keep Not every provider includes `status_code` in the error object;
+        // absent one, a 4xx is the safe reading — the request is over and it did
+        // not succeed, so it must not be reported as a 2xx.
+        let payload = r#"{"error":{"message":"upstream capacity exceeded"}}"#;
+        let err = OpenAiProvider
+            .parse_stream_event(payload)
+            .expect_err("an error object without a status must still be an error");
+        assert_eq!(err.status_code(), 400);
+        assert!(err.to_string().contains("upstream capacity exceeded"));
+    }
+
+    /// Revert line: delete `#[serde(default)]` from `ChatCompletionChunk::choices`
+    /// in `types/chat.rs` to make this test fail.
+    #[test]
+    fn parse_stream_event_tolerates_metadata_event_without_choices() {
+        // ~keep The #155 trailing-metadata event omits `id`; a provider may also
+        // omit `choices` entirely on such an event. Defaulting the field keeps
+        // the stream alive, and the error-object guard above runs first so this
+        // tolerance cannot swallow a real failure.
+        let payload =
+            r#"{"object":"chat.completion.chunk","usage":{"prompt_tokens":9,"completion_tokens":1,"total_tokens":10}}"#;
+        let chunk = OpenAiProvider
+            .parse_stream_event(payload)
+            .expect("a metadata event without `choices` must not error")
+            .expect("event should decode to a chunk, not be skipped");
         assert!(chunk.choices.is_empty());
     }
 
