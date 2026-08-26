@@ -1,9 +1,9 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "dc0c06d9d009953b1769c29cfb93d194d3f88a3aff321ac70af345df6aaf914f",
-    "fetched": "2026-08-25",
-    "library_version": "1.18.1"
+    "source_sha256": "ddfca33d40d93553624b9ffab2150598b5afd457f19b3fe1f2f4aaf2b3f5d80a",
+    "fetched": "2026-08-26",
+    "library_version": "1.18.2"
   },
   "$schema_version": 1,
   "providers": {
@@ -6822,6 +6822,37 @@
           },
           "release_date": "2026-07",
           "last_updated": "2026-07"
+        },
+        "agnes-2.5-pro-alpha": {
+          "id": "agnes-2.5-pro-alpha",
+          "name": "Agnes 2.5 Pro Alpha",
+          "pricing": {
+            "input_cost_per_token": 0.00000045,
+            "output_cost_per_token": 0.0000009,
+            "cache_read_input_token_cost": 0.0000000038
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "release_date": "2026-07-24",
+          "last_updated": "2026-07-24"
         }
       }
     },
@@ -9855,6 +9886,48 @@
           "family": "glm",
           "release_date": "2026-03-27",
           "last_updated": "2026-03-27"
+        }
+      }
+    },
+    "aixy": {
+      "name": "Aixy",
+      "env": ["AIXY_API_KEY"],
+      "doc": "https://docs.aixy-gateway.com/integrations/overview",
+      "api": "https://api.aixy-gateway.com/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "openai/gpt-4.1-mini": {
+          "id": "openai/gpt-4.1-mini",
+          "name": "GPT-4.1 mini",
+          "pricing": {
+            "input_cost_per_token": 0.0000004,
+            "output_cost_per_token": 0.0000016,
+            "cache_read_input_token_cost": 0.0000001
+          },
+          "limit": {
+            "context": 1047576,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-mini",
+          "knowledge": "2024-04",
+          "release_date": "2025-04-14",
+          "last_updated": "2025-04-14"
         }
       }
     },
@@ -49039,7 +49112,9 @@
           "name": "GPT OSS 120B",
           "pricing": {
             "input_cost_per_token": 0.00000015001,
-            "output_cost_per_token": 0.00000059997
+            "output_cost_per_token": 0.00000059997,
+            "cache_read_input_token_cost": 0.00000015001,
+            "cache_creation_input_token_cost": 0.00000015001
           },
           "limit": {
             "context": 131072,
@@ -49057,7 +49132,7 @@
             "structured_output": false,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": false,
             "open_weights": true
           },
@@ -49070,7 +49145,9 @@
           "name": "GPT OSS 20B",
           "pricing": {
             "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.00000030002
+            "output_cost_per_token": 0.00000030002,
+            "cache_read_input_token_cost": 0.00000007,
+            "cache_creation_input_token_cost": 0.00000007
           },
           "limit": {
             "context": 131072,
@@ -49088,7 +49165,7 @@
             "structured_output": false,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": false,
             "open_weights": true
           },
@@ -51069,8 +51146,8 @@
           "id": "ionos/meta-llama/Llama-3.3-70B-Instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.00000075816,
-            "output_cost_per_token": 0.00000075816
+            "input_cost_per_token": 0.00000075803,
+            "output_cost_per_token": 0.00000075803
           },
           "limit": {
             "context": 128000,
@@ -51101,8 +51178,8 @@
           "id": "ionos/openai/gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.00000017496,
-            "output_cost_per_token": 0.00000075816
+            "input_cost_per_token": 0.00000017493,
+            "output_cost_per_token": 0.00000075803
           },
           "limit": {
             "context": 131072,
@@ -53696,6 +53773,38 @@
           "release_date": "2026-02-03",
           "last_updated": "2026-02-03"
         },
+        "qwen/qwen3-coder-next@eu": {
+          "id": "qwen/qwen3-coder-next@eu",
+          "name": "Qwen3 Coder Next (EU)",
+          "pricing": {
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000015
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "knowledge": "2025-09",
+          "release_date": "2026-02-03",
+          "last_updated": "2026-02-03"
+        },
         "qwen/qwen3-coder-plus": {
           "id": "qwen/qwen3-coder-plus",
           "name": "Qwen3 Coder Plus",
@@ -53733,6 +53842,40 @@
         "qwen/qwen3-max": {
           "id": "qwen/qwen3-max",
           "name": "Qwen3 Max",
+          "pricing": {
+            "input_cost_per_token": 0.0000012,
+            "output_cost_per_token": 0.000006,
+            "cache_read_input_token_cost": 0.00000024,
+            "cache_creation_input_token_cost": 0.0000015
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2025-09-23",
+          "last_updated": "2025-09-23"
+        },
+        "qwen/qwen3-max@eu": {
+          "id": "qwen/qwen3-max@eu",
+          "name": "Qwen3 Max (EU)",
           "pricing": {
             "input_cost_per_token": 0.0000012,
             "output_cost_per_token": 0.000006,
@@ -54027,8 +54170,8 @@
           "id": "scaleway/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000046656,
-            "output_cost_per_token": 0.00000093312
+            "input_cost_per_token": 0.00000046648,
+            "output_cost_per_token": 0.00000093296
           },
           "limit": {
             "context": 256000,
@@ -54041,7 +54184,7 @@
           "mode": "chat",
           "capabilities": {
             "vision": false,
-            "function_calling": true,
+            "function_calling": false,
             "reasoning": true,
             "structured_output": false,
             "audio_input": false,
@@ -54059,8 +54202,8 @@
           "id": "scaleway/gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.00000017496,
-            "output_cost_per_token": 0.00000069984
+            "input_cost_per_token": 0.00000017493,
+            "output_cost_per_token": 0.00000069972
           },
           "limit": {
             "context": 128000,
@@ -54073,7 +54216,7 @@
           "mode": "chat",
           "capabilities": {
             "vision": false,
-            "function_calling": true,
+            "function_calling": false,
             "reasoning": true,
             "structured_output": false,
             "audio_input": false,
@@ -54090,8 +54233,8 @@
           "id": "scaleway/llama-3.3-70b-instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.00000104976,
-            "output_cost_per_token": 0.00000104976
+            "input_cost_per_token": 0.00000104958,
+            "output_cost_per_token": 0.00000104958
           },
           "limit": {
             "context": 128000,
@@ -54104,7 +54247,7 @@
           "mode": "chat",
           "capabilities": {
             "vision": false,
-            "function_calling": true,
+            "function_calling": false,
             "reasoning": false,
             "structured_output": false,
             "audio_input": false,
@@ -54397,7 +54540,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": true,
             "audio_output": false,
             "prompt_caching": true,
@@ -57797,8 +57940,8 @@
           "release_date": "2025-07-30",
           "last_updated": "2025-07-30"
         },
-        "Qwen/Qwen3.6-35B-A3B-FP8": {
-          "id": "Qwen/Qwen3.6-35B-A3B-FP8",
+        "Qwen/Qwen3.6-35B-A3B": {
+          "id": "Qwen/Qwen3.6-35B-A3B",
           "name": "Qwen3.6 35B-A3B",
           "pricing": {
             "input_cost_per_token": 0.000000345,
@@ -57827,6 +57970,37 @@
           "family": "qwen",
           "release_date": "2026-04-17",
           "last_updated": "2026-04-17"
+        },
+        "Qwen/Qwen3.8-27B": {
+          "id": "Qwen/Qwen3.8-27B",
+          "name": "Qwen3.8-27B",
+          "pricing": {
+            "input_cost_per_token": 0.00000087,
+            "output_cost_per_token": 0.0000035
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         },
         "evroc/roc": {
           "id": "evroc/roc",
@@ -63763,6 +63937,78 @@
       "api": "https://api.gmi-serving.com/v1",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
+        "MiniMaxAI/MiniMax-M2.7": {
+          "id": "MiniMaxAI/MiniMax-M2.7",
+          "name": "MiniMax-M2.7",
+          "pricing": {
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000012,
+            "cache_read_input_token_cost": 0.00000006
+          },
+          "limit": {
+            "context": 196608,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "minimax",
+          "release_date": "2026-03-18",
+          "last_updated": "2026-03-18"
+        },
+        "MiniMaxAI/MiniMax-M3": {
+          "id": "MiniMaxAI/MiniMax-M3",
+          "name": "MiniMax-M3",
+          "pricing": {
+            "input_cost_per_token": 0.0000006,
+            "output_cost_per_token": 0.0000024,
+            "cache_read_input_token_cost": 0.00000012,
+            "tiers": [
+              {
+                "min_context_tokens": 512000,
+                "input_cost_per_token": 0.0000012,
+                "output_cost_per_token": 0.0000048,
+                "cache_read_input_token_cost": 0.00000024
+              }
+            ]
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "minimax",
+          "release_date": "2026-06-01",
+          "last_updated": "2026-06-01"
+        },
         "Qwen/Qwen3.7-Max": {
           "id": "Qwen/Qwen3.7-Max",
           "name": "Qwen3.7 Max",
@@ -73343,6 +73589,37 @@
           "release_date": "2026-08-12",
           "last_updated": "2026-08-12"
         },
+        "Qwen/Qwen3.8-27B": {
+          "id": "Qwen/Qwen3.8-27B",
+          "name": "Qwen3.8 27B",
+          "pricing": {
+            "input_cost_per_token": 0.0000004,
+            "output_cost_per_token": 0.000003
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "XiaomiMiMo/MiMo-V2-Flash": {
           "id": "XiaomiMiMo/MiMo-V2-Flash",
           "name": "MiMo-V2-Flash",
@@ -74788,9 +75065,9 @@
           "id": "gemma-4-26b-a4b-it",
           "name": "Gemma 4 26B A4B IT",
           "pricing": {
-            "input_cost_per_token": 0.00000011,
-            "output_cost_per_token": 0.000000408,
-            "cache_creation_input_token_cost": 0.000000055
+            "input_cost_per_token": 0.00000012,
+            "output_cost_per_token": 0.00000042,
+            "cache_creation_input_token_cost": 0.00000006
           },
           "limit": {
             "context": 256000,
@@ -74820,9 +75097,9 @@
           "id": "glm-5",
           "name": "GLM-5",
           "pricing": {
-            "input_cost_per_token": 0.00000086,
-            "output_cost_per_token": 0.000002784,
-            "cache_creation_input_token_cost": 0.00000043
+            "input_cost_per_token": 0.00000091,
+            "output_cost_per_token": 0.000002814,
+            "cache_creation_input_token_cost": 0.000000455
           },
           "limit": {
             "context": 202752,
@@ -74852,9 +75129,9 @@
           "id": "glm-5.1",
           "name": "GLM-5.1",
           "pricing": {
-            "input_cost_per_token": 0.000001332,
-            "output_cost_per_token": 0.000004312,
-            "cache_creation_input_token_cost": 0.000000666
+            "input_cost_per_token": 0.00000136,
+            "output_cost_per_token": 0.0000044,
+            "cache_creation_input_token_cost": 0.00000068
           },
           "limit": {
             "context": 202750,
@@ -74916,9 +75193,9 @@
           "id": "gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.000000178,
-            "output_cost_per_token": 0.00000068,
-            "cache_creation_input_token_cost": 0.000000089
+            "input_cost_per_token": 0.000000188,
+            "output_cost_per_token": 0.0000007,
+            "cache_creation_input_token_cost": 0.000000094
           },
           "limit": {
             "context": 128072,
@@ -78695,7 +78972,7 @@
           "name": "Kimi K2.6",
           "pricing": {
             "input_cost_per_token": 0.00000057,
-            "output_cost_per_token": 0.00000341,
+            "output_cost_per_token": 0.00000339,
             "cache_read_input_token_cost": 0.0000002,
             "cache_creation_input_token_cost": 0.0
           },
@@ -78763,7 +79040,7 @@
           "name": "GLM 5.2",
           "pricing": {
             "input_cost_per_token": 0.00000075,
-            "output_cost_per_token": 0.0000029,
+            "output_cost_per_token": 0.0000024,
             "cache_read_input_token_cost": 0.00000017,
             "cache_creation_input_token_cost": 0.0
           },
@@ -84199,7 +84476,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -84230,7 +84507,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text"],
@@ -85023,7 +85300,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -85177,7 +85454,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -85554,7 +85831,7 @@
           },
           "limit": {
             "context": 163840,
-            "output": 163840
+            "output": 147456
           },
           "modalities": {
             "input": ["text"],
@@ -85586,7 +85863,7 @@
           },
           "limit": {
             "context": 161000,
-            "output": 161000
+            "output": 144900
           },
           "modalities": {
             "input": ["text"],
@@ -85681,7 +85958,7 @@
           },
           "limit": {
             "context": 8192,
-            "output": 8192
+            "output": 7372
           },
           "modalities": {
             "input": ["text"],
@@ -85745,7 +86022,7 @@
           },
           "limit": {
             "context": 163840,
-            "output": 163840
+            "output": 147456
           },
           "modalities": {
             "input": ["text"],
@@ -85842,7 +86119,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 131072
+            "output": 943718
           },
           "modalities": {
             "input": ["text"],
@@ -85940,7 +86217,7 @@
           },
           "limit": {
             "context": 1048575,
-            "output": 384000
+            "output": 943717
           },
           "modalities": {
             "input": ["text"],
@@ -85971,7 +86248,7 @@
           },
           "limit": {
             "context": 512000,
-            "output": 512000
+            "output": 460800
           },
           "modalities": {
             "input": ["text", "image"],
@@ -86245,7 +86522,7 @@
             "output_cost_per_reasoning_token": 0.000012
           },
           "limit": {
-            "context": 65536,
+            "context": 131072,
             "output": 32768
           },
           "modalities": {
@@ -86345,7 +86622,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -86412,7 +86689,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["image", "text", "pdf"],
@@ -86751,7 +87028,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text", "image"],
@@ -86804,37 +87081,6 @@
           "release_date": "2025-03-13",
           "last_updated": "2025-03-13"
         },
-        "google/gemma-3n-e4b-it": {
-          "id": "google/gemma-3n-e4b-it",
-          "name": "Google: Gemma 3n 4B",
-          "pricing": {
-            "input_cost_per_token": 0.00000006,
-            "output_cost_per_token": 0.00000012
-          },
-          "limit": {
-            "context": 32768,
-            "output": 6554
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "gemma",
-          "release_date": "2025-05-20",
-          "last_updated": "2025-05-20"
-        },
         "google/gemma-4-26b-a4b-it": {
           "id": "google/gemma-4-26b-a4b-it",
           "name": "Gemma 4 26B A4B IT",
@@ -86870,13 +87116,13 @@
           "id": "google/gemma-4-31b-it",
           "name": "Gemma 4 31B IT",
           "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000035,
-            "cache_read_input_token_cost": 0.00000001
+            "input_cost_per_token": 0.00000009,
+            "output_cost_per_token": 0.00000034,
+            "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 16384
           },
           "modalities": {
             "input": ["image", "text", "video"],
@@ -86969,7 +87215,7 @@
           },
           "limit": {
             "context": 4096,
-            "output": 4096
+            "output": 3686
           },
           "modalities": {
             "input": ["text"],
@@ -86999,7 +87245,7 @@
           },
           "limit": {
             "context": 131000,
-            "output": 131000
+            "output": 117900
           },
           "modalities": {
             "input": ["text"],
@@ -87031,7 +87277,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -87549,7 +87795,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -87581,7 +87827,7 @@
           },
           "limit": {
             "context": 60000,
-            "output": 60000
+            "output": 54000
           },
           "modalities": {
             "input": ["text"],
@@ -87612,7 +87858,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -87642,8 +87888,8 @@
             "output_cost_per_token": 0.00000032
           },
           "limit": {
-            "context": 131072,
-            "output": 16384
+            "context": 128000,
+            "output": 115200
           },
           "modalities": {
             "input": ["text"],
@@ -87705,8 +87951,8 @@
             "output_cost_per_token": 0.0000003
           },
           "limit": {
-            "context": 327680,
-            "output": 16384
+            "context": 131072,
+            "output": 8192
           },
           "modalities": {
             "input": ["text", "image"],
@@ -87769,7 +88015,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -87802,7 +88048,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video", "pdf", "audio"],
@@ -87834,7 +88080,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video", "pdf", "audio"],
@@ -87866,7 +88112,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video", "pdf", "audio"],
@@ -87897,7 +88143,7 @@
           },
           "limit": {
             "context": 16384,
-            "output": 16384
+            "output": 14745
           },
           "modalities": {
             "input": ["text"],
@@ -87958,7 +88204,7 @@
           },
           "limit": {
             "context": 1000192,
-            "output": 1000192
+            "output": 900172
           },
           "modalities": {
             "input": ["text", "image"],
@@ -88147,7 +88393,7 @@
             "cache_read_input_token_cost": 0.00000006
           },
           "limit": {
-            "context": 196608,
+            "context": 204800,
             "output": 131072
           },
           "modalities": {
@@ -88179,7 +88425,7 @@
           },
           "limit": {
             "context": 196608,
-            "output": 196608
+            "output": 176947
           },
           "modalities": {
             "input": ["text"],
@@ -88233,6 +88479,37 @@
           "release_date": "2026-06-01",
           "last_updated": "2026-06-01"
         },
+        "minimax/minimax-m3:free": {
+          "id": "minimax/minimax-m3:free",
+          "name": "MiniMax: MiniMax M3 (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 943718
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "minimax",
+          "release_date": "2026-06-01",
+          "last_updated": "2026-06-01"
+        },
         "mistralai/codestral-2508": {
           "id": "mistralai/codestral-2508",
           "name": "Mistral: Codestral 2508",
@@ -88243,7 +88520,7 @@
           },
           "limit": {
             "context": 256000,
-            "output": 51200
+            "output": 204800
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -88275,7 +88552,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -88308,7 +88585,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 52429
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image"],
@@ -88340,7 +88617,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 32768
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "image"],
@@ -88371,7 +88648,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 102400
           },
           "modalities": {
             "input": ["text"],
@@ -88403,7 +88680,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 32768
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image"],
@@ -88435,7 +88712,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 25600
+            "output": 102400
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -88467,7 +88744,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 32768
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -88499,7 +88776,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 52429
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -88532,7 +88809,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 26215
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -88563,7 +88840,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -88595,7 +88872,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 26215
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -88660,7 +88937,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 26214
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -88723,7 +89000,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image"],
@@ -88755,7 +89032,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 102400
           },
           "modalities": {
             "input": ["text", "image"],
@@ -88819,7 +89096,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 13108
+            "output": 52428
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -88851,7 +89128,7 @@
           },
           "limit": {
             "context": 32000,
-            "output": 6400
+            "output": 25600
           },
           "modalities": {
             "input": ["text", "audio", "pdf"],
@@ -88978,7 +89255,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -89011,7 +89288,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -89044,7 +89321,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -89077,7 +89354,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -89171,7 +89448,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -89203,7 +89480,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -89296,7 +89573,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 26215
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -89327,7 +89604,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -89359,7 +89636,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -89452,7 +89729,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -89484,7 +89761,7 @@
           },
           "limit": {
             "context": 512288,
-            "output": 512288
+            "output": 461059
           },
           "modalities": {
             "input": ["text"],
@@ -89672,7 +89949,7 @@
           },
           "limit": {
             "context": 4095,
-            "output": 4096
+            "output": 3685
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -89734,7 +90011,7 @@
           },
           "limit": {
             "context": 4095,
-            "output": 4096
+            "output": 3685
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -91230,7 +91507,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -91256,13 +91533,12 @@
           "id": "openai/gpt-oss-20b",
           "name": "GPT OSS 20B",
           "pricing": {
-            "input_cost_per_token": 0.00000003,
-            "output_cost_per_token": 0.00000013,
-            "cache_read_input_token_cost": 0.00000003
+            "input_cost_per_token": 0.00000002,
+            "output_cost_per_token": 0.0000001
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -91276,7 +91552,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": false,
             "open_weights": true
           },
@@ -91735,7 +92011,7 @@
           },
           "limit": {
             "context": 127072,
-            "output": 25415
+            "output": 114364
           },
           "modalities": {
             "input": ["text", "image"],
@@ -91767,7 +92043,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 25600
+            "output": 115200
           },
           "modalities": {
             "input": ["text"],
@@ -91860,7 +92136,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 25600
+            "output": 115200
           },
           "modalities": {
             "input": ["text", "image"],
@@ -92048,7 +92324,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -92079,7 +92355,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -92166,48 +92442,16 @@
           "release_date": "2025-09-08",
           "last_updated": "2025-09-08"
         },
-        "qwen/qwen-plus-2025-07-28:thinking": {
-          "id": "qwen/qwen-plus-2025-07-28:thinking",
-          "name": "Qwen: Qwen Plus 0728 (thinking)",
-          "pricing": {
-            "input_cost_per_token": 0.00000026,
-            "output_cost_per_token": 0.00000078
-          },
-          "limit": {
-            "context": 1000000,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "qwen",
-          "release_date": "2025-09-08",
-          "last_updated": "2025-09-08"
-        },
         "qwen/qwen2.5-vl-72b-instruct": {
           "id": "qwen/qwen2.5-vl-72b-instruct",
           "name": "Qwen: Qwen2.5 VL 72B Instruct",
           "pricing": {
-            "input_cost_per_token": 0.0000008,
-            "output_cost_per_token": 0.000001,
-            "cache_read_input_token_cost": 0.0000004
+            "input_cost_per_token": 0.00000025,
+            "output_cost_per_token": 0.00000075
           },
           "limit": {
-            "context": 128000,
-            "output": 128000
+            "context": 32000,
+            "output": 28800
           },
           "modalities": {
             "input": ["text", "image"],
@@ -92221,7 +92465,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": true,
             "open_weights": false
           },
@@ -92332,7 +92576,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 262144
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -92550,7 +92794,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -92616,7 +92860,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -92747,7 +92991,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -93030,7 +93274,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -93092,7 +93336,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -93123,7 +93367,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 65536
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -93154,7 +93398,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -93279,7 +93523,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 81920
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -93311,7 +93555,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -93575,7 +93819,7 @@
             "cache_creation_input_token_cost": 0.00000053125
           },
           "limit": {
-            "context": 262144,
+            "context": 1000000,
             "output": 131072
           },
           "modalities": {
@@ -93640,7 +93884,7 @@
           },
           "limit": {
             "context": 16384,
-            "output": 16384
+            "output": 14745
           },
           "modalities": {
             "input": ["image", "text", "video"],
@@ -93671,7 +93915,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text"],
@@ -93826,7 +94070,7 @@
           },
           "limit": {
             "context": 8192,
-            "output": 16384
+            "output": 7372
           },
           "modalities": {
             "input": ["text"],
@@ -94153,7 +94397,7 @@
           "limit": {
             "context": 256000,
             "input": 256000,
-            "output": 256000
+            "output": 230400
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -94217,7 +94461,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -94374,7 +94618,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -94439,7 +94683,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -94469,7 +94713,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text"],
@@ -94500,7 +94744,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -94530,7 +94774,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 26214
           },
           "modalities": {
             "input": ["text"],
@@ -94717,7 +94961,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -94812,7 +95056,7 @@
           },
           "limit": {
             "context": 2000000,
-            "output": 2000000
+            "output": 1800000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -94844,7 +95088,7 @@
           },
           "limit": {
             "context": 2000000,
-            "output": 2000000
+            "output": 1800000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -94876,7 +95120,7 @@
           },
           "limit": {
             "context": 1000000,
-            "output": 4096
+            "output": 900000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -94908,7 +95152,7 @@
           },
           "limit": {
             "context": 500000,
-            "output": 500000
+            "output": 450000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -94940,7 +95184,7 @@
           },
           "limit": {
             "context": 500000,
-            "output": 500000
+            "output": 450000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -94973,7 +95217,7 @@
           },
           "limit": {
             "context": 256000,
-            "output": 256000
+            "output": 230400
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -95382,7 +95626,7 @@
           },
           "limit": {
             "context": 202752,
-            "output": 202752
+            "output": 182476
           },
           "modalities": {
             "input": ["text"],
@@ -95637,13 +95881,13 @@
           "id": "~deepseek/deepseek-v4-flash-latest",
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.000000035,
+            "input_cost_per_token": 0.00000003,
             "output_cost_per_token": 0.000000075,
-            "cache_read_input_token_cost": 0.000000008
+            "cache_read_input_token_cost": 0.000000007
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -95737,13 +95981,13 @@
           "id": "~moonshotai/kimi-latest",
           "name": "MoonshotAI Kimi Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000028,
-            "output_cost_per_token": 0.000014,
-            "cache_read_input_token_cost": 0.00000029
+            "input_cost_per_token": 0.00000255,
+            "output_cost_per_token": 0.00001275,
+            "cache_read_input_token_cost": 0.000000256
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -95840,7 +96084,7 @@
           },
           "limit": {
             "context": 500000,
-            "output": 500000
+            "output": 450000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -98272,7 +98516,7 @@
             "cache_read_input_token_cost": 0.00000026
           },
           "limit": {
-            "context": 1000000,
+            "context": 1048576,
             "output": 131072
           },
           "modalities": {
@@ -105971,9 +106215,9 @@
           "id": "baidu/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash (Baidu)",
           "pricing": {
-            "input_cost_per_token": 0.00000014,
-            "output_cost_per_token": 0.00000028,
-            "cache_read_input_token_cost": 0.000000028
+            "input_cost_per_token": 0.00000044,
+            "output_cost_per_token": 0.00000132,
+            "cache_read_input_token_cost": 0.000000044
           },
           "limit": {
             "context": 1048576,
@@ -106004,9 +106248,9 @@
           "id": "baidu/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro (Baidu)",
           "pricing": {
-            "input_cost_per_token": 0.00000169,
-            "output_cost_per_token": 0.00000338,
-            "cache_read_input_token_cost": 0.00000014
+            "input_cost_per_token": 0.00000132,
+            "output_cost_per_token": 0.00000396,
+            "cache_read_input_token_cost": 0.000000132
           },
           "limit": {
             "context": 1048576,
@@ -106128,6 +106372,38 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        },
+        "baidu/glm-5.3": {
+          "id": "baidu/glm-5.3",
+          "name": "GLM-5.3 (Baidu)",
+          "pricing": {
+            "input_cost_per_token": 0.0000014,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.00000026
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         },
         "baidu/kimi-k2.6": {
           "id": "baidu/kimi-k2.6",
@@ -115175,6 +115451,47 @@
         }
       }
     },
+    "llmtech": {
+      "name": "LLM Tech",
+      "env": ["LLMTECH_API_KEY"],
+      "doc": "https://llmtech.eu/models/qwen3.8-27b",
+      "api": "https://api.llmtech.eu/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "unsloth/Qwen3.8-27B-NVFP4": {
+          "id": "unsloth/Qwen3.8-27B-NVFP4",
+          "name": "Qwen3.8 27B",
+          "pricing": {
+            "input_cost_per_token": 0.00000025,
+            "output_cost_per_token": 0.00000209,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        }
+      }
+    },
     "llmtr": {
       "name": "LLMTR",
       "env": ["LLMTR_API_KEY"],
@@ -118054,8 +118371,8 @@
           "id": "deepseek/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.000000035,
-            "output_cost_per_token": 0.00000007,
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.00000066,
             "cache_read_input_token_cost": 0.000000007
           },
           "limit": {
@@ -120823,8 +121140,8 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000004,
-            "output_cost_per_token": 0.000024,
+            "input_cost_per_token": 0.000005,
+            "output_cost_per_token": 0.00003,
             "cache_read_input_token_cost": 0.0000005
           },
           "limit": {
@@ -121677,23 +121994,23 @@
             "cache_read_input_token_cost": 0.0000000172
           },
           "limit": {
-            "context": 131072,
-            "output": 32768
+            "context": 256000,
+            "output": 64000
           },
           "modalities": {
-            "input": ["text"],
+            "input": ["text", "image"],
             "output": ["text"]
           },
           "mode": "chat",
           "capabilities": {
-            "vision": false,
+            "vision": true,
             "function_calling": true,
             "reasoning": true,
             "structured_output": false,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": false,
+            "attachment": true,
             "open_weights": true
           },
           "family": "qwen",
@@ -127631,8 +127948,8 @@
             "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
-            "context": 65536,
-            "input": 65536,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -127664,8 +127981,8 @@
             "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
-            "context": 65536,
-            "input": 65536,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -136373,8 +136690,8 @@
             "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
-            "context": 131072,
-            "input": 131072,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -136406,8 +136723,8 @@
             "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
-            "context": 131072,
-            "input": 131072,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -141927,8 +142244,8 @@
             "cache_read_input_token_cost": 0.000000025
           },
           "limit": {
-            "context": 131072,
-            "input": 131072,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -141960,8 +142277,8 @@
             "cache_read_input_token_cost": 0.000000025
           },
           "limit": {
-            "context": 131072,
-            "input": 131072,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -143292,8 +143609,8 @@
             "cache_read_input_token_cost": 0.000000075
           },
           "limit": {
-            "context": 65536,
-            "input": 65536,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -143325,8 +143642,8 @@
             "cache_read_input_token_cost": 0.000000075
           },
           "limit": {
-            "context": 65536,
-            "input": 65536,
+            "context": 262144,
+            "input": 262144,
             "output": 32768
           },
           "modalities": {
@@ -143414,6 +143731,72 @@
           "family": "qwen",
           "release_date": "2026-08-24",
           "last_updated": "2026-08-24"
+        },
+        "qwen/qwen3.8-27b-uncensored": {
+          "id": "qwen/qwen3.8-27b-uncensored",
+          "name": "Qwen 3.8 27B Uncensored",
+          "pricing": {
+            "input_cost_per_token": 0.00000018,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.000000075
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
+        "qwen/qwen3.8-27b-uncensored:thinking": {
+          "id": "qwen/qwen3.8-27b-uncensored:thinking",
+          "name": "Qwen 3.8 27B Uncensored Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.00000018,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.000000075
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-25",
+          "last_updated": "2026-08-25"
         },
         "qwen25-vl-72b-instruct": {
           "id": "qwen25-vl-72b-instruct",
@@ -166262,13 +166645,13 @@
           "pricing": {
             "input_cost_per_token": 0.000002,
             "output_cost_per_token": 0.000006,
-            "cache_read_input_token_cost": 0.0000005,
+            "cache_read_input_token_cost": 0.0000003,
             "tiers": [
               {
                 "min_context_tokens": 200000,
                 "input_cost_per_token": 0.000004,
                 "output_cost_per_token": 0.000012,
-                "cache_read_input_token_cost": 0.000001
+                "cache_read_input_token_cost": 0.0000006
               }
             ]
           },
@@ -167927,6 +168310,46 @@
           "pricing": {
             "input_cost_per_token": 0.000002,
             "output_cost_per_token": 0.000006,
+            "cache_read_input_token_cost": 0.0000003,
+            "tiers": [
+              {
+                "min_context_tokens": 200000,
+                "input_cost_per_token": 0.000004,
+                "output_cost_per_token": 0.000012,
+                "cache_read_input_token_cost": 0.0000006
+              }
+            ]
+          },
+          "limit": {
+            "context": 500000,
+            "output": 500000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "grok",
+          "release_date": "2026-07-08",
+          "last_updated": "2026-07-08"
+        },
+        "grok-4.6": {
+          "id": "grok-4.6",
+          "name": "Grok 4.6",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000006,
             "cache_read_input_token_cost": 0.0000005,
             "tiers": [
               {
@@ -167958,8 +168381,9 @@
             "open_weights": false
           },
           "family": "grok",
-          "release_date": "2026-07-08",
-          "last_updated": "2026-07-08"
+          "knowledge": "2026-02-01",
+          "release_date": "2026-08-12",
+          "last_updated": "2026-08-12"
         },
         "hy3": {
           "id": "hy3",
@@ -168762,7 +169186,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -168794,7 +169218,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text"],
@@ -169639,7 +170063,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -169809,7 +170233,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -170209,7 +170633,7 @@
           },
           "limit": {
             "context": 163840,
-            "output": 163840
+            "output": 147456
           },
           "modalities": {
             "input": ["text"],
@@ -170242,7 +170666,7 @@
           },
           "limit": {
             "context": 163840,
-            "output": 161000
+            "output": 144900
           },
           "modalities": {
             "input": ["text"],
@@ -170339,7 +170763,7 @@
           },
           "limit": {
             "context": 8192,
-            "output": 8192
+            "output": 7372
           },
           "modalities": {
             "input": ["text"],
@@ -170405,7 +170829,7 @@
           },
           "limit": {
             "context": 163840,
-            "output": 163840
+            "output": 147456
           },
           "modalities": {
             "input": ["text"],
@@ -170497,13 +170921,13 @@
           "id": "deepseek/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000014,
-            "output_cost_per_token": 0.00000028,
-            "cache_read_input_token_cost": 0.000000028
+            "input_cost_per_token": 0.00000006,
+            "output_cost_per_token": 0.00000012,
+            "cache_read_input_token_cost": 0.000000012
           },
           "limit": {
             "context": 1310720,
-            "output": 131072
+            "output": 943718
           },
           "modalities": {
             "input": ["text"],
@@ -170562,9 +170986,9 @@
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
           "pricing": {
-            "input_cost_per_token": 0.000000790308,
-            "output_cost_per_token": 0.000001580616,
-            "cache_read_input_token_cost": 0.000000065859
+            "input_cost_per_token": 0.00000087,
+            "output_cost_per_token": 0.00000174,
+            "cache_read_input_token_cost": 0.0000000725
           },
           "limit": {
             "context": 1048576,
@@ -170601,7 +171025,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 384000
+            "output": 943717
           },
           "modalities": {
             "input": ["text"],
@@ -170632,7 +171056,7 @@
           },
           "limit": {
             "context": 512000,
-            "output": 512000
+            "output": 460800
           },
           "modalities": {
             "input": ["text", "image"],
@@ -171032,7 +171456,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["image", "text"],
@@ -171099,7 +171523,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text", "image"],
@@ -171457,7 +171881,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text", "image"],
@@ -171511,38 +171935,6 @@
           "knowledge": "2024-08-31",
           "release_date": "2025-03-13",
           "last_updated": "2025-03-13"
-        },
-        "google/gemma-3n-e4b-it": {
-          "id": "google/gemma-3n-e4b-it",
-          "name": "Gemma 3n 4B",
-          "pricing": {
-            "input_cost_per_token": 0.00000006,
-            "output_cost_per_token": 0.00000012
-          },
-          "limit": {
-            "context": 32768,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "knowledge": "2024-08-31",
-          "release_date": "2025-05-20",
-          "last_updated": "2025-05-20"
         },
         "google/gemma-4-26b-a4b-it": {
           "id": "google/gemma-4-26b-a4b-it",
@@ -171610,13 +172002,13 @@
           "id": "google/gemma-4-31b-it",
           "name": "Gemma 4 31B IT",
           "pricing": {
-            "input_cost_per_token": 0.0000001,
+            "input_cost_per_token": 0.00000009,
             "output_cost_per_token": 0.00000034,
-            "cache_read_input_token_cost": 0.0000001
+            "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 16384
           },
           "modalities": {
             "input": ["image", "text", "video"],
@@ -171740,7 +172132,7 @@
           },
           "limit": {
             "context": 8192,
-            "output": 4096
+            "output": 3686
           },
           "modalities": {
             "input": ["text"],
@@ -171771,7 +172163,7 @@
           },
           "limit": {
             "context": 131000,
-            "output": 131000
+            "output": 117900
           },
           "modalities": {
             "input": ["text"],
@@ -171803,7 +172195,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -172122,7 +172514,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -172154,7 +172546,7 @@
           },
           "limit": {
             "context": 60000,
-            "output": 60000
+            "output": 54000
           },
           "modalities": {
             "input": ["text"],
@@ -172186,7 +172578,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -172213,12 +172605,13 @@
           "id": "meta-llama/llama-3.3-70b-instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.0000001,
-            "output_cost_per_token": 0.00000032
+            "input_cost_per_token": 0.00000071,
+            "output_cost_per_token": 0.00000071,
+            "cache_read_input_token_cost": 0.00000071
           },
           "limit": {
             "context": 131072,
-            "output": 16384
+            "output": 115200
           },
           "modalities": {
             "input": ["text"],
@@ -172232,7 +172625,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": false,
             "open_weights": true
           },
@@ -172277,12 +172670,13 @@
           "id": "meta-llama/llama-4-scout",
           "name": "Llama 4 Scout",
           "pricing": {
-            "input_cost_per_token": 0.0000001,
-            "output_cost_per_token": 0.0000003
+            "input_cost_per_token": 0.00000011,
+            "output_cost_per_token": 0.00000034,
+            "cache_read_input_token_cost": 0.000000055
           },
           "limit": {
             "context": 1310720,
-            "output": 16384
+            "output": 8192
           },
           "modalities": {
             "input": ["text", "image"],
@@ -172296,7 +172690,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -172313,7 +172707,7 @@
             "output_cost_per_token": 0.00000018
           },
           "limit": {
-            "context": 1048576,
+            "context": 163840,
             "output": 16384
           },
           "modalities": {
@@ -172347,7 +172741,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text", "image"],
@@ -172380,7 +172774,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video", "pdf", "audio"],
@@ -172412,7 +172806,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video", "pdf", "audio"],
@@ -172444,7 +172838,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video", "pdf", "audio"],
@@ -172475,7 +172869,7 @@
           },
           "limit": {
             "context": 16384,
-            "output": 16384
+            "output": 14745
           },
           "modalities": {
             "input": ["text"],
@@ -172538,7 +172932,7 @@
           },
           "limit": {
             "context": 1000192,
-            "output": 1000192
+            "output": 900172
           },
           "modalities": {
             "input": ["text", "image"],
@@ -172761,7 +173155,7 @@
           },
           "limit": {
             "context": 196608,
-            "output": 196608
+            "output": 176947
           },
           "modalities": {
             "input": ["text"],
@@ -172815,6 +173209,37 @@
           "release_date": "2026-06-01",
           "last_updated": "2026-06-01"
         },
+        "minimax/minimax-m3:free": {
+          "id": "minimax/minimax-m3:free",
+          "name": "MiniMax M3 (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 943718
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "minimax",
+          "release_date": "2026-06-01",
+          "last_updated": "2026-06-01"
+        },
         "mistralai/codestral-2508": {
           "id": "mistralai/codestral-2508",
           "name": "Codestral 2508",
@@ -172825,7 +173250,7 @@
           },
           "limit": {
             "context": 256000,
-            "output": 256000
+            "output": 204800
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -172858,7 +173283,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -172891,7 +173316,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image"],
@@ -172923,7 +173348,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "image"],
@@ -172954,7 +173379,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 102400
           },
           "modalities": {
             "input": ["text"],
@@ -172987,7 +173412,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173019,7 +173444,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 102400
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -173052,7 +173477,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -173085,7 +173510,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -173118,7 +173543,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -173150,7 +173575,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -173182,7 +173607,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 262144
+            "output": 104857
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -173247,7 +173672,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 26214
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -173312,7 +173737,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 209715
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173344,7 +173769,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 102400
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173409,7 +173834,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 52428
           },
           "modalities": {
             "input": ["text", "pdf"],
@@ -173442,7 +173867,7 @@
           },
           "limit": {
             "context": 32000,
-            "output": 32000
+            "output": 25600
           },
           "modalities": {
             "input": ["text", "audio", "pdf"],
@@ -173571,7 +173996,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173604,7 +174029,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173637,7 +174062,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173670,7 +174095,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -173764,7 +174189,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173796,7 +174221,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image"],
@@ -173891,7 +174316,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -173923,7 +174348,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -173956,7 +174381,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -174049,7 +174474,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -174081,7 +174506,7 @@
           },
           "limit": {
             "context": 512288,
-            "output": 16384
+            "output": 461059
           },
           "modalities": {
             "input": ["text"],
@@ -174269,7 +174694,7 @@
           },
           "limit": {
             "context": 4095,
-            "output": 4096
+            "output": 3685
           },
           "modalities": {
             "input": ["text"],
@@ -174333,7 +174758,7 @@
           },
           "limit": {
             "context": 4095,
-            "output": 4096
+            "output": 3685
           },
           "modalities": {
             "input": ["text"],
@@ -175883,7 +176308,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -175915,7 +176340,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -176406,7 +176831,7 @@
           },
           "limit": {
             "context": 127072,
-            "output": 127072
+            "output": 114364
           },
           "modalities": {
             "input": ["text", "image"],
@@ -176438,7 +176863,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 115200
           },
           "modalities": {
             "input": ["text"],
@@ -176531,7 +176956,7 @@
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 115200
           },
           "modalities": {
             "input": ["text", "image"],
@@ -176720,7 +177145,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -176752,7 +177177,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -176857,56 +177282,16 @@
           "release_date": "2025-09-08",
           "last_updated": "2025-09-08"
         },
-        "qwen/qwen-plus-2025-07-28:thinking": {
-          "id": "qwen/qwen-plus-2025-07-28:thinking",
-          "name": "Qwen Plus 0728 (thinking)",
-          "pricing": {
-            "input_cost_per_token": 0.00000026,
-            "output_cost_per_token": 0.00000078,
-            "tiers": [
-              {
-                "min_context_tokens": 256000,
-                "input_cost_per_token": 0.00000078,
-                "output_cost_per_token": 0.00000234
-              }
-            ]
-          },
-          "limit": {
-            "context": 1000000,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": false,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "qwen",
-          "knowledge": "2025-03-31",
-          "release_date": "2025-09-08",
-          "last_updated": "2025-09-08"
-        },
         "qwen/qwen2.5-vl-72b-instruct": {
           "id": "qwen/qwen2.5-vl-72b-instruct",
           "name": "Qwen2.5 VL 72B Instruct",
           "pricing": {
-            "input_cost_per_token": 0.0000008,
-            "output_cost_per_token": 0.000001,
-            "cache_read_input_token_cost": 0.0000004
+            "input_cost_per_token": 0.00000025,
+            "output_cost_per_token": 0.00000075
           },
           "limit": {
             "context": 128000,
-            "output": 128000
+            "output": 28800
           },
           "modalities": {
             "input": ["text", "image"],
@@ -176920,7 +177305,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": true,
             "open_weights": true
           },
@@ -177034,7 +177419,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 32768
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -177258,7 +177643,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -177341,7 +177726,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -177517,7 +177902,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -177803,7 +178188,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -177866,7 +178251,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -177892,13 +178277,12 @@
           "id": "qwen/qwen3.5-397b-a17b",
           "name": "Qwen3.5 397B-A17B",
           "pricing": {
-            "input_cost_per_token": 0.0000005,
-            "output_cost_per_token": 0.0000036,
-            "cache_read_input_token_cost": 0.0000003
+            "input_cost_per_token": 0.00000039,
+            "output_cost_per_token": 0.00000234
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 65536
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -177912,7 +178296,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": true,
             "open_weights": true
           },
@@ -177929,7 +178313,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -178065,12 +178449,13 @@
           "id": "qwen/qwen3.6-27b",
           "name": "Qwen3.6 27B",
           "pricing": {
-            "input_cost_per_token": 0.00000032,
-            "output_cost_per_token": 0.0000032
+            "input_cost_per_token": 0.0000006,
+            "output_cost_per_token": 0.0000036,
+            "cache_read_input_token_cost": 0.00000012
           },
           "limit": {
             "context": 262144,
-            "output": 81920
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -178084,7 +178469,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -178102,7 +178487,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -178408,9 +178793,10 @@
           "id": "qwen/qwen3.8-27b",
           "name": "Qwen3.8 27B",
           "pricing": {
-            "input_cost_per_token": 0.0000004,
-            "output_cost_per_token": 0.000003,
-            "cache_read_input_token_cost": 0.00000005
+            "input_cost_per_token": 0.000000425,
+            "output_cost_per_token": 0.00000255,
+            "cache_read_input_token_cost": 0.000000085,
+            "cache_creation_input_token_cost": 0.00000053125
           },
           "limit": {
             "context": 1000000,
@@ -178478,7 +178864,7 @@
           },
           "limit": {
             "context": 16384,
-            "output": 16384
+            "output": 14745
           },
           "modalities": {
             "input": ["image", "text", "video"],
@@ -178509,7 +178895,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text"],
@@ -178673,7 +179059,7 @@
           },
           "limit": {
             "context": 8192,
-            "output": 16384
+            "output": 7372
           },
           "modalities": {
             "input": ["text"],
@@ -178833,7 +179219,7 @@
           "limit": {
             "context": 262144,
             "input": 256000,
-            "output": 256000
+            "output": 230400
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -178864,7 +179250,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -179022,7 +179408,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 262144
+            "output": 235929
           },
           "modalities": {
             "input": ["text"],
@@ -179054,7 +179440,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -179085,7 +179471,7 @@
           },
           "limit": {
             "context": 65536,
-            "output": 65536
+            "output": 58982
           },
           "modalities": {
             "input": ["text"],
@@ -179117,7 +179503,7 @@
           },
           "limit": {
             "context": 32768,
-            "output": 32768
+            "output": 29491
           },
           "modalities": {
             "input": ["text"],
@@ -179148,7 +179534,7 @@
           },
           "limit": {
             "context": 1024000,
-            "output": 32768
+            "output": 26214
           },
           "modalities": {
             "input": ["text"],
@@ -179337,7 +179723,7 @@
           },
           "limit": {
             "context": 131072,
-            "output": 131072
+            "output": 117964
           },
           "modalities": {
             "input": ["text"],
@@ -179440,7 +179826,7 @@
           },
           "limit": {
             "context": 2000000,
-            "output": 2000000
+            "output": 1800000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -179481,7 +179867,7 @@
           },
           "limit": {
             "context": 2000000,
-            "output": 2000000
+            "output": 1800000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -179522,7 +179908,7 @@
           },
           "limit": {
             "context": 1000000,
-            "output": 1000000
+            "output": 900000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -179562,7 +179948,7 @@
           },
           "limit": {
             "context": 500000,
-            "output": 500000
+            "output": 450000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -179602,7 +179988,7 @@
           },
           "limit": {
             "context": 500000,
-            "output": 500000
+            "output": 450000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -179643,7 +180029,7 @@
           },
           "limit": {
             "context": 256000,
-            "output": 256000
+            "output": 230400
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -180036,7 +180422,7 @@
           },
           "limit": {
             "context": 204800,
-            "output": 202752
+            "output": 182476
           },
           "modalities": {
             "input": ["text"],
@@ -180099,7 +180485,7 @@
           },
           "limit": {
             "context": 256000,
-            "output": 256000
+            "output": 230400
           },
           "modalities": {
             "input": ["text"],
@@ -180322,13 +180708,13 @@
           "id": "~deepseek/deepseek-v4-flash-latest",
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.000000035,
+            "input_cost_per_token": 0.00000003,
             "output_cost_per_token": 0.000000075,
-            "cache_read_input_token_cost": 0.000000008
+            "cache_read_input_token_cost": 0.000000007
           },
           "limit": {
             "context": 1310720,
-            "output": 1048576
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -180432,13 +180818,13 @@
           "id": "~moonshotai/kimi-latest",
           "name": "MoonshotAI Kimi Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000028,
-            "output_cost_per_token": 0.000014,
-            "cache_read_input_token_cost": 0.00000029
+            "input_cost_per_token": 0.00000255,
+            "output_cost_per_token": 0.00001275,
+            "cache_read_input_token_cost": 0.000000256
           },
           "limit": {
             "context": 1048576,
-            "output": 1048576
+            "output": 943718
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -180554,7 +180940,7 @@
           },
           "limit": {
             "context": 500000,
-            "output": 1000000
+            "output": 450000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -185247,6 +185633,205 @@
           },
           "release_date": "2026-01-22",
           "last_updated": "2026-01-22"
+        }
+      }
+    },
+    "pendra": {
+      "name": "Pendra",
+      "env": ["PENDRA_API_KEY"],
+      "doc": "https://pendra.ai/docs/integrations/opencode",
+      "api": "https://api.pendra.ai/api/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "deepseek-v4-flash": {
+          "id": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-flash",
+          "knowledge": "2025-05",
+          "release_date": "2026-04-24",
+          "last_updated": "2026-04-24"
+        },
+        "glm-4.7-flash": {
+          "id": "glm-4.7-flash",
+          "name": "GLM-4.7-Flash",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 200000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm-flash",
+          "knowledge": "2025-04",
+          "release_date": "2026-01-19",
+          "last_updated": "2026-01-19"
+        },
+        "gpt-oss:120b": {
+          "id": "gpt-oss:120b",
+          "name": "GPT OSS 120B",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "gpt-oss",
+          "release_date": "2025-08-05",
+          "last_updated": "2025-08-05"
+        },
+        "llama3.3:70b": {
+          "id": "llama3.3:70b",
+          "name": "Llama-3.3-70B-Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 128000,
+            "output": 4096
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "llama",
+          "knowledge": "2023-12",
+          "release_date": "2024-12-06",
+          "last_updated": "2024-12-06"
+        },
+        "qwen3-coder:30b": {
+          "id": "qwen3-coder:30b",
+          "name": "Qwen3-Coder 30B-A3B Instruct",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "knowledge": "2025-04",
+          "release_date": "2025-04",
+          "last_updated": "2025-04"
+        },
+        "qwen3.6:27b": {
+          "id": "qwen3.6:27b",
+          "name": "Qwen3.6 27B",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-04-22",
+          "last_updated": "2026-04-22"
         }
       }
     },
@@ -225543,8 +226128,8 @@
           "name": "Nemotron 3.5 Lightning 30B",
           "pricing": {
             "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.0000002,
-            "cache_read_input_token_cost": 0.00000001
+            "output_cost_per_token": 0.00000015,
+            "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
             "context": 262144,
