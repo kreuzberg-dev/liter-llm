@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.3] - 2026-08-27
+
+### Note on 1.18.2
+
+1.18.2 was tagged and left as an unpublished Draft release; it never reached crates.io or PyPI
+(both remained at 1.18.1). Its publish run aborted on the `sync_plugin_version.py --expect` gate,
+because at that tag `Cargo.toml` was 1.18.2 while `plugin/.ai-rulez/config.toml` was still 1.18.1.
+The plugin pin was corrected on `main` after the tag was cut, so the tag could never satisfy the
+gate on a retry. 1.18.3 supersedes it and ships the corrected pin.
+
 ## [1.18.2] - 2026-08-25
 
 ### Changed

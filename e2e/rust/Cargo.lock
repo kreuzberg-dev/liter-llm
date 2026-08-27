@@ -1816,7 +1816,7 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "liter-llm"
-version = "1.18.2"
+version = "1.18.3"
 dependencies = [
  "ahash 0.8.12",
  "arc-swap",
@@ -1856,7 +1856,7 @@ dependencies = [
 
 [[package]]
 name = "liter_llm-e2e-rust"
-version = "1.18.2"
+version = "1.18.3"
 dependencies = [
  "axum",
  "liter-llm",

@@ -60,7 +60,7 @@ dashmap = { workspace = true }
 etcd-client = { workspace = true, optional = true }
 futures-util = { workspace = true }
 http = { workspace = true }
-liter-llm = { path = "../liter-llm", version = "1.18.2", features = ["native-http", "tower"] }
+liter-llm = { path = "../liter-llm", version = "1.18.3", features = ["native-http", "tower"] }
 notify = { workspace = true }
 opendal = { workspace = true }
 

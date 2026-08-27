@@ -1,6 +1,6 @@
 {
   "name": "@xberg-io/opencode-liter-llm",
-  "version": "1.18.2",
+  "version": "1.18.3",
   "description": "Universal LLM API client for 165 providers — chat, streaming, tools, embeddings, search, OCR, plus an OpenAI-compatible proxy and an MCP server.",
   "keywords": [
     "llm",
