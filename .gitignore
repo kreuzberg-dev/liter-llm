@@ -249,6 +249,9 @@ vendor/bundle/
 bin/
 # cli-proxy ships a hand-written launcher under bin/ — keep it tracked despite the broad bin/ rule.
 !cli-proxy/npm/bin/
+# alef generates packages/dart/bin/download_libs.dart; the broad bin/ rule above would
+# discard it after every regen, so the freshness gate can never go green without this.
+!packages/dart/bin/
 obj/
 *.nupkg
 pkg/
