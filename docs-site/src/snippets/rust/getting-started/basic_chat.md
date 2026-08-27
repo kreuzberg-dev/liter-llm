@@ -32,7 +32,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let response = client.chat(request).await?;
     if let Some(choice) = response.choices.first() {
-        println!("{}", choice.message.content.as_deref().unwrap_or(""));
+        let text = choice.message.content.as_ref().and_then(|content| content.as_text());
+        println!("{}", text.unwrap_or_default());
     }
     Ok(())
 }
