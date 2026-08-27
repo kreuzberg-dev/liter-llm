@@ -62,7 +62,7 @@ cwd = "packages/python"
 manifest = "packages/python/pyproject.toml"
 env = { PYTHONPATH = "." }
 
-[workspace.docs.snippets.sessions.typescript]
+[workspace.docs.snippets.sessions.node]
 cwd = "e2e/node"
 manifest = "e2e/node/tsconfig.json"
 env = { NODE_PATH = "node_modules" }
@@ -2109,6 +2109,11 @@ replace = 'package = "liter-llm", version = "{version}"'
 path = "test_apps/swift_e2e/Package.swift"
 search = '\.package\(url: "https://github\.com/xberg-io/liter-llm\.git", from: "[^"]*"\)'
 replace = '.package(url: "https://github.com/xberg-io/liter-llm.git", from: "{version}")'
+
+[[workspace.sync.text_replacements]]
+path = "plugin/package.json"
+search = '"version": "[^"]*"'
+replace = '"version": "{version}"'
 
 [crates.scaffold]
 description = "Universal LLM API client with Rust-powered polyglot bindings."
