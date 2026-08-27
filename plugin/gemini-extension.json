@@ -1,6 +1,6 @@
 {
   "name": "liter-llm",
-  "version": "1.18.1",
+  "version": "1.18.2",
   "description": "Universal LLM API client for 165 providers — chat, streaming, tools, embeddings, search, OCR, plus an OpenAI-compatible proxy and an MCP server.",
   "contextFileName": "GEMINI.md",
   "mcpServers": {

@@ -4,7 +4,7 @@ description = "Universal LLM API client for 165 providers — chat, streaming, t
 
 [plugin]
 name = "liter-llm"
-version = "1.18.1"
+version = "1.18.2"
 display_name = "Liter-LLM"
 description = "Universal LLM API client for 165 providers — chat, streaming, tools, embeddings, search, OCR, plus an OpenAI-compatible proxy and an MCP server."
 homepage = "https://xberg.io"
