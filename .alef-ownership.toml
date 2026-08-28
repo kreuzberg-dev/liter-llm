@@ -50,6 +50,7 @@ owned_paths = [
   "docs-site/src/snippets/.alef-snippet-coverage.json",
   "e2e/c/Makefile",
   "e2e/java/.mvn/wrapper/maven-wrapper.properties",
+  "e2e/node/.npmrc",
   "packages/csharp/README.md",
   "packages/dart/README.md",
   "packages/elixir/README.md",
@@ -66,4 +67,5 @@ owned_paths = [
   "packages/zig/README.md",
   "test_apps/c/Makefile",
   "test_apps/java/.mvn/wrapper/maven-wrapper.properties",
+  "test_apps/node/.npmrc",
 ]
