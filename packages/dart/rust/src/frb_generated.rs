@@ -1730,6 +1730,7 @@ fn wire__crate__create_bedrock_config_from_json_impl(
         },
     )
 }
+#[cfg(feature = "tower")]
 fn wire__crate__create_budget_config_from_json_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -1758,6 +1759,7 @@ fn wire__crate__create_budget_config_from_json_impl(
         },
     )
 }
+#[cfg(feature = "tower")]
 fn wire__crate__create_cache_config_from_json_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -2666,6 +2668,7 @@ fn wire__crate__create_images_response_from_json_impl(
         },
     )
 }
+#[cfg(feature = "tower")]
 fn wire__crate__create_in_flight_limit_config_from_json_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -3366,6 +3369,7 @@ fn wire__crate__create_provider_config_from_json_impl(
         },
     )
 }
+#[cfg(feature = "tower")]
 fn wire__crate__create_rate_limit_config_from_json_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -4094,6 +4098,7 @@ fn wire__crate__create_user_message_from_json_impl(
         },
     )
 }
+#[cfg(any(feature = "native-http", feature = "wasm-http"))]
 fn wire__crate__create_wait_for_batch_config_from_json_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -8724,7 +8729,9 @@ fn pde_ffi_dispatcher_primary_impl(
         41 => wire__crate__create_batch_object_from_json_impl(port, ptr, rust_vec_len, data_len),
         42 => wire__crate__create_batch_request_counts_from_json_impl(port, ptr, rust_vec_len, data_len),
         43 => wire__crate__create_bedrock_config_from_json_impl(port, ptr, rust_vec_len, data_len),
+        #[cfg(feature = "tower")]
         44 => wire__crate__create_budget_config_from_json_impl(port, ptr, rust_vec_len, data_len),
+        #[cfg(feature = "tower")]
         45 => wire__crate__create_cache_config_from_json_impl(port, ptr, rust_vec_len, data_len),
         46 => wire__crate__create_catalog_refresh_config_from_json_impl(port, ptr, rust_vec_len, data_len),
         47 => wire__crate__create_chat_completion_chunk_from_json_impl(port, ptr, rust_vec_len, data_len),
@@ -8759,6 +8766,7 @@ fn pde_ffi_dispatcher_primary_impl(
         74 => wire__crate__create_image_from_json_impl(port, ptr, rust_vec_len, data_len),
         75 => wire__crate__create_image_url_from_json_impl(port, ptr, rust_vec_len, data_len),
         76 => wire__crate__create_images_response_from_json_impl(port, ptr, rust_vec_len, data_len),
+        #[cfg(feature = "tower")]
         77 => wire__crate__create_in_flight_limit_config_from_json_impl(port, ptr, rust_vec_len, data_len),
         78 => wire__crate__create_json_schema_format_from_json_impl(port, ptr, rust_vec_len, data_len),
         79 => wire__crate__create_llm_budget_config_from_json_impl(port, ptr, rust_vec_len, data_len),
@@ -8784,6 +8792,7 @@ fn pde_ffi_dispatcher_primary_impl(
         99 => wire__crate__create_prompt_tokens_details_from_json_impl(port, ptr, rust_vec_len, data_len),
         100 => wire__crate__create_provider_capabilities_from_json_impl(port, ptr, rust_vec_len, data_len),
         101 => wire__crate__create_provider_config_from_json_impl(port, ptr, rust_vec_len, data_len),
+        #[cfg(feature = "tower")]
         102 => wire__crate__create_rate_limit_config_from_json_impl(port, ptr, rust_vec_len, data_len),
         103 => wire__crate__create_rerank_request_from_json_impl(port, ptr, rust_vec_len, data_len),
         104 => wire__crate__create_rerank_response_from_json_impl(port, ptr, rust_vec_len, data_len),
@@ -8810,6 +8819,7 @@ fn pde_ffi_dispatcher_primary_impl(
         125 => wire__crate__create_transcription_segment_from_json_impl(port, ptr, rust_vec_len, data_len),
         126 => wire__crate__create_usage_from_json_impl(port, ptr, rust_vec_len, data_len),
         127 => wire__crate__create_user_message_from_json_impl(port, ptr, rust_vec_len, data_len),
+        #[cfg(any(feature = "native-http", feature = "wasm-http"))]
         128 => wire__crate__create_wait_for_batch_config_from_json_impl(port, ptr, rust_vec_len, data_len),
         129 => wire__crate__decode_data_url_impl(port, ptr, rust_vec_len, data_len),
         130 => wire__crate__encode_data_url_impl(port, ptr, rust_vec_len, data_len),

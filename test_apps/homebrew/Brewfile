@@ -1,4 +1,4 @@
 # Brewfile — managed by alef. DO NOT EDIT.
-# alef:hash:7743e526a3ccca58526109d05ce358f4986aa83313d06ddcefc8215995231117
+# alef:hash:3d4e398686b4cb2c831b144599e4a486bd5960cfe91b6815a2504103b1859a85
 tap "xberg-io/homebrew-tap"
 brew "xberg-io/homebrew-tap/liter-llm"

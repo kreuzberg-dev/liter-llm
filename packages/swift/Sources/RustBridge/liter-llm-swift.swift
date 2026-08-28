@@ -12456,6 +12456,3 @@ extension DefaultClientChatStreamStreamHandle: Vectorizable {
         __swift_bridge__$Vec_DefaultClientChatStreamStreamHandle$len(vecPtr)
     }
 }
-
-
-

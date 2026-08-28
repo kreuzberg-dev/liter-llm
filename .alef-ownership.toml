@@ -57,6 +57,8 @@ owned_paths = [
   "packages/java/README.md",
   "packages/java/pom.xml",
   "packages/kotlin-android/README.md",
+  "packages/kotlin-android/gradle.properties",
+  "packages/kotlin-android/src/main/AndroidManifest.xml",
   "packages/python/liter_llm/_internal_bindings.pyi",
   "packages/ruby/liter_llm.gemspec",
   "packages/ruby/sig/types.rbs",

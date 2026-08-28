@@ -1047,6 +1047,19 @@ void literllm_batch_list_query_free(LITERLLMAlefHandle handle);
 uint32_t literllm_batch_list_query_limit(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `limit` field on a `BatchListQuery` is `Some`.
+ *
+ * `literllm_batch_list_query_limit` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_batch_list_query_has_limit(LITERLLMAlefHandle handle);
+
+/**
  * Get the `after` field from a `BatchListQuery`.
  * A non-null returned pointer is owned by the caller.
  * It must be freed with `literllm_free_string`.
@@ -1102,6 +1115,19 @@ char *literllm_batch_list_response_data(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_batch_list_response_has_more(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `has_more` field on a `BatchListResponse` is `Some`.
+ *
+ * `literllm_batch_list_response_has_more` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_batch_list_response_has_has_more(LITERLLMAlefHandle handle);
 
 /**
  * Get the `first_id` field from a `BatchListResponse`.
@@ -1231,6 +1257,19 @@ uint64_t literllm_batch_object_created_at(LITERLLMAlefHandle handle);
 uint64_t literllm_batch_object_completed_at(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `completed_at` field on a `BatchObject` is `Some`.
+ *
+ * `literllm_batch_object_completed_at` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_batch_object_has_completed_at(LITERLLMAlefHandle handle);
+
+/**
  * Get the `failed_at` field from a `BatchObject`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -1238,11 +1277,37 @@ uint64_t literllm_batch_object_completed_at(LITERLLMAlefHandle handle);
 uint64_t literllm_batch_object_failed_at(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `failed_at` field on a `BatchObject` is `Some`.
+ *
+ * `literllm_batch_object_failed_at` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_batch_object_has_failed_at(LITERLLMAlefHandle handle);
+
+/**
  * Get the `expired_at` field from a `BatchObject`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_batch_object_expired_at(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `expired_at` field on a `BatchObject` is `Some`.
+ *
+ * `literllm_batch_object_expired_at` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_batch_object_has_expired_at(LITERLLMAlefHandle handle);
 
 /**
  * Get the `request_counts` field from a `BatchObject`.
@@ -1410,6 +1475,21 @@ void literllm_budget_config_free(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_budget_config_global_limit(LITERLLMAlefHandle handle);
+#endif
+
+#if defined(LITERLLM_FEATURE_TOWER)
+/**
+ * Report whether the `global_limit` field on a `BudgetConfig` is `Some`.
+ *
+ * `literllm_budget_config_global_limit` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_budget_config_has_global_limit(LITERLLMAlefHandle handle);
 #endif
 
 #if defined(LITERLLM_FEATURE_TOWER)
@@ -1711,11 +1791,37 @@ char *literllm_chat_completion_request_messages(LITERLLMAlefHandle handle);
 double literllm_chat_completion_request_temperature(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `temperature` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_temperature` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_temperature(LITERLLMAlefHandle handle);
+
+/**
  * Get the `top_p` field from a `ChatCompletionRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_chat_completion_request_top_p(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `top_p` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_top_p` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_top_p(LITERLLMAlefHandle handle);
 
 /**
  * Get the `n` field from a `ChatCompletionRequest`.
@@ -1725,11 +1831,37 @@ double literllm_chat_completion_request_top_p(LITERLLMAlefHandle handle);
 uint32_t literllm_chat_completion_request_n(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `n` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_n` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_n(LITERLLMAlefHandle handle);
+
+/**
  * Get the `stream` field from a `ChatCompletionRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_chat_completion_request_stream(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `stream` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_stream` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_stream(LITERLLMAlefHandle handle);
 
 /**
  * Get the `stop` field from a `ChatCompletionRequest`.
@@ -1748,6 +1880,19 @@ LITERLLMAlefHandle literllm_chat_completion_request_stop(LITERLLMAlefHandle hand
 uint64_t literllm_chat_completion_request_max_tokens(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `max_tokens` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_max_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_max_tokens(LITERLLMAlefHandle handle);
+
+/**
  * Get the `presence_penalty` field from a `ChatCompletionRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -1755,11 +1900,37 @@ uint64_t literllm_chat_completion_request_max_tokens(LITERLLMAlefHandle handle);
 double literllm_chat_completion_request_presence_penalty(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `presence_penalty` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_presence_penalty` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_presence_penalty(LITERLLMAlefHandle handle);
+
+/**
  * Get the `frequency_penalty` field from a `ChatCompletionRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_chat_completion_request_frequency_penalty(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `frequency_penalty` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_frequency_penalty` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_frequency_penalty(LITERLLMAlefHandle handle);
 
 /**
  * Get the `logit_bias` field from a `ChatCompletionRequest`.
@@ -1805,6 +1976,19 @@ LITERLLMAlefHandle literllm_chat_completion_request_tool_choice(LITERLLMAlefHand
 int32_t literllm_chat_completion_request_parallel_tool_calls(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `parallel_tool_calls` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_parallel_tool_calls` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_parallel_tool_calls(LITERLLMAlefHandle handle);
+
+/**
  * Get the `response_format` field from a `ChatCompletionRequest`.
  * A non-null returned handle is owned by the caller.
  * It must be freed with `literllm_response_format_free`.
@@ -1828,6 +2012,19 @@ LITERLLMAlefHandle literllm_chat_completion_request_stream_options(LITERLLMAlefH
  * Pointer must be a valid handle returned by this library.
  */
 int64_t literllm_chat_completion_request_seed(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `seed` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_seed` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_seed(LITERLLMAlefHandle handle);
 
 /**
  * Get the `reasoning_effort` field from a `ChatCompletionRequest`.
@@ -1855,6 +2052,19 @@ char *literllm_chat_completion_request_modalities(LITERLLMAlefHandle handle);
 int32_t literllm_chat_completion_request_logprobs(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `logprobs` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_logprobs` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_logprobs(LITERLLMAlefHandle handle);
+
+/**
  * Get the `top_logprobs` field from a `ChatCompletionRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -1862,11 +2072,37 @@ int32_t literllm_chat_completion_request_logprobs(LITERLLMAlefHandle handle);
 uint32_t literllm_chat_completion_request_top_logprobs(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `top_logprobs` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_top_logprobs` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_top_logprobs(LITERLLMAlefHandle handle);
+
+/**
  * Get the `max_completion_tokens` field from a `ChatCompletionRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_chat_completion_request_max_completion_tokens(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_completion_tokens` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_max_completion_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_max_completion_tokens(LITERLLMAlefHandle handle);
 
 /**
  * Get the `service_tier` field from a `ChatCompletionRequest`.
@@ -1883,6 +2119,19 @@ char *literllm_chat_completion_request_service_tier(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_chat_completion_request_store(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `store` field on a `ChatCompletionRequest` is `Some`.
+ *
+ * `literllm_chat_completion_request_store` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_chat_completion_request_has_store(LITERLLMAlefHandle handle);
 
 /**
  * Get the `metadata` field from a `ChatCompletionRequest`.
@@ -2278,6 +2527,19 @@ char *literllm_create_image_request_model(LITERLLMAlefHandle handle);
 uint32_t literllm_create_image_request_n(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `n` field on a `CreateImageRequest` is `Some`.
+ *
+ * `literllm_create_image_request_n` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_create_image_request_has_n(LITERLLMAlefHandle handle);
+
+/**
  * Get the `size` field from a `CreateImageRequest`.
  * A non-null returned pointer is owned by the caller.
  * It must be freed with `literllm_free_string`.
@@ -2389,11 +2651,37 @@ char *literllm_create_response_request_tools(LITERLLMAlefHandle handle);
 double literllm_create_response_request_temperature(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `temperature` field on a `CreateResponseRequest` is `Some`.
+ *
+ * `literllm_create_response_request_temperature` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_create_response_request_has_temperature(LITERLLMAlefHandle handle);
+
+/**
  * Get the `max_output_tokens` field from a `CreateResponseRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_create_response_request_max_output_tokens(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_output_tokens` field on a `CreateResponseRequest` is `Some`.
+ *
+ * `literllm_create_response_request_max_output_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_create_response_request_has_max_output_tokens(LITERLLMAlefHandle handle);
 
 /**
  * Get the `metadata` field from a `CreateResponseRequest`.
@@ -2419,6 +2707,19 @@ char *literllm_create_response_request_extra_body(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_create_response_request_stream(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `stream` field on a `CreateResponseRequest` is `Some`.
+ *
+ * `literllm_create_response_request_stream` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_create_response_request_has_stream(LITERLLMAlefHandle handle);
 
 /**
  * Create a `CreateSpeechRequest` from a JSON string. Returns null on failure.
@@ -2485,6 +2786,19 @@ char *literllm_create_speech_request_response_format(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_create_speech_request_speed(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `speed` field on a `CreateSpeechRequest` is `Some`.
+ *
+ * `literllm_create_speech_request_speed` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_create_speech_request_has_speed(LITERLLMAlefHandle handle);
 
 /**
  * Create a `CreateTranscriptionRequest` from a JSON string. Returns null on failure.
@@ -2560,6 +2874,19 @@ char *literllm_create_transcription_request_response_format(LITERLLMAlefHandle h
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_create_transcription_request_temperature(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `temperature` field on a `CreateTranscriptionRequest` is `Some`.
+ *
+ * `literllm_create_transcription_request_temperature` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_create_transcription_request_has_temperature(LITERLLMAlefHandle handle);
 
 /**
  * Create a `CustomProviderConfig` from a JSON string. Returns null on failure.
@@ -3157,6 +3484,19 @@ LITERLLMAlefHandle literllm_embedding_request_encoding_format(LITERLLMAlefHandle
 uint32_t literllm_embedding_request_dimensions(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `dimensions` field on a `EmbeddingRequest` is `Some`.
+ *
+ * `literllm_embedding_request_dimensions` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_embedding_request_has_dimensions(LITERLLMAlefHandle handle);
+
+/**
  * Get the `user` field from a `EmbeddingRequest`.
  * A non-null returned pointer is owned by the caller.
  * It must be freed with `literllm_free_string`.
@@ -3264,6 +3604,19 @@ char *literllm_file_list_query_purpose(LITERLLMAlefHandle handle);
 uint32_t literllm_file_list_query_limit(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `limit` field on a `FileListQuery` is `Some`.
+ *
+ * `literllm_file_list_query_limit` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_file_list_query_has_limit(LITERLLMAlefHandle handle);
+
+/**
  * Get the `after` field from a `FileListQuery`.
  * A non-null returned pointer is owned by the caller.
  * It must be freed with `literllm_free_string`.
@@ -3319,6 +3672,19 @@ char *literllm_file_list_response_data(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_file_list_response_has_more(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `has_more` field on a `FileListResponse` is `Some`.
+ *
+ * `literllm_file_list_response_has_more` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_file_list_response_has_has_more(LITERLLMAlefHandle handle);
 
 /**
  * Create a `FileObject` from a JSON string. Returns null on failure.
@@ -3499,6 +3865,19 @@ char *literllm_function_definition_parameters(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_function_definition_strict(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `strict` field on a `FunctionDefinition` is `Some`.
+ *
+ * `literllm_function_definition_strict` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_function_definition_has_strict(LITERLLMAlefHandle handle);
 
 /**
  * Create a `FunctionMessage` from a JSON string. Returns null on failure.
@@ -3711,6 +4090,21 @@ uintptr_t literllm_in_flight_limit_config_max_in_flight(LITERLLMAlefHandle handl
 
 #if defined(LITERLLM_FEATURE_TOWER)
 /**
+ * Report whether the `max_in_flight` field on a `InFlightLimitConfig` is `Some`.
+ *
+ * `literllm_in_flight_limit_config_max_in_flight` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_in_flight_limit_config_has_max_in_flight(LITERLLMAlefHandle handle);
+#endif
+
+#if defined(LITERLLM_FEATURE_TOWER)
+/**
  * Free a `IntentPrototype` handle.
  * # Safety
  * Handle must have been returned by this library, or be zero.
@@ -3809,6 +4203,19 @@ char *literllm_json_schema_format_schema(LITERLLMAlefHandle handle);
 int32_t literllm_json_schema_format_strict(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `strict` field on a `JsonSchemaFormat` is `Some`.
+ *
+ * `literllm_json_schema_format_strict` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_json_schema_format_has_strict(LITERLLMAlefHandle handle);
+
+/**
  * Create a `LlmBudgetConfig` from a JSON string. Returns null on failure.
  * # Safety
  * JSON string must be valid UTF-8 and null-terminated.
@@ -3837,6 +4244,19 @@ void literllm_llm_budget_config_free(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_llm_budget_config_global_limit(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `global_limit` field on a `LlmBudgetConfig` is `Some`.
+ *
+ * `literllm_llm_budget_config_global_limit` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_budget_config_has_global_limit(LITERLLMAlefHandle handle);
 
 /**
  * Get the `model_limits` field from a `LlmBudgetConfig`.
@@ -3887,11 +4307,37 @@ void literllm_llm_cache_config_free(LITERLLMAlefHandle handle);
 uintptr_t literllm_llm_cache_config_max_entries(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `max_entries` field on a `LlmCacheConfig` is `Some`.
+ *
+ * `literllm_llm_cache_config_max_entries` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_cache_config_has_max_entries(LITERLLMAlefHandle handle);
+
+/**
  * Get the `ttl_seconds` field from a `LlmCacheConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_llm_cache_config_ttl_seconds(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `ttl_seconds` field on a `LlmCacheConfig` is `Some`.
+ *
+ * `literllm_llm_cache_config_ttl_seconds` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_cache_config_has_ttl_seconds(LITERLLMAlefHandle handle);
 
 /**
  * Get the `backend` field from a `LlmCacheConfig`.
@@ -3969,11 +4415,37 @@ char *literllm_llm_config_base_url(LITERLLMAlefHandle handle);
 uint64_t literllm_llm_config_timeout_secs(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `timeout_secs` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_timeout_secs` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_timeout_secs(LITERLLMAlefHandle handle);
+
+/**
  * Get the `max_retries` field from a `LlmConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint32_t literllm_llm_config_max_retries(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_retries` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_max_retries` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_max_retries(LITERLLMAlefHandle handle);
 
 /**
  * Get the `temperature` field from a `LlmConfig`.
@@ -3983,6 +4455,19 @@ uint32_t literllm_llm_config_max_retries(LITERLLMAlefHandle handle);
 double literllm_llm_config_temperature(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `temperature` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_temperature` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_temperature(LITERLLMAlefHandle handle);
+
+/**
  * Get the `max_tokens` field from a `LlmConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -3990,11 +4475,37 @@ double literllm_llm_config_temperature(LITERLLMAlefHandle handle);
 uint64_t literllm_llm_config_max_tokens(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `max_tokens` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_max_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_max_tokens(LITERLLMAlefHandle handle);
+
+/**
  * Get the `load_env` field from a `LlmConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_llm_config_load_env(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `load_env` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_load_env` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_load_env(LITERLLMAlefHandle handle);
 
 /**
  * Get the `headers` field from a `LlmConfig`.
@@ -4058,11 +4569,37 @@ LITERLLMAlefHandle literllm_llm_config_in_flight_limit(LITERLLMAlefHandle handle
 int32_t literllm_llm_config_cost_tracking(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `cost_tracking` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_cost_tracking` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_cost_tracking(LITERLLMAlefHandle handle);
+
+/**
  * Get the `tracing` field from a `LlmConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_llm_config_tracing(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `tracing` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_tracing` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_tracing(LITERLLMAlefHandle handle);
 
 /**
  * Get the `cooldown_secs` field from a `LlmConfig`.
@@ -4072,11 +4609,37 @@ int32_t literllm_llm_config_tracing(LITERLLMAlefHandle handle);
 uint64_t literllm_llm_config_cooldown_secs(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `cooldown_secs` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_cooldown_secs` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_cooldown_secs(LITERLLMAlefHandle handle);
+
+/**
  * Get the `health_check_secs` field from a `LlmConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_llm_config_health_check_secs(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `health_check_secs` field on a `LlmConfig` is `Some`.
+ *
+ * `literllm_llm_config_health_check_secs` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_config_has_health_check_secs(LITERLLMAlefHandle handle);
 
 /**
  * Get the `bedrock` field from a `LlmConfig`.
@@ -4116,6 +4679,19 @@ void literllm_llm_in_flight_limit_config_free(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 uintptr_t literllm_llm_in_flight_limit_config_max_in_flight(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_in_flight` field on a `LlmInFlightLimitConfig` is `Some`.
+ *
+ * `literllm_llm_in_flight_limit_config_max_in_flight` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_in_flight_limit_config_has_max_in_flight(LITERLLMAlefHandle handle);
 
 /**
  * Create a `LlmProviderConfig` from a JSON string. Returns null on failure.
@@ -4207,6 +4783,19 @@ void literllm_llm_rate_limit_config_free(LITERLLMAlefHandle handle);
 uint32_t literllm_llm_rate_limit_config_rpm(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `rpm` field on a `LlmRateLimitConfig` is `Some`.
+ *
+ * `literllm_llm_rate_limit_config_rpm` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_rate_limit_config_has_rpm(LITERLLMAlefHandle handle);
+
+/**
  * Get the `tpm` field from a `LlmRateLimitConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -4214,11 +4803,37 @@ uint32_t literllm_llm_rate_limit_config_rpm(LITERLLMAlefHandle handle);
 uint64_t literllm_llm_rate_limit_config_tpm(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `tpm` field on a `LlmRateLimitConfig` is `Some`.
+ *
+ * `literllm_llm_rate_limit_config_tpm` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_rate_limit_config_has_tpm(LITERLLMAlefHandle handle);
+
+/**
  * Get the `window_seconds` field from a `LlmRateLimitConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_llm_rate_limit_config_window_seconds(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `window_seconds` field on a `LlmRateLimitConfig` is `Some`.
+ *
+ * `literllm_llm_rate_limit_config_window_seconds` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_llm_rate_limit_config_has_window_seconds(LITERLLMAlefHandle handle);
 
 /**
  * Create a `ModelInfo` from a JSON string. Returns null on failure.
@@ -4265,11 +4880,37 @@ double literllm_model_info_output_cost_per_token(LITERLLMAlefHandle handle);
 double literllm_model_info_cache_read_input_token_cost(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `cache_read_input_token_cost` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_cache_read_input_token_cost` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_cache_read_input_token_cost(LITERLLMAlefHandle handle);
+
+/**
  * Get the `cache_creation_input_token_cost` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_model_info_cache_creation_input_token_cost(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `cache_creation_input_token_cost` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_cache_creation_input_token_cost` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_cache_creation_input_token_cost(LITERLLMAlefHandle handle);
 
 /**
  * Get the `input_cost_per_audio_token` field from a `ModelInfo`.
@@ -4279,11 +4920,37 @@ double literllm_model_info_cache_creation_input_token_cost(LITERLLMAlefHandle ha
 double literllm_model_info_input_cost_per_audio_token(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `input_cost_per_audio_token` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_input_cost_per_audio_token` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_input_cost_per_audio_token(LITERLLMAlefHandle handle);
+
+/**
  * Get the `output_cost_per_audio_token` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_model_info_output_cost_per_audio_token(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `output_cost_per_audio_token` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_output_cost_per_audio_token` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_output_cost_per_audio_token(LITERLLMAlefHandle handle);
 
 /**
  * Get the `output_cost_per_reasoning_token` field from a `ModelInfo`.
@@ -4293,11 +4960,37 @@ double literllm_model_info_output_cost_per_audio_token(LITERLLMAlefHandle handle
 double literllm_model_info_output_cost_per_reasoning_token(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `output_cost_per_reasoning_token` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_output_cost_per_reasoning_token` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_output_cost_per_reasoning_token(LITERLLMAlefHandle handle);
+
+/**
  * Get the `max_tokens` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_model_info_max_tokens(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_tokens` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_max_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_max_tokens(LITERLLMAlefHandle handle);
 
 /**
  * Get the `max_input_tokens` field from a `ModelInfo`.
@@ -4307,11 +5000,37 @@ uint64_t literllm_model_info_max_tokens(LITERLLMAlefHandle handle);
 uint64_t literllm_model_info_max_input_tokens(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `max_input_tokens` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_max_input_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_max_input_tokens(LITERLLMAlefHandle handle);
+
+/**
  * Get the `max_output_tokens` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_model_info_max_output_tokens(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_output_tokens` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_max_output_tokens` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_max_output_tokens(LITERLLMAlefHandle handle);
 
 /**
  * Get the `mode` field from a `ModelInfo`.
@@ -4330,11 +5049,37 @@ char *literllm_model_info_mode(LITERLLMAlefHandle handle);
 int32_t literllm_model_info_supports_vision(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `supports_vision` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_vision` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_vision(LITERLLMAlefHandle handle);
+
+/**
  * Get the `supports_function_calling` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_model_info_supports_function_calling(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `supports_function_calling` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_function_calling` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_function_calling(LITERLLMAlefHandle handle);
 
 /**
  * Get the `supports_reasoning` field from a `ModelInfo`.
@@ -4344,11 +5089,37 @@ int32_t literllm_model_info_supports_function_calling(LITERLLMAlefHandle handle)
 int32_t literllm_model_info_supports_reasoning(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `supports_reasoning` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_reasoning` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_reasoning(LITERLLMAlefHandle handle);
+
+/**
  * Get the `supports_structured_output` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_model_info_supports_structured_output(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `supports_structured_output` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_structured_output` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_structured_output(LITERLLMAlefHandle handle);
 
 /**
  * Get the `supports_audio_input` field from a `ModelInfo`.
@@ -4358,6 +5129,19 @@ int32_t literllm_model_info_supports_structured_output(LITERLLMAlefHandle handle
 int32_t literllm_model_info_supports_audio_input(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `supports_audio_input` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_audio_input` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_audio_input(LITERLLMAlefHandle handle);
+
+/**
  * Get the `supports_audio_output` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -4365,11 +5149,37 @@ int32_t literllm_model_info_supports_audio_input(LITERLLMAlefHandle handle);
 int32_t literllm_model_info_supports_audio_output(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `supports_audio_output` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_audio_output` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_audio_output(LITERLLMAlefHandle handle);
+
+/**
  * Get the `supports_prompt_caching` field from a `ModelInfo`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_model_info_supports_prompt_caching(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `supports_prompt_caching` field on a `ModelInfo` is `Some`.
+ *
+ * `literllm_model_info_supports_prompt_caching` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_info_has_supports_prompt_caching(LITERLLMAlefHandle handle);
 
 /**
  * Get the `tiers` field from a `ModelInfo`.
@@ -4489,11 +5299,37 @@ double literllm_model_tier_output_cost_per_token(LITERLLMAlefHandle handle);
 double literllm_model_tier_cache_read_input_token_cost(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `cache_read_input_token_cost` field on a `ModelTier` is `Some`.
+ *
+ * `literllm_model_tier_cache_read_input_token_cost` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_tier_has_cache_read_input_token_cost(LITERLLMAlefHandle handle);
+
+/**
  * Get the `cache_creation_input_token_cost` field from a `ModelTier`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_model_tier_cache_creation_input_token_cost(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `cache_creation_input_token_cost` field on a `ModelTier` is `Some`.
+ *
+ * `literllm_model_tier_cache_creation_input_token_cost` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_tier_has_cache_creation_input_token_cost(LITERLLMAlefHandle handle);
 
 /**
  * Get the `input_cost_per_audio_token` field from a `ModelTier`.
@@ -4503,6 +5339,19 @@ double literllm_model_tier_cache_creation_input_token_cost(LITERLLMAlefHandle ha
 double literllm_model_tier_input_cost_per_audio_token(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `input_cost_per_audio_token` field on a `ModelTier` is `Some`.
+ *
+ * `literllm_model_tier_input_cost_per_audio_token` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_tier_has_input_cost_per_audio_token(LITERLLMAlefHandle handle);
+
+/**
  * Get the `output_cost_per_audio_token` field from a `ModelTier`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
@@ -4510,11 +5359,37 @@ double literllm_model_tier_input_cost_per_audio_token(LITERLLMAlefHandle handle)
 double literllm_model_tier_output_cost_per_audio_token(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `output_cost_per_audio_token` field on a `ModelTier` is `Some`.
+ *
+ * `literllm_model_tier_output_cost_per_audio_token` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_tier_has_output_cost_per_audio_token(LITERLLMAlefHandle handle);
+
+/**
  * Get the `output_cost_per_reasoning_token` field from a `ModelTier`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_model_tier_output_cost_per_reasoning_token(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `output_cost_per_reasoning_token` field on a `ModelTier` is `Some`.
+ *
+ * `literllm_model_tier_output_cost_per_reasoning_token` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_model_tier_has_output_cost_per_reasoning_token(LITERLLMAlefHandle handle);
 
 /**
  * Create a `ModelsListResponse` from a JSON string. Returns null on failure.
@@ -5052,6 +5927,19 @@ char *literllm_ocr_request_pages(LITERLLMAlefHandle handle);
 int32_t literllm_ocr_request_include_image_base64(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `include_image_base64` field on a `OcrRequest` is `Some`.
+ *
+ * `literllm_ocr_request_include_image_base64` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_ocr_request_has_include_image_base64(LITERLLMAlefHandle handle);
+
+/**
  * Create a `OcrResponse` from a JSON string. Returns null on failure.
  * # Safety
  * JSON string must be valid UTF-8 and null-terminated.
@@ -5373,11 +6261,41 @@ uint32_t literllm_rate_limit_config_rpm(LITERLLMAlefHandle handle);
 
 #if defined(LITERLLM_FEATURE_TOWER)
 /**
+ * Report whether the `rpm` field on a `RateLimitConfig` is `Some`.
+ *
+ * `literllm_rate_limit_config_rpm` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_rate_limit_config_has_rpm(LITERLLMAlefHandle handle);
+#endif
+
+#if defined(LITERLLM_FEATURE_TOWER)
+/**
  * Get the `tpm` field from a `RateLimitConfig`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 uint64_t literllm_rate_limit_config_tpm(LITERLLMAlefHandle handle);
+#endif
+
+#if defined(LITERLLM_FEATURE_TOWER)
+/**
+ * Report whether the `tpm` field on a `RateLimitConfig` is `Some`.
+ *
+ * `literllm_rate_limit_config_tpm` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_rate_limit_config_has_tpm(LITERLLMAlefHandle handle);
 #endif
 
 #if defined(LITERLLM_FEATURE_TOWER)
@@ -5455,11 +6373,37 @@ char *literllm_rerank_request_documents(LITERLLMAlefHandle handle);
 uint32_t literllm_rerank_request_top_n(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `top_n` field on a `RerankRequest` is `Some`.
+ *
+ * `literllm_rerank_request_top_n` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_rerank_request_has_top_n(LITERLLMAlefHandle handle);
+
+/**
  * Get the `return_documents` field from a `RerankRequest`.
  * # Safety
  * Pointer must be a valid handle returned by this library.
  */
 int32_t literllm_rerank_request_return_documents(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `return_documents` field on a `RerankRequest` is `Some`.
+ *
+ * `literllm_rerank_request_return_documents` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_rerank_request_has_return_documents(LITERLLMAlefHandle handle);
 
 /**
  * Create a `RerankResponse` from a JSON string. Returns null on failure.
@@ -5855,6 +6799,19 @@ char *literllm_search_request_query(LITERLLMAlefHandle handle);
  * Pointer must be a valid handle returned by this library.
  */
 uint32_t literllm_search_request_max_results(LITERLLMAlefHandle handle);
+
+/**
+ * Report whether the `max_results` field on a `SearchRequest` is `Some`.
+ *
+ * `literllm_search_request_max_results` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_search_request_has_max_results(LITERLLMAlefHandle handle);
 
 /**
  * Get the `search_domain_filter` field from a `SearchRequest`.
@@ -6253,6 +7210,19 @@ void literllm_stream_options_free(LITERLLMAlefHandle handle);
 int32_t literllm_stream_options_include_usage(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `include_usage` field on a `StreamOptions` is `Some`.
+ *
+ * `literllm_stream_options_include_usage` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_stream_options_has_include_usage(LITERLLMAlefHandle handle);
+
+/**
  * Create a `StreamToolCall` from a JSON string. Returns null on failure.
  * # Safety
  * JSON string must be valid UTF-8 and null-terminated.
@@ -6499,6 +7469,19 @@ char *literllm_transcription_response_language(LITERLLMAlefHandle handle);
 double literllm_transcription_response_duration(LITERLLMAlefHandle handle);
 
 /**
+ * Report whether the `duration` field on a `TranscriptionResponse` is `Some`.
+ *
+ * `literllm_transcription_response_duration` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_transcription_response_has_duration(LITERLLMAlefHandle handle);
+
+/**
  * Get the `segments` field from a `TranscriptionResponse`.
  * A non-null returned pointer is owned by the caller.
  * It must be freed with `literllm_free_string`.
@@ -6717,6 +7700,21 @@ float literllm_wait_for_batch_config_backoff_multiplier(LITERLLMAlefHandle handl
  * Pointer must be a valid handle returned by this library.
  */
 double literllm_wait_for_batch_config_timeout_secs(LITERLLMAlefHandle handle);
+#endif
+
+#if (defined(LITERLLM_FEATURE_NATIVE_HTTP) || defined(LITERLLM_FEATURE_WASM_HTTP))
+/**
+ * Report whether the `timeout_secs` field on a `WaitForBatchConfig` is `Some`.
+ *
+ * `literllm_wait_for_batch_config_timeout_secs` cannot distinguish a `None` field from a
+ * legitimate zero-valued `Some` at the C ABI boundary -- there is no null representation for a
+ * numeric return, so both collapse to the same sentinel. Call this function first: `1` means
+ * the field getter's return value is meaningful, `0` means the field is absent and the getter's
+ * sentinel must be ignored, `-1` reports an invalid handle (see `literllm_last_error_code`).
+ * # Safety
+ * Pointer must be a valid handle returned by this library.
+ */
+int32_t literllm_wait_for_batch_config_has_timeout_secs(LITERLLMAlefHandle handle);
 #endif
 
 #if (defined(LITERLLM_FEATURE_NATIVE_HTTP) || defined(LITERLLM_FEATURE_WASM_HTTP))
@@ -7277,13 +8275,16 @@ char *literllm_batch_status_to_json(LITERLLMAlefHandle handle);
  */
 char *literllm_batch_status_to_string(LITERLLMAlefHandle handle);
 
+#if defined(LITERLLM_FEATURE_TOWER)
 /**
  * Free a `CacheBackend` handle.
  * # Safety
  * Handle must have been returned by this library, or be zero.
  */
 void literllm_cache_backend_free(LITERLLMAlefHandle handle);
+#endif
 
+#if defined(LITERLLM_FEATURE_TOWER)
 /**
  * Serialize a `CacheBackend` to a JSON string. Returns null on failure.
  * # Safety
@@ -7291,7 +8292,9 @@ void literllm_cache_backend_free(LITERLLMAlefHandle handle);
  * The returned string must be freed with `literllm_free_string`.
  */
 char *literllm_cache_backend_to_json(LITERLLMAlefHandle handle);
+#endif
 
+#if defined(LITERLLM_FEATURE_TOWER)
 /**
  * Render a `CacheBackend` as its string representation
  * (the unit-variant name as serialized by serde — e.g. `"completed"`,
@@ -7301,6 +8304,7 @@ char *literllm_cache_backend_to_json(LITERLLMAlefHandle handle);
  * The returned string must be freed with `literllm_free_string`.
  */
 char *literllm_cache_backend_to_string(LITERLLMAlefHandle handle);
+#endif
 
 /**
  * Free a `EmbeddingFormat` handle.
@@ -7352,13 +8356,16 @@ char *literllm_embedding_input_to_json(LITERLLMAlefHandle handle);
  */
 char *literllm_embedding_input_to_string(LITERLLMAlefHandle handle);
 
+#if defined(LITERLLM_FEATURE_TOWER)
 /**
  * Free a `Enforcement` handle.
  * # Safety
  * Handle must have been returned by this library, or be zero.
  */
 void literllm_enforcement_free(LITERLLMAlefHandle handle);
+#endif
 
+#if defined(LITERLLM_FEATURE_TOWER)
 /**
  * Serialize a `Enforcement` to a JSON string. Returns null on failure.
  * # Safety
@@ -7366,7 +8373,9 @@ void literllm_enforcement_free(LITERLLMAlefHandle handle);
  * The returned string must be freed with `literllm_free_string`.
  */
 char *literllm_enforcement_to_json(LITERLLMAlefHandle handle);
+#endif
 
+#if defined(LITERLLM_FEATURE_TOWER)
 /**
  * Render a `Enforcement` as its string representation
  * (the unit-variant name as serialized by serde — e.g. `"completed"`,
@@ -7376,6 +8385,7 @@ char *literllm_enforcement_to_json(LITERLLMAlefHandle handle);
  * The returned string must be freed with `literllm_free_string`.
  */
 char *literllm_enforcement_to_string(LITERLLMAlefHandle handle);
+#endif
 
 /**
  * Free a `FilePurpose` handle.
@@ -7778,6 +8788,20 @@ double literllm_completion_cost(const char *model,
                                 uint64_t completion_tokens);
 
 /**
+ * Report whether `completion_cost` returned `Some`.
+ *
+ * `literllm_completion_cost` cannot distinguish a `None` result from a legitimate zero-valued `Some`
+ * at the C ABI boundary. Call this function first: `1` means the sibling getter's return value is
+ * meaningful, `0` means the result was absent and the getter's sentinel must be ignored, `-1` reports
+ * an invalid handle or a call error (see `literllm_last_error_code`).
+ * \note SAFETY: Caller must ensure all pointer arguments are valid or null. Returned pointers must be
+ * freed with the appropriate free function.
+ */
+int32_t literllm_completion_cost_has_result(const char *model,
+                                            uint64_t prompt_tokens,
+                                            uint64_t completion_tokens);
+
+/**
  * Calculate the estimated cost of a completion, accounting for cached
  * (cache-hit) prompt tokens billed at the provider's discounted rate.
  *
@@ -7803,6 +8827,21 @@ double literllm_completion_cost_with_cache(const char *model,
                                            uint64_t prompt_tokens,
                                            uint64_t cached_tokens,
                                            uint64_t completion_tokens);
+
+/**
+ * Report whether `completion_cost_with_cache` returned `Some`.
+ *
+ * `literllm_completion_cost_with_cache` cannot distinguish a `None` result from a legitimate
+ * zero-valued `Some` at the C ABI boundary. Call this function first: `1` means the sibling getter's
+ * return value is meaningful, `0` means the result was absent and the getter's sentinel must be
+ * ignored, `-1` reports an invalid handle or a call error (see `literllm_last_error_code`).
+ * \note SAFETY: Caller must ensure all pointer arguments are valid or null. Returned pointers must be
+ * freed with the appropriate free function.
+ */
+int32_t literllm_completion_cost_with_cache_has_result(const char *model,
+                                                       uint64_t prompt_tokens,
+                                                       uint64_t cached_tokens,
+                                                       uint64_t completion_tokens);
 
 /**
  * Return the set of complex provider names.
