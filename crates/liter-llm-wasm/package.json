@@ -1,6 +1,6 @@
 {
   "name": "@xberg-io/liter-llm-wasm",
-  "version": "1.18.3",
+  "version": "1.18.4",
   "private": false,
   "description": "Universal LLM API client with Rust-powered polyglot bindings.",
   "license": "MIT",

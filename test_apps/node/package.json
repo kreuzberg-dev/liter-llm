@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@xberg-io/liter-llm": "1.18.3",
+    "@xberg-io/liter-llm": "1.18.4",
     "@types/node": "^26.0.0",
     "vitest": "^4.1.10"
   }

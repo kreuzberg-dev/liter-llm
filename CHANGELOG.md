@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.4] - 2026-08-28
+
+### Changed
+
+- Upgraded `etcd-client` 0.19 -> 0.20 and `jsonschema` 0.51 -> 0.52.
+
 ## [1.18.3] - 2026-08-27
 
 ### Note on 1.18.2

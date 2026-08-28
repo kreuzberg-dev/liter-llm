@@ -6,7 +6,7 @@ description: Use when generating embeddings, calling the 12 web-search providers
 <!--
 AI-RULEZ :: GENERATED FILE — DO NOT EDIT
 Content-Hash: blake3:2486d6f9ae493f698ce3c5349658dacd142fb7dd3cd27a707c4acf3aa8877a55
-Source-Hash: blake3:297ed1a031a211f05299efd5867c02e050ce50620d284f2bb4727a631cea7f83
+Source-Hash: blake3:303551e5dcfae75158588635b2ef5d8742d0251f7c3bba85e65a85abf1b3beb2
 Schema-Version: v1
 -->
 

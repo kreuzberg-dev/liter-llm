@@ -1,6 +1,6 @@
 name: liter_llm
 description: Universal LLM API client with Rust-powered polyglot bindings.
-version: 1.18.3
+version: 1.18.4
 repository: https://github.com/xberg-io/liter-llm
 environment:
   sdk: '>=3.11.0 <4.0.0'

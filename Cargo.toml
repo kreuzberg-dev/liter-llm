@@ -44,7 +44,7 @@ dbg_macro = "deny"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(alef)'] }
 
 [workspace.package]
-version = "1.18.3"
+version = "1.18.4"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/xberg-io/liter-llm"

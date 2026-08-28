@@ -31,9 +31,9 @@
         <dependency>
             <groupId>io.xberg.literllm</groupId>
             <artifactId>liter-llm</artifactId>
-            <version>1.18.3</version>
+            <version>1.18.4</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../../packages/java/target/liter-llm-1.18.3.jar</systemPath>
+            <systemPath>${project.basedir}/../../packages/java/target/liter-llm-1.18.4.jar</systemPath>
         </dependency>
 
         <dependency>
