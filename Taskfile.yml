@@ -239,7 +239,12 @@ tasks:
   alef:generate:
     desc: Fast regeneration of all alef-managed files (bindings, stubs, scaffolding, READMEs, e2e, test_apps, docs). Runs `alef all --clean` (formatting is always applied).
     cmds:
-      - alef all --clean
+      # ~keep `alef all` never builds the per-language artifacts that a `compile`/`typecheck`
+      # `docs.snippets.validation_level` needs (only `alef build` does), so leaving validation on
+      # spawns a doomed toolchain per snippet and cannot pass by construction. Discovery, the
+      # reference-page audit and gap detection still run. Use `task alef:snippets` after
+      # `alef build` when you actually want validation.
+      - alef all --clean --skip-snippet-validation
 
   alef:all:
     desc: Run full alef pipeline (extract + generate + stubs + scaffold + readme + docs + e2e)
@@ -250,6 +255,11 @@ tasks:
     desc: Check bindings are up-to-date (CI)
     cmds:
       - alef verify --exit-code
+
+  alef:snippets:
+    desc: Validate documentation snippets (needs built artifacts; run after alef build)
+    cmds:
+      - alef snippets check
 
   generate:all:
     desc: Regenerate all generated code
