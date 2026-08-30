@@ -131,6 +131,15 @@ jobs:
         id: meta
         uses: xberg-io/actions/prepare-release-metadata@v1
         with:
+          # ~keep `scoop` is absent from this list on purpose, and adding it back is not a
+          # one-word change. `release_scoop` is true only when `scoop` appears here, so
+          # `publish-scoop-manifest` below is currently unreachable on every trigger and the
+          # release gate reports it as "not enabled" rather than failing. It cannot simply be
+          # added: `alef release-metadata` hard-errors on a target name it does not recognise
+          # ("Unknown release target 'scoop'"), which would fail `prepare` and take the whole
+          # publish pipeline with it. `scoop` entered alef's target list after v0.79.2 and is
+          # not in any published release yet, so this list may only gain `scoop` once the alef
+          # version this workflow installs actually recognises it.
           available-targets: "crates,python,node,wasm,ruby,go,java,elixir,csharp,php,homebrew,dart,zig,swift"
 
       - name: Ensure GitHub Release exists for tag
@@ -3304,11 +3313,20 @@ jobs:
       - upload-elixir-nifs
       - upload-php-extensions
       - upload-cli-binaries
+      - release-finalize
+    # ~keep Gated on release-finalize's job result, not on `contains(needs.*.result, 'failure')`.
+    # That expression cannot see a SKIPPED job, and `skipped` -- not `failure` -- is exactly what
+    # a publish job becomes when an upstream gate fails, so the announcement fired for releases
+    # that shipped nothing (the same defect release-finalize documents and fixed for itself at
+    # its `Verify every enabled publish target succeeded` step). release-finalize already computes
+    # that verdict and fails its `Hold release as draft` step on a bad one, so depending on its
+    # result reuses the corrected judgement instead of duplicating the skipped-detection logic
+    # here and drifting from it again.
     if: |
       always() &&
       !cancelled() &&
       needs.prepare.outputs.dry_run != 'true' &&
-      !contains(needs.*.result, 'failure')
+      needs.release-finalize.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v3

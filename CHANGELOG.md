@@ -19,10 +19,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ubuntu-24.04-arm` runner anyway. No advisory, license, ban, or source check had ever been
   evaluated in CI since the scan was added. cargo-deny is now installed as a native binary and
   invoked directly.
+- The release announcement no longer fires for a release that shipped nothing. `announce-discord`
+  gated on `!contains(needs.*.result, 'failure')`, which cannot see a `skipped` job — and
+  `skipped` is exactly what a publish job becomes when an upstream gate fails. This is the same
+  defect `release-finalize` already documents and fixed for itself; the announcement now depends
+  on `release-finalize` and gates on its verdict.
 - `CI Rust`'s path filters now name the files its own gates read. Editing `deny.toml`,
   `alef.toml`, `rust-toolchain.toml`, or `.cargo/config.toml` previously started no run at all,
   so the dependency scan and the binding-freshness check could not disagree with the very
   configuration that drives them.
+
+### Known issues
+
+- The Scoop publish channel is inert. `publish-scoop-manifest` is gated on `release_scoop`, which
+  is true only when `scoop` appears in `available-targets`, and it cannot be listed there until
+  the alef version the publish workflow installs recognises `scoop` as a release target — support
+  landed after alef v0.79.2 and is not in a published release. Until then the release gate reports
+  Scoop as "not enabled" rather than failing. See the note in `.github/workflows/publish.yaml`.
 
 ## [1.18.4] - 2026-08-28
 
