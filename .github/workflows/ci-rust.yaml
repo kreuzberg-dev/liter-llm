@@ -1,5 +1,14 @@
 name: CI Rust
 
+# ~keep The path filters must name every file this workflow's gates READ, not just the
+# sources they compile. A gate is blind to any change that does not match the filter:
+# `deny.toml` is the dependency scan's entire policy, `alef.toml` is what
+# `alef verify` compares against, and `rust-toolchain.toml` / `.cargo/config.toml`
+# decide which compiler and flags every step above runs with. Editing any of them used
+# to start no run at all, so the gate they configure could not disagree with them.
+# Still unlisted, deliberately: `fixtures/**`, `packages/**`, `e2e/**`, `test_apps/**`
+# are also `alef verify` inputs/outputs, but adding them would start this 60-minute
+# matrix on every generated-file edit -- ci-e2e.yaml covers those paths instead.
 on:
   push:
     branches: [main]
@@ -8,6 +17,10 @@ on:
       - Cargo.toml
       - Cargo.lock
       - rustfmt.toml
+      - rust-toolchain.toml
+      - .cargo/**
+      - deny.toml
+      - alef.toml
       - .task/**
       - Taskfile.yml
       - .github/workflows/ci-rust.yaml
@@ -18,6 +31,10 @@ on:
       - Cargo.toml
       - Cargo.lock
       - rustfmt.toml
+      - rust-toolchain.toml
+      - .cargo/**
+      - deny.toml
+      - alef.toml
       - .task/**
       - Taskfile.yml
       - .github/workflows/ci-rust.yaml
@@ -103,13 +120,18 @@ jobs:
       # cargo-deny against it, so dependency vulnerabilities went unnoticed. The
       # allowlist documents each tolerated advisory and why it can't be fixed locally;
       # any new advisory fails this step. ~keep
-      # ~keep cargo-deny is installed as a native binary rather than run through the
-      # upstream cargo-deny Docker action. That action is a Docker container action, and this
-      # matrix leg runs on ubuntu-24.04-arm, where the runner could not resolve the image it
-      # had just built ("Unable to find image '20b7cf:...' locally" -> "pull access denied
-      # for 20b7cf") and the step died before cargo-deny ever executed. The flags below
-      # reproduce the action defaults that were in effect (--all-features, log-level warn,
-      # manifest-path ./Cargo.toml) so the scan semantics are unchanged.
+      # ~keep cargo-deny is installed as a native binary rather than run through the upstream
+      # cargo-deny Docker action, which failed for two independent reasons -- so re-adding it
+      # on an x86 runner would not help. First: the runner pre-builds a container action's
+      # image at job start, but the "Free disk space" step above prunes Docker images, so by
+      # the time this step ran the image was gone ("Unable to find image '20b7cf:...' locally"
+      # -> "pull access denied for 20b7cf"; run 33306733197). Second: that action's Dockerfile
+      # unconditionally downloads the x86_64-unknown-linux-musl cargo-deny tarball, which
+      # cannot execute on this ubuntu-24.04-arm leg even when the image survives.
+      # taiki-e/install-action fetches at step time (nothing left to prune) and its cargo-deny
+      # manifest carries an aarch64_linux_musl entry. The flags below reproduce the action
+      # defaults that were in effect (--all-features, log-level warn, manifest-path
+      # ./Cargo.toml) so the scan semantics are unchanged.
       - name: Install cargo-deny (Linux only)
         if: runner.os == 'Linux'
         uses: taiki-e/install-action@cargo-deny

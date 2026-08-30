@@ -12,10 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `uv-bump` development dependency pointed at a GitHub fork that no longer exists, so
   resolving the dev dependency group failed outright and took the lint pipeline down with it. It
   now tracks the published `uv-bump` package on PyPI — the same tool, at 0.6.0 instead of 0.3.0.
-- Dependency scanning now actually runs. The `cargo deny` step used a Docker-only action that
-  cannot execute on the `ubuntu-24.04-arm` runner: the step died resolving its own container
-  image, so no advisory, license, ban, or source check had ever been evaluated in CI since the
-  scan was added. cargo-deny is now installed as a native arm64 binary and invoked directly.
+- Dependency scanning now actually runs. The `cargo deny` step used a Docker container action
+  that failed for two independent reasons: the runner pre-builds such an image at job start, but
+  the `Free disk space` step prunes Docker images and deleted it before the step ran, and the
+  action's Dockerfile downloads an `x86_64` cargo-deny binary that cannot execute on the
+  `ubuntu-24.04-arm` runner anyway. No advisory, license, ban, or source check had ever been
+  evaluated in CI since the scan was added. cargo-deny is now installed as a native binary and
+  invoked directly.
+- `CI Rust`'s path filters now name the files its own gates read. Editing `deny.toml`,
+  `alef.toml`, `rust-toolchain.toml`, or `.cargo/config.toml` previously started no run at all,
+  so the dependency scan and the binding-freshness check could not disagree with the very
+  configuration that drives them.
 
 ## [1.18.4] - 2026-08-28
 
