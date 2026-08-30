@@ -1,0 +1,29 @@
+{
+  "$$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
+  "version": "${version}",
+  "description": "Universal LLM API client with native bindings for 14 languages",
+  "homepage": "https://xberg.io",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/xberg-io/liter-llm/releases/download/${tag}/liter-llm-${version}-x86_64-pc-windows-msvc.zip",
+      "hash": "${win_x64_sha}",
+      "extract_dir": "liter-llm-${version}-x86_64-pc-windows-msvc"
+    }
+  },
+  "bin": "liter-llm.exe",
+  "suggest": {
+    "vcredist": "extras/vcredist2022"
+  },
+  "checkver": {
+    "github": "https://github.com/xberg-io/liter-llm"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/xberg-io/liter-llm/releases/download/v$$version/liter-llm-$$version-x86_64-pc-windows-msvc.zip",
+        "extract_dir": "liter-llm-$$version-x86_64-pc-windows-msvc"
+      }
+    }
+  }
+}

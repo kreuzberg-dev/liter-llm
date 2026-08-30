@@ -1,0 +1,11 @@
+{
+  "manifests": [
+    {
+      "name": "liter-llm",
+      "template": "scripts/publish/liter-llm.json.tmpl",
+      "assets": {
+        "win_x64_sha": "liter-llm-${version}-x86_64-pc-windows-msvc.zip"
+      }
+    }
+  ]
+}

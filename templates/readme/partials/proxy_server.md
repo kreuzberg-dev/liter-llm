@@ -7,6 +7,7 @@ Beyond the SDK, the `liter-llm` CLI ships an OpenAI-compatible proxy and a Model
 
 ```bash
 brew install xberg-io/tap/liter-llm   # or: cargo install liter-llm-cli
+# Windows: scoop bucket add xberg https://github.com/xberg-io/scoop-bucket && scoop install liter-llm
 liter-llm api --config liter-llm-proxy.toml   # OpenAI-compatible proxy
 liter-llm mcp --transport stdio               # MCP tool server
 
