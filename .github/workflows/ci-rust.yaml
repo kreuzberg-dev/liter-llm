@@ -103,11 +103,23 @@ jobs:
       # cargo-deny against it, so dependency vulnerabilities went unnoticed. The
       # allowlist documents each tolerated advisory and why it can't be fixed locally;
       # any new advisory fails this step. ~keep
+      # ~keep cargo-deny is installed as a native binary rather than run through the
+      # upstream cargo-deny Docker action. That action is a Docker container action, and this
+      # matrix leg runs on ubuntu-24.04-arm, where the runner could not resolve the image it
+      # had just built ("Unable to find image '20b7cf:...' locally" -> "pull access denied
+      # for 20b7cf") and the step died before cargo-deny ever executed. The flags below
+      # reproduce the action defaults that were in effect (--all-features, log-level warn,
+      # manifest-path ./Cargo.toml) so the scan semantics are unchanged.
+      - name: Install cargo-deny (Linux only)
+        if: runner.os == 'Linux'
+        uses: taiki-e/install-action@cargo-deny
+
       - name: Dependency scan (cargo-deny, Linux only)
         if: runner.os == 'Linux'
-        uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check advisories bans licenses sources
+        run: >-
+          cargo deny --all-features --log-level warn --manifest-path ./Cargo.toml
+          check advisories bans licenses sources
+        shell: bash
 
       - name: Install cargo-llvm-cov (Linux only)
         if: runner.os == 'Linux'

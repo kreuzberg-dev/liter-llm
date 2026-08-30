@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `uv-bump` development dependency pointed at a GitHub fork that no longer exists, so
   resolving the dev dependency group failed outright and took the lint pipeline down with it. It
   now tracks the published `uv-bump` package on PyPI — the same tool, at 0.6.0 instead of 0.3.0.
+- Dependency scanning now actually runs. The `cargo deny` step used a Docker-only action that
+  cannot execute on the `ubuntu-24.04-arm` runner: the step died resolving its own container
+  image, so no advisory, license, ban, or source check had ever been evaluated in CI since the
+  scan was added. cargo-deny is now installed as a native arm64 binary and invoked directly.
 
 ## [1.18.4] - 2026-08-28
 
