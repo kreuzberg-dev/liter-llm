@@ -1,8 +1,8 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "fe7f5471b635adc98108fc51d2d303a46883b1671b13c9716c0861d819b60a38",
-    "fetched": "2026-08-29",
+    "source_sha256": "527e78e688f44537b9ac17c368f9facde415856b1fa3f30ddf1b0d0e10183ebb",
+    "fetched": "2026-08-30",
     "library_version": "1.18.4"
   },
   "$schema_version": 1,
@@ -6662,6 +6662,277 @@
         }
       }
     },
+    "above": {
+      "name": "above.dev",
+      "env": ["ABOVE_API_KEY"],
+      "doc": "https://above.dev/docs",
+      "api": "https://api.above.dev/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "deepseek-v4-flash": {
+          "id": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.000000242,
+            "output_cost_per_token": 0.000000726,
+            "cache_read_input_token_cost": 0.0000000077,
+            "output_cost_per_reasoning_token": 0.000000726
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-flash",
+          "knowledge": "2025-05",
+          "release_date": "2026-07-31",
+          "last_updated": "2026-07-31"
+        },
+        "deepseek-v4-flash-vision-exp": {
+          "id": "deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision (Exp)",
+          "pricing": {
+            "input_cost_per_token": 0.000000242,
+            "output_cost_per_token": 0.000000726,
+            "cache_read_input_token_cost": 0.0000000077,
+            "output_cost_per_reasoning_token": 0.000000726
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
+        "deepseek-v4-pro": {
+          "id": "deepseek-v4-pro",
+          "name": "DeepSeek V4 Pro",
+          "pricing": {
+            "input_cost_per_token": 0.000000726,
+            "output_cost_per_token": 0.000002178,
+            "cache_read_input_token_cost": 0.0000000242,
+            "output_cost_per_reasoning_token": 0.000002178
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "deepseek-thinking",
+          "release_date": "2026-08-12",
+          "last_updated": "2026-08-22"
+        },
+        "glm-5.2": {
+          "id": "glm-5.2",
+          "name": "GLM 5.2",
+          "pricing": {
+            "input_cost_per_token": 0.00000154,
+            "output_cost_per_token": 0.00000484,
+            "cache_read_input_token_cost": 0.000000154
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-06-13",
+          "last_updated": "2026-06-13"
+        },
+        "glm-5.2-fast": {
+          "id": "glm-5.2-fast",
+          "name": "GLM 5.2 Fast",
+          "pricing": {
+            "input_cost_per_token": 0.00000231,
+            "output_cost_per_token": 0.00000726,
+            "cache_read_input_token_cost": 0.000000231
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-06-13",
+          "last_updated": "2026-06-13"
+        },
+        "mimo-v2.5-pro": {
+          "id": "mimo-v2.5-pro",
+          "name": "MiMo V2.5 Pro",
+          "pricing": {
+            "input_cost_per_token": 0.0000005077,
+            "output_cost_per_token": 0.0000010154,
+            "cache_read_input_token_cost": 0.0000000042
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "mimo",
+          "knowledge": "2024-12",
+          "release_date": "2026-04-22",
+          "last_updated": "2026-04-22"
+        },
+        "mimo-v2.5-pro-ultraspeed": {
+          "id": "mimo-v2.5-pro-ultraspeed",
+          "name": "MiMo V2.5 Pro UltraSpeed",
+          "pricing": {
+            "input_cost_per_token": 0.0000015231,
+            "output_cost_per_token": 0.0000030462,
+            "cache_read_input_token_cost": 0.0000000127
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "mimo",
+          "knowledge": "2024-12",
+          "release_date": "2026-06-08",
+          "last_updated": "2026-06-09"
+        },
+        "qwen3.8-max": {
+          "id": "qwen3.8-max",
+          "name": "Qwen 3.8 Max",
+          "pricing": {
+            "input_cost_per_token": 0.0000022,
+            "output_cost_per_token": 0.0000066,
+            "cache_read_input_token_cost": 0.000000275
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "release_date": "2026-08-03",
+          "last_updated": "2026-08-03"
+        }
+      }
+    },
     "agentrouter": {
       "name": "AgentRouter",
       "env": ["AGENTROUTER_API_KEY"],
@@ -7296,6 +7567,38 @@
           "release_date": "2026-04-22",
           "last_updated": "2026-04-22"
         },
+        "qwen/qwen3.8-27b": {
+          "id": "qwen/qwen3.8-27b",
+          "name": "Qwen3.8 27B",
+          "pricing": {
+            "input_cost_per_token": 0.0000004,
+            "output_cost_per_token": 0.000003,
+            "cache_read_input_token_cost": 0.0000002
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "zai-org/glm-5.2": {
           "id": "zai-org/glm-5.2",
           "name": "GLM-5.2",
@@ -7326,6 +7629,38 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        },
+        "zai-org/glm-5.3": {
+          "id": "zai-org/glm-5.3",
+          "name": "GLM-5.3",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.000004,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         }
       }
     },
@@ -30524,6 +30859,77 @@
         }
       }
     },
+    "bothub": {
+      "name": "Bothub",
+      "env": ["BOTHUB_API_KEY"],
+      "doc": "https://bothub.ru/models",
+      "api": "https://openai.bothub.ru/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "gemma-4-31b-it:free": {
+          "id": "gemma-4-31b-it:free",
+          "name": "Gemma 4 31B IT (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-04-02",
+          "last_updated": "2026-04-02"
+        },
+        "nemotron-3-ultra-550b-a55b:free": {
+          "id": "nemotron-3-ultra-550b-a55b:free",
+          "name": "Nemotron 3 Ultra (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2026-06-04",
+          "last_updated": "2026-06-04"
+        }
+      }
+    },
     "cerebras": {
       "name": "Cerebras",
       "env": ["CEREBRAS_API_KEY"],
@@ -34409,7 +34815,7 @@
           },
           "limit": {
             "context": 1310720,
-            "output": 1310720
+            "output": 1048576
           },
           "modalities": {
             "input": ["text", "image"],
@@ -38800,6 +39206,38 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        },
+        "glm-5.3": {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "pricing": {
+            "input_cost_per_token": 0.0000004,
+            "output_cost_per_token": 0.0000014,
+            "cache_read_input_token_cost": 0.00000006
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         },
         "glm-5.3-flash": {
           "id": "glm-5.3-flash",
@@ -46428,6 +46866,38 @@
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
         },
+        "glm-5.3": {
+          "id": "glm-5.3",
+          "name": "GLM5.3",
+          "pricing": {
+            "input_cost_per_token": 0.0000014,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.00000026
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "glm-5.3-flash": {
           "id": "glm-5.3-flash",
           "name": "GLM5.3 Flash",
@@ -50924,7 +51394,7 @@
           "name": "Muse Glimmer 30B",
           "pricing": {
             "input_cost_per_token": 0.0000003,
-            "output_cost_per_token": 0.0000012
+            "output_cost_per_token": 0.0000011
           },
           "limit": {
             "context": 131072,
@@ -51991,7 +52461,8 @@
           "name": "Codestral (latest)",
           "pricing": {
             "input_cost_per_token": 0.0000003,
-            "output_cost_per_token": 0.0000009
+            "output_cost_per_token": 0.0000009,
+            "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
             "context": 256000,
@@ -52009,7 +52480,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": false,
             "open_weights": true
           },
@@ -52218,7 +52689,8 @@
           "name": "Mistral Medium 3.5",
           "pricing": {
             "input_cost_per_token": 0.0000015,
-            "output_cost_per_token": 0.0000075
+            "output_cost_per_token": 0.0000075,
+            "cache_read_input_token_cost": 0.00000015
           },
           "limit": {
             "context": 262144,
@@ -52236,7 +52708,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -52249,7 +52721,8 @@
           "name": "Mistral Medium (latest)",
           "pricing": {
             "input_cost_per_token": 0.0000015,
-            "output_cost_per_token": 0.0000075
+            "output_cost_per_token": 0.0000075,
+            "cache_read_input_token_cost": 0.00000015
           },
           "limit": {
             "context": 262144,
@@ -52267,7 +52740,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -52313,7 +52786,8 @@
           "name": "Mistral Small (latest)",
           "pricing": {
             "input_cost_per_token": 0.00000015,
-            "output_cost_per_token": 0.0000006
+            "output_cost_per_token": 0.0000006,
+            "cache_read_input_token_cost": 0.000000015
           },
           "limit": {
             "context": 262144,
@@ -52331,7 +52805,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -60838,6 +61312,38 @@
           "release_date": "2026-08-14",
           "last_updated": "2026-08-28"
         },
+        "accounts/fireworks/models/glm-5p3-flash": {
+          "id": "accounts/fireworks/models/glm-5p3-flash",
+          "name": "GLM 5.3 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.000000029
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
+        },
         "accounts/fireworks/models/gpt-oss-120b": {
           "id": "accounts/fireworks/models/gpt-oss-120b",
           "name": "GPT OSS 120B",
@@ -61775,6 +62281,38 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        },
+        "zai-org/GLM-5.3": {
+          "id": "zai-org/GLM-5.3",
+          "name": "GLM-5.3",
+          "pricing": {
+            "input_cost_per_token": 0.0000014,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.00000026
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         }
       }
     },
@@ -86789,7 +87327,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 80000
           },
           "modalities": {
             "input": ["text"],
@@ -88575,9 +89113,9 @@
           "id": "google/gemma-4-31b-it",
           "name": "Gemma 4 31B IT",
           "pricing": {
-            "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.00000035,
-            "cache_read_input_token_cost": 0.0000001
+            "input_cost_per_token": 0.00000009,
+            "output_cost_per_token": 0.00000034,
+            "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
             "context": 262144,
@@ -94454,7 +94992,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 16384
           },
           "modalities": {
             "input": ["text"],
@@ -96272,7 +96810,7 @@
           },
           "limit": {
             "context": 524288,
-            "output": 262144
+            "output": 471859
           },
           "modalities": {
             "input": ["text", "image", "audio"],
@@ -97092,8 +97630,8 @@
             "cache_read_input_token_cost": 0.00000026
           },
           "limit": {
-            "context": 202752,
-            "output": 182476
+            "context": 200000,
+            "output": 128000
           },
           "modalities": {
             "input": ["text"],
@@ -97381,12 +97919,12 @@
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
             "input_cost_per_token": 0.00000003,
-            "output_cost_per_token": 0.0000001,
-            "cache_read_input_token_cost": 0.000000007
+            "output_cost_per_token": 0.00000016,
+            "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
             "context": 1048576,
-            "output": 131072
+            "output": 393216
           },
           "modalities": {
             "input": ["text"],
@@ -97609,13 +98147,13 @@
           "id": "~z-ai/glm-latest",
           "name": "Z.ai: GLM Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000012,
-            "output_cost_per_token": 0.000004,
-            "cache_read_input_token_cost": 0.00000024
+            "input_cost_per_token": 0.0000011875,
+            "output_cost_per_token": 0.00000418,
+            "cache_read_input_token_cost": 0.000000247
           },
           "limit": {
-            "context": 1048576,
-            "output": 943718
+            "context": 262144,
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -97779,6 +98317,105 @@
           "knowledge": "2025-01",
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
+        }
+      }
+    },
+    "klokintegration": {
+      "name": "klokintegration.se",
+      "env": ["KLOKINTEGRATION_API_KEY"],
+      "doc": "https://klokintegration.se/docs/ai-api",
+      "api": "https://api-gw.klok.ipaas.se/proxy/kloker-key/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "Kloker": {
+          "id": "Kloker",
+          "name": "Kloker",
+          "pricing": {
+            "input_cost_per_token": 0.00000023,
+            "output_cost_per_token": 0.00000116
+          },
+          "limit": {
+            "context": 200000,
+            "output": 50000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "release_date": "2026-08-29",
+          "last_updated": "2026-08-29"
+        },
+        "Kloker-Integration-Architect": {
+          "id": "Kloker-Integration-Architect",
+          "name": "Kloker Integration Architect",
+          "pricing": {
+            "input_cost_per_token": 0.00000023,
+            "output_cost_per_token": 0.00000116
+          },
+          "limit": {
+            "context": 200000,
+            "output": 50000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "release_date": "2026-08-29",
+          "last_updated": "2026-08-29"
+        },
+        "Kloker-Integration-Developer": {
+          "id": "Kloker-Integration-Developer",
+          "name": "Kloker Integration Developer",
+          "pricing": {
+            "input_cost_per_token": 0.00000023,
+            "output_cost_per_token": 0.00000116
+          },
+          "limit": {
+            "context": 200000,
+            "output": 50000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "release_date": "2026-08-29",
+          "last_updated": "2026-08-29"
         }
       }
     },
@@ -100042,9 +100679,9 @@
           "id": "glm-5.3",
           "name": "GLM-5.3",
           "pricing": {
-            "input_cost_per_token": 0.0000014,
-            "output_cost_per_token": 0.0000044,
-            "cache_read_input_token_cost": 0.00000026
+            "input_cost_per_token": 0.0000013,
+            "output_cost_per_token": 0.000004,
+            "cache_read_input_token_cost": 0.00000025
           },
           "limit": {
             "context": 1048576,
@@ -115224,6 +115861,38 @@
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
         },
+        "scx-ai-gp/glm-5.3": {
+          "id": "scx-ai-gp/glm-5.3",
+          "name": "GLM-5.3 (SCX.ai)",
+          "pricing": {
+            "input_cost_per_token": 0.0000013,
+            "output_cost_per_token": 0.000004,
+            "cache_read_input_token_cost": 0.00000025
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "scx-ai-gp/glm-5.3-flash": {
           "id": "scx-ai-gp/glm-5.3-flash",
           "name": "GLM-5.3 Flash (SCX.ai)",
@@ -129710,7 +130379,7 @@
             "open_weights": true
           },
           "family": "gemma",
-          "release_date": "2026-08-26",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-26"
         },
         "Gemma-4-26B-A4B-MeroMero:thinking": {
@@ -129743,7 +130412,7 @@
             "open_weights": true
           },
           "family": "gemma",
-          "release_date": "2026-08-26",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-26"
         },
         "Gemma-4-31B-Claude-4.6-Opus-Reasoning-Distilled": {
@@ -129908,7 +130577,7 @@
             "open_weights": true
           },
           "family": "gemma",
-          "release_date": "2026-08-23",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-23"
         },
         "Gemma-4-31B-MeroMero-v2:thinking": {
@@ -129941,7 +130610,7 @@
             "open_weights": true
           },
           "family": "gemma",
-          "release_date": "2026-08-24",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-24"
         },
         "Gemma-4-31B-Queen": {
@@ -132250,8 +132919,8 @@
           "release_date": "2025-08-02",
           "last_updated": "2025-08-02"
         },
-        "abliterated-model": {
-          "id": "abliterated-model",
+        "abliteration-ai/abliterated-model": {
+          "id": "abliteration-ai/abliterated-model",
           "name": "Abliterated Model",
           "pricing": {
             "input_cost_per_token": 0.000003,
@@ -132282,8 +132951,8 @@
           "release_date": "2026-08-27",
           "last_updated": "2026-08-27"
         },
-        "abliterated-model-large": {
-          "id": "abliterated-model-large",
+        "abliteration-ai/abliterated-model-large": {
+          "id": "abliteration-ai/abliterated-model-large",
           "name": "Abliterated Model Large",
           "pricing": {
             "input_cost_per_token": 0.000005,
@@ -132302,7 +132971,7 @@
           "mode": "chat",
           "capabilities": {
             "vision": false,
-            "function_calling": false,
+            "function_calling": true,
             "reasoning": true,
             "structured_output": true,
             "audio_input": false,
@@ -136254,39 +136923,6 @@
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
         },
-        "dmind/dmind-1-mini": {
-          "id": "dmind/dmind-1-mini",
-          "name": "DMind-1-Mini",
-          "pricing": {
-            "input_cost_per_token": 0.0000002,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.0000001
-          },
-          "limit": {
-            "context": 32768,
-            "input": 32768,
-            "output": 8192
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "gpt",
-          "release_date": "2024-01-01",
-          "last_updated": "2025-06-01"
-        },
         "dots-studio/dots-3-note-preview": {
           "id": "dots-studio/dots-3-note-preview",
           "name": "Dots3-Note Preview",
@@ -137604,6 +138240,534 @@
           "release_date": "2026-08-01",
           "last_updated": "2026-08-01"
         },
+        "gemma-4-26b-a4b-it-chimerax": {
+          "id": "gemma-4-26b-a4b-it-chimerax",
+          "name": "Chimera X",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-it-darksoul": {
+          "id": "gemma-4-26b-a4b-it-darksoul",
+          "name": "Dark Soul",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-it-luminous": {
+          "id": "gemma-4-26b-a4b-it-luminous",
+          "name": "Luminous Mirror",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-it-moonlight": {
+          "id": "gemma-4-26b-a4b-it-moonlight",
+          "name": "Moonlight Dusk",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-it-musica": {
+          "id": "gemma-4-26b-a4b-it-musica",
+          "name": "Musica",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-it-opusdistill": {
+          "id": "gemma-4-26b-a4b-it-opusdistill",
+          "name": "Opus Distill",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-it-shadowsiren": {
+          "id": "gemma-4-26b-a4b-it-shadowsiren",
+          "name": "Shadow Siren",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-uncensored": {
+          "id": "gemma-4-26b-a4b-uncensored",
+          "name": "Gemma 4 26B A4B Uncensored",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-26b-a4b-uncensored:thinking": {
+          "id": "gemma-4-26b-a4b-uncensored:thinking",
+          "name": "Gemma 4 26B A4B Uncensored Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-darkidol": {
+          "id": "gemma-4-31b-it-darkidol",
+          "name": "DarkIdol",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-fabled": {
+          "id": "gemma-4-31b-it-fabled",
+          "name": "Fabled",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-garnet": {
+          "id": "gemma-4-31b-it-garnet",
+          "name": "Garnet",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-gembrain": {
+          "id": "gemma-4-31b-it-gembrain",
+          "name": "Gembrain",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-gemsicle": {
+          "id": "gemma-4-31b-it-gemsicle",
+          "name": "Gemsicle",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-isometry": {
+          "id": "gemma-4-31b-it-isometry",
+          "name": "Isometry",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
+        "gemma-4-31b-it-novelist": {
+          "id": "gemma-4-31b-it-novelist",
+          "name": "Novelist",
+          "pricing": {
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000033,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "gemma",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-07-29"
+        },
         "gemma-4-e2b-it": {
           "id": "gemma-4-e2b-it",
           "name": "Gemma 4 E2B Instruct",
@@ -137670,72 +138834,6 @@
           "release_date": "2026-04-02",
           "last_updated": "2026-04-02"
         },
-        "glm-4": {
-          "id": "glm-4",
-          "name": "GLM-4",
-          "pricing": {
-            "input_cost_per_token": 0.000014994,
-            "output_cost_per_token": 0.000014994,
-            "cache_read_input_token_cost": 0.000007497
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2024-01-01",
-          "last_updated": "2024-01-16"
-        },
-        "glm-4-air": {
-          "id": "glm-4-air",
-          "name": "GLM-4 Air",
-          "pricing": {
-            "input_cost_per_token": 0.0000002006,
-            "output_cost_per_token": 0.0000002006,
-            "cache_read_input_token_cost": 0.0000001003
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2024-01-01",
-          "last_updated": "2024-06-05"
-        },
         "glm-4-air-0111": {
           "id": "glm-4-air-0111",
           "name": "GLM 4 Air 0111",
@@ -137769,72 +138867,6 @@
           "release_date": "2025-01-11",
           "last_updated": "2025-01-11"
         },
-        "glm-4-airx": {
-          "id": "glm-4-airx",
-          "name": "GLM-4 AirX",
-          "pricing": {
-            "input_cost_per_token": 0.000002006,
-            "output_cost_per_token": 0.000002006,
-            "cache_read_input_token_cost": 0.000001003
-          },
-          "limit": {
-            "context": 8000,
-            "input": 8000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2024-01-01",
-          "last_updated": "2024-06-05"
-        },
-        "glm-4-flash": {
-          "id": "glm-4-flash",
-          "name": "GLM-4 Flash",
-          "pricing": {
-            "input_cost_per_token": 0.0000001003,
-            "output_cost_per_token": 0.0000001003,
-            "cache_read_input_token_cost": 0.00000005015
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2024-01-01",
-          "last_updated": "2024-08-01"
-        },
         "glm-4-long": {
           "id": "glm-4-long",
           "name": "GLM-4 Long",
@@ -137866,39 +138898,6 @@
           },
           "family": "glm",
           "release_date": "2024-01-01",
-          "last_updated": "2024-08-01"
-        },
-        "glm-4-plus": {
-          "id": "glm-4-plus",
-          "name": "GLM-4 Plus",
-          "pricing": {
-            "input_cost_per_token": 0.000007497,
-            "output_cost_per_token": 0.000007497,
-            "cache_read_input_token_cost": 0.0000037485
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2024-09-20",
           "last_updated": "2024-08-01"
         },
         "glm-4-plus-0111": {
@@ -138065,39 +139064,6 @@
           "family": "glm",
           "release_date": "2025-04-15",
           "last_updated": "2025-04-15"
-        },
-        "glm-zero-preview": {
-          "id": "glm-zero-preview",
-          "name": "GLM Zero Preview",
-          "pricing": {
-            "input_cost_per_token": 0.000001802,
-            "output_cost_per_token": 0.000001802,
-            "cache_read_input_token_cost": 0.000000901
-          },
-          "limit": {
-            "context": 8000,
-            "input": 8000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2024-12-20",
-          "last_updated": "2024-12-01"
         },
         "google/gemini-3-flash-preview": {
           "id": "google/gemini-3-flash-preview",
@@ -138652,237 +139618,6 @@
           "release_date": "2026-04-02",
           "last_updated": "2026-04-02"
         },
-        "google/gemma-4-26b-a4b-it-chimerax": {
-          "id": "google/gemma-4-26b-a4b-it-chimerax",
-          "name": "Chimera X",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-26b-a4b-it-darksoul": {
-          "id": "google/gemma-4-26b-a4b-it-darksoul",
-          "name": "Dark Soul",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-26b-a4b-it-luminous": {
-          "id": "google/gemma-4-26b-a4b-it-luminous",
-          "name": "Luminous Mirror",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-26b-a4b-it-moonlight": {
-          "id": "google/gemma-4-26b-a4b-it-moonlight",
-          "name": "Moonlight Dusk",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-26b-a4b-it-musica": {
-          "id": "google/gemma-4-26b-a4b-it-musica",
-          "name": "Musica",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-26b-a4b-it-opusdistill": {
-          "id": "google/gemma-4-26b-a4b-it-opusdistill",
-          "name": "Opus Distill",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-26b-a4b-it-shadowsiren": {
-          "id": "google/gemma-4-26b-a4b-it-shadowsiren",
-          "name": "Shadow Siren",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
         "google/gemma-4-26b-a4b-it:thinking": {
           "id": "google/gemma-4-26b-a4b-it:thinking",
           "name": "Gemma 4 26B A4B Thinking",
@@ -138916,72 +139651,6 @@
           "release_date": "2026-04-02",
           "last_updated": "2026-04-02"
         },
-        "google/gemma-4-26b-a4b-uncensored": {
-          "id": "google/gemma-4-26b-a4b-uncensored",
-          "name": "Gemma 4 26B A4B Uncensored",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-22",
-          "last_updated": "2026-08-22"
-        },
-        "google/gemma-4-26b-a4b-uncensored:thinking": {
-          "id": "google/gemma-4-26b-a4b-uncensored:thinking",
-          "name": "Gemma 4 26B A4B Uncensored Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-24",
-          "last_updated": "2026-08-24"
-        },
         "google/gemma-4-31b-it": {
           "id": "google/gemma-4-31b-it",
           "name": "Gemma 4 31B",
@@ -139014,237 +139683,6 @@
           "family": "gemma",
           "release_date": "2026-04-02",
           "last_updated": "2026-04-02"
-        },
-        "google/gemma-4-31b-it-darkidol": {
-          "id": "google/gemma-4-31b-it-darkidol",
-          "name": "DarkIdol",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-31b-it-fabled": {
-          "id": "google/gemma-4-31b-it-fabled",
-          "name": "Fabled",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-31b-it-garnet": {
-          "id": "google/gemma-4-31b-it-garnet",
-          "name": "Garnet",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-31b-it-gembrain": {
-          "id": "google/gemma-4-31b-it-gembrain",
-          "name": "Gembrain",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-31b-it-gemsicle": {
-          "id": "google/gemma-4-31b-it-gemsicle",
-          "name": "Gemsicle",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-29",
-          "last_updated": "2026-08-29"
-        },
-        "google/gemma-4-31b-it-isometry": {
-          "id": "google/gemma-4-31b-it-isometry",
-          "name": "Isometry",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
-        },
-        "google/gemma-4-31b-it-novelist": {
-          "id": "google/gemma-4-31b-it-novelist",
-          "name": "Novelist",
-          "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000033,
-            "cache_read_input_token_cost": 0.00000004
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "gemma",
-          "release_date": "2026-08-28",
-          "last_updated": "2026-08-28"
         },
         "google/gemma-4-31b-it:thinking": {
           "id": "google/gemma-4-31b-it:thinking",
@@ -139575,39 +140013,6 @@
           "release_date": "2025-01-06",
           "last_updated": "2025-01-06"
         },
-        "hunyuan-turbos-20250226": {
-          "id": "hunyuan-turbos-20250226",
-          "name": "Hunyuan Turbo S",
-          "pricing": {
-            "input_cost_per_token": 0.000000187,
-            "output_cost_per_token": 0.000000374,
-            "cache_read_input_token_cost": 0.0000000935
-          },
-          "limit": {
-            "context": 24000,
-            "input": 24000,
-            "output": 8192
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "hunyuan",
-          "release_date": "2025-02-27",
-          "last_updated": "2025-02-27"
-        },
         "ibm-granite/granite-4.1-8b": {
           "id": "ibm-granite/granite-4.1-8b",
           "name": "Granite 4.1 8B",
@@ -139740,237 +140145,6 @@
           "release_date": "2024-01-01",
           "last_updated": "2024-07-01"
         },
-        "inflection/inflection-3-productivity": {
-          "id": "inflection/inflection-3-productivity",
-          "name": "Inflection 3 Productivity",
-          "pricing": {
-            "input_cost_per_token": 0.000002499,
-            "output_cost_per_token": 0.000009996,
-            "cache_read_input_token_cost": 0.0000012495
-          },
-          "limit": {
-            "context": 8000,
-            "input": 8000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "gpt",
-          "release_date": "2025-11-21",
-          "last_updated": "2024-10-11"
-        },
-        "jamba-large": {
-          "id": "jamba-large",
-          "name": "Jamba Large",
-          "pricing": {
-            "input_cost_per_token": 0.000001989,
-            "output_cost_per_token": 0.00000799,
-            "cache_read_input_token_cost": 0.0000009945
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "jamba",
-          "release_date": "2025-07-09",
-          "last_updated": "2025-07-09"
-        },
-        "jamba-large-1.6": {
-          "id": "jamba-large-1.6",
-          "name": "Jamba Large 1.6",
-          "pricing": {
-            "input_cost_per_token": 0.000001989,
-            "output_cost_per_token": 0.00000799,
-            "cache_read_input_token_cost": 0.0000009945
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "jamba",
-          "release_date": "2025-03-12",
-          "last_updated": "2025-03-12"
-        },
-        "jamba-large-1.7": {
-          "id": "jamba-large-1.7",
-          "name": "Jamba Large 1.7",
-          "pricing": {
-            "input_cost_per_token": 0.000001989,
-            "output_cost_per_token": 0.00000799,
-            "cache_read_input_token_cost": 0.0000009945
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "jamba",
-          "release_date": "2025-07-09",
-          "last_updated": "2025-07-09"
-        },
-        "jamba-mini": {
-          "id": "jamba-mini",
-          "name": "Jamba Mini",
-          "pricing": {
-            "input_cost_per_token": 0.0000001989,
-            "output_cost_per_token": 0.000000408,
-            "cache_read_input_token_cost": 0.00000009945
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "jamba",
-          "release_date": "2025-07-09",
-          "last_updated": "2025-07-09"
-        },
-        "jamba-mini-1.6": {
-          "id": "jamba-mini-1.6",
-          "name": "Jamba Mini 1.6",
-          "pricing": {
-            "input_cost_per_token": 0.0000001989,
-            "output_cost_per_token": 0.000000408,
-            "cache_read_input_token_cost": 0.00000009945
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "jamba",
-          "release_date": "2024-01-01",
-          "last_updated": "2025-03-01"
-        },
-        "jamba-mini-1.7": {
-          "id": "jamba-mini-1.7",
-          "name": "Jamba Mini 1.7",
-          "pricing": {
-            "input_cost_per_token": 0.0000001989,
-            "output_cost_per_token": 0.000000408,
-            "cache_read_input_token_cost": 0.00000009945
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 4096
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "jamba",
-          "release_date": "2025-07-09",
-          "last_updated": "2025-07-09"
-        },
         "kimi-k2-instruct-fast": {
           "id": "kimi-k2-instruct-fast",
           "name": "Kimi K2 0711 Fast",
@@ -140102,39 +140276,6 @@
           "family": "kat-coder",
           "release_date": "2026-07-14",
           "last_updated": "2026-07-14"
-        },
-        "learnlm-1.5-pro-experimental": {
-          "id": "learnlm-1.5-pro-experimental",
-          "name": "Gemini LearnLM Experimental",
-          "pricing": {
-            "input_cost_per_token": 0.000003502,
-            "output_cost_per_token": 0.000010506,
-            "cache_read_input_token_cost": 0.000001751
-          },
-          "limit": {
-            "context": 32767,
-            "input": 32767,
-            "output": 8192
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "gemini",
-          "release_date": "2024-01-01",
-          "last_updated": "2024-05-14"
         },
         "liquid/lfm-2.5-2.6b": {
           "id": "liquid/lfm-2.5-2.6b",
@@ -142097,9 +142238,9 @@
           "id": "moonshotai/kimi-k3",
           "name": "Kimi K3",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.0000135,
-            "cache_read_input_token_cost": 0.00000025
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002
           },
           "limit": {
             "context": 1048576,
@@ -142130,9 +142271,9 @@
           "id": "moonshotai/kimi-latest",
           "name": "Kimi Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.0000135,
-            "cache_read_input_token_cost": 0.00000025
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.00001,
+            "cache_read_input_token_cost": 0.0000002
           },
           "limit": {
             "context": 1048576,
@@ -144566,7 +144707,7 @@
             "open_weights": true
           },
           "family": "ornith",
-          "release_date": "2026-08-20",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-20"
         },
         "ornith-ai/ornith-1.5-35b-a3b:thinking": {
@@ -144599,74 +144740,8 @@
             "open_weights": true
           },
           "family": "ornith",
-          "release_date": "2026-08-20",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-20"
-        },
-        "ornith-ai/ornith-1.5-397b": {
-          "id": "ornith-ai/ornith-1.5-397b",
-          "name": "Ornith 1.5 397B",
-          "pricing": {
-            "input_cost_per_token": 0.0000009,
-            "output_cost_per_token": 0.0000036,
-            "cache_read_input_token_cost": 0.000000045
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "ornith",
-          "release_date": "2026-08-24",
-          "last_updated": "2026-08-24"
-        },
-        "ornith-ai/ornith-1.5-397b:thinking": {
-          "id": "ornith-ai/ornith-1.5-397b:thinking",
-          "name": "Ornith 1.5 397B Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.0000009,
-            "output_cost_per_token": 0.0000036,
-            "cache_read_input_token_cost": 0.000000045
-          },
-          "limit": {
-            "context": 262144,
-            "input": 262144,
-            "output": 32768
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "ornith",
-          "release_date": "2026-08-24",
-          "last_updated": "2026-08-24"
         },
         "ornith-ai/ornith-1.5-9b": {
           "id": "ornith-ai/ornith-1.5-9b",
@@ -144698,7 +144773,7 @@
             "open_weights": true
           },
           "family": "ornith",
-          "release_date": "2026-08-23",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-23"
         },
         "ornith-ai/ornith-1.5-9b:thinking": {
@@ -144731,7 +144806,7 @@
             "open_weights": true
           },
           "family": "ornith",
-          "release_date": "2026-08-24",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-24"
         },
         "pamanseau/OpenReasoning-Nemotron-32B": {
@@ -146030,7 +146105,7 @@
             "open_weights": true
           },
           "family": "qwen3.6",
-          "release_date": "2026-08-21",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-21"
         },
         "qwen/qwen3.6-35b-a3b-uncensored:thinking": {
@@ -146063,7 +146138,7 @@
             "open_weights": true
           },
           "family": "qwen3.6",
-          "release_date": "2026-08-24",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-24"
         },
         "qwen/qwen3.8-2.4t-a95b": {
@@ -146130,7 +146205,7 @@
             "open_weights": true
           },
           "family": "qwen",
-          "release_date": "2026-08-28",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-28"
         },
         "qwen/qwen3.8-27b-obliterated": {
@@ -146163,7 +146238,7 @@
             "open_weights": true
           },
           "family": "qwen",
-          "release_date": "2026-08-24",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-24"
         },
         "qwen/qwen3.8-27b-obliterated:thinking": {
@@ -146196,7 +146271,7 @@
             "open_weights": true
           },
           "family": "qwen",
-          "release_date": "2026-08-24",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-24"
         },
         "qwen/qwen3.8-27b-uncensored": {
@@ -146229,7 +146304,7 @@
             "open_weights": true
           },
           "family": "qwen",
-          "release_date": "2026-08-21",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-21"
         },
         "qwen/qwen3.8-27b-uncensored:thinking": {
@@ -146262,7 +146337,7 @@
             "open_weights": true
           },
           "family": "qwen",
-          "release_date": "2026-08-25",
+          "release_date": "2026-07-29",
           "last_updated": "2026-08-25"
         },
         "qwen25-vl-72b-instruct": {
@@ -147132,8 +147207,8 @@
           "id": "qwen3.8-27b",
           "name": "Qwen3.8 27B",
           "pricing": {
-            "input_cost_per_token": 0.0000002,
-            "output_cost_per_token": 0.0000014,
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000007,
             "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
@@ -147165,8 +147240,8 @@
           "id": "qwen3.8-27b:thinking",
           "name": "Qwen3.8 27B Thinking",
           "pricing": {
-            "input_cost_per_token": 0.0000002,
-            "output_cost_per_token": 0.0000014,
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000007,
             "cache_read_input_token_cost": 0.00000004
           },
           "limit": {
@@ -147694,39 +147769,6 @@
           "family": "gemma",
           "release_date": "2025-05-23",
           "last_updated": "2025-05-23"
-        },
-        "step-r1-v-mini": {
-          "id": "step-r1-v-mini",
-          "name": "Step R1 V Mini",
-          "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000011,
-            "cache_read_input_token_cost": 0.00000125
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 65536
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "step",
-          "release_date": "2024-01-01",
-          "last_updated": "2025-04-08"
         },
         "stepfun-ai/step-3.5-flash": {
           "id": "stepfun-ai/step-3.5-flash",
@@ -148859,6 +148901,208 @@
           "release_date": "2024-01-01",
           "last_updated": "2024-03-01"
         },
+        "z-ai/GLM-4.5-Air": {
+          "id": "z-ai/GLM-4.5-Air",
+          "name": "GLM 4.5 Air",
+          "pricing": {
+            "input_cost_per_token": 0.00000012,
+            "output_cost_per_token": 0.0000008,
+            "cache_read_input_token_cost": 0.00000006
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 98304
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm-air",
+          "knowledge": "2025-04",
+          "release_date": "2025-07-28",
+          "last_updated": "2025-07-28"
+        },
+        "z-ai/GLM-4.5-Air:thinking": {
+          "id": "z-ai/GLM-4.5-Air:thinking",
+          "name": "GLM 4.5 Air (Thinking)",
+          "pricing": {
+            "input_cost_per_token": 0.00000012,
+            "output_cost_per_token": 0.0000008,
+            "cache_read_input_token_cost": 0.00000006
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 98304
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm-air",
+          "knowledge": "2025-04",
+          "release_date": "2025-07-28",
+          "last_updated": "2025-07-28"
+        },
+        "z-ai/GLM-4.5:thinking": {
+          "id": "z-ai/GLM-4.5:thinking",
+          "name": "GLM 4.5 (Thinking)",
+          "pricing": {
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000013,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": false,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "knowledge": "2025-04",
+          "release_date": "2025-07-28",
+          "last_updated": "2025-07-28"
+        },
+        "z-ai/GLM-4.6-turbo": {
+          "id": "z-ai/GLM-4.6-turbo",
+          "name": "GLM 4.6 Turbo",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.000003,
+            "cache_read_input_token_cost": 0.0000005
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 204800
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": false,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-10-02",
+          "last_updated": "2025-10-02"
+        },
+        "z-ai/GLM-4.6-turbo:thinking": {
+          "id": "z-ai/GLM-4.6-turbo:thinking",
+          "name": "GLM 4.6 Turbo (Thinking)",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.000003,
+            "cache_read_input_token_cost": 0.0000005
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 204800
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": false,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-10-02",
+          "last_updated": "2025-10-02"
+        },
+        "z-ai/glm-4.5": {
+          "id": "z-ai/glm-4.5",
+          "name": "GLM 4.5",
+          "pricing": {
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000013,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": false,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "knowledge": "2025-04",
+          "release_date": "2025-07-28",
+          "last_updated": "2025-07-28"
+        },
         "z-ai/glm-4.5v": {
           "id": "z-ai/glm-4.5v",
           "name": "GLM 4.5V",
@@ -148961,6 +149205,39 @@
           "release_date": "2025-09-30",
           "last_updated": "2025-09-30"
         },
+        "z-ai/glm-4.6-original": {
+          "id": "z-ai/glm-4.6-original",
+          "name": "GLM 4.6 Original",
+          "pricing": {
+            "input_cost_per_token": 0.00000035,
+            "output_cost_per_token": 0.0000014,
+            "cache_read_input_token_cost": 0.000000175
+          },
+          "limit": {
+            "context": 256000,
+            "input": 256000,
+            "output": 65535
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-12-11",
+          "last_updated": "2025-12-11"
+        },
         "z-ai/glm-4.6:thinking": {
           "id": "z-ai/glm-4.6:thinking",
           "name": "GLM 4.6 Thinking",
@@ -148995,6 +149272,473 @@
           "release_date": "2025-09-30",
           "last_updated": "2025-09-30"
         },
+        "z-ai/glm-4.6v": {
+          "id": "z-ai/glm-4.6v",
+          "name": "GLM 4.6V",
+          "pricing": {
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000009,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 24000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": false,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "glm",
+          "knowledge": "2025-04",
+          "release_date": "2025-12-08",
+          "last_updated": "2025-12-08"
+        },
+        "z-ai/glm-4.6v-flash-original": {
+          "id": "z-ai/glm-4.6v-flash-original",
+          "name": "GLM 4.6V Flash",
+          "pricing": {
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.0000004,
+            "cache_read_input_token_cost": 0.00000005
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 24000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": false,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-12-08",
+          "last_updated": "2025-12-08"
+        },
+        "z-ai/glm-4.6v-original": {
+          "id": "z-ai/glm-4.6v-original",
+          "name": "GLM 4.6V Original",
+          "pricing": {
+            "input_cost_per_token": 0.0000006,
+            "output_cost_per_token": 0.0000009,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 128000,
+            "input": 128000,
+            "output": 24000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": false,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-12-08",
+          "last_updated": "2025-12-08"
+        },
+        "z-ai/glm-4.7": {
+          "id": "z-ai/glm-4.7",
+          "name": "GLM 4.7",
+          "pricing": {
+            "input_cost_per_token": 0.0000002,
+            "output_cost_per_token": 0.0000008,
+            "cache_read_input_token_cost": 0.0000001
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 65535
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "knowledge": "2025-04",
+          "release_date": "2025-12-22",
+          "last_updated": "2025-12-22"
+        },
+        "z-ai/glm-4.7-flash": {
+          "id": "z-ai/glm-4.7-flash",
+          "name": "GLM 4.7 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000007,
+            "output_cost_per_token": 0.0000004,
+            "cache_read_input_token_cost": 0.000000035
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm-flash",
+          "knowledge": "2025-04",
+          "release_date": "2026-01-19",
+          "last_updated": "2026-01-19"
+        },
+        "z-ai/glm-4.7-flash-original": {
+          "id": "z-ai/glm-4.7-flash-original",
+          "name": "GLM 4.7 Flash Original",
+          "pricing": {
+            "input_cost_per_token": 0.00000007,
+            "output_cost_per_token": 0.0000004,
+            "cache_read_input_token_cost": 0.000000035
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-01-19",
+          "last_updated": "2026-01-19"
+        },
+        "z-ai/glm-4.7-flash-original:thinking": {
+          "id": "z-ai/glm-4.7-flash-original:thinking",
+          "name": "GLM 4.7 Flash Original Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.00000007,
+            "output_cost_per_token": 0.0000004,
+            "cache_read_input_token_cost": 0.000000035
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-01-19",
+          "last_updated": "2026-01-19"
+        },
+        "z-ai/glm-4.7-flash:thinking": {
+          "id": "z-ai/glm-4.7-flash:thinking",
+          "name": "GLM 4.7 Flash Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.00000007,
+            "output_cost_per_token": 0.0000004,
+            "cache_read_input_token_cost": 0.000000035
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm-flash",
+          "knowledge": "2025-04",
+          "release_date": "2026-01-19",
+          "last_updated": "2026-01-19"
+        },
+        "z-ai/glm-4.7-original": {
+          "id": "z-ai/glm-4.7-original",
+          "name": "GLM 4.7 Original",
+          "pricing": {
+            "input_cost_per_token": 0.0000006,
+            "output_cost_per_token": 0.0000022,
+            "cache_read_input_token_cost": 0.00000011
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 65535
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-12-22",
+          "last_updated": "2025-12-22"
+        },
+        "z-ai/glm-4.7-original:thinking": {
+          "id": "z-ai/glm-4.7-original:thinking",
+          "name": "GLM 4.7 Original Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.0000006,
+            "output_cost_per_token": 0.0000022,
+            "cache_read_input_token_cost": 0.00000011
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 65535
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2025-12-22",
+          "last_updated": "2025-12-22"
+        },
+        "z-ai/glm-4.7:thinking": {
+          "id": "z-ai/glm-4.7:thinking",
+          "name": "GLM 4.7 Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.0000002,
+            "output_cost_per_token": 0.0000008,
+            "cache_read_input_token_cost": 0.0000001
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 65535
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "knowledge": "2025-04",
+          "release_date": "2025-12-22",
+          "last_updated": "2025-12-22"
+        },
+        "z-ai/glm-5": {
+          "id": "z-ai/glm-5",
+          "name": "GLM 5",
+          "pricing": {
+            "input_cost_per_token": 0.0000005,
+            "output_cost_per_token": 0.00000255,
+            "cache_read_input_token_cost": 0.00000013
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-02-12",
+          "last_updated": "2026-02-12"
+        },
+        "z-ai/glm-5-original": {
+          "id": "z-ai/glm-5-original",
+          "name": "GLM 5 Original",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.0000032,
+            "cache_read_input_token_cost": 0.0000002
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-02-11",
+          "last_updated": "2026-02-11"
+        },
+        "z-ai/glm-5-original:thinking": {
+          "id": "z-ai/glm-5-original:thinking",
+          "name": "GLM 5 Original Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.0000032,
+            "cache_read_input_token_cost": 0.0000002
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-02-11",
+          "last_updated": "2026-02-11"
+        },
         "z-ai/glm-5-turbo": {
           "id": "z-ai/glm-5-turbo",
           "name": "GLM 5 Turbo",
@@ -149027,6 +149771,171 @@
           "family": "glm",
           "release_date": "2026-03-16",
           "last_updated": "2026-03-16"
+        },
+        "z-ai/glm-5.1": {
+          "id": "z-ai/glm-5.1",
+          "name": "GLM 5.1",
+          "pricing": {
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.0000026,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-04-07",
+          "last_updated": "2026-04-07"
+        },
+        "z-ai/glm-5.1:thinking": {
+          "id": "z-ai/glm-5.1:thinking",
+          "name": "GLM 5.1 Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.0000026,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-04-07",
+          "last_updated": "2026-04-07"
+        },
+        "z-ai/glm-5.2": {
+          "id": "z-ai/glm-5.2",
+          "name": "GLM 5.2",
+          "pricing": {
+            "input_cost_per_token": 0.00000042,
+            "output_cost_per_token": 0.00000132,
+            "cache_read_input_token_cost": 0.000000078
+          },
+          "limit": {
+            "context": 1048576,
+            "input": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-06-13",
+          "last_updated": "2026-06-13"
+        },
+        "z-ai/glm-5.2:thinking": {
+          "id": "z-ai/glm-5.2:thinking",
+          "name": "GLM 5.2 Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.00000042,
+            "output_cost_per_token": 0.00000132,
+            "cache_read_input_token_cost": 0.000000078
+          },
+          "limit": {
+            "context": 1048576,
+            "input": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-06-13",
+          "last_updated": "2026-06-13"
+        },
+        "z-ai/glm-5.3": {
+          "id": "z-ai/glm-5.3",
+          "name": "GLM 5.3",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.0000032,
+            "cache_read_input_token_cost": 0.0000002
+          },
+          "limit": {
+            "context": 1048576,
+            "input": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         },
         "z-ai/glm-5.3-flash": {
           "id": "z-ai/glm-5.3-flash",
@@ -149075,6 +149984,72 @@
             "output": 32768
           },
           "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-07-29",
+          "last_updated": "2026-08-27"
+        },
+        "z-ai/glm-5.3:thinking": {
+          "id": "z-ai/glm-5.3:thinking",
+          "name": "GLM 5.3 Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.000001,
+            "output_cost_per_token": 0.0000032,
+            "cache_read_input_token_cost": 0.0000002
+          },
+          "limit": {
+            "context": 1048576,
+            "input": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
+        "z-ai/glm-5:thinking": {
+          "id": "z-ai/glm-5:thinking",
+          "name": "GLM 5 Thinking",
+          "pricing": {
+            "input_cost_per_token": 0.0000005,
+            "output_cost_per_token": 0.00000255,
+            "cache_read_input_token_cost": 0.00000013
+          },
+          "limit": {
+            "context": 200000,
+            "input": 200000,
+            "output": 128000
+          },
+          "modalities": {
             "input": ["text"],
             "output": ["text"]
           },
@@ -149091,8 +150066,8 @@
             "open_weights": true
           },
           "family": "glm",
-          "release_date": "2026-08-27",
-          "last_updated": "2026-08-27"
+          "release_date": "2026-02-12",
+          "last_updated": "2026-02-12"
         },
         "z-ai/glm-5v-turbo": {
           "id": "z-ai/glm-5v-turbo",
@@ -149160,941 +150135,8 @@
           "release_date": "2026-04-01",
           "last_updated": "2026-04-01"
         },
-        "zai-org/GLM-4.5-Air": {
-          "id": "zai-org/GLM-4.5-Air",
-          "name": "GLM 4.5 Air",
-          "pricing": {
-            "input_cost_per_token": 0.00000012,
-            "output_cost_per_token": 0.0000008,
-            "cache_read_input_token_cost": 0.00000006
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 98304
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm-air",
-          "knowledge": "2025-04",
-          "release_date": "2025-07-28",
-          "last_updated": "2025-07-28"
-        },
-        "zai-org/GLM-4.5-Air:thinking": {
-          "id": "zai-org/GLM-4.5-Air:thinking",
-          "name": "GLM 4.5 Air (Thinking)",
-          "pricing": {
-            "input_cost_per_token": 0.00000012,
-            "output_cost_per_token": 0.0000008,
-            "cache_read_input_token_cost": 0.00000006
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 98304
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm-air",
-          "knowledge": "2025-04",
-          "release_date": "2025-07-28",
-          "last_updated": "2025-07-28"
-        },
-        "zai-org/GLM-4.5:thinking": {
-          "id": "zai-org/GLM-4.5:thinking",
-          "name": "GLM 4.5 (Thinking)",
-          "pricing": {
-            "input_cost_per_token": 0.0000003,
-            "output_cost_per_token": 0.0000013,
-            "cache_read_input_token_cost": 0.00000015
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 65536
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "knowledge": "2025-04",
-          "release_date": "2025-07-28",
-          "last_updated": "2025-07-28"
-        },
-        "zai-org/GLM-4.6-turbo": {
-          "id": "zai-org/GLM-4.6-turbo",
-          "name": "GLM 4.6 Turbo",
-          "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.000003,
-            "cache_read_input_token_cost": 0.0000005
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 204800
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-10-02",
-          "last_updated": "2025-10-02"
-        },
-        "zai-org/GLM-4.6-turbo:thinking": {
-          "id": "zai-org/GLM-4.6-turbo:thinking",
-          "name": "GLM 4.6 Turbo (Thinking)",
-          "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.000003,
-            "cache_read_input_token_cost": 0.0000005
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 204800
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-10-02",
-          "last_updated": "2025-10-02"
-        },
-        "zai-org/glm-4.5": {
-          "id": "zai-org/glm-4.5",
-          "name": "GLM 4.5",
-          "pricing": {
-            "input_cost_per_token": 0.0000003,
-            "output_cost_per_token": 0.0000013,
-            "cache_read_input_token_cost": 0.00000015
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 65536
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "knowledge": "2025-04",
-          "release_date": "2025-07-28",
-          "last_updated": "2025-07-28"
-        },
-        "zai-org/glm-4.6-original": {
-          "id": "zai-org/glm-4.6-original",
-          "name": "GLM 4.6 Original",
-          "pricing": {
-            "input_cost_per_token": 0.00000035,
-            "output_cost_per_token": 0.0000014,
-            "cache_read_input_token_cost": 0.000000175
-          },
-          "limit": {
-            "context": 256000,
-            "input": 256000,
-            "output": 65535
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-12-11",
-          "last_updated": "2025-12-11"
-        },
-        "zai-org/glm-4.6v": {
-          "id": "zai-org/glm-4.6v",
-          "name": "GLM 4.6V",
-          "pricing": {
-            "input_cost_per_token": 0.0000003,
-            "output_cost_per_token": 0.0000009,
-            "cache_read_input_token_cost": 0.00000015
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 24000
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "glm",
-          "knowledge": "2025-04",
-          "release_date": "2025-12-08",
-          "last_updated": "2025-12-08"
-        },
-        "zai-org/glm-4.6v-flash-original": {
-          "id": "zai-org/glm-4.6v-flash-original",
-          "name": "GLM 4.6V Flash",
-          "pricing": {
-            "input_cost_per_token": 0.0000001,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.00000005
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 24000
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-12-08",
-          "last_updated": "2025-12-08"
-        },
-        "zai-org/glm-4.6v-original": {
-          "id": "zai-org/glm-4.6v-original",
-          "name": "GLM 4.6V Original",
-          "pricing": {
-            "input_cost_per_token": 0.0000006,
-            "output_cost_per_token": 0.0000009,
-            "cache_read_input_token_cost": 0.0000003
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 24000
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-12-08",
-          "last_updated": "2025-12-08"
-        },
-        "zai-org/glm-4.7": {
-          "id": "zai-org/glm-4.7",
-          "name": "GLM 4.7",
-          "pricing": {
-            "input_cost_per_token": 0.0000002,
-            "output_cost_per_token": 0.0000008,
-            "cache_read_input_token_cost": 0.0000001
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 65535
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "knowledge": "2025-04",
-          "release_date": "2025-12-22",
-          "last_updated": "2025-12-22"
-        },
-        "zai-org/glm-4.7-flash": {
-          "id": "zai-org/glm-4.7-flash",
-          "name": "GLM 4.7 Flash",
-          "pricing": {
-            "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.000000035
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm-flash",
-          "knowledge": "2025-04",
-          "release_date": "2026-01-19",
-          "last_updated": "2026-01-19"
-        },
-        "zai-org/glm-4.7-flash-original": {
-          "id": "zai-org/glm-4.7-flash-original",
-          "name": "GLM 4.7 Flash Original",
-          "pricing": {
-            "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.000000035
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-01-19",
-          "last_updated": "2026-01-19"
-        },
-        "zai-org/glm-4.7-flash-original:thinking": {
-          "id": "zai-org/glm-4.7-flash-original:thinking",
-          "name": "GLM 4.7 Flash Original Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.000000035
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-01-19",
-          "last_updated": "2026-01-19"
-        },
-        "zai-org/glm-4.7-flash:thinking": {
-          "id": "zai-org/glm-4.7-flash:thinking",
-          "name": "GLM 4.7 Flash Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.000000035
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm-flash",
-          "knowledge": "2025-04",
-          "release_date": "2026-01-19",
-          "last_updated": "2026-01-19"
-        },
-        "zai-org/glm-4.7-original": {
-          "id": "zai-org/glm-4.7-original",
-          "name": "GLM 4.7 Original",
-          "pricing": {
-            "input_cost_per_token": 0.0000006,
-            "output_cost_per_token": 0.0000022,
-            "cache_read_input_token_cost": 0.00000011
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 65535
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-12-22",
-          "last_updated": "2025-12-22"
-        },
-        "zai-org/glm-4.7-original:thinking": {
-          "id": "zai-org/glm-4.7-original:thinking",
-          "name": "GLM 4.7 Original Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.0000006,
-            "output_cost_per_token": 0.0000022,
-            "cache_read_input_token_cost": 0.00000011
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 65535
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2025-12-22",
-          "last_updated": "2025-12-22"
-        },
-        "zai-org/glm-4.7:thinking": {
-          "id": "zai-org/glm-4.7:thinking",
-          "name": "GLM 4.7 Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.0000002,
-            "output_cost_per_token": 0.0000008,
-            "cache_read_input_token_cost": 0.0000001
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 65535
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "knowledge": "2025-04",
-          "release_date": "2025-12-22",
-          "last_updated": "2025-12-22"
-        },
-        "zai-org/glm-5": {
-          "id": "zai-org/glm-5",
-          "name": "GLM 5",
-          "pricing": {
-            "input_cost_per_token": 0.0000005,
-            "output_cost_per_token": 0.00000255,
-            "cache_read_input_token_cost": 0.00000013
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-02-12",
-          "last_updated": "2026-02-12"
-        },
-        "zai-org/glm-5-original": {
-          "id": "zai-org/glm-5-original",
-          "name": "GLM 5 Original",
-          "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.0000032,
-            "cache_read_input_token_cost": 0.0000002
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-02-11",
-          "last_updated": "2026-02-11"
-        },
-        "zai-org/glm-5-original:thinking": {
-          "id": "zai-org/glm-5-original:thinking",
-          "name": "GLM 5 Original Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.0000032,
-            "cache_read_input_token_cost": 0.0000002
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-02-11",
-          "last_updated": "2026-02-11"
-        },
-        "zai-org/glm-5.1": {
-          "id": "zai-org/glm-5.1",
-          "name": "GLM 5.1",
-          "pricing": {
-            "input_cost_per_token": 0.00000075,
-            "output_cost_per_token": 0.0000026,
-            "cache_read_input_token_cost": 0.00000015
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-04-07",
-          "last_updated": "2026-04-07"
-        },
-        "zai-org/glm-5.1:thinking": {
-          "id": "zai-org/glm-5.1:thinking",
-          "name": "GLM 5.1 Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.00000075,
-            "output_cost_per_token": 0.0000026,
-            "cache_read_input_token_cost": 0.00000015
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-04-07",
-          "last_updated": "2026-04-07"
-        },
-        "zai-org/glm-5.2": {
-          "id": "zai-org/glm-5.2",
-          "name": "GLM 5.2",
-          "pricing": {
-            "input_cost_per_token": 0.00000042,
-            "output_cost_per_token": 0.00000132,
-            "cache_read_input_token_cost": 0.000000078
-          },
-          "limit": {
-            "context": 1048576,
-            "input": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-06-13",
-          "last_updated": "2026-06-13"
-        },
-        "zai-org/glm-5.2:thinking": {
-          "id": "zai-org/glm-5.2:thinking",
-          "name": "GLM 5.2 Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.00000042,
-            "output_cost_per_token": 0.00000132,
-            "cache_read_input_token_cost": 0.000000078
-          },
-          "limit": {
-            "context": 1048576,
-            "input": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-06-13",
-          "last_updated": "2026-06-13"
-        },
-        "zai-org/glm-5.3": {
-          "id": "zai-org/glm-5.3",
-          "name": "GLM 5.3 Preview",
-          "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.0000032,
-            "cache_read_input_token_cost": 0.0000002
-          },
-          "limit": {
-            "context": 1048576,
-            "input": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2026-08-14",
-          "last_updated": "2026-08-14"
-        },
-        "zai-org/glm-5.3:thinking": {
-          "id": "zai-org/glm-5.3:thinking",
-          "name": "GLM 5.3 Preview Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.000001,
-            "output_cost_per_token": 0.0000032,
-            "cache_read_input_token_cost": 0.0000002
-          },
-          "limit": {
-            "context": 1048576,
-            "input": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2026-08-14",
-          "last_updated": "2026-08-14"
-        },
-        "zai-org/glm-5:thinking": {
-          "id": "zai-org/glm-5:thinking",
-          "name": "GLM 5 Thinking",
-          "pricing": {
-            "input_cost_per_token": 0.0000005,
-            "output_cost_per_token": 0.00000255,
-            "cache_read_input_token_cost": 0.00000013
-          },
-          "limit": {
-            "context": 200000,
-            "input": 200000,
-            "output": 128000
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "glm",
-          "release_date": "2026-02-12",
-          "last_updated": "2026-02-12"
-        },
-        "zai-org/glm-latest": {
-          "id": "zai-org/glm-latest",
+        "z-ai/glm-latest": {
+          "id": "z-ai/glm-latest",
           "name": "GLM Latest",
           "pricing": {
             "input_cost_per_token": 0.00000042,
@@ -165332,6 +165374,33 @@
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
         },
+        "glm-5.3": {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "glm-5.3-flash": {
           "id": "glm-5.3-flash",
           "name": "GLM-5.3-Flash",
@@ -170980,11 +171049,11 @@
         },
         "hy3": {
           "id": "hy3",
-          "name": "Hy3 (8x usage)",
+          "name": "Hy3",
           "pricing": {
-            "input_cost_per_token": 0.0000000175,
-            "output_cost_per_token": 0.0000000725,
-            "cache_read_input_token_cost": 0.000000004375
+            "input_cost_per_token": 0.00000014,
+            "output_cost_per_token": 0.00000058,
+            "cache_read_input_token_cost": 0.000000035
           },
           "limit": {
             "context": 256000,
@@ -172788,13 +172857,13 @@
           "id": "arcee-ai/trinity-large-thinking",
           "name": "Trinity Large Thinking",
           "pricing": {
-            "input_cost_per_token": 0.00000022,
-            "output_cost_per_token": 0.00000085,
+            "input_cost_per_token": 0.00000025,
+            "output_cost_per_token": 0.0000008,
             "cache_read_input_token_cost": 0.00000006
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 80000
           },
           "modalities": {
             "input": ["text"],
@@ -173588,9 +173657,9 @@
           "id": "deepseek/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.00000008372,
-            "output_cost_per_token": 0.00000016744,
-            "cache_read_input_token_cost": 0.000000016744
+            "input_cost_per_token": 0.00000008008,
+            "output_cost_per_token": 0.00000016016,
+            "cache_read_input_token_cost": 0.000000016016
           },
           "limit": {
             "context": 1048576,
@@ -173621,9 +173690,9 @@
           "id": "deepseek/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.000000045,
-            "output_cost_per_token": 0.00000009,
-            "cache_read_input_token_cost": 0.000000009
+            "input_cost_per_token": 0.000000065,
+            "output_cost_per_token": 0.00000018,
+            "cache_read_input_token_cost": 0.000000016
           },
           "limit": {
             "context": 1310720,
@@ -173686,9 +173755,9 @@
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
           "pricing": {
-            "input_cost_per_token": 0.000000630054,
-            "output_cost_per_token": 0.000001260108,
-            "cache_read_input_token_cost": 0.000000052505
+            "input_cost_per_token": 0.000000437436,
+            "output_cost_per_token": 0.000000874872,
+            "cache_read_input_token_cost": 0.000000036453
           },
           "limit": {
             "context": 1048576,
@@ -180596,13 +180665,12 @@
           "id": "qwen/qwen3-next-80b-a3b-instruct",
           "name": "Qwen3-Next 80B-A3B Instruct",
           "pricing": {
-            "input_cost_per_token": 0.0000001,
-            "output_cost_per_token": 0.0000011,
-            "cache_read_input_token_cost": 0.00000007
+            "input_cost_per_token": 0.00000009,
+            "output_cost_per_token": 0.0000011
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 16384
           },
           "modalities": {
             "input": ["text"],
@@ -180616,7 +180684,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": false,
             "open_weights": true
           },
@@ -182263,13 +182331,13 @@
           "id": "thinkingmachines/inkling",
           "name": "Inkling",
           "pricing": {
-            "input_cost_per_token": 0.00000095,
+            "input_cost_per_token": 0.000001,
             "output_cost_per_token": 0.00000405,
-            "cache_read_input_token_cost": 0.00000016
+            "cache_read_input_token_cost": 0.00000017
           },
           "limit": {
             "context": 1048576,
-            "output": 262144
+            "output": 471859
           },
           "modalities": {
             "input": ["text", "image", "audio"],
@@ -183119,13 +183187,13 @@
           "id": "z-ai/glm-5.1",
           "name": "GLM-5.1",
           "pricing": {
-            "input_cost_per_token": 0.00000126,
-            "output_cost_per_token": 0.00000396,
-            "cache_read_input_token_cost": 0.000000234
+            "input_cost_per_token": 0.000000966,
+            "output_cost_per_token": 0.000003036,
+            "cache_read_input_token_cost": 0.0000001794
           },
           "limit": {
             "context": 204800,
-            "output": 182476
+            "output": 128000
           },
           "modalities": {
             "input": ["text"],
@@ -183444,12 +183512,12 @@
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
             "input_cost_per_token": 0.00000003,
-            "output_cost_per_token": 0.0000001,
-            "cache_read_input_token_cost": 0.000000007
+            "output_cost_per_token": 0.00000016,
+            "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
             "context": 1310720,
-            "output": 131072
+            "output": 393216
           },
           "modalities": {
             "input": ["text"],
@@ -183701,13 +183769,13 @@
           "id": "~z-ai/glm-latest",
           "name": "GLM Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000012,
-            "output_cost_per_token": 0.000004,
-            "cache_read_input_token_cost": 0.00000024
+            "input_cost_per_token": 0.0000011875,
+            "output_cost_per_token": 0.00000418,
+            "cache_read_input_token_cost": 0.000000247
           },
           "limit": {
             "context": 1310720,
-            "output": 943718
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -189060,6 +189128,37 @@
           "family": "glm",
           "release_date": "2026-08-14",
           "last_updated": "2026-08-14"
+        },
+        "z-ai/glm-5.3-flash": {
+          "id": "z-ai/glm-5.3-flash",
+          "name": "GLM-5.3-Flash",
+          "pricing": {
+            "input_cost_per_token": 0.000000075,
+            "output_cost_per_token": 0.00000025
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
         }
       }
     },
@@ -203900,38 +203999,6 @@
           "release_date": "2026-08-26",
           "last_updated": "2026-08-26"
         },
-        "glm-5.3-flash@eu": {
-          "id": "glm-5.3-flash@eu",
-          "name": "GLM-5.3-Flash (EU)",
-          "pricing": {
-            "input_cost_per_token": 0.0000002,
-            "output_cost_per_token": 0.0000005,
-            "cache_read_input_token_cost": 0.00000007
-          },
-          "limit": {
-            "context": 1000000,
-            "output": 262144
-          },
-          "modalities": {
-            "input": ["text", "image", "video", "pdf"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": true,
-            "function_calling": true,
-            "reasoning": true,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": true,
-            "open_weights": false
-          },
-          "family": "glm",
-          "release_date": "2026-08-26",
-          "last_updated": "2026-08-26"
-        },
         "glm-5.3@eu": {
           "id": "glm-5.3@eu",
           "name": "GLM-5.3 (EU)",
@@ -216018,6 +216085,38 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        },
+        "hf:zai-org/GLM-5.3-Flash": {
+          "id": "hf:zai-org/GLM-5.3-Flash",
+          "name": "GLM-5.3-Flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.00000004
+          },
+          "limit": {
+            "context": 524288,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
         }
       }
     },
@@ -219058,6 +219157,38 @@
           "release_date": "2026-06-16",
           "last_updated": "2026-06-16"
         },
+        "zai-org/GLM-5.3": {
+          "id": "zai-org/GLM-5.3",
+          "name": "GLM-5.3",
+          "pricing": {
+            "input_cost_per_token": 0.0000014,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.00000026
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
         "zai-org/GLM-5.3-Flash": {
           "id": "zai-org/GLM-5.3-Flash",
           "name": "GLM-5.3-Flash",
@@ -219517,6 +219648,46 @@
           "family": "glm",
           "release_date": "2026-08-26",
           "last_updated": "2026-08-26"
+        }
+      }
+    },
+    "tokenrouter": {
+      "name": "TokenRouter",
+      "env": ["TOKENROUTER_API_KEY"],
+      "doc": "https://www.tokenrouter.com/docs/tokenrouter-feature-guide/",
+      "api": "https://api.tokenrouter.com/v1",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "z-ai/glm-5.3-free": {
+          "id": "z-ai/glm-5.3-free",
+          "name": "GLM-5.3 (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
         }
       }
     },
