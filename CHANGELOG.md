@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The `uv-bump` development dependency pointed at a GitHub fork that no longer exists, so
+  resolving the dev dependency group failed outright and took the lint pipeline down with it. It
+  now tracks the published `uv-bump` package on PyPI — the same tool, at 0.6.0 instead of 0.3.0.
+
 ## [1.18.4] - 2026-08-28
 
 ### Changed
