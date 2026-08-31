@@ -120,7 +120,7 @@ jobs:
           for abi_dir in packages/kotlin-android/src/main/jniLibs/*/; do
             [ "$(basename "$abi_dir")" = "${{ matrix.abi }}" ] || rm -rf "$abi_dir"
           done
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"

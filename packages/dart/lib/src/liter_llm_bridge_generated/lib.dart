@@ -8,6 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'lib.freezed.dart';
 
+// These functions are ignored because they are not marked as `pub`: `try_convert_assistant_content_from_core`, `try_convert_assistant_part_from_core`, `try_convert_auth_header_format_from_core`, `try_convert_auth_type_from_core`, `try_convert_batch_status_from_core`, `try_convert_cache_backend_from_core`, `try_convert_content_part_from_core`, `try_convert_embedding_content_part_from_core`, `try_convert_embedding_format_from_core`, `try_convert_embedding_input_from_core`, `try_convert_enforcement_from_core`, `try_convert_file_purpose_from_core`, `try_convert_finish_reason_from_core`, `try_convert_image_detail_from_core`, `try_convert_message_from_core`, `try_convert_modality_from_core`, `try_convert_moderation_input_from_core`, `try_convert_ocr_document_from_core`, `try_convert_reasoning_effort_from_core`, `try_convert_refresh_outcome_from_core`, `try_convert_rerank_document_from_core`, `try_convert_response_format_from_core`, `try_convert_stop_sequence_from_core`, `try_convert_stream_format_from_core`, `try_convert_tool_choice_from_core`, `try_convert_tool_choice_mode_from_core`, `try_convert_tool_type_from_core`, `try_convert_user_content_from_core`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `IntentPrototype`, `SingleflightResult`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -642,6 +643,93 @@ Future<RateLimitConfig> createRateLimitConfigFromJson({required String json}) =>
 Future<CatalogRefreshConfig> createCatalogRefreshConfigFromJson({
   required String json,
 }) => RustLib.instance.api.crateCreateCatalogRefreshConfigFromJson(json: json);
+
+Future<Message> createMessageFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateMessageFromJson(json: json);
+
+Future<UserContent> createUserContentFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateUserContentFromJson(json: json);
+
+Future<ContentPart> createContentPartFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateContentPartFromJson(json: json);
+
+Future<ImageDetail> createImageDetailFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateImageDetailFromJson(json: json);
+
+Future<AssistantContent> createAssistantContentFromJson({
+  required String json,
+}) => RustLib.instance.api.crateCreateAssistantContentFromJson(json: json);
+
+Future<AssistantPart> createAssistantPartFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateAssistantPartFromJson(json: json);
+
+Future<ToolType> createToolTypeFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateToolTypeFromJson(json: json);
+
+Future<ToolChoice> createToolChoiceFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateToolChoiceFromJson(json: json);
+
+Future<ToolChoiceMode> createToolChoiceModeFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateToolChoiceModeFromJson(json: json);
+
+Future<ResponseFormat> createResponseFormatFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateResponseFormatFromJson(json: json);
+
+Future<StopSequence> createStopSequenceFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateStopSequenceFromJson(json: json);
+
+Future<Modality> createModalityFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateModalityFromJson(json: json);
+
+Future<FinishReason> createFinishReasonFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateFinishReasonFromJson(json: json);
+
+Future<ReasoningEffort> createReasoningEffortFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateReasoningEffortFromJson(json: json);
+
+Future<EmbeddingFormat> createEmbeddingFormatFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateEmbeddingFormatFromJson(json: json);
+
+Future<EmbeddingInput> createEmbeddingInputFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateEmbeddingInputFromJson(json: json);
+
+Future<EmbeddingContentPart> createEmbeddingContentPartFromJson({
+  required String json,
+}) => RustLib.instance.api.crateCreateEmbeddingContentPartFromJson(json: json);
+
+Future<ModerationInput> createModerationInputFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateModerationInputFromJson(json: json);
+
+Future<RerankDocument> createRerankDocumentFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateRerankDocumentFromJson(json: json);
+
+Future<OcrDocument> createOcrDocumentFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateOcrDocumentFromJson(json: json);
+
+Future<FilePurpose> createFilePurposeFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateFilePurposeFromJson(json: json);
+
+Future<BatchStatus> createBatchStatusFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateBatchStatusFromJson(json: json);
+
+Future<AuthHeaderFormat> createAuthHeaderFormatFromJson({
+  required String json,
+}) => RustLib.instance.api.crateCreateAuthHeaderFormatFromJson(json: json);
+
+Future<StreamFormat> createStreamFormatFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateStreamFormatFromJson(json: json);
+
+Future<AuthType> createAuthTypeFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateAuthTypeFromJson(json: json);
+
+Future<Enforcement> createEnforcementFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateEnforcementFromJson(json: json);
+
+Future<CacheBackend> createCacheBackendFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateCacheBackendFromJson(json: json);
+
+Future<RefreshOutcome> createRefreshOutcomeFromJson({required String json}) =>
+    RustLib.instance.api.crateCreateRefreshOutcomeFromJson(json: json);
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<DefaultClient>>
 abstract class DefaultClient implements RustOpaqueInterface {
