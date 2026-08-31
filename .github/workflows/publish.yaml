@@ -131,16 +131,11 @@ jobs:
         id: meta
         uses: xberg-io/actions/prepare-release-metadata@v1
         with:
-          # ~keep `scoop` is absent from this list on purpose, and adding it back is not a
-          # one-word change. `release_scoop` is true only when `scoop` appears here, so
-          # `publish-scoop-manifest` below is currently unreachable on every trigger and the
-          # release gate reports it as "not enabled" rather than failing. It cannot simply be
-          # added: `alef release-metadata` hard-errors on a target name it does not recognise
-          # ("Unknown release target 'scoop'"), which would fail `prepare` and take the whole
-          # publish pipeline with it. `scoop` entered alef's target list after v0.79.2 and is
-          # not in any published release yet, so this list may only gain `scoop` once the alef
-          # version this workflow installs actually recognises it.
-          available-targets: "crates,python,node,wasm,ruby,go,java,elixir,csharp,php,homebrew,dart,zig,swift"
+          # ~keep A name absent from this list makes its `release_*` flag false, so the matching
+          # publish job never runs; a name alef does not recognise hard-errors `prepare` and takes
+          # the whole pipeline down. `scoop` is safe on both counts as of alef 0.79.5, which
+          # carries it in the known-target list and treats it as implying `cli`.
+          available-targets: "crates,python,node,wasm,ruby,go,java,elixir,csharp,php,homebrew,scoop,dart,zig,swift"
 
       - name: Ensure GitHub Release exists for tag
         if: ${{ steps.meta.outputs.is_tag == 'true' && steps.meta.outputs.dry_run != 'true' }}
