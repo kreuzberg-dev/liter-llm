@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.0] - 2026-08-31
+
+### Added
+
+- Scoop is now a live release channel alongside Homebrew: a release publishes a Scoop manifest for
+  the CLI, and the install lists and badges cover it. The channel was previously inert because
+  `scoop` was held out of the workflow's `available-targets` -- alef only gained the target after
+  v0.79.2, and naming a target it does not recognise hard-errors the whole publish pipeline. The
+  pinned alef is now 0.79.5, which carries it, so the gate is enabled.
+
 ### Fixed
 
 - The `uv-bump` development dependency pointed at a GitHub fork that no longer exists, so
@@ -28,14 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `alef.toml`, `rust-toolchain.toml`, or `.cargo/config.toml` previously started no run at all,
   so the dependency scan and the binding-freshness check could not disagree with the very
   configuration that drives them.
-
-### Known issues
-
-- The Scoop publish channel is inert. `publish-scoop-manifest` is gated on `release_scoop`, which
-  is true only when `scoop` appears in `available-targets`, and it cannot be listed there until
-  the alef version the publish workflow installs recognises `scoop` as a release target — support
-  landed after alef v0.79.2 and is not in a published release. Until then the release gate reports
-  Scoop as "not enabled" rather than failing. See the note in `.github/workflows/publish.yaml`.
 
 ## [1.18.4] - 2026-08-28
 

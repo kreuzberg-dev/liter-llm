@@ -1782,7 +1782,7 @@ checksum = "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae"
 
 [[package]]
 name = "liter-llm"
-version = "1.18.4"
+version = "1.19.0"
 dependencies = [
  "ahash 0.8.12",
  "arc-swap",
@@ -1824,7 +1824,7 @@ dependencies = [
 
 [[package]]
 name = "liter_llm_nif"
-version = "1.18.4"
+version = "1.19.0"
 dependencies = [
  "alloc-no-stdlib",
  "alloc-stdlib",

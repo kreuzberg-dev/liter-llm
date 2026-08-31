@@ -1,6 +1,6 @@
 .{
     .name = .liter_llm,
-    .version = "1.18.4",
+    .version = "1.19.0",
     .fingerprint = 0x781e100efc24f825,
     .minimum_zig_version = "0.16.0",
     .dependencies = .{},
