@@ -2363,7 +2363,15 @@ jobs:
   publish-zig:
     name: Publish Zig package metadata
     needs: [prepare, validate-versions, check-zig, build-ffi]
+    # ~keep `!cancelled()` is load-bearing. On a partial-target dispatch the crates-chain jobs
+    # skip, an upstream job survives only via its own `!cancelled()`, and GitHub's skipped-state
+    # propagation then resumes at the first dependent that declares no opt-out -- skipping it
+    # before this `if:` is ever evaluated, with every build leg green. Diagnosed on
+    # html-to-markdown runs 33491693123/33494806766/33495781759, fixed there in 98d4537c41.
+    # Every need that must have succeeded is already named explicitly below, which is what
+    # opting out of propagation requires.
     if: |
+      !cancelled() &&
       needs.prepare.outputs.release_zig == 'true' &&
       needs.prepare.outputs.is_tag == 'true' &&
       needs.validate-versions.result == 'success' &&
@@ -2926,7 +2934,15 @@ jobs:
   publish-homebrew-formula:
     name: Update Homebrew formula
     needs: [prepare, validate-versions, check-homebrew, crates-gate]
+    # ~keep `!cancelled()` is load-bearing. On a partial-target dispatch the crates-chain jobs
+    # skip, an upstream job survives only via its own `!cancelled()`, and GitHub's skipped-state
+    # propagation then resumes at the first dependent that declares no opt-out -- skipping it
+    # before this `if:` is ever evaluated, with every build leg green. Diagnosed on
+    # html-to-markdown runs 33491693123/33494806766/33495781759, fixed there in 98d4537c41.
+    # Every need that must have succeeded is already named explicitly below, which is what
+    # opting out of propagation requires.
     if: |
+      !cancelled() &&
       needs.prepare.outputs.release_homebrew == 'true' &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.validate-versions.result == 'success' &&
@@ -3011,7 +3027,15 @@ jobs:
   publish-scoop-manifest:
     name: Update Scoop manifest
     needs: [prepare, validate-versions, upload-cli-binaries]
+    # ~keep `!cancelled()` is load-bearing. On a partial-target dispatch the crates-chain jobs
+    # skip, an upstream job survives only via its own `!cancelled()`, and GitHub's skipped-state
+    # propagation then resumes at the first dependent that declares no opt-out -- skipping it
+    # before this `if:` is ever evaluated, with every build leg green. Diagnosed on
+    # html-to-markdown runs 33491693123/33494806766/33495781759, fixed there in 98d4537c41.
+    # Every need that must have succeeded is already named explicitly below, which is what
+    # opting out of propagation requires.
     if: |
+      !cancelled() &&
       needs.prepare.outputs.release_scoop == 'true' &&
       needs.validate-versions.result == 'success' &&
       needs.upload-cli-binaries.result == 'success' &&
@@ -3091,7 +3115,15 @@ jobs:
   homebrew-bottles:
     name: Build Homebrew bottle (${{ matrix.bottle_tag }})
     needs: [prepare, publish-homebrew-formula]
+    # ~keep `!cancelled()` is load-bearing. On a partial-target dispatch the crates-chain jobs
+    # skip, an upstream job survives only via its own `!cancelled()`, and GitHub's skipped-state
+    # propagation then resumes at the first dependent that declares no opt-out -- skipping it
+    # before this `if:` is ever evaluated, with every build leg green. Diagnosed on
+    # html-to-markdown runs 33491693123/33494806766/33495781759, fixed there in 98d4537c41.
+    # Every need that must have succeeded is already named explicitly below, which is what
+    # opting out of propagation requires.
     if: |
+      !cancelled() &&
       needs.prepare.outputs.release_homebrew == 'true' &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.publish-homebrew-formula.result == 'success'
@@ -3142,7 +3174,15 @@ jobs:
   publish-homebrew-bottles:
     name: Merge Homebrew bottle DSL
     needs: [prepare, validate-versions, publish-homebrew-formula, homebrew-bottles]
+    # ~keep `!cancelled()` is load-bearing. On a partial-target dispatch the crates-chain jobs
+    # skip, an upstream job survives only via its own `!cancelled()`, and GitHub's skipped-state
+    # propagation then resumes at the first dependent that declares no opt-out -- skipping it
+    # before this `if:` is ever evaluated, with every build leg green. Diagnosed on
+    # html-to-markdown runs 33491693123/33494806766/33495781759, fixed there in 98d4537c41.
+    # Every need that must have succeeded is already named explicitly below, which is what
+    # opting out of propagation requires.
     if: |
+      !cancelled() &&
       needs.prepare.outputs.release_homebrew == 'true' &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.validate-versions.result == 'success' &&
