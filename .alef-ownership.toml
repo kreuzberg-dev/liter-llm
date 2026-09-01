@@ -74,6 +74,7 @@ owned_paths = [
   "packages/swift/README.md",
   "packages/zig/README.md",
   "test_apps/c/Makefile",
+  "test_apps/homebrew/Brewfile",
   "test_apps/java/.mvn/wrapper/maven-wrapper.properties",
   "test_apps/node/.npmrc",
 ]
