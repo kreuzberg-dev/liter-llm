@@ -187,6 +187,15 @@ jobs:
           gh release upload "$TAG" /tmp/catalog.json --clobber
         shell: bash
 
+  # ~keep Every job that publishes to a registry or uploads a release asset must gate on
+  # this job. A `needs:` edge alone is NOT a gate for a job whose `if:` contains `always()`
+  # or `!cancelled()` -- those opt out of automatic failure propagation, so the explicit
+  # `needs.validate-versions.result == 'success'` term is what actually stops them. Gating
+  # transitively through an intermediate job that is itself declared `if: always()` does not
+  # work either, for the same reason. v1.19.0 is the worked example: validate-versions failed,
+  # the plugin publish jobs carried no edge to it, and npm permanently accepted
+  # `@xberg-io/opencode-liter-llm@1.19.0` carrying 1.18.4 manifests -- npm forbids
+  # republishing a version, so it is unrecoverable.
   validate-versions:
     name: Validate versions
     needs: prepare
@@ -1436,8 +1445,12 @@ jobs:
 
   upload-elixir-nifs:
     name: Upload Elixir NIF assets
-    needs: [prepare, build-elixir-nifs]
-    if: always() && needs.prepare.outputs.release_elixir == 'true' && needs.build-elixir-nifs.result == 'success'
+    needs: [prepare, validate-versions, build-elixir-nifs]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_elixir == 'true' &&
+      needs.validate-versions.result == 'success' &&
+      needs.build-elixir-nifs.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -1472,8 +1485,12 @@ jobs:
 
   upload-php-extensions:
     name: Upload PHP extension assets
-    needs: [prepare, build-php]
-    if: always() && needs.prepare.outputs.release_php == 'true' && needs.build-php.result == 'success'
+    needs: [prepare, validate-versions, build-php]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_php == 'true' &&
+      needs.validate-versions.result == 'success' &&
+      needs.build-php.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -1513,8 +1530,12 @@ jobs:
 
   upload-kotlin-android-aars:
     name: Upload Kotlin Android aars
-    needs: [prepare, build-kotlin-android-natives]
-    if: always() && needs.prepare.outputs.release_kotlin == 'true' && needs.build-kotlin-android-natives.result == 'success'
+    needs: [prepare, validate-versions, build-kotlin-android-natives]
+    if: |
+      always() &&
+      needs.prepare.outputs.release_kotlin == 'true' &&
+      needs.validate-versions.result == 'success' &&
+      needs.build-kotlin-android-natives.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -2094,10 +2115,11 @@ jobs:
 
   publish-kotlin-android-maven:
     name: Publish Kotlin Android AAR to Maven Central
-    needs: [prepare, build-kotlin-android-natives, upload-kotlin-android-aars]
+    needs: [prepare, validate-versions, build-kotlin-android-natives, upload-kotlin-android-aars]
     if: |
       always() &&
       needs.prepare.outputs.release_kotlin == 'true' &&
+      needs.validate-versions.result == 'success' &&
       (needs.prepare.outputs.is_tag == 'true' || needs.prepare.outputs.dry_run == 'true')
     runs-on: ubuntu-latest
     permissions:
@@ -2340,8 +2362,13 @@ jobs:
 
   publish-zig:
     name: Publish Zig package metadata
-    needs: [prepare, check-zig, build-ffi]
-    if: ${{ needs.prepare.outputs.release_zig == 'true' && needs.prepare.outputs.is_tag == 'true' && (needs.check-zig.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true') && needs.build-ffi.result == 'success' }}
+    needs: [prepare, validate-versions, check-zig, build-ffi]
+    if: |
+      needs.prepare.outputs.release_zig == 'true' &&
+      needs.prepare.outputs.is_tag == 'true' &&
+      needs.validate-versions.result == 'success' &&
+      (needs.check-zig.outputs.exists != 'true' || needs.prepare.outputs.force_republish == 'true') &&
+      needs.build-ffi.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v3
@@ -2466,8 +2493,11 @@ jobs:
 
   upload-swift-release:
     name: Upload Swift Artifact Bundle to GitHub Release
-    needs: [prepare, swift-artifactbundle]
-    if: ${{ (needs.prepare.outputs.is_tag == 'true' || needs.prepare.outputs.dry_run == 'true') && needs.swift-artifactbundle.result == 'success' }}
+    needs: [prepare, validate-versions, swift-artifactbundle]
+    if: |
+      (needs.prepare.outputs.is_tag == 'true' || needs.prepare.outputs.dry_run == 'true') &&
+      needs.validate-versions.result == 'success' &&
+      needs.swift-artifactbundle.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v3
@@ -2703,11 +2733,12 @@ jobs:
 
   upload-cli-binaries:
     name: Upload CLI binaries to GitHub Release
-    needs: [prepare, build-cli-binaries]
+    needs: [prepare, validate-versions, build-cli-binaries]
     if: |
       always() &&
       needs.prepare.outputs.dry_run != 'true' &&
       needs.prepare.outputs.release_homebrew == 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.build-cli-binaries.result != 'cancelled' &&
       needs.build-cli-binaries.result != 'skipped'
     runs-on: ubuntu-latest
@@ -2846,10 +2877,11 @@ jobs:
 
   publish-homebrew-formula:
     name: Update Homebrew formula
-    needs: [prepare, check-homebrew, crates-gate]
+    needs: [prepare, validate-versions, check-homebrew, crates-gate]
     if: |
       needs.prepare.outputs.release_homebrew == 'true' &&
       needs.prepare.outputs.dry_run != 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.check-homebrew.outputs.exists != 'true' &&
       needs.crates-gate.outputs.ok == 'true'
     runs-on: ubuntu-latest
@@ -2930,8 +2962,12 @@ jobs:
   # is already a no-op. ~keep
   publish-scoop-manifest:
     name: Update Scoop manifest
-    needs: [prepare, upload-cli-binaries]
-    if: ${{ needs.prepare.outputs.release_scoop == 'true' && needs.upload-cli-binaries.result == 'success' && (needs.prepare.outputs.is_tag == 'true' || needs.prepare.outputs.dry_run == 'true') }}
+    needs: [prepare, validate-versions, upload-cli-binaries]
+    if: |
+      needs.prepare.outputs.release_scoop == 'true' &&
+      needs.validate-versions.result == 'success' &&
+      needs.upload-cli-binaries.result == 'success' &&
+      (needs.prepare.outputs.is_tag == 'true' || needs.prepare.outputs.dry_run == 'true')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
@@ -3057,10 +3093,11 @@ jobs:
 
   publish-homebrew-bottles:
     name: Merge Homebrew bottle DSL
-    needs: [prepare, publish-homebrew-formula, homebrew-bottles]
+    needs: [prepare, validate-versions, publish-homebrew-formula, homebrew-bottles]
     if: |
       needs.prepare.outputs.release_homebrew == 'true' &&
       needs.prepare.outputs.dry_run != 'true' &&
+      needs.validate-versions.result == 'success' &&
       needs.publish-homebrew-formula.result == 'success' &&
       needs.homebrew-bottles.result == 'success'
     runs-on: ubuntu-latest
