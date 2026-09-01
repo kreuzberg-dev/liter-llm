@@ -58,7 +58,14 @@ def transform(version: str) -> tuple[str, str]:
     Hermes wheel.
     """
     original = PLUGIN_CONFIG.read_text(encoding="utf-8")
-    updated = PLUGIN_VERSION_RE.sub(rf"\g<1>{version}\g<3>", original, count=1)
+    # ~keep Count the substitutions rather than letting the caller infer success from
+    # `original != updated`. `re.sub` returns the subject unchanged when nothing matched, so
+    # a drifted `[plugin]` table reads exactly like an already-synced one -- and the caller
+    # treats "unchanged" as "in sync", which would make `--check`, the gate CI runs on main,
+    # pass on a config this script can no longer write.
+    updated, substitutions = PLUGIN_VERSION_RE.subn(rf"\g<1>{version}\g<3>", original, count=1)
+    if substitutions == 0:
+        sys.exit(f"could not find [plugin].version in {PLUGIN_CONFIG.relative_to(ROOT)}")
     return original, updated
 
 
