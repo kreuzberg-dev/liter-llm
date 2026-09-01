@@ -2705,13 +2705,78 @@ jobs:
         with:
           tag: ${{ needs.prepare.outputs.tag }}
           artifacts: "dist/cli/*"
-          draft: "false"
+          # ~keep Must stay "true", matching every other upload job. This step ran with
+          # "false" through v1.19.0 and un-drafted the release as a side effect of uploading
+          # CLI binaries — before a single registry publish, so v1.19.0 sits published on a
+          # release that shipped nothing. Promotion belongs to `promote-release` below.
+          draft: "true"
           token: ${{ steps.app-token.outputs.token }}
+
+  # ~keep Exists solely to break a dependency cycle. `verify-binstall` needs a PUBLISHED
+  # release (binstall resolves `[package.metadata.binstall] pkg-url` to
+  # `.../releases/download/v<version>/...`, which 404s while the release is a draft), but
+  # `release-finalize` will not promote until binstall has passed. The previous escape was
+  # `draft: "false"` on the CLI upload above, which un-drafted the release before any
+  # registry publish. Splitting promotion out resolves it in the correct order: this job
+  # gates only on the release-blocking jobs (versions, crates.io, and the CLI + C FFI
+  # assets), publishes the release, binstall then verifies against it, and
+  # `release-finalize` still judges every target afterwards — re-drafting via its
+  # `Hold release as draft` step if anything did not ship.
+  #
+  # Downstream must read `outputs.promoted`, not `.result`: a failure anywhere in a job's
+  # `needs` ancestry poisons the value of `needs.<job>.result` even when the job itself
+  # concluded `success`. Job outputs carry no such poison.
+  promote-release:
+    name: Publish GitHub Release from draft
+    needs:
+      - prepare
+      - validate-versions
+      - crates-gate
+      - upload-cli-binaries
+      - upload-c-ffi
+      # ~keep Ordering only: the draft flips once every per-language asset upload has
+      # settled, so a published release is never missing assets that are still uploading.
+      # Their results are deliberately absent from the `if` below -- one language's artifact
+      # must not block the release.
+      - upload-go-ffi
+      - upload-elixir-nifs
+      - upload-php-extensions
+      - upload-kotlin-android-aars
+      - upload-swift-release
+    if: |
+      !cancelled() &&
+      needs.prepare.outputs.is_tag == 'true' &&
+      needs.prepare.outputs.dry_run != 'true' &&
+      needs.validate-versions.result == 'success' &&
+      needs.crates-gate.outputs.ok == 'true' &&
+      needs.upload-cli-binaries.result == 'success' &&
+      needs.upload-c-ffi.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      promoted: ${{ steps.flip.outputs.promoted }}
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+          owner: xberg-io
+      - name: Flip release out of draft
+        id: flip
+        shell: bash
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release edit "${TAG}" --draft=false
+          echo "promoted=true" >>"$GITHUB_OUTPUT"
 
   verify-binstall:
     name: Verify cargo-binstall install
-    needs: [prepare, upload-cli-binaries]
-    if: ${{ needs.prepare.outputs.release_homebrew == 'true' && needs.prepare.outputs.dry_run != 'true' && needs.upload-cli-binaries.result == 'success' }}
+    needs: [prepare, upload-cli-binaries, promote-release]
+    if: ${{ !cancelled() && needs.prepare.outputs.release_homebrew == 'true' && needs.prepare.outputs.dry_run != 'true' && needs.upload-cli-binaries.result == 'success' && needs.promote-release.outputs.promoted == 'true' }}
     uses: xberg-io/actions/.github/workflows/reusable-binstall-verify.yml@v1
     with:
       package-name: liter-llm-cli
@@ -3060,6 +3125,7 @@ jobs:
       - trigger-pubdev
       - publish-zig
       - upload-swift-release
+      - promote-release
       - verify-binstall
     if: always() && (github.event_name != 'release' || github.actor != 'xberg-dev-publisher[bot]')
     runs-on: ubuntu-latest
@@ -3278,12 +3344,28 @@ jobs:
       # `contains(needs.*.result, 'failure')` alone was not enough: a target that shipped
       # nothing because an upstream gate failed reads as `skipped`, not `failure`, so the
       # verdict from the verify step above is what catches a release that published nothing. ~keep
+      # ~keep The step re-drafts rather than only asserting the state, because by the time it
+      # runs the release may legitimately already be published: `promote-release` publishes it
+      # early so `verify-binstall` has real assets to install from, and a re-run after an
+      # earlier green finalize starts from a published release too. Merely echoing left a
+      # published release advertising a run that shipped nothing — the v1.19.0 outcome. A
+      # failed re-draft never masks the verdict: the step exits 1 regardless.
       - name: Hold release as draft
         if: ${{ needs.prepare.outputs.dry_run != 'true' && (contains(needs.*.result, 'failure') || steps.verify.outputs.ok != 'true') }}
         env:
           TAG: ${{ needs.prepare.outputs.tag }}
+          IS_TAG: ${{ needs.prepare.outputs.is_tag }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          echo "::error::${TAG} did not reach every enabled publish target; leaving it as a draft release."
+          if [[ "${IS_TAG}" == "true" ]]; then
+            if gh release edit "${TAG}" --draft=true; then
+              echo "Reverted ${TAG} to a draft release."
+            else
+              echo "::warning::could not revert ${TAG} to a draft; check the release page manually."
+            fi
+          fi
+          echo "::error::${TAG} did not reach every enabled publish target; holding it as a draft release."
           exit 1
         shell: bash
 
