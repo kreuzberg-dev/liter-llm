@@ -3643,9 +3643,15 @@ jobs:
       # release before anything is probed or uploaded.
       - name: Assert the plugin bundle matches the release
         shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           actual="$(jq -r '.version' plugin/package.json)"
-          expected="${{ needs.prepare.outputs.version }}"
+          # ~keep A dry run synthesizes its tag as `<version>-dryrun-<sha>`; the manifests never
+          # carry that suffix, so comparing it verbatim fails on a bundle that is in fact
+          # correct. Strip it rather than skipping the assertion on dry runs -- a dry run is
+          # where a drifted bundle should surface, while nothing has been published.
+          expected="${VERSION%%-dryrun-*}"
           if [[ "${actual}" != "${expected}" ]]; then
             echo "::error::plugin/package.json declares ${actual} but the release is ${expected};" \
               "regenerate the plugin bundle (task version:sync) before tagging"
