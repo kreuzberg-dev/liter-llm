@@ -3391,15 +3391,21 @@ jobs:
   # Additive best-effort like the language jobs above: intentionally NOT part of
   # finalize-release / announce `needs`, so a plugin hiccup never blocks the core
   # release. Both publish the same content every tagged release (version tracks core), so
-  # each guards against an already-published version. `needs: [prepare]` only — the plugin
-  # has no build- or runtime-dependency on the core packages (mcp-launch.sh resolves the CLI
-  # at runtime), so it publishes in parallel with the core jobs. ~keep
+  # each guards against an already-published version. No build- or runtime-dependency on
+  # the core packages (mcp-launch.sh resolves the CLI at runtime), so they publish in
+  # parallel with the core jobs — but they DO depend on validate-versions, which owns the
+  # `plugin/.ai-rulez/config.toml [plugin].version == tag` assertion. Without that edge a
+  # drifted plugin still ships: v1.19.0 published the npm bundle carrying 1.18.4 manifests
+  # (unrecoverable — npm forbids republishing a version) while the Hermes job rebuilt the
+  # 1.18.4 wheel, hit publish-pypi's skip-existing guard, and reported success having
+  # published nothing for the tag. ~keep
 
   publish-plugin-opencode:
     name: Publish OpenCode plugin to npm
-    needs: [prepare]
+    needs: [prepare, validate-versions]
     if: >-
       ${{ !cancelled() && needs.prepare.outputs.is_tag == 'true'
+      && needs.validate-versions.result == 'success'
       && needs.prepare.outputs.release_node == 'true' }}
     runs-on: ubuntu-latest
     permissions:
@@ -3446,9 +3452,10 @@ jobs:
 
   publish-plugin-hermes:
     name: Publish Hermes plugin to PyPI
-    needs: [prepare]
+    needs: [prepare, validate-versions]
     if: >-
       ${{ !cancelled() && needs.prepare.outputs.is_tag == 'true'
+      && needs.validate-versions.result == 'success'
       && needs.prepare.outputs.release_python == 'true' }}
     runs-on: ubuntu-latest
     environment: pypi
