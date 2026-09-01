@@ -2106,9 +2106,12 @@ search = 'package = "liter-llm", version = "[^"]*"'
 replace = 'package = "liter-llm", version = "{version}"'
 
 [[workspace.sync.text_replacements]]
+# The swift e2e app consumes the release/swift/<version> branch the release workflow
+# publishes, not a `from:` semver bound. The previous `\.git` + `from:` regex matched
+# nothing on disk, so this pin silently stayed at 1.16.0 for three releases. ~keep
 path = "test_apps/swift_e2e/Package.swift"
-search = '\.package\(url: "https://github\.com/xberg-io/liter-llm\.git", from: "[^"]*"\)'
-replace = '.package(url: "https://github.com/xberg-io/liter-llm.git", from: "{version}")'
+search = 'release/swift/[^"]*'
+replace = 'release/swift/{version}'
 
 [[workspace.sync.text_replacements]]
 path = "plugin/package.json"
