@@ -19,6 +19,36 @@ languages = [
 ]
 extra_clippy_allows = ["single_match", "collapsible_match"]
 
+# ~keep These are create-once seeds that alef re-renders on every run but refuses to
+# overwrite, so `alef verify` reported them as DRIFTED forever and `alef generate` could
+# not clear them. `alef adopt` refuses them by design: each has grown past alef's original
+# placeholder with real hand-written content, and stamping one would consent to alef
+# replacing it wholesale on the next overwriting regen (`alef version` sync,
+# `alef all --clobber-create-once-seeds`). Declaring them user_owned is the non-destructive
+# remedy alef's own DRIFTED message prescribes, and matches what xberg already does.
+[workspace.ownership]
+user_owned = [
+  "e2e/csharp/LiterLlm.E2eTests.csproj",
+  "e2e/dart/pubspec.yaml",
+  "e2e/go/go.mod",
+  "e2e/java/pom.xml",
+  "e2e/kotlin_android/build.gradle.kts",
+  "e2e/node/package.json",
+  "e2e/zig/build.zig",
+  "test_apps/csharp/LiterLlm.E2eTests.csproj",
+  "test_apps/dart/pubspec.yaml",
+  "test_apps/elixir/mix.exs",
+  "test_apps/go/go.mod",
+  "test_apps/homebrew/README.md",
+  "test_apps/java/pom.xml",
+  "test_apps/kotlin_android/build.gradle.kts",
+  "test_apps/kotlin_android/gradle/wrapper/gradle-wrapper.properties",
+  "test_apps/node/package.json",
+  "test_apps/wasm/package.json",
+  "test_apps/zig/build.zig",
+  "test_apps/zig/build.zig.zon",
+]
+
 [workspace.docs]
 reference_output = "docs-site/src/content/docs/reference"
 
