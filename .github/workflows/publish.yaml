@@ -2554,23 +2554,40 @@ jobs:
             exit 0
           fi
 
-          # Patch Package.swift with the real checksum
-          sed -i.bak "s/__ALEF_SWIFT_CHECKSUM__/${CHECKSUM}/g" Package.swift
-          rm -f Package.swift.bak
-
-          # Verify the substitution
-          if grep -q "__ALEF_SWIFT_CHECKSUM__" Package.swift; then
-            echo "ERROR: checksum placeholder not substituted" >&2
+          # ~keep Count the field's matches BEFORE substituting and fail on zero. The old
+          # check ran afterwards and asserted the placeholder was absent, which is satisfied
+          # both by a successful substitution and by the token being renamed or dropped by the
+          # generator -- precisely the case the check exists to catch. Both shapes are matched
+          # because alef 0.80.0 rewrites `checksum:` whether it holds the placeholder or a
+          # 64-hex literal left behind by an earlier release; matching only the placeholder
+          # makes the substitution destroy its own trigger the first time a literal reaches
+          # main, and every release afterwards silently no-ops. That is not hypothetical --
+          # it is what alef bd5ddc3de was fixing.
+          checksum_field='(checksum:[[:space:]]*")(__ALEF_SWIFT_CHECKSUM__|[0-9a-f]{64})(")'
+          matches="$(grep -cE "${checksum_field}" Package.swift || true)"
+          if [ "${matches:-0}" -eq 0 ]; then
+            echo "::error::Package.swift has no checksum: field holding __ALEF_SWIFT_CHECKSUM__" \
+              "or a 64-hex literal; the manifest's shape has drifted and the artifact bundle" \
+              "checksum cannot be pinned" >&2
             exit 1
           fi
+          sed -i.bak -E "s/${checksum_field}/\1${CHECKSUM}\3/g" Package.swift
+          rm -f Package.swift.bak
+          echo "Pinned ${CHECKSUM} into ${matches} checksum field(s)"
 
           # Configure git
           git config user.name "xberg-dev-publisher[bot]"
           git config user.email "291994444+xberg-dev-publisher[bot]@users.noreply.github.com"
 
-          # Commit the patched Package.swift to a temporary release branch
-          git add Package.swift
-          git commit -m "chore(swift): pin checksum for ${SWIFT_TAG}"
+          # Commit the patched Package.swift to a temporary release branch. Now that the
+          # substitution is idempotent it can legitimately be a no-op -- alef may already have
+          # baked this exact checksum in -- and `git commit` fails on an empty index. ~keep
+          if git diff --quiet -- Package.swift; then
+            echo "Package.swift already carries ${CHECKSUM}; tagging the checkout as-is."
+          else
+            git add Package.swift
+            git commit -m "chore(swift): pin checksum for ${SWIFT_TAG}"
+          fi
 
           # Create a new tag in the swift namespace (NOT --force, NOT modifying main tag)
           git tag "${SWIFT_TAG}"
@@ -2585,14 +2602,45 @@ jobs:
         shell: bash
 
       - name: Generate substituted Package.swift artifact
+        shell: bash
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
+          CHECKSUM: ${{ needs.swift-artifactbundle.outputs.checksum }}
         run: |
-          CHECKSUM=${{ needs.swift-artifactbundle.outputs.checksum }}
+          set -euo pipefail
           cp Package.swift /tmp/Package.swift
-          sed -i "s/__ALEF_SWIFT_VERSION__/${VERSION}/g" /tmp/Package.swift
-          sed -i "s/__ALEF_SWIFT_CHECKSUM__/${CHECKSUM}/g" /tmp/Package.swift
-          echo "Substituted Package.swift:"
+
+          # ~keep There is no `__ALEF_SWIFT_VERSION__` left to substitute: alef bakes the
+          # concrete release URL into `.binaryTarget` at generation time. The sed that used to
+          # run here was therefore a permanent no-op, and nothing noticed, because a
+          # substitution that changes nothing is indistinguishable from one with nothing to do.
+          # Assert what the artifact actually carries instead. Swift pins in this repo do go
+          # stale -- test_apps/swift_e2e/Package.swift still pins release/swift/1.16.0 at
+          # 1.19.1 -- and a manifest pairing an old bundle URL with this release's checksum
+          # fails verification for every consumer. A dry run's version carries a
+          # `-dryrun-<sha>` suffix no manifest will ever hold, so strip it, as the plugin
+          # assertion in validate-versions does.
+          expected_url="releases/download/v${VERSION%%-dryrun-*}/"
+          if [ "$(grep -cF "${expected_url}" /tmp/Package.swift || true)" -eq 0 ]; then
+            echo "::error::Package.swift does not reference ${expected_url}; its binaryTarget" \
+              "URL has drifted from the release being published" >&2
+            exit 1
+          fi
+
+          # Same both-shape field and same count-before-substituting rule as the tag step
+          # above. By this point the tag step may already have pinned the literal in the
+          # working tree, so a placeholder-only match would spuriously report zero. ~keep
+          checksum_field='(checksum:[[:space:]]*")(__ALEF_SWIFT_CHECKSUM__|[0-9a-f]{64})(")'
+          matches="$(grep -cE "${checksum_field}" /tmp/Package.swift || true)"
+          if [ "${matches:-0}" -eq 0 ]; then
+            echo "::error::Package.swift has no checksum: field holding __ALEF_SWIFT_CHECKSUM__" \
+              "or a 64-hex literal; refusing to publish a manifest with an unpinned checksum" >&2
+            exit 1
+          fi
+          sed -i.bak -E "s/${checksum_field}/\1${CHECKSUM}\3/g" /tmp/Package.swift
+          rm -f /tmp/Package.swift.bak
+
+          echo "Substituted Package.swift (${matches} checksum field(s)):"
           head -30 /tmp/Package.swift
 
       - name: Upload substituted Package.swift to GitHub Release
