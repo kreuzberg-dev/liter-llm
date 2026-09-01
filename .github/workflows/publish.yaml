@@ -3133,7 +3133,14 @@ jobs:
       matrix:
         include:
           - { os: macos-latest, bottle_tag: arm64_sequoia, install_brew: false }
-          - { os: macos-15-intel, bottle_tag: sequoia, install_brew: false }
+          # ~keep The Intel macOS `sequoia` bottle is deliberately absent, not forgotten. From
+          # 2026-09-01 Homebrew serves no `openssl@3` bottle for x86_64 macOS -- "We do not provide
+          # support for this platform (as-of September 2026, announced August 2025)", after Apple
+          # dropped Intel in macOS 27 -- so the bottle cannot build and no change here can fix it.
+          # Leaving it in was not merely noise: its failure skipped `Merge Homebrew bottle DSL`,
+          # which left the homebrew target unpublished, which made `Finalize release` refuse and
+          # revert v1.19.1 to a DRAFT after all nine registries had already received 1.19.1.
+          # Re-add only once Homebrew restores Intel bottles for the dependency chain.
           - { os: ubuntu-latest, bottle_tag: x86_64_linux, install_brew: true }
           - { os: ubuntu-24.04-arm, bottle_tag: arm64_linux, install_brew: true }
     steps:
