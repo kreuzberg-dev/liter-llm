@@ -3145,7 +3145,7 @@ checksum = "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae"
 
 [[package]]
 name = "liter-llm"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "ahash 0.8.12",
  "arc-swap",
@@ -3196,7 +3196,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-catalog-gen"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "chrono",
  "clap",
@@ -3213,7 +3213,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-cli"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "arc-swap",
  "axum",
@@ -3236,7 +3236,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-dart"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "flutter_rust_bridge",
  "futures-util",
@@ -3247,7 +3247,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-ffi"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "ahash 0.8.12",
  "cbindgen",
@@ -3261,7 +3261,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-jni"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "async-trait",
  "base64 0.23.1",
@@ -3275,7 +3275,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-node"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "futures-util",
  "liter-llm",
@@ -3288,7 +3288,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-php"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "ext-php-rs",
  "futures-util",
@@ -3300,7 +3300,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-proxy"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "ahash 0.8.12",
  "arc-swap",
@@ -3349,7 +3349,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-py"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "futures",
  "liter-llm",
@@ -3362,7 +3362,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-swift"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "ahash 0.8.12",
  "async-trait",
@@ -3379,7 +3379,7 @@ dependencies = [
 
 [[package]]
 name = "liter-llm-wasm"
-version = "1.19.0"
+version = "1.19.1"
 dependencies = [
  "futures",
  "futures-util",

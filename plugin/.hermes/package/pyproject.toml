@@ -4,7 +4,7 @@ build-backend = 'hatchling.build'
 
 [project]
 name = 'liter-llm-hermes-plugin'
-version = '1.18.4'
+version = '1.19.1'
 description = 'Universal LLM API client for 165 providers — chat, streaming, tools, embeddings, search, OCR, plus an OpenAI-compatible proxy and an MCP server.'
 requires-python = '>=3.11'
 keywords = ['llm', 'openai', 'proxy', 'embeddings', 'mcp']

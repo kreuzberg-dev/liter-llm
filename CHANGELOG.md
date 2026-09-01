@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.1] - 2026-09-01
+
+### Fixed
+
+- **The plugin publish jobs no longer run ahead of version validation.** `publish-plugin-opencode`
+  and `publish-plugin-hermes` depended only on `prepare`, so they published while
+  `validate-versions` was failing. In v1.19.0 that shipped an npm bundle whose manifests still
+  declared 1.18.4, and rebuilt the Hermes wheel at 1.18.4 where the skip-existing guard reported
+  success having published nothing for the tag. Both jobs now require `validate-versions` to
+  succeed.
+- **`plugin/.ai-rulez/config.toml` is back in sync with the release version.** The 1.19.0 release
+  commit bumped `Cargo.toml` and the alef-managed manifests but not the plugin's own version
+  source, so every ai-rulez-generated plugin artifact stayed at 1.18.4 and `validate-versions`
+  blocked the entire publish.
+
+### Note
+
+- v1.19.0 reached no registry except the npm plugin bundle described above; 1.19.1 is the first
+  complete 1.19 release.
+
 ## [1.19.0] - 2026-08-31
 
 ### Added
