@@ -3454,7 +3454,23 @@ jobs:
           # Release assets consumers resolve at install time.
           require_publish "cli-binaries" "${RESULT_UPLOAD_CLI}" "${RELEASE_HOMEBREW}" "${EXISTS_HOMEBREW}"
           require_publish "binstall-verify" "${RESULT_VERIFY_BINSTALL}" "${RELEASE_HOMEBREW}" "${EXISTS_HOMEBREW}"
-          require_publish "c-ffi-assets" "${RESULT_UPLOAD_C_FFI}" "true"
+          # ~keep `upload-c-ffi` has no registry of its own, so it cannot be given an
+          # `already` flag directly -- it rides on `build-ffi`, which runs only while at
+          # least one of its three consumers (Go, Java/Maven, C#/NuGet) still needs
+          # artifacts at this version. Re-run a tag whose consumers are all already
+          # published and `build-ffi` skips by design, `upload-c-ffi` skips with it, and
+          # passing a bare "true" here read that correct skip as a missed target: it is
+          # what re-drafted the complete v1.19.1 release on its second run (job
+          # 99983926589). Mirror `build-ffi`'s own condition so the two agree. Force
+          # republish is deliberately not repeated here -- `require_publish` already
+          # ignores `already` under FORCE_REPUBLISH, matching `build-ffi` running again.
+          ffi_already=true
+          if [[ "${RELEASE_GO}" == "true" && "${EXISTS_GO}" != "true" ]] ||
+             [[ "${RELEASE_JAVA}" == "true" && "${EXISTS_MAVEN}" != "true" ]] ||
+             [[ "${RELEASE_CSHARP}" == "true" && "${EXISTS_NUGET}" != "true" ]]; then
+            ffi_already=false
+          fi
+          require_publish "c-ffi-assets" "${RESULT_UPLOAD_C_FFI}" "true" "${ffi_already}"
           require_publish "go-ffi-assets" "${RESULT_UPLOAD_GO_FFI}" "${RELEASE_GO}" "${EXISTS_GO}"
           require_publish "elixir-nif-assets" "${RESULT_UPLOAD_ELIXIR}" "${RELEASE_ELIXIR}" "${EXISTS_HEX}"
           require_publish "php-extension-assets" "${RESULT_UPLOAD_PHP}" "${RELEASE_PHP}" "${EXISTS_PACKAGIST}"
