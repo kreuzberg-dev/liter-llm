@@ -9,8 +9,8 @@
   "category": "files",
   "tags": ["error-handling", "files"],
   "skip": {
-    "languages": ["rust", "python", "kotlin_android"],
-    "reason": "Rust/Python/Kotlin's FilePurpose enum rejects invalid values at deserialization (Jackson in Kotlin) before reaching the HTTP layer"
+    "languages": ["rust", "python", "kotlin_android", "csharp"],
+    "reason": "Rust/Python/Kotlin/C#'s FilePurpose enum rejects invalid values at deserialization (Jackson in Kotlin, FilePurposeJsonConverter in C#) before reaching the HTTP layer, so no 400 is ever observed"
   },
   "call": "create_file",
   "input": {
