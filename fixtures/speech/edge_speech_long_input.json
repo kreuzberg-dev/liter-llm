@@ -27,8 +27,7 @@
       "type": "not_error"
     },
     {
-      "type": "not_empty",
-      "field": "audio"
+      "type": "not_empty"
     }
   ]
 }
