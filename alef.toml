@@ -1,5 +1,5 @@
 [workspace]
-alef_version = "0.81.0"
+alef_version = "0.82.0"
 languages = [
   "python",
   "node",
@@ -689,37 +689,6 @@ functions = [
   "configure_outbound_client_builder",
 ]
 
-[crates.lint.python]
-before = "uv sync --no-install-project --no-install-workspace"
-
-[crates.lint.node]
-precondition = "command -v pnpm >/dev/null 2>&1"
-format = "pnpm dlx oxfmt crates/liter-llm-node"
-check = "pnpm dlx oxlint crates/liter-llm-node"
-
-[crates.lint.wasm]
-precondition = "command -v pnpm >/dev/null 2>&1"
-format = "pnpm dlx oxfmt crates/liter-llm-wasm"
-check = "pnpm dlx oxlint crates/liter-llm-wasm"
-
-[crates.lint.php]
-precondition = "command -v php >/dev/null 2>&1 && command -v composer >/dev/null 2>&1"
-before = "cd crates/liter-llm-php && composer install --no-interaction --quiet"
-format = "cd crates/liter-llm-php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix src"
-check = "cd crates/liter-llm-php && PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix --dry-run src"
-
-[crates.lint.go]
-precondition = "command -v golangci-lint >/dev/null 2>&1"
-before = "cargo build --release -p liter-llm-ffi"
-
-[crates.lint.ffi]
-precondition = "test -d crates/liter-llm-ffi/src"
-
-[crates.lint.kotlin_android]
-precondition = "command -v ktfmt >/dev/null 2>&1"
-format = "find packages/kotlin-android \\( -name build -o -name .gradle \\) -prune -o \\( -name '*.kt' -o -name '*.kts' \\) -type f -print0 | xargs -0 ktfmt --kotlinlang-style"
-check = "find packages/kotlin-android \\( -name build -o -name .gradle \\) -prune -o \\( -name '*.kt' -o -name '*.kts' \\) -type f -print0 | xargs -0 ktfmt --kotlinlang-style --dry-run --set-exit-if-changed"
-
 [crates.test.rust]
 precondition = "command -v cargo >/dev/null 2>&1"
 e2e = "cargo test --manifest-path e2e/rust/Cargo.toml"
@@ -804,16 +773,6 @@ e2e = "scripts/e2e/run-with-mock-server.sh 'cd e2e/zig && zig build test'"
 precondition = "command -v gradle >/dev/null 2>&1"
 before = "cargo build --release -p liter-llm-ffi -p liter-llm-jni && cargo build --manifest-path e2e/rust/Cargo.toml --bin mock-server --release"
 e2e = "scripts/e2e/run-with-mock-server.sh 'cd e2e/kotlin_android && gradle test --no-daemon'"
-
-[crates.update.python]
-precondition = "command -v uv >/dev/null 2>&1"
-update = "uv sync --upgrade --no-install-project --no-install-workspace"
-upgrade = "uv sync --all-packages --all-extras --upgrade --no-install-project --no-install-workspace"
-
-[crates.update.kotlin_android]
-precondition = "command -v gradle >/dev/null 2>&1"
-update = "echo 'kotlin-android: dependencyUpdates skipped (plugin v0.52.0 incompatible with Gradle 9; report-only no-op)'"
-upgrade = "echo 'kotlin-android: dependencyUpdates skipped (plugin v0.52.0 incompatible with Gradle 9; report-only no-op)'"
 
 [crates.publish]
 core_crate = "crates/liter-llm"
