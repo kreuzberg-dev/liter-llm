@@ -7,10 +7,10 @@
          the matching XbergIo.LiterLlm.runtime.<rid> at the consumer's restore. -->
     <PublishedRID Condition="'$(PublishedRID)' == ''">win-x64</PublishedRID>
     <PackageId>XbergIo.LiterLlm.runtime.$(PublishedRID)</PackageId>
-    <Version>1.19.1</Version>
-    <AssemblyVersion>1.19.1.0</AssemblyVersion>
-    <FileVersion>1.19.1.0</FileVersion>
-    <InformationalVersion>1.19.1</InformationalVersion>
+    <Version>1.19.2</Version>
+    <AssemblyVersion>1.19.2.0</AssemblyVersion>
+    <FileVersion>1.19.2.0</FileVersion>
+    <InformationalVersion>1.19.2</InformationalVersion>
     <Description>Universal LLM API client with Rust-powered polyglot bindings. — native runtime assets for $(PublishedRID).</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/xberg-io/liter-llm</RepositoryUrl>

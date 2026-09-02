@@ -45,8 +45,8 @@ default = []
 arc-swap = { workspace = true }
 axum = { workspace = true }
 clap = { workspace = true }
-liter-llm = { path = "../liter-llm", version = "1.19.1" }
-liter-llm-proxy = { path = "../liter-llm-proxy", version = "1.19.1" }
+liter-llm = { path = "../liter-llm", version = "1.19.2" }
+liter-llm-proxy = { path = "../liter-llm-proxy", version = "1.19.2" }
 mimalloc = { workspace = true, optional = true }
 opentelemetry = { workspace = true, optional = true }
 opentelemetry-otlp = { workspace = true, optional = true }
