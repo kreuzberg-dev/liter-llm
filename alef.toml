@@ -278,6 +278,14 @@ revision = "v4.9.3"
 hooks = ["ai-rulez-validate"]
 
 [workspace.poly.typos.extend-words]
+# deliberately misspelled stage: a negative test asserts it is rejected ~keep
+inpt = "inpt"
+# token fragment in a fallback-chain test ~keep
+mis = "mis"
+# deliberately misspelled key: a negative test asserts it is rejected ~keep
+patern = "patern"
+# deliberately misspelled key: a negative test asserts it is rejected ~keep
+replacment = "replacment"
 Hashi = "Hashi"
 ein = "ein"
 ist = "ist"
