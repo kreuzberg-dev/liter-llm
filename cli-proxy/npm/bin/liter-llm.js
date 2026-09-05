@@ -38,8 +38,8 @@ async function ensureBinary() {
   // ~keep Call main() explicitly rather than relying on import side-effects:
   // ESM ~keep caches modules, so the installer's top-level run is gated to
   // direct ~keep invocation only and would not fire on import.
-  const { main } = await import("../install.js");
-  await main();
+  const { main: runInstaller } = await import("../install.js");
+  await runInstaller();
 }
 
 function printUnavailable() {
