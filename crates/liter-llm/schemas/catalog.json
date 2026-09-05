@@ -1,8 +1,8 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "8f151429b1975bef611aa3e43eac164c4e7c7f776dc6537a3d31d1ef5b28179a",
-    "fetched": "2026-09-04",
+    "source_sha256": "5c963776a0b4adbb4f58f241172e03bcc2f86b2b7e6ada76636f6420ce3a6ec4",
+    "fetched": "2026-09-05",
     "library_version": "1.19.2"
   },
   "$schema_version": 1,
@@ -32577,6 +32577,38 @@
           "release_date": "2026-08-14",
           "last_updated": "2026-08-14"
         },
+        "cline-pass/glm-5.3-flash": {
+          "id": "cline-pass/glm-5.3-flash",
+          "name": "cline-pass/glm-5.3-flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.00000003
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
+        },
         "cline-pass/kimi-k2.6": {
           "id": "cline-pass/kimi-k2.6",
           "name": "Kimi K2.6",
@@ -41414,17 +41446,17 @@
           "id": "openai/gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000005,
-            "output_cost_per_token": 0.00003,
-            "cache_read_input_token_cost": 0.0000005,
-            "cache_creation_input_token_cost": 0.00000625,
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.000005,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.00001,
-                "output_cost_per_token": 0.000045,
-                "cache_read_input_token_cost": 0.000001,
-                "cache_creation_input_token_cost": 0.0000125
+                "input_cost_per_token": 0.000008,
+                "output_cost_per_token": 0.00003,
+                "cache_read_input_token_cost": 0.0000008,
+                "cache_creation_input_token_cost": 0.00001
               }
             ]
           },
@@ -41497,6 +41529,49 @@
           "knowledge": "2026-02-16",
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
+        },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "qwen/qwen3.6-flash": {
           "id": "qwen/qwen3.6-flash",
@@ -42356,6 +42431,38 @@
       "api": "https://api.inference.crusoecloud.com/v1",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
+        "Qwen/Qwen3-235B-A22B-Instruct-2507": {
+          "id": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+          "name": "Qwen3 235B-A22B Instruct 2507",
+          "pricing": {
+            "input_cost_per_token": 0.00000022,
+            "output_cost_per_token": 0.0000008,
+            "cache_read_input_token_cost": 0.00000011
+          },
+          "limit": {
+            "context": 262144,
+            "output": 16384
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": false,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2025-07-21",
+          "last_updated": "2025-07-21"
+        },
         "deepseek-ai/DeepSeek-V3-0324": {
           "id": "deepseek-ai/DeepSeek-V3-0324",
           "name": "DeepSeek V3 0324",
@@ -42485,6 +42592,70 @@
           "knowledge": "2025-01",
           "release_date": "2026-04-21",
           "last_updated": "2026-04-21"
+        },
+        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B": {
+          "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+          "name": "Nemotron 3 Nano 30B A3B",
+          "pricing": {
+            "input_cost_per_token": 0.00000005,
+            "output_cost_per_token": 0.0000002,
+            "cache_read_input_token_cost": 0.00000003
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2025-12-15",
+          "last_updated": "2025-12-15"
+        },
+        "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B": {
+          "id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+          "name": "Nemotron 3 Super 120B A12B",
+          "pricing": {
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.0000024,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "nemotron",
+          "release_date": "2026-03-11",
+          "last_updated": "2026-03-11"
         },
         "nvidia/Nemotron-3-Nano-Omni-Reasoning-30B-A3B": {
           "id": "nvidia/Nemotron-3-Nano-Omni-Reasoning-30B-A3B",
@@ -52918,7 +53089,7 @@
         },
         "google/gemini-flash-latest": {
           "id": "google/gemini-flash-latest",
-          "name": "Gemini 3.7 Flash",
+          "name": "Gemini 3.8 Flash",
           "pricing": {
             "input_cost_per_token": 0.00000075,
             "output_cost_per_token": 0.00000375,
@@ -52948,9 +53119,8 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2026-03",
-          "release_date": "2026-08-13",
-          "last_updated": "2026-08-13"
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
         },
         "google/gemini-pro-latest": {
           "id": "google/gemini-pro-latest",
@@ -53064,8 +53234,8 @@
           "id": "ionos/meta-llama/Llama-3.3-70B-Instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.000000754975,
-            "output_cost_per_token": 0.000000754975
+            "input_cost_per_token": 0.00000075543,
+            "output_cost_per_token": 0.00000075543
           },
           "limit": {
             "context": 128000,
@@ -53096,8 +53266,8 @@
           "id": "ionos/openai/gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.000000174225,
-            "output_cost_per_token": 0.000000754975
+            "input_cost_per_token": 0.00000017433,
+            "output_cost_per_token": 0.00000075543
           },
           "limit": {
             "context": 131072,
@@ -54929,21 +55099,21 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
-        "openai/gpt-latest": {
-          "id": "openai/gpt-latest",
-          "name": "GPT-5.6 Sol",
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
           "pricing": {
-            "input_cost_per_token": 0.000004,
-            "output_cost_per_token": 0.00002,
-            "cache_read_input_token_cost": 0.0000004,
-            "cache_creation_input_token_cost": 0.000005,
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.000008,
-                "output_cost_per_token": 0.00003,
-                "cache_read_input_token_cost": 0.0000008,
-                "cache_creation_input_token_cost": 0.00001
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
               }
             ]
           },
@@ -54968,10 +55138,52 @@
             "attachment": true,
             "open_weights": false
           },
-          "family": "gpt-sol",
-          "knowledge": "2026-02-16",
-          "release_date": "2026-07-09",
-          "last_updated": "2026-07-09"
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
+        "openai/gpt-latest": {
+          "id": "openai/gpt-latest",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "openai/gpt-mini-latest": {
           "id": "openai/gpt-mini-latest",
@@ -56153,6 +56365,39 @@
           "release_date": "2026-08-03",
           "last_updated": "2026-08-03"
         },
+        "qwen/qwen3.8-max-0902": {
+          "id": "qwen/qwen3.8-max-0902",
+          "name": "Qwen3.8 Max 0902",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000006,
+            "cache_read_input_token_cost": 0.00000025,
+            "cache_creation_input_token_cost": 0.0000025
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "qwen",
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
+        },
         "qwen/qwq-plus": {
           "id": "qwen/qwq-plus",
           "name": "QwQ Plus",
@@ -56189,8 +56434,8 @@
           "id": "scaleway/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.0000004646,
-            "output_cost_per_token": 0.0000009292
+            "input_cost_per_token": 0.00000046488,
+            "output_cost_per_token": 0.00000092976
           },
           "limit": {
             "context": 256000,
@@ -56221,8 +56466,8 @@
           "id": "scaleway/gpt-oss-120b",
           "name": "GPT OSS 120B",
           "pricing": {
-            "input_cost_per_token": 0.000000174225,
-            "output_cost_per_token": 0.0000006969
+            "input_cost_per_token": 0.00000017433,
+            "output_cost_per_token": 0.00000069732
           },
           "limit": {
             "context": 128000,
@@ -56252,8 +56497,8 @@
           "id": "scaleway/llama-3.3-70b-instruct",
           "name": "Llama-3.3-70B-Instruct",
           "pricing": {
-            "input_cost_per_token": 0.00000104535,
-            "output_cost_per_token": 0.00000104535
+            "input_cost_per_token": 0.00000104598,
+            "output_cost_per_token": 0.00000104598
           },
           "limit": {
             "context": 128000,
@@ -57466,7 +57711,7 @@
         },
         "vertex/gemini-flash-latest": {
           "id": "vertex/gemini-flash-latest",
-          "name": "Gemini 3.7 Flash",
+          "name": "Gemini 3.8 Flash",
           "pricing": {
             "input_cost_per_token": 0.00000075,
             "output_cost_per_token": 0.00000375,
@@ -57496,9 +57741,8 @@
             "open_weights": false
           },
           "family": "gemini-flash",
-          "knowledge": "2026-03",
-          "release_date": "2026-08-13",
-          "last_updated": "2026-08-13"
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
         },
         "vertex/gemini-pro-latest": {
           "id": "vertex/gemini-pro-latest",
@@ -62693,6 +62937,38 @@
           "release_date": "2026-06-12",
           "last_updated": "2026-06-12"
         },
+        "accounts/fireworks/models/qwen3p8-2p4t-a95b": {
+          "id": "accounts/fireworks/models/qwen3p8-2p4t-a95b",
+          "name": "Qwen3.8 2.4T A95B",
+          "pricing": {
+            "input_cost_per_token": 0.000002,
+            "output_cost_per_token": 0.000006,
+            "cache_read_input_token_cost": 0.00000025
+          },
+          "limit": {
+            "context": 262144,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "qwen",
+          "release_date": "2026-08-12",
+          "last_updated": "2026-08-12"
+        },
         "accounts/fireworks/models/qwen3p8-max": {
           "id": "accounts/fireworks/models/qwen3p8-max",
           "name": "Qwen3.8 Max",
@@ -64894,17 +65170,17 @@
           "id": "gpt-5.6-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.000002,
-            "output_cost_per_token": 0.00001,
-            "cache_read_input_token_cost": 0.0000002,
-            "cache_creation_input_token_cost": 0.0000025,
+            "input_cost_per_token": 0.000004,
+            "output_cost_per_token": 0.00002,
+            "cache_read_input_token_cost": 0.0000004,
+            "cache_creation_input_token_cost": 0.000005,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.000004,
-                "output_cost_per_token": 0.000015,
-                "cache_read_input_token_cost": 0.0000004,
-                "cache_creation_input_token_cost": 0.000005
+                "input_cost_per_token": 0.000008,
+                "output_cost_per_token": 0.00003,
+                "cache_read_input_token_cost": 0.0000008,
+                "cache_creation_input_token_cost": 0.00001
               }
             ]
           },
@@ -64977,6 +65253,49 @@
           "knowledge": "2026-02-16",
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
+        },
+        "gpt-6-astra": {
+          "id": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "grok-4.5": {
           "id": "grok-4.5",
@@ -90370,38 +90689,6 @@
           "release_date": "2025-10-20",
           "last_updated": "2025-10-20"
         },
-        "ibm-granite/granite-4.1-8b": {
-          "id": "ibm-granite/granite-4.1-8b",
-          "name": "IBM: Granite 4.1 8B",
-          "pricing": {
-            "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.0000001,
-            "cache_read_input_token_cost": 0.00000005
-          },
-          "limit": {
-            "context": 131072,
-            "output": 117964
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": false
-          },
-          "family": "granite",
-          "release_date": "2026-04-30",
-          "last_updated": "2026-04-30"
-        },
         "ibm-granite/granite-4.2-8b": {
           "id": "ibm-granite/granite-4.2-8b",
           "name": "IBM: Granite 4.2 8B",
@@ -90500,7 +90787,7 @@
         },
         "inclusionai/ling-3.0-flash": {
           "id": "inclusionai/ling-3.0-flash",
-          "name": "Ling-3.0-flash",
+          "name": "inclusionAI: Ling 3.0 Flash",
           "pricing": {
             "input_cost_per_token": 0.00000006,
             "output_cost_per_token": 0.00000018,
@@ -90532,7 +90819,7 @@
         },
         "inclusionai/ling-3.0-flash-fin": {
           "id": "inclusionai/ling-3.0-flash-fin",
-          "name": "Ling 3.0 Flash Fin",
+          "name": "inclusionAI: Ling 3.0 Flash Fin",
           "pricing": {
             "input_cost_per_token": 0.00000006,
             "output_cost_per_token": 0.00000018,
@@ -90564,7 +90851,7 @@
         },
         "inclusionai/ling-3.0-flash-fin:free": {
           "id": "inclusionai/ling-3.0-flash-fin:free",
-          "name": "Ling 3.0 Flash Fin (free)",
+          "name": "inclusionAI: Ling 3.0 Flash Fin (free)",
           "pricing": {
             "input_cost_per_token": 0.0,
             "output_cost_per_token": 0.0
@@ -90592,6 +90879,37 @@
           "family": "ling",
           "release_date": "2026-08-27",
           "last_updated": "2026-08-27"
+        },
+        "inclusionai/ling-3.0-flash-sante:free": {
+          "id": "inclusionai/ling-3.0-flash-sante:free",
+          "name": "inclusionAI: Ling 3.0 Flash Sante (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "ling",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "kilo-auto/balanced": {
           "id": "kilo-auto/balanced",
@@ -94630,6 +94948,73 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
+        "openai/gpt-6-astra-pro": {
+          "id": "openai/gpt-6-astra-pro",
+          "name": "OpenAI: GPT-6 Astra Pro ($$$$)",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
         "openai/gpt-audio": {
           "id": "openai/gpt-audio",
           "name": "OpenAI: GPT Audio",
@@ -95773,7 +96158,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 16384
           },
           "modalities": {
             "input": ["text"],
@@ -96564,7 +96949,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 16384
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -96751,7 +97136,7 @@
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 65536
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -97103,9 +97488,9 @@
           "release_date": "2026-08-26",
           "last_updated": "2026-08-26"
         },
-        "qwen/qwen3.8-max": {
-          "id": "qwen/qwen3.8-max",
-          "name": "Qwen3.8 Max",
+        "qwen/qwen3.8-max-0902": {
+          "id": "qwen/qwen3.8-max-0902",
+          "name": "Qwen3.8 Max 0902",
           "pricing": {
             "input_cost_per_token": 0.000002,
             "output_cost_per_token": 0.000006,
@@ -97133,8 +97518,8 @@
             "open_weights": false
           },
           "family": "qwen",
-          "release_date": "2026-08-03",
-          "last_updated": "2026-08-03"
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
         },
         "rekaai/reka-edge": {
           "id": "rekaai/reka-edge",
@@ -99113,13 +99498,13 @@
           "id": "~deepseek/deepseek-v4-flash-latest",
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.00000016,
-            "cache_read_input_token_cost": 0.000000013
+            "input_cost_per_token": 0.00000004998,
+            "output_cost_per_token": 0.00000009996,
+            "cache_read_input_token_cost": 0.000000009996
           },
           "limit": {
             "context": 1048576,
-            "output": 393216
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -99213,9 +99598,9 @@
           "id": "~moonshotai/kimi-latest",
           "name": "MoonshotAI Kimi Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000014,
-            "cache_read_input_token_cost": 0.00000029
+            "input_cost_per_token": 0.00000255,
+            "output_cost_per_token": 0.00001275,
+            "cache_read_input_token_cost": 0.000000256
           },
           "limit": {
             "context": 1048576,
@@ -99437,7 +99822,7 @@
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": false,
+            "attachment": true,
             "open_weights": true
           },
           "family": "kimi-k3",
@@ -99470,7 +99855,7 @@
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": false,
+            "attachment": true,
             "open_weights": true
           },
           "family": "kimi-k3",
@@ -101975,9 +102360,9 @@
           "id": "glm-5.3-flash",
           "name": "GLM-5.3-Flash",
           "pricing": {
-            "input_cost_per_token": 0.00000013,
-            "output_cost_per_token": 0.0000004,
-            "cache_read_input_token_cost": 0.000000024
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.00000025,
+            "cache_read_input_token_cost": 0.00000002
           },
           "limit": {
             "context": 1048576,
@@ -103020,6 +103405,39 @@
           "knowledge": "2026-02-16",
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
+        },
+        "gpt-6-astra": {
+          "id": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "output": 1050000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-03",
+          "last_updated": "2026-09-03"
         },
         "gpt-oss-120b": {
           "id": "gpt-oss-120b",
@@ -109431,6 +109849,40 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "azure/gpt-6-astra": {
+          "id": "azure/gpt-6-astra",
+          "name": "GPT-6 Astra (Azure)",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
         "azure/gpt-oss-120b": {
           "id": "azure/gpt-oss-120b",
           "name": "GPT OSS 120B (Azure)",
@@ -110500,9 +110952,9 @@
           "id": "consensusprotocol/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash (Consensus Protocol)",
           "pricing": {
-            "input_cost_per_token": 0.00000013,
-            "output_cost_per_token": 0.00000027,
-            "cache_read_input_token_cost": 0.00000002
+            "input_cost_per_token": 0.00000007,
+            "output_cost_per_token": 0.00000016,
+            "cache_read_input_token_cost": 0.0000001
           },
           "limit": {
             "context": 524288,
@@ -110528,6 +110980,38 @@
           "knowledge": "2025-05",
           "release_date": "2026-04-24",
           "last_updated": "2026-04-24"
+        },
+        "consensusprotocol/glm-5.3-flash": {
+          "id": "consensusprotocol/glm-5.3-flash",
+          "name": "GLM-5.3 Flash (Consensus Protocol)",
+          "pricing": {
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.00000025,
+            "cache_read_input_token_cost": 0.00000002
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
         },
         "consensusprotocol/gpt-oss-20b": {
           "id": "consensusprotocol/gpt-oss-20b",
@@ -112030,6 +112514,39 @@
           "knowledge": "2026-03",
           "release_date": "2026-08-13",
           "last_updated": "2026-08-13"
+        },
+        "google-ai-studio/gemini-3.8-flash": {
+          "id": "google-ai-studio/gemini-3.8-flash",
+          "name": "Gemini 3.8 Flash (Google AI Studio)",
+          "pricing": {
+            "input_cost_per_token": 0.00000075,
+            "output_cost_per_token": 0.00000375,
+            "cache_read_input_token_cost": 0.000000075,
+            "cache_creation_input_token_cost": 0.00000008333
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gemini-flash",
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
         },
         "google-ai-studio/gemini-pro-latest": {
           "id": "google-ai-studio/gemini-pro-latest",
@@ -113819,6 +114336,38 @@
           "family": "glm",
           "release_date": "2026-08-14",
           "last_updated": "2026-08-14"
+        },
+        "novita/glm-5.3-flash": {
+          "id": "novita/glm-5.3-flash",
+          "name": "GLM-5.3 Flash (NovitaAI)",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.00000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
         },
         "novita/hy3": {
           "id": "novita/hy3",
@@ -115768,6 +116317,39 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra (OpenAI)",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-03",
+          "last_updated": "2026-09-03"
+        },
         "openai/o1": {
           "id": "openai/o1",
           "name": "o1 (OpenAI)",
@@ -116328,6 +116910,38 @@
           "knowledge": "2025-01",
           "release_date": "2026-04-21",
           "last_updated": "2026-04-21"
+        },
+        "runware/kimi-k3": {
+          "id": "runware/kimi-k3",
+          "name": "Kimi K3 (Runware)",
+          "pricing": {
+            "input_cost_per_token": 0.000003,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.0000003
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "kimi-k3",
+          "release_date": "2026-07-16",
+          "last_updated": "2026-07-16"
         },
         "sakana/fugu-ultra": {
           "id": "sakana/fugu-ultra",
@@ -121400,7 +122014,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -121433,7 +122047,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -121499,7 +122113,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -121531,7 +122145,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": false,
@@ -121564,7 +122178,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -121595,7 +122209,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": false,
@@ -122515,7 +123129,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -122548,7 +123162,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -122581,7 +123195,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -122614,7 +123228,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -122647,7 +123261,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -122680,7 +123294,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -122712,7 +123326,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -123483,7 +124097,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": false,
@@ -123647,7 +124261,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": false,
@@ -124317,6 +124931,39 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
         "openai/gpt-oss-120b": {
           "id": "openai/gpt-oss-120b",
           "name": "GPT-OSS 120B",
@@ -124564,7 +125211,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124597,7 +125244,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124630,7 +125277,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124695,7 +125342,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124791,7 +125438,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124857,7 +125504,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124890,7 +125537,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124923,7 +125570,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -124988,7 +125635,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": false,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125021,7 +125668,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125054,7 +125701,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125075,23 +125722,23 @@
             "cache_read_input_token_cost": 0.000000023
           },
           "limit": {
-            "context": 131072,
-            "output": 32768
+            "context": 256000,
+            "output": 64000
           },
           "modalities": {
-            "input": ["text"],
+            "input": ["text", "image"],
             "output": ["text"]
           },
           "mode": "chat",
           "capabilities": {
-            "vision": false,
+            "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": false,
+            "attachment": true,
             "open_weights": true
           },
           "family": "qwen",
@@ -125107,23 +125754,23 @@
             "cache_read_input_token_cost": 0.0000000172
           },
           "limit": {
-            "context": 256000,
-            "output": 64000
+            "context": 131072,
+            "output": 32768
           },
           "modalities": {
-            "input": ["text", "image"],
+            "input": ["text"],
             "output": ["text"]
           },
           "mode": "chat",
           "capabilities": {
-            "vision": true,
+            "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": true,
+            "attachment": false,
             "open_weights": true
           },
           "family": "qwen",
@@ -125151,7 +125798,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125171,23 +125818,23 @@
             "cache_read_input_token_cost": 0.0000000344
           },
           "limit": {
-            "context": 256000,
-            "output": 64000
+            "context": 131072,
+            "output": 32768
           },
           "modalities": {
-            "input": ["text", "image"],
+            "input": ["text"],
             "output": ["text"]
           },
           "mode": "chat",
           "capabilities": {
-            "vision": true,
+            "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
-            "attachment": true,
+            "attachment": false,
             "open_weights": true
           },
           "family": "qwen",
@@ -125246,7 +125893,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125278,7 +125925,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125342,7 +125989,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125374,7 +126021,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125405,7 +126052,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": false,
@@ -125438,7 +126085,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125471,7 +126118,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -125502,7 +126149,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": false,
@@ -125567,7 +126214,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -126035,7 +126682,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -126333,7 +126980,7 @@
             "vision": false,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -126365,7 +127012,7 @@
             "vision": true,
             "function_calling": true,
             "reasoning": true,
-            "structured_output": false,
+            "structured_output": true,
             "audio_input": false,
             "audio_output": false,
             "prompt_caching": true,
@@ -133398,8 +134045,8 @@
             "cache_read_input_token_cost": 0.000000155
           },
           "limit": {
-            "context": 131072,
-            "input": 131072,
+            "context": 32000,
+            "input": 32000,
             "output": 16384
           },
           "modalities": {
@@ -136018,7 +136665,7 @@
           "limit": {
             "context": 200000,
             "input": 200000,
-            "output": 32000
+            "output": 64000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -136052,7 +136699,7 @@
           "limit": {
             "context": 200000,
             "input": 200000,
-            "output": 32000
+            "output": 64000
           },
           "modalities": {
             "input": ["text", "image", "pdf"],
@@ -138308,8 +138955,8 @@
             "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138342,8 +138989,8 @@
             "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138376,8 +139023,8 @@
             "cache_read_input_token_cost": 0.000000015
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138409,8 +139056,8 @@
             "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138442,8 +139089,8 @@
             "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138475,8 +139122,8 @@
             "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138508,8 +139155,8 @@
             "cache_read_input_token_cost": 0.000000015
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138541,8 +139188,8 @@
             "cache_read_input_token_cost": 0.000000015
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138640,8 +139287,8 @@
             "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138673,8 +139320,8 @@
             "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138707,8 +139354,8 @@
             "cache_creation_input_token_cost": 0.000000375
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138741,8 +139388,8 @@
             "cache_read_input_token_cost": 0.00000025
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138774,8 +139421,8 @@
             "cache_read_input_token_cost": 0.00000025
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138807,8 +139454,8 @@
             "cache_read_input_token_cost": 0.00000025
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138840,8 +139487,8 @@
             "cache_read_input_token_cost": 0.00000025
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -138873,9 +139520,9 @@
             "cache_read_input_token_cost": 0.0000002
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
-            "output": 65536
+            "context": 65536,
+            "input": 65536,
+            "output": 32768
           },
           "modalities": {
             "input": ["text", "image"],
@@ -139765,8 +140412,8 @@
             "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -139799,8 +140446,8 @@
             "cache_read_input_token_cost": 0.00000005
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -139869,8 +140516,8 @@
             "cache_creation_input_token_cost": 0.000000375
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -139904,8 +140551,8 @@
             "cache_creation_input_token_cost": 0.000000375
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -139939,8 +140586,8 @@
             "cache_creation_input_token_cost": 0.000000375
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -139973,8 +140620,8 @@
             "cache_creation_input_token_cost": 0.000000375
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -140286,8 +140933,8 @@
             "cache_creation_input_token_cost": 0.000000375
           },
           "limit": {
-            "context": 1048756,
-            "input": 1048756,
+            "context": 1048576,
+            "input": 1048576,
             "output": 65536
           },
           "modalities": {
@@ -140737,39 +141384,6 @@
           "family": "qwen",
           "release_date": "2025-01-06",
           "last_updated": "2025-01-06"
-        },
-        "ibm-granite/granite-4.1-8b": {
-          "id": "ibm-granite/granite-4.1-8b",
-          "name": "Granite 4.1 8B",
-          "pricing": {
-            "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.0000001,
-            "cache_read_input_token_cost": 0.00000005
-          },
-          "limit": {
-            "context": 131072,
-            "input": 131072,
-            "output": 117964
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "granite",
-          "release_date": "2026-04-29",
-          "last_updated": "2026-04-29"
         },
         "ibm-granite/granite-4.2-8b": {
           "id": "ibm-granite/granite-4.2-8b",
@@ -144735,6 +145349,74 @@
           "knowledge": "2026-02-16",
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
+        },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT 6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 1050000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
+        "openai/gpt-6-astra-pro": {
+          "id": "openai/gpt-6-astra-pro",
+          "name": "GPT 6 Astra Pro",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 1050000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "openai/gpt-chat-latest": {
           "id": "openai/gpt-chat-latest",
@@ -166926,6 +167608,49 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "gpt-6-astra": {
+          "id": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
         "gpt-image-1": {
           "id": "gpt-image-1",
           "name": "gpt-image-1",
@@ -167975,6 +168700,38 @@
           "release_date": "2026-07-31",
           "last_updated": "2026-07-31"
         },
+        "deepseek-v4-flash-vision-exp": {
+          "id": "deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "pricing": {
+            "input_cost_per_token": 0.00000014,
+            "output_cost_per_token": 0.00000028,
+            "cache_read_input_token_cost": 0.000000028
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "deepseek-flash",
+          "release_date": "2026-08-21",
+          "last_updated": "2026-08-21"
+        },
         "deepseek-v4-pro": {
           "id": "deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
@@ -168520,6 +169277,70 @@
           "family": "glm",
           "release_date": "2026-06-13",
           "last_updated": "2026-06-13"
+        },
+        "glm-5.3": {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "pricing": {
+            "input_cost_per_token": 0.0000014,
+            "output_cost_per_token": 0.0000044,
+            "cache_read_input_token_cost": 0.00000026
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": false,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-08-14",
+          "last_updated": "2026-08-14"
+        },
+        "glm-5.3-flash": {
+          "id": "glm-5.3-flash",
+          "name": "GLM-5.3-Flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.00000003
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
         },
         "gpt-5": {
           "id": "gpt-5",
@@ -169246,6 +170067,49 @@
           "knowledge": "2026-02-16",
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
+        },
+        "gpt-6-astra": {
+          "id": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "grok-4.5": {
           "id": "grok-4.5",
@@ -170305,6 +171169,38 @@
           "family": "muse-free",
           "release_date": "2026-08-05",
           "last_updated": "2026-08-05"
+        },
+        "muse-spark-1.3": {
+          "id": "muse-spark-1.3",
+          "name": "Muse Spark 1.3",
+          "pricing": {
+            "input_cost_per_token": 0.00000125,
+            "output_cost_per_token": 0.00000425,
+            "cache_read_input_token_cost": 0.00000015
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image", "video", "pdf", "audio"],
+            "output": ["text"]
+          },
+          "mode": "audio_transcription",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": true,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "muse",
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
         },
         "muse-spark-1.3-contributor-free": {
           "id": "muse-spark-1.3-contributor-free",
@@ -173696,9 +174592,9 @@
           "id": "deepseek/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.00000008834,
-            "output_cost_per_token": 0.00000017668,
-            "cache_read_input_token_cost": 0.000000017668
+            "input_cost_per_token": 0.0000000847,
+            "output_cost_per_token": 0.0000001694,
+            "cache_read_input_token_cost": 0.00000001694
           },
           "limit": {
             "context": 1048576,
@@ -173794,9 +174690,9 @@
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
           "pricing": {
-            "input_cost_per_token": 0.000001032342,
-            "output_cost_per_token": 0.000002064684,
-            "cache_read_input_token_cost": 0.000000086029
+            "input_cost_per_token": 0.000000859908,
+            "output_cost_per_token": 0.000001719816,
+            "cache_read_input_token_cost": 0.000000071659
           },
           "limit": {
             "context": 1048576,
@@ -175027,38 +175923,6 @@
           "release_date": "2025-10-20",
           "last_updated": "2025-10-20"
         },
-        "ibm-granite/granite-4.1-8b": {
-          "id": "ibm-granite/granite-4.1-8b",
-          "name": "Granite 4.1 8B",
-          "pricing": {
-            "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.0000001,
-            "cache_read_input_token_cost": 0.00000005
-          },
-          "limit": {
-            "context": 131072,
-            "output": 117964
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": true,
-            "reasoning": false,
-            "structured_output": true,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "granite",
-          "release_date": "2026-04-30",
-          "last_updated": "2026-04-30"
-        },
         "ibm-granite/granite-4.2-8b": {
           "id": "ibm-granite/granite-4.2-8b",
           "name": "Granite 4.2 8B",
@@ -175157,7 +176021,7 @@
         },
         "inclusionai/ling-3.0-flash": {
           "id": "inclusionai/ling-3.0-flash",
-          "name": "Ling-3.0-flash",
+          "name": "Ling 3.0 Flash",
           "pricing": {
             "input_cost_per_token": 0.000000021,
             "output_cost_per_token": 0.000000063,
@@ -175249,6 +176113,37 @@
           "family": "ling",
           "release_date": "2026-08-27",
           "last_updated": "2026-08-27"
+        },
+        "inclusionai/ling-3.0-flash-sante:free": {
+          "id": "inclusionai/ling-3.0-flash-sante:free",
+          "name": "Ling 3.0 Flash Sante (free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "ling",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "kwaipilot/kat-coder-pro-v2": {
           "id": "kwaipilot/kat-coder-pro-v2",
@@ -179203,6 +180098,91 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
+        "openai/gpt-6-astra-pro": {
+          "id": "openai/gpt-6-astra-pro",
+          "name": "GPT-6 Astra Pro",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
         "openai/gpt-audio": {
           "id": "openai/gpt-audio",
           "name": "GPT Audio",
@@ -180381,13 +181361,12 @@
           "id": "qwen/qwen3-235b-a22b-2507",
           "name": "Qwen3 235B A22B Instruct 2507",
           "pricing": {
-            "input_cost_per_token": 0.0000000875,
-            "output_cost_per_token": 0.00000035,
-            "cache_read_input_token_cost": 0.0000000175
+            "input_cost_per_token": 0.00000009,
+            "output_cost_per_token": 0.00000055
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 16384
           },
           "modalities": {
             "input": ["text"],
@@ -180401,7 +181380,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": false,
             "open_weights": true
           },
@@ -181245,13 +182224,12 @@
           "id": "qwen/qwen3.5-35b-a3b",
           "name": "Qwen3.5 35B-A3B",
           "pricing": {
-            "input_cost_per_token": 0.00000025,
-            "output_cost_per_token": 0.00000125,
-            "cache_read_input_token_cost": 0.00000025
+            "input_cost_per_token": 0.00000008,
+            "output_cost_per_token": 0.00000075
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 16384
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -181265,7 +182243,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": true,
+            "prompt_caching": false,
             "attachment": true,
             "open_weights": true
           },
@@ -181450,13 +182428,13 @@
           "id": "qwen/qwen3.6-27b",
           "name": "Qwen3.6 27B",
           "pricing": {
-            "input_cost_per_token": 0.0000006,
-            "output_cost_per_token": 0.0000036,
-            "cache_read_input_token_cost": 0.00000012
+            "input_cost_per_token": 0.0000003,
+            "output_cost_per_token": 0.000002,
+            "cache_read_input_token_cost": 0.00000003
           },
           "limit": {
             "context": 262144,
-            "output": 235929
+            "output": 65536
           },
           "modalities": {
             "input": ["text", "image", "video"],
@@ -181855,9 +182833,9 @@
           "release_date": "2026-08-26",
           "last_updated": "2026-08-26"
         },
-        "qwen/qwen3.8-max": {
-          "id": "qwen/qwen3.8-max",
-          "name": "Qwen3.8 Max",
+        "qwen/qwen3.8-max-0902": {
+          "id": "qwen/qwen3.8-max-0902",
+          "name": "Qwen3.8 Max 0902",
           "pricing": {
             "input_cost_per_token": 0.000002,
             "output_cost_per_token": 0.000006,
@@ -181885,8 +182863,8 @@
             "open_weights": false
           },
           "family": "qwen",
-          "release_date": "2026-08-03",
-          "last_updated": "2026-08-03"
+          "release_date": "2026-09-02",
+          "last_updated": "2026-09-02"
         },
         "rekaai/reka-edge": {
           "id": "rekaai/reka-edge",
@@ -183744,13 +184722,13 @@
           "id": "~deepseek/deepseek-v4-flash-latest",
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000005,
-            "output_cost_per_token": 0.00000016,
-            "cache_read_input_token_cost": 0.000000013
+            "input_cost_per_token": 0.00000004998,
+            "output_cost_per_token": 0.00000009996,
+            "cache_read_input_token_cost": 0.000000009996
           },
           "limit": {
             "context": 1310720,
-            "output": 393216
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -183854,9 +184832,9 @@
           "id": "~moonshotai/kimi-latest",
           "name": "MoonshotAI Kimi Latest",
           "pricing": {
-            "input_cost_per_token": 0.0000025,
-            "output_cost_per_token": 0.000014,
-            "cache_read_input_token_cost": 0.00000029
+            "input_cost_per_token": 0.00000255,
+            "output_cost_per_token": 0.00001275,
+            "cache_read_input_token_cost": 0.000000256
           },
           "limit": {
             "context": 1048576,
@@ -224989,6 +225967,91 @@
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
         },
+        "openai-gpt-6-astra": {
+          "id": "openai-gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-05",
+          "last_updated": "2026-09-04"
+        },
+        "openai-gpt-6-astra-pro": {
+          "id": "openai-gpt-6-astra-pro",
+          "name": "GPT-6 Astra Pro",
+          "pricing": {
+            "input_cost_per_token": 0.0000125,
+            "output_cost_per_token": 0.0000625,
+            "cache_read_input_token_cost": 0.00000125,
+            "cache_creation_input_token_cost": 0.000015625,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.000025,
+                "output_cost_per_token": 0.00009375,
+                "cache_read_input_token_cost": 0.0000025,
+                "cache_creation_input_token_cost": 0.00003125
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt",
+          "release_date": "2026-09-05",
+          "last_updated": "2026-09-05"
+        },
         "openai-gpt-oss-120b": {
           "id": "openai-gpt-oss-120b",
           "name": "OpenAI GPT OSS 120B",
@@ -230517,6 +231580,68 @@
           "release_date": "2026-08-27",
           "last_updated": "2026-08-27"
         },
+        "inclusionai/ling-3.0-flash-sante": {
+          "id": "inclusionai/ling-3.0-flash-sante",
+          "name": "Ling 3.0 Flash Sante",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 256000,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "ling",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
+        "inclusionai/ling-3.0-flash-sante-free": {
+          "id": "inclusionai/ling-3.0-flash-sante-free",
+          "name": "Ling 3.0 Flash Sante (Free)",
+          "pricing": {
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0
+          },
+          "limit": {
+            "context": 256000,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": false,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": false,
+            "attachment": false,
+            "open_weights": false
+          },
+          "family": "ling",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
         "interfaze/interfaze-beta": {
           "id": "interfaze/interfaze-beta",
           "name": "Interfaze Beta",
@@ -234008,7 +235133,7 @@
             "input_cost_per_token": 0.0000004,
             "output_cost_per_token": 0.0000024,
             "cache_read_input_token_cost": 0.00000004,
-            "cache_creation_input_token_cost": 0.00000025
+            "cache_creation_input_token_cost": 0.0000005
           },
           "limit": {
             "context": 1050000,
@@ -234078,7 +235203,7 @@
             "input_cost_per_token": 0.000004,
             "output_cost_per_token": 0.00002,
             "cache_read_input_token_cost": 0.0000004,
-            "cache_creation_input_token_cost": 0.0000025
+            "cache_creation_input_token_cost": 0.000005
           },
           "limit": {
             "context": 1050000,
@@ -234148,7 +235273,7 @@
             "input_cost_per_token": 0.000004,
             "output_cost_per_token": 0.000024,
             "cache_read_input_token_cost": 0.0000004,
-            "cache_creation_input_token_cost": 0.0000025
+            "cache_creation_input_token_cost": 0.000005
           },
           "limit": {
             "context": 1050000,
@@ -234175,6 +235300,92 @@
           "knowledge": "2026-02-16",
           "release_date": "2026-07-09",
           "last_updated": "2026-07-09"
+        },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "pricing": {
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125,
+            "tiers": [
+              {
+                "min_context_tokens": 272001,
+                "input_cost_per_token": 0.00002,
+                "output_cost_per_token": 0.000075,
+                "cache_read_input_token_cost": 0.000002,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
+        },
+        "openai/gpt-6-astra-fast": {
+          "id": "openai/gpt-6-astra-fast",
+          "name": "GPT-6 Astra (Fast)",
+          "pricing": {
+            "input_cost_per_token": 0.00002,
+            "output_cost_per_token": 0.0001,
+            "cache_read_input_token_cost": 0.000002,
+            "cache_creation_input_token_cost": 0.000025,
+            "tiers": [
+              {
+                "min_context_tokens": 272001,
+                "input_cost_per_token": 0.00004,
+                "output_cost_per_token": 0.00015,
+                "cache_read_input_token_cost": 0.000004,
+                "cache_creation_input_token_cost": 0.000025
+              }
+            ]
+          },
+          "limit": {
+            "context": 1050000,
+            "input": 922000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": false
+          },
+          "family": "gpt-astra",
+          "release_date": "2026-09-04",
+          "last_updated": "2026-09-04"
         },
         "openai/gpt-image-1": {
           "id": "openai/gpt-image-1",
@@ -240397,6 +241608,38 @@
           "family": "glm",
           "release_date": "2026-06-16",
           "last_updated": "2026-06-16"
+        },
+        "zai-org/GLM-5.3-Flash": {
+          "id": "zai-org/GLM-5.3-Flash",
+          "name": "GLM 5.3 Flash",
+          "pricing": {
+            "input_cost_per_token": 0.00000015,
+            "output_cost_per_token": 0.0000005,
+            "cache_read_input_token_cost": 0.00000005
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": true,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "glm",
+          "release_date": "2026-08-26",
+          "last_updated": "2026-08-26"
         }
       }
     },
@@ -240857,7 +242100,7 @@
           "id": "grok-imagine-image",
           "name": "Grok Imagine Image",
           "limit": {
-            "context": 8000,
+            "context": 16000,
             "output": 0
           },
           "modalities": {
@@ -240884,7 +242127,7 @@
           "id": "grok-imagine-image-2.0",
           "name": "Grok Imagine Image 2.0",
           "limit": {
-            "context": 8000,
+            "context": 64000,
             "output": 0
           },
           "modalities": {
@@ -240911,7 +242154,7 @@
           "id": "grok-imagine-image-quality",
           "name": "Grok Imagine Image Quality",
           "limit": {
-            "context": 8000,
+            "context": 16000,
             "output": 0
           },
           "modalities": {
