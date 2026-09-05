@@ -3538,24 +3538,33 @@ jobs:
       # runs the release may legitimately already be published: `promote-release` publishes it
       # early so `verify-binstall` has real assets to install from, and a re-run after an
       # earlier green finalize starts from a published release too. Merely echoing left a
-      # published release advertising a run that shipped nothing — the v1.19.0 outcome. A
-      # failed re-draft never masks the verdict: the step exits 1 regardless.
+      # published release advertising a run that shipped nothing — the v1.19.0 outcome.
+      #
+      # The retraction is CONDITIONAL. The Homebrew formula and Scoop manifest jobs above may
+      # already have pushed to the public tap and bucket, and both pin
+      # `.../releases/download/<tag>/...`. Re-drafting after that does not undo a partial
+      # release, it 404s every `brew upgrade` and `scoop update` resolving through those
+      # channels — crawlberg v1.5.0 sat exactly that way for two days (xberg-io/crawlberg#41).
+      # So the action retracts only while no channel advertises the release, and otherwise
+      # reports it and leaves it published to be rolled forward. The verdict is never masked:
+      # the step below fails the job either way. ~keep
       - name: Hold release as draft
+        if: ${{ needs.prepare.outputs.dry_run != 'true' && needs.prepare.outputs.is_tag == 'true' && (contains(needs.*.result, 'failure') || steps.verify.outputs.ok != 'true') }}
+        uses: xberg-io/actions/retract-incomplete-release@0650bf373f2d1ec58b69fd3c5d9098b40ada69ed # v1.11.7
+        with:
+          tag: ${{ needs.prepare.outputs.tag }}
+          consumer-results: |
+            homebrew-formula=${{ needs.publish-homebrew-formula.result }}
+            homebrew-bottles=${{ needs.publish-homebrew-bottles.result }}
+            scoop=${{ needs.publish-scoop-manifest.result }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Fail an incomplete release
         if: ${{ needs.prepare.outputs.dry_run != 'true' && (contains(needs.*.result, 'failure') || steps.verify.outputs.ok != 'true') }}
         env:
           TAG: ${{ needs.prepare.outputs.tag }}
-          IS_TAG: ${{ needs.prepare.outputs.is_tag }}
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          GH_REPO: ${{ github.repository }}
         run: |
-          if [[ "${IS_TAG}" == "true" ]]; then
-            if gh release edit "${TAG}" --draft=true; then
-              echo "Reverted ${TAG} to a draft release."
-            else
-              echo "::warning::could not revert ${TAG} to a draft; check the release page manually."
-            fi
-          fi
-          echo "::error::${TAG} did not reach every enabled publish target; holding it as a draft release."
+          echo "::error::${TAG} did not reach every enabled publish target."
           exit 1
         shell: bash
 
