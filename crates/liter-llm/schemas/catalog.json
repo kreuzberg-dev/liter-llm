@@ -1,8 +1,8 @@
 {
   "$provenance": {
     "source": "models.dev/api.json",
-    "source_sha256": "5c963776a0b4adbb4f58f241172e03bcc2f86b2b7e6ada76636f6420ce3a6ec4",
-    "fetched": "2026-09-05",
+    "source_sha256": "948f97415fe131468b981a28c2e68b7e4d067c6a80d5fdd3fa483029af03733e",
+    "fetched": "2026-09-06",
     "library_version": "1.19.2"
   },
   "$schema_version": 1,
@@ -45265,9 +45265,9 @@
           "id": "deepseek-ai/DeepSeek-V4-Flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.00000008,
+            "input_cost_per_token": 0.00000006,
             "output_cost_per_token": 0.00000018,
-            "cache_read_input_token_cost": 0.000000016
+            "cache_read_input_token_cost": 0.000000015
           },
           "limit": {
             "context": 1048576,
@@ -51290,6 +51290,39 @@
           "family": "gpt-oss",
           "release_date": "2025-08-05",
           "last_updated": "2025-08-05"
+        },
+        "databricks/databricks-inkling": {
+          "id": "databricks/databricks-inkling",
+          "name": "Inkling",
+          "pricing": {
+            "input_cost_per_token": 0.00000100002,
+            "output_cost_per_token": 0.00000404999,
+            "cache_read_input_token_cost": 0.00000017003,
+            "cache_creation_input_token_cost": 0.00000100002
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 1048576
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-07-15",
+          "last_updated": "2026-07-15"
         },
         "deepinfra/ByteDance/Seed-2.0-code": {
           "id": "deepinfra/ByteDance/Seed-2.0-code",
@@ -77913,6 +77946,38 @@
           "release_date": "2026-04-13",
           "last_updated": "2026-07-22"
         },
+        "inkling": {
+          "id": "inkling",
+          "name": "Inkling",
+          "pricing": {
+            "input_cost_per_token": 0.0000010888,
+            "output_cost_per_token": 0.00000440964,
+            "cache_read_input_token_cost": 0.000000185096
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "family": "ling",
+          "release_date": "2026-08-15",
+          "last_updated": "2026-09-05"
+        },
         "kimi-k2-thinking": {
           "id": "kimi-k2-thinking",
           "name": "Kimi K2 Thinking",
@@ -89507,7 +89572,7 @@
           },
           "limit": {
             "context": 1048576,
-            "output": 943718
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -96948,7 +97013,7 @@
             "output_cost_per_token": 0.0000013
           },
           "limit": {
-            "context": 262144,
+            "context": 256000,
             "output": 16384
           },
           "modalities": {
@@ -98358,8 +98423,8 @@
             "output_cost_per_token": 0.0000004
           },
           "limit": {
-            "context": 32768,
-            "output": 26214
+            "context": 1024000,
+            "output": 819200
           },
           "modalities": {
             "input": ["text"],
@@ -99498,13 +99563,13 @@
           "id": "~deepseek/deepseek-v4-flash-latest",
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000004998,
-            "output_cost_per_token": 0.00000009996,
-            "cache_read_input_token_cost": 0.000000009996
+            "input_cost_per_token": 0.000000045,
+            "output_cost_per_token": 0.00000009,
+            "cache_read_input_token_cost": 0.000000009
           },
           "limit": {
             "context": 1048576,
-            "output": 131072
+            "output": 943718
           },
           "modalities": {
             "input": ["text"],
@@ -99759,9 +99824,9 @@
           "id": "~z-ai/glm-latest",
           "name": "Z.ai: GLM Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000115,
-            "output_cost_per_token": 0.0000035,
-            "cache_read_input_token_cost": 0.0000001
+            "input_cost_per_token": 0.00000117,
+            "output_cost_per_token": 0.00000396,
+            "cache_read_input_token_cost": 0.000000234
           },
           "limit": {
             "context": 262144,
@@ -101129,9 +101194,9 @@
           "id": "deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.000000051,
-            "output_cost_per_token": 0.000000104,
-            "cache_read_input_token_cost": 0.0000000097
+            "input_cost_per_token": 0.00000005,
+            "output_cost_per_token": 0.0000001,
+            "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
             "context": 1050000,
@@ -110952,9 +111017,9 @@
           "id": "consensusprotocol/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash (Consensus Protocol)",
           "pricing": {
-            "input_cost_per_token": 0.00000007,
-            "output_cost_per_token": 0.00000016,
-            "cache_read_input_token_cost": 0.0000001
+            "input_cost_per_token": 0.00000005,
+            "output_cost_per_token": 0.0000001,
+            "cache_read_input_token_cost": 0.00000001
           },
           "limit": {
             "context": 524288,
@@ -132482,39 +132547,6 @@
           "release_date": "2024-01-01",
           "last_updated": "2024-07-01"
         },
-        "NousResearch/Hermes-4-70B:thinking": {
-          "id": "NousResearch/Hermes-4-70B:thinking",
-          "name": "Hermes 4 (Thinking)",
-          "pricing": {
-            "input_cost_per_token": 0.0000002006,
-            "output_cost_per_token": 0.0000003995,
-            "cache_read_input_token_cost": 0.0000001003
-          },
-          "limit": {
-            "context": 128000,
-            "input": 128000,
-            "output": 8192
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "mode": "chat",
-          "capabilities": {
-            "vision": false,
-            "function_calling": false,
-            "reasoning": false,
-            "structured_output": false,
-            "audio_input": false,
-            "audio_output": false,
-            "prompt_caching": true,
-            "attachment": false,
-            "open_weights": true
-          },
-          "family": "nousresearch",
-          "release_date": "2025-09-17",
-          "last_updated": "2025-09-17"
-        },
         "NousResearch/hermes-3-llama-3.1-70b": {
           "id": "NousResearch/hermes-3-llama-3.1-70b",
           "name": "Hermes 3 70B",
@@ -134067,6 +134099,38 @@
           },
           "release_date": "2024-01-01",
           "last_updated": "2024-01-01"
+        },
+        "TheDrummer/Artemis-v1.1": {
+          "id": "TheDrummer/Artemis-v1.1",
+          "name": "TheDrummer/Artemis v1.1",
+          "pricing": {
+            "input_cost_per_token": 0.0000001,
+            "output_cost_per_token": 0.00000045,
+            "cache_read_input_token_cost": 0.00000005
+          },
+          "limit": {
+            "context": 262144,
+            "input": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "mode": "chat",
+          "capabilities": {
+            "vision": true,
+            "function_calling": true,
+            "reasoning": true,
+            "structured_output": false,
+            "audio_input": false,
+            "audio_output": false,
+            "prompt_caching": true,
+            "attachment": true,
+            "open_weights": true
+          },
+          "release_date": "2026-09-06",
+          "last_updated": "2026-09-06"
         },
         "TheDrummer/Cydonia-24B-v2": {
           "id": "TheDrummer/Cydonia-24B-v2",
@@ -144776,9 +144840,9 @@
             "cache_read_input_token_cost": 0.000000125
           },
           "limit": {
-            "context": 1000000,
-            "input": 1000000,
-            "output": 32768
+            "context": 400000,
+            "input": 400000,
+            "output": 128000
           },
           "modalities": {
             "input": ["text"],
@@ -145013,8 +145077,8 @@
             "cache_read_input_token_cost": 0.00000025
           },
           "limit": {
-            "context": 922000,
-            "input": 922000,
+            "context": 1050000,
+            "input": 1050000,
             "output": 128000
           },
           "modalities": {
@@ -145115,8 +145179,8 @@
             "cache_read_input_token_cost": 0.0000005
           },
           "limit": {
-            "context": 1000000,
-            "input": 1000000,
+            "context": 1050000,
+            "input": 1050000,
             "output": 128000
           },
           "modalities": {
@@ -145456,10 +145520,10 @@
           "id": "openai/gpt-latest",
           "name": "GPT Latest",
           "pricing": {
-            "input_cost_per_token": 0.000002,
-            "output_cost_per_token": 0.00001,
-            "cache_read_input_token_cost": 0.0000002,
-            "cache_creation_input_token_cost": 0.0000025
+            "input_cost_per_token": 0.00001,
+            "output_cost_per_token": 0.00005,
+            "cache_read_input_token_cost": 0.000001,
+            "cache_creation_input_token_cost": 0.0000125
           },
           "limit": {
             "context": 1050000,
@@ -174592,9 +174656,9 @@
           "id": "deepseek/deepseek-v4-flash",
           "name": "DeepSeek V4 Flash",
           "pricing": {
-            "input_cost_per_token": 0.0000000847,
-            "output_cost_per_token": 0.0000001694,
-            "cache_read_input_token_cost": 0.00000001694
+            "input_cost_per_token": 0.00000008078,
+            "output_cost_per_token": 0.00000016156,
+            "cache_read_input_token_cost": 0.000000016156
           },
           "limit": {
             "context": 1048576,
@@ -174625,13 +174689,13 @@
           "id": "deepseek/deepseek-v4-flash-0731",
           "name": "DeepSeek V4 Flash 0731",
           "pricing": {
-            "input_cost_per_token": 0.000000065,
-            "output_cost_per_token": 0.00000018,
-            "cache_read_input_token_cost": 0.000000016
+            "input_cost_per_token": 0.00000004998,
+            "output_cost_per_token": 0.00000009996,
+            "cache_read_input_token_cost": 0.000000009996
           },
           "limit": {
             "context": 1310720,
-            "output": 943718
+            "output": 131072
           },
           "modalities": {
             "input": ["text"],
@@ -174690,9 +174754,9 @@
           "id": "deepseek/deepseek-v4-pro",
           "name": "DeepSeek V4 Pro",
           "pricing": {
-            "input_cost_per_token": 0.000000859908,
-            "output_cost_per_token": 0.000001719816,
-            "cache_read_input_token_cost": 0.000000071659
+            "input_cost_per_token": 0.00000069774,
+            "output_cost_per_token": 0.00000139548,
+            "cache_read_input_token_cost": 0.000000058145
           },
           "limit": {
             "context": 1048576,
@@ -182224,8 +182288,9 @@
           "id": "qwen/qwen3.5-35b-a3b",
           "name": "Qwen3.5 35B-A3B",
           "pricing": {
-            "input_cost_per_token": 0.00000008,
-            "output_cost_per_token": 0.00000075
+            "input_cost_per_token": 0.0000003125,
+            "output_cost_per_token": 0.00000125,
+            "cache_read_input_token_cost": 0.00000015625
           },
           "limit": {
             "context": 262144,
@@ -182243,7 +182308,7 @@
             "structured_output": true,
             "audio_input": false,
             "audio_output": false,
-            "prompt_caching": false,
+            "prompt_caching": true,
             "attachment": true,
             "open_weights": true
           },
@@ -183516,7 +183581,7 @@
           },
           "limit": {
             "context": 1024000,
-            "output": 26214
+            "output": 819200
           },
           "modalities": {
             "input": ["text"],
@@ -184722,13 +184787,13 @@
           "id": "~deepseek/deepseek-v4-flash-latest",
           "name": "DeepSeek V4 Flash Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000004998,
-            "output_cost_per_token": 0.00000009996,
-            "cache_read_input_token_cost": 0.000000009996
+            "input_cost_per_token": 0.000000045,
+            "output_cost_per_token": 0.00000009,
+            "cache_read_input_token_cost": 0.000000009
           },
           "limit": {
             "context": 1310720,
-            "output": 131072
+            "output": 943718
           },
           "modalities": {
             "input": ["text"],
@@ -185012,9 +185077,9 @@
           "id": "~z-ai/glm-latest",
           "name": "GLM Latest",
           "pricing": {
-            "input_cost_per_token": 0.00000115,
-            "output_cost_per_token": 0.0000035,
-            "cache_read_input_token_cost": 0.0000001
+            "input_cost_per_token": 0.00000117,
+            "output_cost_per_token": 0.00000396,
+            "cache_read_input_token_cost": 0.000000234
           },
           "limit": {
             "context": 1310720,
@@ -225740,10 +225805,19 @@
           "id": "openai-gpt-56-luna",
           "name": "GPT-5.6 Luna",
           "pricing": {
-            "input_cost_per_token": 0.00000026666667,
-            "output_cost_per_token": 0.0000016,
-            "cache_read_input_token_cost": 0.00000002666667,
-            "cache_creation_input_token_cost": 0.00000033333334
+            "input_cost_per_token": 0.00000025,
+            "output_cost_per_token": 0.0000015,
+            "cache_read_input_token_cost": 0.000000025,
+            "cache_creation_input_token_cost": 0.0000003125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.0000005,
+                "output_cost_per_token": 0.00000225,
+                "cache_read_input_token_cost": 0.00000005,
+                "cache_creation_input_token_cost": 0.000000625
+              }
+            ]
           },
           "limit": {
             "context": 1000000,
@@ -225774,17 +225848,17 @@
           "id": "openai-gpt-56-luna-pro",
           "name": "GPT-5.6 Luna Pro",
           "pricing": {
-            "input_cost_per_token": 0.00000125,
-            "output_cost_per_token": 0.0000075,
-            "cache_read_input_token_cost": 0.000000125,
-            "cache_creation_input_token_cost": 0.0000015625,
+            "input_cost_per_token": 0.00000025,
+            "output_cost_per_token": 0.0000015,
+            "cache_read_input_token_cost": 0.000000025,
+            "cache_creation_input_token_cost": 0.0000003125,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.0000025,
-                "output_cost_per_token": 0.00001125,
-                "cache_read_input_token_cost": 0.00000025,
-                "cache_creation_input_token_cost": 0.000003125
+                "input_cost_per_token": 0.0000005,
+                "output_cost_per_token": 0.00000225,
+                "cache_read_input_token_cost": 0.00000005,
+                "cache_creation_input_token_cost": 0.000000625
               }
             ]
           },
@@ -225817,10 +225891,19 @@
           "id": "openai-gpt-56-sol",
           "name": "GPT-5.6 Sol",
           "pricing": {
-            "input_cost_per_token": 0.00000625,
-            "output_cost_per_token": 0.0000375,
-            "cache_read_input_token_cost": 0.000000625,
-            "cache_creation_input_token_cost": 0.0000078125
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.0000125,
+            "cache_read_input_token_cost": 0.00000025,
+            "cache_creation_input_token_cost": 0.000003125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.000005,
+                "output_cost_per_token": 0.00001875,
+                "cache_read_input_token_cost": 0.0000005,
+                "cache_creation_input_token_cost": 0.00000625
+              }
+            ]
           },
           "limit": {
             "context": 1000000,
@@ -225851,17 +225934,17 @@
           "id": "openai-gpt-56-sol-pro",
           "name": "GPT-5.6 Sol Pro",
           "pricing": {
-            "input_cost_per_token": 0.00000625,
-            "output_cost_per_token": 0.0000375,
-            "cache_read_input_token_cost": 0.000000625,
-            "cache_creation_input_token_cost": 0.0000078125,
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.0000125,
+            "cache_read_input_token_cost": 0.00000025,
+            "cache_creation_input_token_cost": 0.000003125,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.0000125,
-                "output_cost_per_token": 0.00005625,
-                "cache_read_input_token_cost": 0.00000125,
-                "cache_creation_input_token_cost": 0.000015625
+                "input_cost_per_token": 0.000005,
+                "output_cost_per_token": 0.00001875,
+                "cache_read_input_token_cost": 0.0000005,
+                "cache_creation_input_token_cost": 0.00000625
               }
             ]
           },
@@ -225894,10 +225977,19 @@
           "id": "openai-gpt-56-terra",
           "name": "GPT-5.6 Terra",
           "pricing": {
-            "input_cost_per_token": 0.000003125,
-            "output_cost_per_token": 0.00001875,
-            "cache_read_input_token_cost": 0.0000003125,
-            "cache_creation_input_token_cost": 0.00000390625
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.00000025,
+            "cache_creation_input_token_cost": 0.000003125,
+            "tiers": [
+              {
+                "min_context_tokens": 272000,
+                "input_cost_per_token": 0.000005,
+                "output_cost_per_token": 0.0000225,
+                "cache_read_input_token_cost": 0.0000005,
+                "cache_creation_input_token_cost": 0.00000625
+              }
+            ]
           },
           "limit": {
             "context": 1000000,
@@ -225928,17 +226020,17 @@
           "id": "openai-gpt-56-terra-pro",
           "name": "GPT-5.6 Terra Pro",
           "pricing": {
-            "input_cost_per_token": 0.000003125,
-            "output_cost_per_token": 0.00001875,
-            "cache_read_input_token_cost": 0.0000003125,
-            "cache_creation_input_token_cost": 0.00000390625,
+            "input_cost_per_token": 0.0000025,
+            "output_cost_per_token": 0.000015,
+            "cache_read_input_token_cost": 0.00000025,
+            "cache_creation_input_token_cost": 0.000003125,
             "tiers": [
               {
                 "min_context_tokens": 272000,
-                "input_cost_per_token": 0.00000625,
-                "output_cost_per_token": 0.000028125,
-                "cache_read_input_token_cost": 0.000000625,
-                "cache_creation_input_token_cost": 0.0000078125
+                "input_cost_per_token": 0.000005,
+                "output_cost_per_token": 0.0000225,
+                "cache_read_input_token_cost": 0.0000005,
+                "cache_creation_input_token_cost": 0.00000625
               }
             ]
           },
